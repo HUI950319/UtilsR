@@ -744,3 +744,14 @@ test_that("raster panel dimensions reuse measured single cells", {
   environment(fn) <- env
   expect_identical(fn(table, c(2L, 1L), "width", NULL, "cm", c(1, 2, 3)), c(6, 2))
 })
+
+test_that("failed raster panel measurements restore the previous viewport", {
+  withr::local_pdf(NULL)
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(name = "caller"))
+  table <- gtable::gtable(widths = grid::unit(1, "cm"), heights = grid::unit(1, "cm"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(), t = 1, l = 1, name = "panel")
+  local_mocked_bindings(convertWidth = function(...) stop("measurement failed"), .package = "grid")
+  expect_error(.resolve_panel_size(table, 1L, "width", NULL, "cm"), "measurement failed")
+  expect_identical(grid::current.viewport()$name, "caller")
+})

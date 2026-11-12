@@ -523,9 +523,8 @@ fmt_raster <- function(
     sizes <- vapply(panel_index, function(idx) {
       grid::pushViewport(grid::viewport(layout.pos.row = layout$t[idx]:layout$b[idx],
                                         layout.pos.col = layout$l[idx]:layout$r[idx]))
-      val <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
-      grid::popViewport()
-      val
+      on.exit(grid::popViewport(), add = TRUE)
+      convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
     }, numeric(1))
   }
   if (any(!is.finite(sizes) | sizes <= 0)) {
