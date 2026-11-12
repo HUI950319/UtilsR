@@ -1501,3 +1501,17 @@ test_that("single-line console values bypass ANSI line splitting", {
   }, .package = "cli")
   expect_identical(._kv_lines(x, width = 50), reference)
 })
+
+test_that("numeric P cells only refine threshold candidates", {
+  x <- c(rep(.28, 256L), .0499999, .009999999, .05, .01, .0002, NA_real_)
+  withr::local_options(cli.num_colors = 0)
+  expected <- ._p_cells(x)
+  fn <- ._p_cells
+  env <- new.env(parent = environment(fn))
+  env$._pr_decimal_number <- function(text) {
+    if (length(text) > 2L) stop("reparsed unrelated numeric P values")
+    ._pr_decimal_number(text)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), expected)
+})

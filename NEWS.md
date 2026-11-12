@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric P-value cells reparse only values that can round across a displayed significance threshold.
+
 * Plot-aligned insets use the first named background even when other layout entries have missing names.
 
 * Raster panel measurement restores the caller's active grid viewport if conversion fails.

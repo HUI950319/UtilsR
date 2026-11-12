@@ -435,12 +435,14 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     txt[which(!is.na(v) & v < 0.001)] <- "<0.001"
     # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
     # more decimals, so the text agrees with its colour and stars
+    candidates <- which((v >= 0.0495 & v < 0.05) | (v >= 0.0095 & v < 0.01))
     for (d in 4:18) {
-      shown <- ._pr_decimal_number(txt)
-      up <- which(!is.na(shown) & ((v < 0.05 & shown >= 0.05) |
-                                     (v < 0.01 & shown >= 0.01)))
-      if (!length(up)) break
-      txt[up] <- formatC(v[up], format = "f", digits = d)
+      if (!length(candidates)) break
+      shown <- ._pr_decimal_number(txt[candidates])
+      values <- v[candidates]
+      candidates <- candidates[!is.na(shown) & ((values < 0.05 & shown >= 0.05) |
+                                                  (values < 0.01 & shown >= 0.01))]
+      txt[candidates] <- formatC(v[candidates], format = "f", digits = d)
     }
     op <- rep("", length(v))
     valid <- !is.na(num)
