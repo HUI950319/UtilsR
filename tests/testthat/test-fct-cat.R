@@ -727,3 +727,17 @@ test_that("factor relabelling checks column names once", {
   expect_identical(levels(result$grade), c("A", "B"))
   expect_identical(result[names(d)[1:128]], d[names(d)[1:128]])
 })
+
+test_that("factor recoding compacts observed levels through their target positions", {
+  x <- structure(c(3L, 1L, 4L, NA_integer_, 3L), names = letters[1:5],
+    levels = c("a", "unused", "b", NA_character_, "other"),
+    class = c("ordered", "factor"))
+  changes <- list(b = "a", dropped = "unused")
+  expected <- .recode_factor(x, changes)
+  fn <- .recode_factor
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(...) stop("matched displayed labels again")
+  environment(fn) <- env
+  expect_identical(fn(x, changes), expected)
+  expect_identical(levels(expected), c("b", NA_character_))
+})

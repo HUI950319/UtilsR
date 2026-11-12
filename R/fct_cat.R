@@ -263,9 +263,11 @@ fct_cat <- function(x, ...,
   seen <- rep(FALSE, length(lvls))
   seen[pos] <- TRUE
   new_levels <- unique(c(mapped, unname(lvls[!seen])))
-  used <- target[tabulate(x, nbins = length(lvls)) > 0L]
-  new_levels <- new_levels[new_levels %in% used]
-  out <- match(target, new_levels)[x]
+  target_id <- match(target, new_levels)
+  used <- logical(length(new_levels))
+  used[target_id[tabulate(x, nbins = length(lvls)) > 0L]] <- TRUE
+  out <- cumsum(used)[target_id][x]
+  new_levels <- new_levels[used]
   attributes(out) <- .factor_attributes(x, new_levels,
                                          drop_scores = !identical(target, lvls))
   out

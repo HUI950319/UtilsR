@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor regrouping compacts observed levels using integer positions from a single target lookup.
+
 * `fct_num()` reports that the observations must be real-valued before calling numeric binning backends.
 
 * `fct_num()` skips re-sorting strictly increasing plain cut points.
