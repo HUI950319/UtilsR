@@ -611,7 +611,9 @@ plt_cat <- function(data,
 
   # --- Handle split.by --------------------------------------------------------
   if (!is.null(split.by)) {
-    split_levels <- levels(factor(data[[split.by]]))
+    panels <- factor(data[[split.by]])
+    split_levels <- levels(panels)
+    panel_rows <- split(seq_len(nrow(data)), panels)
     if (!is.null(facet_nrow) && !is.null(facet_ncol) &&
         facet_nrow < ceiling(length(split_levels) / facet_ncol)) {
       cli::cli_abort("{.arg facet_nrow} and {.arg facet_ncol} must accommodate all {length(split_levels)} panels.")
@@ -622,10 +624,10 @@ plt_cat <- function(data,
       bg_palette <- stats::setNames(rep_len(as.character(
         bg_palette %||% c("grey85", "transparent")), length(bg_levels)), bg_levels)
     }
-    plot_list <- lapply(split_levels, function(lv) {
-      sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
+    plot_list <- lapply(seq_along(panel_rows), function(i) {
+      sub_data <- data[panel_rows[[i]], , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
-      cli::cli_fmt(sub <- draw_one(sub_data, lv))
+      cli::cli_fmt(sub <- draw_one(sub_data, split_levels[i]))
       sub
     })
     if (type %in% c("dot", "venn")) {

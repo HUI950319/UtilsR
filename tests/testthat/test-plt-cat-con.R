@@ -1316,3 +1316,22 @@ test_that("categorical Sankey paths reshape their weights without backend groupi
   expect_identical(result$next_node, c("x", "u", NA, "y", "v", NA))
   expect_identical(result$value, c(3L, 3L, 3L, 1L, 1L, 1L))
 })
+
+test_that("categorical panels avoid scanning the split column for each plot", {
+  d <- data.frame(value = c("a", "b", "b", "a", "b"), panel = factor(
+    c("P2", "P1", "", "P2", NA), levels = c("P2", "", "P1", "unused")))
+  expected <- cat_test_plot(d, "value", split.by = "panel", NA_stat = TRUE, save = NULL)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (identical(substitute(x), quote(data[[split.by]]))) stop("rescanned the split column")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(d, "value", split.by = "panel", NA_stat = TRUE, save = NULL))
+  expect_length(result, length(expected))
+  for (i in seq_along(expected)) {
+    expect_identical(result[[i]]$data, expected[[i]]$data)
+    expect_identical(result[[i]]$labels$title, expected[[i]]$labels$title)
+  }
+})
