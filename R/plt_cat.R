@@ -584,7 +584,15 @@ plt_cat <- function(data,
     stat_levels <- levels(data[[stat.by[1]]])
     colors <- level_colors(stat_levels)
   } else {
-    all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
+    all_levels <- unique(unlist(lapply(stat.by, function(s) {
+      values <- data[[s]]
+      if (identical(class(values), "factor") ||
+          identical(class(values), c("ordered", "factor"))) {
+        labels <- levels(values)
+        return(labels[tabulate(values, nbins = length(labels)) > 0L & !is.na(labels)])
+      }
+      levels(factor(values))
+    })))
     colors <- level_colors(all_levels)
   }
   missing <- names(colors) %in% missing_levels

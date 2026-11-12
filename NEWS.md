@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical set plots identify observed palette levels without rebuilding ordinary factor columns.
+
 * Split categorical plots retrieve panel rows from a single grouping index.
 
 * Numeric P-value cells reparse only values that can round across a displayed significance threshold.

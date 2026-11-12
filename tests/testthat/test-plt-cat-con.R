@@ -1335,3 +1335,21 @@ test_that("categorical panels avoid scanning the split column for each plot", {
     expect_identical(result[[i]]$labels$title, expected[[i]]$labels$title)
   }
 })
+
+test_that("categorical set palettes use observed factor codes", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = ordered(c("", "b", "", "b"), levels = c("unused", "b", "")),
+                  b = factor(c("x", "y", "x", "x"), levels = c("y", "x", "absent")))
+  expected <- cat_test_plot(d, names(d), type = "sankey", save = NULL)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[s]]))) stop("rebuilt factor columns for the palette")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(d, names(d), type = "sankey", save = NULL))
+  expect_identical(result$data, expected$data)
+  expect_identical(result$scales$get_scales("fill")$palette(4L),
+                   expected$scales$get_scales("fill")$palette(4L))
+})
