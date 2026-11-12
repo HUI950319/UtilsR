@@ -1089,3 +1089,17 @@ test_that("butterfly bar grids keep distinct calendar period groups", {
   expected <- draw(reference)
   for (i in seq_along(actual)) expect_identical(actual[[i]]$data, expected[[i]]$data)
 })
+
+test_that("butterfly distributions distinguish calendar period fills", {
+  skip_if_not_installed("lubridate")
+  months <- lubridate::period(months = rep(1:2, 6L))
+  d <- tibble::tibble(stat = rep(rep(c("A", "B"), each = 3L), 2L),
+    value = 1:12, group = rep(c("L", "R"), each = 6L), fill = months)
+  reference <- d
+  reference$fill <- as.character(months)
+  draw <- function(x) PlotButterfly2(x, "stat", "value", "group", "fill", type = "box")
+  actual <- draw(d)
+  expected <- draw(reference)
+  expect_identical(levels(actual[[1L]]$data$fill), unique(as.character(months)))
+  expect_equal(ggplot2::ggplot_build(actual[[1L]])$data, ggplot2::ggplot_build(expected[[1L]])$data)
+})

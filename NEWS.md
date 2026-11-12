@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` retains distinct calendar period groups, axis categories and fills.
+
 * Categorical set plots identify observed palette levels without rebuilding ordinary factor columns.
 
 * Split categorical plots retrieve panel rows from a single grouping index.
