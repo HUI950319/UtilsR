@@ -151,10 +151,12 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     if (anyNA(breaks) || any(!is.finite(breaks))) {
       cli::cli_abort("{.arg breaks} must contain only finite, non-missing values.")
     }
-    if (anyDuplicated(breaks)) {
-      cli::cli_abort("{.arg breaks} must contain distinct values.")
+    if (is.object(breaks) || is.unsorted(breaks, strictly = TRUE)) {
+      if (anyDuplicated(breaks)) {
+        cli::cli_abort("{.arg breaks} must contain distinct values.")
+      }
+      breaks <- sort(breaks)
     }
-    breaks <- sort(breaks)
     full_breaks <- c(-Inf, breaks, Inf)
 
     if (is.null(labels)) {

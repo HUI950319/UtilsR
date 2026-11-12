@@ -249,3 +249,19 @@ test_that("equal-width bins reuse the validated plain range", {
   expect_identical(fn(c(values[-1L], NA), nbins = 5, type = "equal"),
                    fct_num(c(values[-1L], NA), nbins = 5, type = "equal"))
 })
+
+test_that("ordered fixed cut points skip the extra sort", {
+  breaks <- seq_len(2000L)
+  input <- c(-Inf, 1, 1.5, 1999, 2000.5, Inf, NA_real_)
+  expected <- fct_num(input, breaks)
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  env$sort <- function(x, ...) {
+    if (identical(x, breaks)) stop("sorted already ordered cut points")
+    base::sort(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(input, breaks), expected)
+  expect_identical(fn(input, rev(breaks)), expected)
+  expect_error(fn(input, c(1L, 2L, 1L)), "distinct values")
+})

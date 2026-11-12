@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` skips re-sorting strictly increasing plain cut points.
+
 * Butterfly bar plots use distinct calendar period labels for grouping and grid completion.
 
 * `PlotRank()` uses exact display keys for calendar period groups instead of comparing their raw seconds storage.
