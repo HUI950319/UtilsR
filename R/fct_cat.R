@@ -319,6 +319,11 @@ fct_cat <- function(x, ...,
 .as_factor <- function(x) {
   .register_integer64(x)
   if (is.factor(x)) return(x)
+  if (inherits(x, "Period")) {
+    labels <- as.character(.butterfly_category_labels(x))
+    names(labels) <- names(x)
+    return(factor(labels))
+  }
   if (is.double(x) && !is.object(x) && is.null(dim(x))) {
     distinct <- sort(unique(x), na.last = NA)
     labels <- as.character(distinct)

@@ -741,3 +741,11 @@ test_that("factor recoding compacts observed levels through their target positio
   expect_identical(fn(x, changes), expected)
   expect_identical(levels(expected), c("b", NA_character_))
 })
+
+test_that("factor conversion retains calendar period components", {
+  skip_if_not_installed("lubridate")
+  p <- lubridate::period(months = c(3L, 1L, 2L, NA_integer_, 3L))
+  expected <- factor(as.character(p))
+  expect_identical(fct_cat(p), expected)
+  expect_identical(fct_cat(p, reverse = TRUE), fct_cat(expected, reverse = TRUE))
+})

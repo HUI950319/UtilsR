@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor conversion keeps distinct calendar period values and their missing codes.
+
 * Factor regrouping compacts observed levels using integer positions from a single target lookup.
 
 * `fct_num()` reports that the observations must be real-valued before calling numeric binning backends.
