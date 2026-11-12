@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot-aligned insets use the first named background even when other layout entries have missing names.
+
 * Raster panel measurement restores the caller's active grid viewport if conversion fails.
 
 * Raster panel sizing indexes measured single cells directly and sums only spanning panels.

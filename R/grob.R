@@ -409,12 +409,12 @@ grob_insert <- function(
     ref_r <- max(panel_layout$r)
   } else if (align_to == "plot") {
     # Use the entire gtable minus the outer margins
-    bg_layout <- gt$layout[gt$layout$name == "background", , drop = FALSE]
-    if (nrow(bg_layout) > 0) {
-      ref_t <- bg_layout$t[1]
-      ref_b <- bg_layout$b[1]
-      ref_l <- bg_layout$l[1]
-      ref_r <- bg_layout$r[1]
+    background <- match("background", gt$layout$name)
+    if (!is.na(background)) {
+      ref_t <- gt$layout$t[background]
+      ref_b <- gt$layout$b[background]
+      ref_l <- gt$layout$l[background]
+      ref_r <- gt$layout$r[background]
       if (inherits(plot, "ggplot") && !inherits(plot, "patchwork") &&
           ref_t == 1L && ref_b == nrow(gt) && ref_l == 1L && ref_r == ncol(gt)) {
         ref_t <- ref_t + 1L

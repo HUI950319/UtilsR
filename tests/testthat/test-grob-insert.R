@@ -318,3 +318,13 @@ test_that("plot-aligned ggplot insets exclude outer margin cells", {
   expect_equal(c(outer$t, outer$l, outer$b, outer$r), c(1, 1, nrow(full), ncol(full)))
   expect_no_error(grid::grid.draw(inner))
 })
+
+test_that("plot-aligned insets locate the actual named background", {
+  table <- gtable::gtable(widths = grid::unit(rep(1, 4), "cm"),
+                          heights = grid::unit(rep(1, 4), "cm"))
+  table <- gtable::gtable_add_grob(table, list(grid::nullGrob(), grid::rectGrob()),
+    t = c(1L, 2L), b = c(4L, 3L), l = c(1L, 2L), r = c(4L, 3L),
+    name = c(NA_character_, "background"))
+  result <- grob_insert(table, grid::textGrob("inset"), align_to = "plot")
+  expect_equal(unname(unlist(tail(result$layout, 1L)[c("t", "b", "l", "r")])), c(2, 3, 2, 3))
+})
