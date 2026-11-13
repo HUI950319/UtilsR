@@ -284,8 +284,8 @@ PlotButterfly <- function(
       labels <- .butterfly_category_labels(data[[col]])
       data[[col]] <- if (inherits(labels, "Period")) as.character(labels) else labels
     }
-    if (inherits(values, "haven_labelled_spss")) {
-      data[[value.by]] <- .scatter_axis_values(values)
+    if (inherits(values, "haven_labelled")) {
+      data[[value.by]] <- vctrs::vec_data(.scatter_axis_values(values))
     }
 
     groups <- unique(as.character(data[[group.by]]))

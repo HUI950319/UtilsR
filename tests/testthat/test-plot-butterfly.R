@@ -1126,3 +1126,14 @@ test_that("filled butterfly boxplots reflect labelled numeric scores", {
   layers <- function(p) lapply(seq_along(p), function(i) ggplot2::ggplot_build(p[[i]])$data)
   expect_equal(layers(draw(labelled)), layers(draw(d)))
 })
+
+test_that("butterfly bars negate labelled scores using their numeric values", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = rep(letters[1:3], 2L), g = rep(c("L", "R"), each = 3L), fill = "one", score = 1:6)
+  labelled <- d
+  labelled$score <- haven::labelled(d$score, c(low = 1))
+  draw <- function(input) PlotButterfly(input, stat.by = "category",
+    value.by = "score", group.by = "g", fill.by = "fill", type = "bar")
+  layers <- function(p) lapply(seq_along(p), function(i) ggplot2::ggplot_build(p[[i]])$data)
+  expect_equal(layers(draw(labelled)), layers(draw(d)))
+})

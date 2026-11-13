@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly bars reflect labelled numeric scores without applying arithmetic to their value labels.
+
 * Sankey labels reuse the node factor codes instead of creating a character key per observation.
 
 * Paired scatter plots display an unavailable p-value for constant differences or too few complete pairs.
