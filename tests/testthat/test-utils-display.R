@@ -1226,3 +1226,11 @@ test_that("console boxes split text only when a line break is present", {
   expect_identical(draw(x), expected)
   expect_identical(draw("ready\n\ndone\n"), multiline)
 })
+
+test_that("console colour errors escape malformed byte sequences", {
+  for (encoding in c("UTF-8", "bytes")) {
+    bad <- rawToChar(as.raw(255L))
+    Encoding(bad) <- encoding
+    expect_error(show_color(c("red", bad)), "positions.*2.*(?:<ff>|ff)", class = "rlang_error")
+  }
+})

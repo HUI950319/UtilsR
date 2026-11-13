@@ -750,13 +750,15 @@ show_color <- function(x, rev = FALSE) {
   if (!is.character(x) || is.object(x) || !is.null(dim(x))) {
     cli::cli_abort("{.arg x} must be a character vector without a class or dimensions.")
   }
-  numeric_index <- !is.na(suppressWarnings(as.numeric(x)))
+  bad_encoding <- !validEnc(x) | Encoding(x) == "bytes"
+  numeric_index <- rep(FALSE, length(x))
+  numeric_index[!bad_encoding] <- !is.na(suppressWarnings(as.numeric(x[!bad_encoding])))
   # Parse labels together, retaining alpha; inspect values only after failure.
-  hex <- if (any(numeric_index)) NULL else {
+  hex <- if (any(numeric_index | bad_encoding)) NULL else {
     tryCatch(.pal_hex(x), error = function(e) NULL)
   }
   if (is.null(hex)) {
-    to_check <- unique(x)
+    to_check <- unique(x[!bad_encoding])
     if (length(to_check) <= 256L) {
       valid <- vapply(to_check, function(col) {
         tryCatch({
@@ -778,8 +780,11 @@ show_color <- function(x, rev = FALSE) {
     }
     valid <- valid[match(x, to_check)]
     names(valid) <- if (is.null(names(x))) x else names(x)
-    invalid <- which(numeric_index | !valid)
-    cli::cli_abort("Invalid colours in {.arg x} at positions {.val {invalid}}: {.val {x[invalid]}}. Use R colour names or hex codes, not numeric palette indices.")
+    invalid <- which(numeric_index | bad_encoding | !valid)
+    invalid_colors <- x[invalid]
+    escaped <- bad_encoding[invalid]
+    invalid_colors[escaped] <- encodeString(invalid_colors[escaped])
+    cli::cli_abort("Invalid colours in {.arg x} at positions {.val {invalid}}: {.val {invalid_colors}}. Use R colour names or hex codes, not numeric palette indices.")
   }
   if (rev) {
     x_attributes <- attributes(x)
