@@ -499,3 +499,14 @@ test_that("object sizes are formatted in only their chosen units", {
   expected <- check_size(envir = data)[["_data"]]
   expect_identical(fn(envir = data)[["_data"]], expected)
 })
+
+test_that("object size reports filter and order measured objects in one slice", {
+  data <- list2env(list(B = raw(128L), A = raw(128L), large = raw(512L)))
+  filter <- dplyr::filter
+  testthat::local_mocked_bindings(filter = function(.data, ...) {
+    if (identical(names(.data), c("Object", "Class", "Size"))) stop("filtered a separate size table")
+    filter(.data, ...)
+  }, .package = "dplyr")
+  result <- check_size(envir = data, method = "object.size")[["_data"]]
+  expect_identical(result$Object, c("**TOTAL**", "large", "A", "B"))
+})

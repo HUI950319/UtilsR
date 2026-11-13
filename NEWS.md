@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Object size reports filter failed measurements and stably sort remaining sizes in one row slice.
+
 * Palette previews encode fully opaque swatches as six-digit hex while preserving alpha in mixed palettes.
 
 * Console text formatting avoids allocating a missing-value mask for complete ordinary vectors.

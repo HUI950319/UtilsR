@@ -197,9 +197,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
             paste0(object_info$Object[failed], " (", reasons, ")", collapse = ", "),
             call. = FALSE)
   }
-  object_info <- object_info %>%
-    dplyr::filter(!is.na(Size)) %>%
-    dplyr::arrange(dplyr::desc(Size))
+  rows <- order(object_info$Size, decreasing = TRUE, na.last = NA, method = "radix")
+  object_info <- object_info[rows, , drop = FALSE]
   object_count <- nrow(object_info)
   total_mb <- sum(object_info$Size)
   if (method == "lobstr" && object_count > 0) {
