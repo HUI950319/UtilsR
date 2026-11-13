@@ -638,7 +638,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   colour <- ._pr_colour()
   hl <- if (is.logical(highlight)) which(highlight) else highlight
-  if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
+  at <- if (length(hl)) which(seq_len(nrow(data)) %in% hl) else integer()
+  if (!colour && length(at)) indent <- max(indent, 2L)
   avail <- (width %||% console_width()) - indent
   is_num <- vapply(data, is.numeric, logical(1)) | is_p
   cells  <- lapply(seq_along(data), function(j) {
@@ -736,7 +737,6 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
                                              sum(col_w[keep]) + gap * (length(keep) - 1))))
   r <- aligned_rows[-1L]
   body <- if (length(r)) paste0(pad, r) else character()
-  at <- which(seq_along(r) %in% hl)
   if (length(at)) {
     body[at] <- if (colour) {
       hl_bg <- cli::make_ansi_style("#FFFF99", bg = TRUE)

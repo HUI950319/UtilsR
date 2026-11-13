@@ -1642,3 +1642,22 @@ test_that("complete ordinary console values skip a full missing mask", {
   expect_identical(fn(c(1, NA, NaN)), c("1", NA, NA))
   expect_identical(fn(factor(c("a", NA), exclude = NULL)), c("a", "<NA>"))
 })
+
+test_that("console table computes visible highlight rows once", {
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  rows <- 0L
+  d <- data.frame(x = seq_len(200L))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(x, seq_len(100L))) {
+      rows <<- rows + 1L
+      if (rows > 1L) stop("matched all visible highlights again")
+    }
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  withr::local_options(cli.num_colors = 1L)
+  expect_identical(capture.output(fn(d, n = 100L, highlight = c(3L, 115L), indent = 0L)),
+    capture.output(pr_table(d, n = 100L, highlight = c(3L, 115L), indent = 0L)))
+  expect_identical(rows, 1L)
+})

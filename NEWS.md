@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables reuse the visible highlight row selection for indent and styling.
+
 * Plot tags reuse the global theme when inheriting font families across multiple panels.
 
 * KNN imputation reuses category codes and checks for display collisions only in labelled doubles.
