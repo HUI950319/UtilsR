@@ -191,7 +191,7 @@ stat_pval <- function(x,
   d <- as.integer(d)
 
   if (is.character(x) && !is.object(x) && length(x) > 1024L &&
-      anyDuplicated(x[seq.int(1L, length(x), length.out = 1024L)])) {
+      length(unique(x[seq.int(1L, length(x), length.out = 1024L)])) < 512L) {
     keys <- unique(x)
     if (length(keys) < length(x) / 2) {
       formatted <- stat_pval(keys, digits = d, mode = mode, map_signif = map_signif)

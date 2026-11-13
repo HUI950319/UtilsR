@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` samples text inputs before deduplication, avoiding a full distinct pass for mostly unique values.
+
 * `plt_con()` computes automatic comparison space without overflowing on wide finite ranges and keeps transformed global labels at finite positions.
 
 * `.cat_message()` skips string splitting for single-line elements and preserves blank lines, missing values and multiline notices.

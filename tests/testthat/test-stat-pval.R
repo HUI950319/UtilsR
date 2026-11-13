@@ -695,3 +695,20 @@ test_that("decimal P stars use intervals and correct only tied cutoffs", {
     "0.050", "<0.001first", "<0.001zero", NA_character_))
   expect_true(calls == 1L, info = "used no interval lookup")
 })
+
+test_that("p-value text avoids deduplication for mostly unique samples", {
+  x <- sprintf("%.7f", seq_len(4100L) / 5000)
+  x[2L] <- x[1L]
+  x[5L] <- x[1L]
+  names(x) <- sprintf("value-%d", seq_along(x))
+  expected <- stat_pval(x, mode = "stars")
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(value, ...) {
+    if (length(value) == length(x)) stop("deduplicated mostly unique p-value text")
+    base::unique(value, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, mode = "stars"), expected)
+  expect_identical(fn(x[1:5], mode = "stars"), expected[1:5])
+})
