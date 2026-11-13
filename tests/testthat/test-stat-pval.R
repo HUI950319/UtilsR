@@ -737,3 +737,18 @@ test_that("rounded-zero p-value detection visits only possible zeros", {
   expect_identical(fn(c(0, 5e-324, .1), digits = 325L, mode = "pvalue"),
                    stat_pval(c(0, 5e-324, .1), digits = 325L, mode = "pvalue"))
 })
+
+test_that("empty significance maps skip threshold indexing", {
+  empty <- stats::setNames(numeric(), character())
+  x <- c(a = .03, b = NA, c = .9)
+  expected <- stat_pval(x, mode = "pvalue")
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$findInterval <- function(...) stop("indexed an empty significance map")
+  environment(fn) <- env
+  expect_identical(fn(x, mode = "stars", map_signif = empty), expected)
+  expect_identical(fn(c("one", NA, "two"), add_star_p = x, map_signif = empty),
+                   c("one", NA, "two"))
+  expect_identical(fn(c("0.03", "<.01"), mode = "stars", map_signif = empty),
+                   c("0.030", "<.01"))
+})

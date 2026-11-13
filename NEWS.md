@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` returns empty star suffixes directly when given an empty significance map.
+
 * `show_color()` reports the positions of malformed colour strings with escaped bytes.
 
 * `stat_pval()` checks formatted zeros only among values close enough to round to zero.

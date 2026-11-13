@@ -121,6 +121,7 @@ stat_pval <- function(x,
   # --- Stars helper (shared) ---
   .add_stars <- function(pvals, map, endpoints = NULL) {
     .validate_signif_map(map)
+    if (!length(map)) return(rep.int("", length(pvals)))
     map <- sort(map)
     if (is.null(endpoints) && !is.object(pvals)) {
       index <- findInterval(pvals, map, left.open = TRUE) + 1L
