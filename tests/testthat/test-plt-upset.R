@@ -906,3 +906,19 @@ test_that("UpSet character selectors match ordinary factor levels once", {
       plt_upset(d, c("A", "B"), levels = query, output = "data"))
   }
 })
+
+test_that("UpSet logical membership avoids a character lookup per row", {
+  d <- data.frame(A = rep(c(TRUE, FALSE, NA, TRUE), 200L),
+    B = rep(c(FALSE, TRUE, FALSE, NA), 200L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (is.logical(x) && length(x) == nrow(d) && is.character(table)) stop("matched every logical row")
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  for (query in list(c("TRUE", NA), "FALSE", c("TRUE", "FALSE"), "false")) {
+    expect_identical(fn(d, c("A", "B"), levels = query, output = "data"),
+      plt_upset(d, c("A", "B"), levels = query, output = "data"))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet matches character selectors to the two logical values before processing logical columns.
+
 * UpSet membership checks character selectors against factor levels and reuses their codes for the observations.
 
 * Alluvial input filtering reads ordinary factor missing codes directly and still checks explicit missing levels.
