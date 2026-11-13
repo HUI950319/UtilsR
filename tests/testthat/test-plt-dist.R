@@ -769,3 +769,22 @@ test_that("distribution data tables project selected inputs before subsetting ro
   expect_s3_class(out[[2L]]$data, "data.table")
   expect_identical(d, before)
 })
+
+test_that("distribution layout sizes reuse grouped plot columns", {
+  d <- data.frame(x = rep(letters[1:6], 60L), fill = rep(c("one", "two"), each = 180L),
+    site = rep(c("s1", "s2", "s3", "s4"), 90L))
+  d$x <- factor(d$x, levels = c("unused", rev(letters[1:6])))
+  d$site <- factor(d$site, levels = c("unused", "s4", "s2", "s1", "s3"))
+  expected <- dist_test_plot(d, c("x", "fill"), type = "bar", facet = "site")
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("rescanned distribution inputs for layout dimensions")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, c("x", "fill"), type = "bar", facet = "site"))
+  expect_identical(actual$data, expected$data)
+  expect_identical(attr(actual, "plot_size"), attr(expected, "plot_size"))
+  expect_identical(actual$facet$params$nrow, 2)
+})

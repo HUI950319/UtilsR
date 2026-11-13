@@ -568,7 +568,7 @@ plt_dist <- function(data,
     }
 
     if (!is.null(facet)) {
-      n_facet <- length(unique(data[[facet]]))
+      n_facet <- length(unique(plotdata[[facet]]))
       p <- p + ggplot2::facet_wrap(
         ggplot2::vars(!!rlang::sym(facet)),
         nrow = facet_args$nrow %||%
@@ -579,7 +579,7 @@ plt_dist <- function(data,
     }
 
     p <- .apply_fmt_text(p, fmt_text)
-    return(.save_sized(p, save, c(max(3, 0.9 * length(unique(data[[x_var]]))), 4),
+    return(.save_sized(p, save, c(max(3, 0.9 * length(unique(plotdata[[x_var]]))), 4),
                        lead = "bar chart laid out for",
                        filename = "Figure X. Distribution.pdf"))
   }
