@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_message()` skips string splitting for single-line elements and preserves blank lines, missing values and multiline notices.
+
 * `plt_cat()` reuses computed x coordinates for trend and area labels, including ordered groups and empty levels.
 
 * `pr_spark()` reuses factor codes for counts and missingness while retaining declared levels and their display order.

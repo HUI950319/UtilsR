@@ -1189,3 +1189,25 @@ test_that("table highlights evaluate a pattern on repeated character values once
   expect_identical(sort(styles$rownum[!is.na(styles$rownum)]),
     which(grepl("^hit$", d$a, ignore.case = TRUE)))
 })
+
+test_that("notices split only elements containing line breaks", {
+  messages <- c("first", "", NA_character_, "{literal}", "last")
+  render <- function(fn, text, style) {
+    cli::ansi_strip(cli::cli_fmt(fn(text, timestamp_format = NULL, wrap = FALSE, style = style)))
+  }
+  fn <- .cat_message
+  env <- new.env(parent = environment(fn))
+  env$strsplit <- function(x, ...) {
+    if (all(lengths(base::strsplit(x, "\n", fixed = TRUE)) == 1L))
+      stop("split single-line notice elements")
+    base::strsplit(x, ...)
+  }
+  environment(fn) <- env
+  for (style in c("full", "chip")) {
+    expect_identical(render(fn, messages, style), render(.cat_message, messages, style))
+    mixed <- c(messages, "two\r\nlines\r\n", "")
+    out <- render(fn, mixed, style)
+    expect_identical(out, render(.cat_message, mixed, style))
+    expect_identical(trimws(out[2:9]), c("", "NA", "{literal}", "last", "two", "lines", "", ""))
+  }
+})

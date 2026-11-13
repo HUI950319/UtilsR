@@ -203,11 +203,13 @@ console_width <- function() {
   if (!length(message)) return(invisible())
   cfg   <- ._type_cfg(match.arg(type))
   style <- match.arg(style)
-  # every element on its own lines; "" is one empty line
-  message <- gsub("\r\n", "\n", as.character(message), fixed = TRUE)
-  message[is.na(message)] <- "NA"
-  lines <- unlist(lapply(strsplit(paste0(message, "\n"), "\n", fixed = TRUE),
-                         function(l) if (length(l)) l else ""))
+  # Every element occupies at least one line, including "".
+  lines <- as.character(message)
+  lines[is.na(lines)] <- "NA"
+  if (any(grepl("\n", lines, fixed = TRUE))) {
+    lines <- gsub("\r\n", "\n", lines, fixed = TRUE)
+    lines <- unlist(strsplit(paste0(lines, "\n"), "\n", fixed = TRUE), use.names = FALSE)
+  }
   # format(x, "") would fall back to R's default format, not drop the stamp
   ts    <- if (is.null(timestamp_format) || !nzchar(timestamp_format)) "" else
     format(Sys.time(), timestamp_format)
