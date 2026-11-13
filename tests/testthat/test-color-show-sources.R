@@ -2839,3 +2839,18 @@ test_that("palette previews calculate contrast in bounded channel passes", {
   expect_identical(result$fg, expected$fg)
   expect_identical(result$hex, expected$hex)
 })
+
+test_that("opaque palette swatches use RGB without trimming alpha", {
+  fn <- .pal_hex
+  env <- new.env(parent = environment(fn))
+  env$substr <- function(x, ...) {
+    if (length(x) > 16L) stop("trimmed a complete opaque palette")
+    base::substr(x, ...)
+  }
+  environment(fn) <- env
+  x <- rep(c("red", "#00ff00", "#0000FFFF", "white"), 50L)
+  expect_identical(fn(x), rep(c("#FF0000", "#00FF00", "#0000FF", "#FFFFFF"), 50L))
+  expect_identical(fn(c("red", "#11223380", "transparent", NA)),
+    c("#FF0000", "#11223380", "#FFFFFF00", "#FFFFFF00"))
+  expect_identical(fn(character()), character())
+})
