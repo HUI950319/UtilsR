@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(NA_stat = TRUE)` avoids decoding complete ordinary factors when checking whether to add a missing category.
+
 * Categorical trend and area plots derive axis labels and coordinates from a single factor conversion.
 
 * Background stripes validate group-to-colour assignments by indexing the first category of each displayed group.

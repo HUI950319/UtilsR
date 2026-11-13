@@ -554,7 +554,11 @@ plt_cat <- function(data,
     missing_level <- tail(make.unique(c(used_levels,
       if ("NA" %in% used_levels) "<NA>" else "NA")), 1L)
     for (col in na_cols) {
-      values <- as.character(data[[col]])
+      column <- data[[col]]
+      ordinary_factor <- identical(class(column), "factor") ||
+        identical(class(column), c("ordered", "factor"))
+      if (ordinary_factor && !anyNA(levels(column)) && !anyNA(column)) next
+      values <- as.character(column)
       if (anyNA(values)) {
         lvls <- levels(data[[col]])
         lvls <- lvls[!is.na(lvls)]

@@ -1523,3 +1523,19 @@ test_that("categorical continuous renderers encode x once", {
     expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
   }
 })
+
+test_that("complete categorical factors bypass missing label conversion", {
+  d <- data.frame(a = ordered(rep(c("", "b"), 30L), levels = c("unused", "b", "")),
+                  b = factor(rep(c("one", "two", "one"), 20L)))
+  expected <- cat_test_plot(d, "a", "b", NA_stat = TRUE, keep_empty = TRUE)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[col]])) && is.factor(x))
+      stop("decoded a complete factor to check missing labels")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "a", "b", NA_stat = TRUE, keep_empty = TRUE))
+  expect_identical(actual$data, expected$data)
+})
