@@ -1703,3 +1703,14 @@ test_that("single scatter coordinate legends use native inside positioning", {
   expect_identical(p$theme$legend.position, "inside")
   expect_identical(p$theme$legend.position.inside, c(.25, .75))
 })
+
+test_that("paired scatter t tests display unavailable results for constant differences", {
+  d <- data.frame(Control = 1:6, Treat = 2:7, group = rep(c("a", "b"), each = 3L))
+  one_pair <- d
+  one_pair$Treat[-1L] <- NA_real_
+  for (input in list(d, one_pair)) {
+    p <- suppressWarnings(PlotScatter3(input, test_method = "t.test", cor_method = "none"))
+    labels <- unlist(lapply(ggplot2::ggplot_build(p[[1L]])$data, function(layer) layer$label))
+    expect_true("p = NA" %in% labels)
+  }
+})

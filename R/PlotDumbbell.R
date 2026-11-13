@@ -549,6 +549,18 @@ PlotDumbbell <- function(
 }
 
 
+.paired_plot_p_value <- function(test, x, y, method) {
+  tryCatch(
+    test(x, y, paired = TRUE, alternative = "two.sided")$p.value,
+    error = function(e) {
+      unavailable <- gettext(c("not enough 'x' observations", "data are essentially constant"),
+                             domain = "R-stats")
+      if (method == "t.test" && conditionMessage(e) %in% unavailable) return(NA_real_)
+      stop(e)
+    }
+  )
+}
+
 .dumbbell_endpoint_max <- function(x, y) {
   if (inherits(x, "haven_labelled")) x <- vctrs::vec_data(x)
   if (inherits(y, "haven_labelled")) y <- vctrs::vec_data(y)
@@ -715,15 +727,7 @@ PlotDumbbell <- function(
                (is.integer(test_xend) && !is.object(test_xend))) {
       test_xend <- as.double(test_xend)
     }
-    p_val <- tryCatch(
-      test_fn(test_x, test_xend, paired = TRUE, alternative = "two.sided")$p.value,
-      error = function(e) {
-        unavailable <- gettext(c("not enough 'x' observations", "data are essentially constant"),
-                               domain = "R-stats")
-        if (inset_test == "t.test" && conditionMessage(e) %in% unavailable) return(NA_real_)
-        stop(e)
-      }
-    )
+    p_val <- .paired_plot_p_value(test_fn, test_x, test_xend, inset_test)
     p_fmt <- if (!is.na(p_val) && p_val < 0.001) {
       sprintf("p = %.1e", p_val)
     } else {

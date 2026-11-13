@@ -306,13 +306,12 @@ PlotScatter3 <- function(
       "wilcox" = stats::wilcox.test,
       "t.test" = .con_pairwise_test("t.test")
     )
-    test_res <- if (encoded_pairs) {
-      test_fn(rep(0, length(diff_values)), diff_values,
-              paired = TRUE, alternative = "two.sided")
+    p_value <- if (encoded_pairs) {
+      .paired_plot_p_value(test_fn, numeric(length(diff_values)), diff_values, test_method)
     } else {
-      test_fn(x_values, y_values, paired = TRUE, alternative = "two.sided")
+      .paired_plot_p_value(test_fn, x_values, y_values, test_method)
     }
-    p_label <- paste0("p = ", format.pval(test_res$p.value, digits = p_digits))
+    p_label <- paste0("p = ", format.pval(p_value, digits = p_digits))
   }
 
   # ---- Main scatter plot ----

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter plots display an unavailable p-value for constant differences or too few complete pairs.
+
 * Shared transformed continuous ranges retain finite bounds when there are no pairwise comparison annotations.
 
 * Independent continuous panels keep their full shared limits when pairwise comparisons are absent.
