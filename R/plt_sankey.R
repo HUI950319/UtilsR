@@ -346,7 +346,7 @@ plt_sankey <- function(data,
   plot <- ggplot2::ggplot(plot_data, ggplot2::aes(
     x = .data[["x"]], next_x = .data[["next_x"]],
     node = .data[["node"]], next_node = .data[["next_node"]],
-    fill = factor(.data[["node"]]),
+    fill = .data[["node"]],
     label = .data[["label"]]
   )) +
     do.call(ggsankey::geom_sankey, geom_args) +

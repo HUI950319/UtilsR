@@ -845,3 +845,14 @@ test_that("Sankey tallies distinguish explicit and missing codes in one pass", {
   expect_equal(sort(as.integer(table(actual$data$node[actual$data$x == "a_label"]))),
                c(0L, 0L, 100L, 100L, 200L))
 })
+
+test_that("Sankey fill mappings use prepared node factors", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = c("x", "y", "x", NA), b = c("x", "y", "y", "x"))
+  p <- suppressMessages(plt_sankey(d, names(d), show_text = "name", theme_use = ggplot2::theme_void()))
+  expect_identical(rlang::eval_tidy(p$mapping$fill, data = p$data), p$data$node)
+  expect_identical(rlang::get_expr(p$mapping$fill), quote(.data[["node"]]))
+  restored <- p
+  restored$mapping$fill <- ggplot2::aes(fill = factor(.data[["node"]]))$fill
+  expect_identical(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(restored)$data)
+})

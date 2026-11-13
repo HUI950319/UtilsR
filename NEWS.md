@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` uses the prepared node factor directly for fill mapping.
+
 * `plt_sankey()` derives the number of missing observations from each stage tally while keeping explicit missing levels separate.
 
 * `pr_tree()` keeps comma grouping for counts when the session uses a comma as its decimal mark.
