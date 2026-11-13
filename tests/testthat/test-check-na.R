@@ -757,3 +757,21 @@ test_that("data quality factor tallies reuse observed level counts", {
     expect_identical(.count_missing_values(f), 1L)
   }
 })
+
+test_that("disabled special markers skip unused factor level tables", {
+  values <- structure(c(1L, NA_integer_, 2L, 3L, 1L),
+    levels = c("Unknown", NA, "present", paste0("unused", seq_len(20000L))),
+    class = c("ordered", "factor"))
+  d <- data.frame(values = values)
+  expected <- capture_gt_data(check_na(d, special = character(), show_all = TRUE))[[1L]]
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(x, ...) {
+    if (is.factor(x)) stop("tabulated factor levels with markers disabled")
+    base::tabulate(x, ...)
+  }
+  environment(fn) <- env
+  actual <- capture_gt_data(fn(d, special = character(), show_all = TRUE))[[1L]]
+  expect_identical(actual, expected)
+  expect_identical(.count_missing_values(values), 1L)
+})

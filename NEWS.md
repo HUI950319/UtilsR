@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` counts only missing factor rows when called with `special = character()`.
+
 * `check_system()` keeps readable CIM metadata when Windows memory measurements require a WMIC fallback.
 
 * `fmt_scale()` retains plotmath titles and formula label functions through scale construction.

@@ -144,6 +144,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     ordinary_factor <- is.factor(x) &&
       (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))
     if (!ordinary_factor) return(c(.count_missing_values(x), .count_special_values(x, special)))
+    if (!is.null(special) && !length(special)) return(c(sum(is.na(unclass(x))), 0))
     n <- tabulate(x, nbins = nlevels(x))
     c(length(x) - sum(n), .count_special_values(x, special, counts = n))
   })
