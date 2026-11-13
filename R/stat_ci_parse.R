@@ -455,6 +455,11 @@ stat_ci_parse <- function(x,
     r_lin[wide] <- (ul[wide] / magnitude / 2 + uh[wide] / magnitude / 2 +
                      ue[wide] / magnitude) / (h - l)
   }
+  if (identical(exp, FALSE)) {
+    return(list(is_exp = rep(FALSE, length(est)), invalid = invalid,
+                ambiguous = rep(FALSE, length(est)),
+                asymmetric = ok & a_lin - r_lin > 0.2))
+  }
   a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
   log_ratio <- function(a, b) {
     relative <- (a - b) / b

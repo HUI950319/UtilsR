@@ -773,3 +773,15 @@ test_that("linear interval asymmetry survives large common offsets", {
   symmetric <- "1000000000000000.0000 (999999999999999.7500, 1000000000000000.2500)"
   expect_no_warning(stat_ci_parse(symmetric, exp = FALSE, level = .9, digits = 4))
 })
+
+test_that("linear confidence checks bypass log-scale asymmetry", {
+  x <- c("2.00 (1.00, 3.00)", "2.00 (3.00, 5.00)", "0 (-1, 1)")
+  expected <- suppressWarnings(stat_ci_parse(x, exp = FALSE, output = "p"))
+  fn <- .ci_scale
+  env <- new.env(parent = environment(fn))
+  env$log <- function(...) stop("computed log asymmetry for a linear interval")
+  environment(fn) <- env
+  testthat::local_mocked_bindings(.ci_scale = fn, .package = "UtilsR")
+  expect_warning(actual <- stat_ci_parse(x, exp = FALSE, output = "p"), "invalid")
+  expect_identical(actual, expected)
+})
