@@ -803,3 +803,19 @@ test_that("alluvial distributions check ordinary missingness without decoding ro
   environment(fn) <- env
   expect_identical(draw(fn)$data, expected$data)
 })
+
+test_that("numeric distribution factors reuse matching codes with full precision", {
+  near <- 1 + .Machine$double.eps
+  d <- data.frame(x = rep(c(near, 1, 2), 80L), fill = rep(c("a", "b"), each = 120L))
+  expected <- dist_test_plot(d, c("x", "fill"), type = "bar")
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (is.integer(x) && length(x) == nrow(d)) stop("re-encoded matched numeric distribution codes")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, c("x", "fill"), type = "bar"))
+  expect_identical(actual$data, expected$data)
+  expect_identical(levels(actual$data$x), sprintf("%.17g", c(1, near, 2)))
+})

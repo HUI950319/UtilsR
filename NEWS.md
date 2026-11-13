@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` reuses exact numeric category codes when building factors for plotting.
+
 * `fmt_flatten()` identifies an invalid inset host at the input boundary.
 
 * `fmt_scale()` and `fmt_expand()` skip layer scans when the requested position scales already exist.

@@ -387,9 +387,9 @@ plt_dist <- function(data,
       values <- sort(unique(data[[v]]))
       value_labels <- as.character(values)
       if (anyDuplicated(value_labels)) value_labels <- sprintf("%.17g", values)
-      # Match numeric values before factor() can round them to character labels.
-      data[[v]] <- factor(match(data[[v]], values), levels = seq_along(values),
-                           labels = value_labels)
+      # Match the original numeric values before applying display labels.
+      data[[v]] <- structure(match(data[[v]], values), levels = value_labels,
+                             class = "factor")
     } else {
       value <- data[[v]]
       key <- .cat_time_key(value)
