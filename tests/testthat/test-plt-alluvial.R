@@ -1054,3 +1054,21 @@ test_that("alluvial facets and categories keep their existing factor codes", {
     expect_identical(draw(fn)$data, draw(plt_alluvial)$data)
   }
 })
+
+test_that("alluvial gap levels remap the existing factor codes", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()
+  d$group[d$group == "G2"] <- ""
+  d$group <- factor(d$group, levels = c("", "G1"))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, levels, ...) {
+    if (is.factor(x) && !missing(levels) && ".gap_1" %in% levels) stop("re-encoded all strata")
+    if (missing(levels)) base::factor(x, ...) else base::factor(x, levels, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, gap) suppressMessages(f(d, "category", "group", facet = "panel",
+    stratum_args = list(gap = gap)))
+  for (gap in c(0, .04)) expect_identical(draw(fn, gap)$data, draw(plt_alluvial, gap)$data)
+  expect_identical(levels(draw(fn, .04)$data$.group), c("", ".gap_1", "G1"))
+})

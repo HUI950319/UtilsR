@@ -556,7 +556,10 @@ plt_alluvial <- function(
       group_levels[index]
     }
   }))
-  stat$.group <- factor(stat$.group, levels = all_group_levels)
+  if (length(gap_names)) {
+    codes <- match(levels(stat$.group), all_group_levels)[as.integer(stat$.group)]
+    stat$.group <- structure(codes, levels = all_group_levels, class = "factor")
+  }
 
   real_colors <- if (!is.null(names(color))) {
     if (!is.null(dim(color))) cli::cli_abort("Named {.arg color} must be one-dimensional.")

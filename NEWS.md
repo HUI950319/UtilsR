@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial gap ordering remaps the existing factor codes using a single level lookup.
+
 * Butterfly distribution plots normalize labelled numeric scores before reflection and summaries.
 
 * Wide butterfly violin inputs accept labelled numeric scores and respect SPSS user-missing values.
