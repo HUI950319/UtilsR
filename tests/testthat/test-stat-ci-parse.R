@@ -722,3 +722,17 @@ test_that("unchanged CI strings skip inference work while keeping precision", {
   expect_identical(fn(x, output = "ci", exp = FALSE, level = .95),
     stats::setNames(c("2.0 (1.0, 3.0)", "1.25 [1.00, 1.50]", NA), names(x)))
 })
+
+test_that("CI parsing skips token extraction when no rows match", {
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  env$.parse_decimal_tokens <- function(...) stop("extracted tokens from empty matches")
+  environment(fn) <- env
+  for (x in list(character(), c(NA, "", "unparsed", "1-2"))) {
+    out <- fn(x)
+    expect_identical(out$valid, rep(FALSE, length(x)))
+    expect_identical(out$digits, rep(2L, length(x)))
+    expect_identical(out$trailing, rep(FALSE, length(x)))
+    expect_identical(out$unit, matrix(NA_real_, length(x), 3L))
+  }
+})

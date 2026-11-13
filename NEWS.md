@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval parsing skips token and precision extraction when every input lacks interval syntax.
+
 * Variable reports look for a conflicting blank label only when an empty category is present.
 
 * Variable listings reuse the observed numeric values for statistics and distribution shape, with separate exact centering for integer64.

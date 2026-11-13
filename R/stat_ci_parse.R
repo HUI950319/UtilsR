@@ -386,6 +386,11 @@ stat_ci_parse <- function(x,
                space, "+to", space, "+)", num, space, "*([])])")
   matched <- regexpr(re, xs, perl = TRUE)
   hit <- which(matched > 0L)
+  if (!length(hit)) {
+    return(list(estimate = est, lower = lo, upper = hi, digits = d,
+      open = open, sep = sep, close = close, valid = logical(n),
+      unit = unit, trailing = logical(n)))
+  }
   starts <- attr(matched, "capture.start")
   lengths <- attr(matched, "capture.length")
   text <- xs[hit]
