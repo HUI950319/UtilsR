@@ -1037,3 +1037,21 @@ test_that("rank correlations use one group for all SPSS missing codes", {
   expect_identical(actual$data, expected$data)
   expect_identical(attr(actual, "cor_results"), attr(expected, "cor_results"))
 })
+
+test_that("rank correlation batches ordinary two observation aesthetic means", {
+  d <- expand.grid(item = letters[1:7], method = c("M1", "M2"), stringsAsFactors = FALSE)
+  d$score <- c(1:7, 2, 1, 3, 7, 6, 4, 5)
+  d$weight <- c(1e6, 1e308, NA, 1e-320, -1e6, 4, -0,
+                3e6, 1e308, 6, -1e-320, 2e6, NA, 0)
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$mean <- function(x, ...) {
+    if (length(x) == 2L && any(abs(x) >= 1e6, na.rm = TRUE)) stop("calculated a mean for each pair")
+    base::mean(x, ...)
+  }
+  environment(fn) <- env
+  invisible(capture.output(p <- fn(d, stat.by = "item", value.by = "score", method.by = "method",
+    size_by = "weight", show.label = FALSE)))
+  expected <- vapply(split(d$weight, d$item), mean, numeric(1), na.rm = TRUE)
+  expect_identical(p$data$weight, unname(expected[p$data$item]))
+})

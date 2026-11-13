@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation plots compute ordinary one- and two-observation aesthetic means in batches, retaining native results at numeric extremes.
+
 * Categorical plots build dense count grids from ordinary factor codes while preserving empty combinations and factor order.
 
 * Circle plots scale integer64 scores in a preallocated vector and reuse the sector lookup.

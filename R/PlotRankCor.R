@@ -313,10 +313,35 @@ PlotRankCor <- function(
 
   if (length(extra_cols) > 0) {
     agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
+    group_sizes <- lengths(agg_groups$loc)
+    small <- group_sizes <= 2L
+    ends <- cumsum(group_sizes)
+    rows <- unlist(agg_groups$loc, use.names = FALSE)
+    first <- rows[(ends - group_sizes + 1L)[small]]
+    last <- rows[ends[small]]
     agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]
-      agg_values[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+      if (!is.numeric(values) || is.object(values) || !any(small)) {
+        agg_values[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+        next
+      }
+      a <- as.double(values[first])
+      b <- as.double(values[last])
+      means <- (a + b) / 2
+      overflow <- which(is.infinite(means) & is.finite(a) & is.finite(b))
+      means[overflow] <- a[overflow] / 2 + b[overflow] / 2
+      a_missing <- is.na(a)
+      b_missing <- is.na(b)
+      means[a_missing] <- b[a_missing]
+      means[b_missing] <- a[b_missing]
+      means[is.na(means)] <- NaN
+      means[which(means == 0)] <- 0
+      result <- numeric(length(group_sizes))
+      result[small] <- means
+      result[!small] <- vapply(agg_groups$loc[!small],
+        function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+      agg_values[[ec]] <- result
     }
     empty_aesthetics <- extra_cols[vapply(agg_values, function(x) !any(is.finite(x)), logical(1))]
     if (length(empty_aesthetics))
