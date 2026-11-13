@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Table highlighting evaluates regex patterns on distinct values when a character column contains many repeats.
+
 * Continuous comparisons resolve available groups and their row positions from the existing factor codes.
 
 * Distribution plots avoid copying unused data.table columns while keeping their output names and table type.

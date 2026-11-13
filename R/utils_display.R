@@ -546,7 +546,19 @@ console_width <- function() {
         hit <- grepl(pattern, levels(values), ignore.case = TRUE)
         which(hit[as.integer(values)])
       } else {
-        which(grepl(pattern, values, ignore.case = TRUE))
+        n <- length(values)
+        keys <- NULL
+        if (!is.object(values) && n > 1024L &&
+            length(unique(values[seq.int(1L, n, length.out = 128L)])) < 64L) {
+          distinct <- unique(values)
+          if (length(distinct) < n / 2L) keys <- distinct
+        }
+        if (is.null(keys)) {
+          which(grepl(pattern, values, ignore.case = TRUE))
+        } else {
+          hit <- grepl(pattern, keys, ignore.case = TRUE)
+          which(hit[match(values, keys)])
+        }
       }
       if (length(rows)) {
         tb <- gt::tab_style(tb,

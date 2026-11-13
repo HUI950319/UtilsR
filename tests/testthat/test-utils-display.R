@@ -1174,3 +1174,18 @@ test_that("formula classification decodes integer64 missing outcomes in a fresh 
   expect_true(any(grepl("Cox model", output, fixed = TRUE)), info = paste(output, collapse = "\n"))
   expect_true("loaded_after=TRUE" %in% output)
 })
+
+test_that("table highlights evaluate a pattern on repeated character values once", {
+  d <- data.frame(a = rep(c("hit", "other", NA, "HIT", "x hit"), 400L))
+  fn <- .cat_tb
+  env <- new.env(parent = environment(fn))
+  env$grepl <- function(pattern, x, ...) {
+    if (identical(pattern, "^hit$") && length(x) > 128L) stop("scanned repeated table cells")
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, highlight_pattern = "^hit$", theme = "none")
+  styles <- result[["_styles"]]
+  expect_identical(sort(styles$rownum[!is.na(styles$rownum)]),
+    which(grepl("^hit$", d$a, ignore.case = TRUE)))
+})
