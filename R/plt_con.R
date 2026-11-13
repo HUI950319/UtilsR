@@ -510,9 +510,13 @@ plt_con <- function(data,
   }
 
   if (!is.null(ref_group) && is.null(comparisons)) {
-    observed_groups <- levels(data[[group.by]])
-    observed_groups <- observed_groups[!is.na(observed_groups) &
-      observed_groups %in% as.character(data[[group.by]])]
+    groups <- data[[group.by]]
+    group_levels <- levels(groups)
+    observed <- if (identical(class(groups), "factor") ||
+                    identical(class(groups), c("ordered", "factor"))) {
+      tabulate(groups, nbins = length(group_levels)) > 0L
+    } else group_levels %in% as.character(groups)
+    observed_groups <- group_levels[!is.na(group_levels) & observed]
     if (!is.character(ref_group) || length(ref_group) != 1L || is.na(ref_group) ||
         !ref_group %in% observed_groups) {
       cli::cli_abort("{.arg ref_group} must name one observed group.")

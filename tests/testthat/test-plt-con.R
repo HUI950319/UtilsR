@@ -2011,3 +2011,23 @@ test_that("continuous comparisons reserve finite room across extreme shared rang
   limits <- .con_shared_range(beyond, NULL, 2L, TRUE)(ggplot2::scale_y_continuous())$limits
   expect_identical(limits, beyond)
 })
+
+test_that("reference comparisons reuse observed factor tallies", {
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(x = seq_len(300L), g = ordered(rep(c("", "B", "C"), each = 100L),
+    levels = c("unused", "C", "", "B")))
+  draw <- function(fn) suppressMessages(fn(d, "x", "g", type = "box", ref_group = "B", flip = FALSE))
+  expected <- draw(plt_con)
+  fn <- plt_con
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[group.by]])))
+      stop("decoded all groups while preparing reference comparisons")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(actual$data, expected$data)
+  expect_identical(tail(actual$layers, 1L)[[1L]]$stat_params$comparisons, list(c("B", "C"), c("B", "")))
+  expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
+})
