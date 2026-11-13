@@ -247,7 +247,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       is.character(labels) && !is.object(labels) &&
       !anyNA(labels) && !anyDuplicated(labels) &&
       length(breaks) > 1L && !anyNA(breaks) &&
-      !anyDuplicated(breaks) && !is.unsorted(breaks)) {
+      !is.unsorted(breaks, strictly = TRUE)) {
     return(structure(.bincode(x, breaks, right = TRUE, include.lowest = TRUE),
                      levels = as.character(labels), class = "factor"))
   }

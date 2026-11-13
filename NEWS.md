@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` uses a strict-order check for plain fixed breaks without allocating a duplicate index.
+
 * Palette previews render a single colour directly, retaining its alpha and the requested total.
 
 * `stat_ci_parse()` limits Unicode dash normalization to intervals that contain those dashes.

@@ -283,3 +283,20 @@ test_that("constant plain quantile inputs skip allocating probabilities", {
   }
   expect_identical(fn(c(1, NA, 6), breaks = 3), fct_num(c(1, NA, 6), breaks = 3))
 })
+
+test_that("ordered fixed numeric breaks do not require a duplicate index", {
+  x <- c(-Inf, 1, 3, 10, Inf, NA)
+  breaks <- as.double(seq_len(900L))
+  labels <- paste0("bin", seq_len(length(breaks) + 1L))
+  expected <- fct_num(x, breaks, labels)
+  fn <- .fct_num_cut
+  env <- new.env(parent = environment(fn))
+  env$anyDuplicated <- function(x, ...) {
+    if (is.numeric(x)) stop("searched sorted break values for duplicates")
+    base::anyDuplicated(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, c(-Inf, breaks, Inf), labels), expected)
+  expect_identical(fn(x, c(-Inf, NA, Inf), "all"),
+                   base::cut(x, c(-Inf, NA, Inf), labels = "all", include.lowest = TRUE))
+})
