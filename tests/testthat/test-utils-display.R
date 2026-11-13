@@ -1149,3 +1149,28 @@ test_that("literal progress steps skip inline markup preflight", {
   expect_match(out, "Literal work", fixed = TRUE)
   expect_match(out, "Literal done", fixed = TRUE)
 })
+
+test_that("formula classification decodes integer64 missing outcomes in a fresh process", {
+  skip_if_not_installed("bit64")
+  folder <- withr::local_tempdir()
+  script <- file.path(folder, "formula.R")
+  input <- file.path(folder, "formula.rds")
+  functions <- c(".cat_formula", ".cat_message", "._type_cfg", "._cli_bg", "._cli_fg",
+    "._chip", "console_width", ".register_integer64")
+  isolated <- new.env(parent = baseenv())
+  for (name in functions) {
+    fn <- get(name, asNamespace("UtilsR"))
+    environment(fn) <- isolated
+    assign(name, fn, isolated)
+  }
+  data <- data.frame(time = 1:5, DSS = bit64::as.integer64(c("1", "2", NA, "1", "2")))
+  saveRDS(list(data = data, fun = isolated$.cat_formula, libs = .libPaths()), input)
+  writeLines(c("fixture <- readRDS(commandArgs(TRUE)[1L])", ".libPaths(fixture[['libs']])",
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "out <- cli::ansi_strip(cli::cli_fmt(fixture[['fun']](fixture[['data']], NULL)))",
+    "cat(out, '\\n', 'loaded_after=', 'bit64' %in% loadedNamespaces(), '\\n', sep='')"), script)
+  output <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(input)), stdout = TRUE, stderr = TRUE)
+  expect_true(any(grepl("Cox model", output, fixed = TRUE)), info = paste(output, collapse = "\n"))
+  expect_true("loaded_after=TRUE" %in% output)
+})
