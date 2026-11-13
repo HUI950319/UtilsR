@@ -736,3 +736,20 @@ test_that("CI parsing skips token extraction when no rows match", {
     expect_identical(out$unit, matrix(NA_real_, length(x), 3L))
   }
 })
+
+test_that("sparsely repeated CI strings skip full deduplication", {
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (length(x) > 1024L) stop("hashed the full near-unique interval vector")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  n <- 4100L
+  x <- sprintf("%d (%d, %d)", seq_len(n), seq_len(n) - 1L, seq_len(n) + 1L)
+  sampled <- seq.int(1L, n, length.out = 1024L)
+  x[sampled[2L]] <- x[sampled[1L]]
+  x[3L] <- NA_character_
+  expect_identical(fn(x), .ci_extract(x))
+  expect_identical(fn(x)$estimate[sampled[1:2]], rep(1, 2L))
+})

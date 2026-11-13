@@ -348,7 +348,8 @@ stat_ci_parse <- function(x,
 #' @noRd
 .ci_extract <- function(x) {
   n <- length(x)
-  if (n > 1024L && anyDuplicated(x[seq.int(1L, n, length.out = 1024L)])) {
+  if (n > 1024L &&
+      length(unique(x[seq.int(1L, n, length.out = 1024L)])) < 512L) {
     keys <- unique(x)
     if (length(keys) < n / 2) {
       parsed <- .ci_extract(keys)

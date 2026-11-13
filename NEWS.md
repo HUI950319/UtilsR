@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval parsing skips full-input deduplication unless the sample shows enough repeated intervals to reuse.
+
 * KNN imputation avoids scaling and rebuilding the backend data when the only missing observations have no usable predictors.
 
 * Rasterization converts fixed physical gtable cells together and retains viewport measurement for relative units.
