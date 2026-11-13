@@ -517,3 +517,19 @@ test_that("native Windows memory permits independent CIM metadata", {
   expect_identical(result$cpu$name, "CIM CPU")
   expect_identical(result$system_memory$free_gb, 2)
 })
+
+test_that("system diagnostics remain available when the OS name is missing", {
+  query <- .check_system_fixture(os = "Other")
+  env <- environment(query)
+  original <- env$Sys.info
+  env$Sys.info <- function() {
+    result <- original()
+    result[["sysname"]] <- NA_character_
+    result
+  }
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$system_info$os_name, "Unknown")
+  expect_identical(result$system_info$is_linux, FALSE)
+  expect_identical(result$system_info$is_macos, FALSE)
+  expect_identical(result$system_info$architecture, "x86_64")
+})

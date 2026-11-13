@@ -64,6 +64,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
 
   host <- Sys.info()
+  if (is.na(host[["sysname"]])) host[["sysname"]] <- "Unknown"
 
   # Get R memory usage
   r_mem_used_bytes <- if (requireNamespace("lobstr", quietly = TRUE)) {

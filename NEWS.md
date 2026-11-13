@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* System diagnostics return the available details when the operating-system name cannot be read.
+
 * UpSet matches character selectors to the two logical values before processing logical columns.
 
 * UpSet membership checks character selectors against factor levels and reuses their codes for the observations.
