@@ -1307,3 +1307,24 @@ test_that("circle integer64 scales assign the numeric value column once", {
     expect_identical(writes, 1L)
   }
 })
+
+test_that("circular sector scaling computes both bounds together", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 4L),
+    name = rep(letters[1:4], 2L), value = c(2, 4, NA, 9, 1, 3, 6, 10))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env$min <- function(..., na.rm = FALSE) {
+    x <- list(...)
+    if (na.rm && length(x) == 1L && length(x[[1L]]) > 1L)
+      stop("scanned circular sector values for a single endpoint")
+    base::min(..., na.rm = na.rm)
+  }
+  environment(fn) <- env
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  for (mode in c("group", "top_n")) {
+    expect_no_error(fn(d, group_col = "group", value_scale = mode, top_n = 3L,
+      show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE))
+  }
+})

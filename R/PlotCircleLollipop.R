@@ -332,8 +332,8 @@ PlotCircleLollipop <- function(
     }
     (x - mn) / span
   }
-  score_extreme <- function(x, fun) {
-    if (all(is.na(x))) NA_real_ else fun(x, na.rm = TRUE)
+  score_range <- function(x) {
+    if (all(is.na(x))) c(NA_real_, NA_real_) else range(x, na.rm = TRUE)
   }
   scale_integer64 <- function(x, reference = x) {
     if (all(is.na(reference))) return(rep(NA_real_, length(x)))
@@ -381,7 +381,8 @@ PlotCircleLollipop <- function(
     for (i in seq_along(sector_rows)) {
       rows <- sector_rows[[i]]
       reference <- numeric_values[original_rows[[group_indices[i]]]]
-      scaled[rows] <- scale_values(df$value[rows], score_extreme(reference, min), score_extreme(reference, max))
+      bounds <- score_range(reference)
+      scaled[rows] <- scale_values(df$value[rows], bounds[1L], bounds[2L])
     }
     df$value <- scaled
 
@@ -390,7 +391,8 @@ PlotCircleLollipop <- function(
     scaled <- numeric(nrow(df))
     for (rows in sector_rows) {
       values <- df$value[rows]
-      scaled[rows] <- scale_values(values, score_extreme(values, min), score_extreme(values, max))
+      bounds <- score_range(values)
+      scaled[rows] <- scale_values(values, bounds[1L], bounds[2L])
     }
     df$value <- scaled
   }
