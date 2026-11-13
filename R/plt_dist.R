@@ -343,8 +343,13 @@ plt_dist <- function(data,
               "legend_args$position", paste("`NULL` or", one_of(legend_positions)))
   check_field(is_count(legend_args$ncol), "legend_args$ncol", "a positive integer")
 
-  data <- dplyr::ungroup(data)
   required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
+  input_names <- names(data)
+  if (inherits(data, "data.table") && !anyNA(input_names) &&
+      all(nzchar(input_names)) && !anyDuplicated(input_names)) {
+    data <- data[, required, with = FALSE]
+  }
+  data <- dplyr::ungroup(data)
   keep <- rep(TRUE, nrow(data))
   for (v in required) {
     value <- data[[v]]
@@ -486,7 +491,7 @@ plt_dist <- function(data,
   # --- 2 variables: stacked bar ---
   if (length(dis_vars) == 2) {
     x_var <- dis_vars[1]
-    internal_names <- tail(make.unique(c(names(data), "n", "prop", ".lab")), 3L)
+    internal_names <- tail(make.unique(c(input_names, "n", "prop", ".lab")), 3L)
     count_name <- internal_names[1L]
     prop_name <- internal_names[2L]
     label_name <- internal_names[3L]

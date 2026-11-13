@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution plots avoid copying unused data.table columns while keeping their output names and table type.
+
 * Distribution plots validate named palettes from observed factor codes without decoding every fill value.
 
 * Confidence interval parsing skips full-input deduplication unless the sample shows enough repeated intervals to reuse.

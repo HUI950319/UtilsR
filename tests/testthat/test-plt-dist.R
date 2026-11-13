@@ -744,3 +744,28 @@ test_that("distribution palettes find observed ordinary factor levels by their c
   expect_identical(actual$data, expected$data)
   expect_equal(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
 })
+
+test_that("distribution data tables project selected inputs before subsetting rows", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(x = rep(c("a", "b"), each = 3L),
+    y = rep(letters[1:3], 2L), fill = rep(c("A", "B"), 3L), site = "one",
+    n = 1:6, prop = 2:7, .lab = 3:8, payload = rep(list(raw(2000L)), 6L))
+  d[["fill"]][2L] <- NA_character_
+  before <- data.table::copy(d)
+  native_ungroup <- dplyr::ungroup
+  inputs <- list(list(dis_vars = c("x", "fill"), type = "bar", facet = "site"),
+    list(dis_vars = c("x", "y", "fill")))
+  draw <- function(args) suppressMessages(do.call(plt_dist, c(list(data = d), args)))
+  expected <- lapply(inputs, draw)
+  testthat::local_mocked_bindings(ungroup = function(x, ...) {
+    if (inherits(x, "data.table") && "payload" %in% names(x)) {
+      stop("copied unused distribution columns")
+    }
+    native_ungroup(x, ...)
+  }, .package = "dplyr")
+  out <- lapply(inputs, draw)
+  expect_identical(lapply(out, function(p) p$data), lapply(expected, function(p) p$data))
+  expect_true("n.1" %in% names(out[[1L]]$data))
+  expect_s3_class(out[[2L]]$data, "data.table")
+  expect_identical(d, before)
+})
