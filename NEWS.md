@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` orders percentage and matrix panels directly from the missing counts, avoiding a second grouped data frame.
+
 * `fct_to_combine()` compacts a single ordinary factor without building a row dictionary, preserving declared order and missingness.
 
 * `plt_alluvial()` uses the existing category levels to size the page.

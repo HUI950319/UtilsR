@@ -466,3 +466,22 @@ test_that("missingness matrix reshaping keeps the row-major logical vector witho
   expect_identical(out$data, reference$data)
   expect_identical(out$data$isna, c(FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE))
 })
+
+test_that("missingness panel order comes directly from missing counts", {
+  d <- data.frame(z = c(1, NA, 1, NA), a = c(NA, 1, 1, NA),
+                  b = rep(NA_real_, 4L), c = c(1, 1, NA, 1))
+  aliases <- c(a = "Alias", z = "Alias", b = "Empty")
+  draw <- function(sort) suppressMessages(plt_na(d, name.map = aliases, output = "percentage", sort = sort))
+  expected <- lapply(c("asc", "desc"), draw)
+  pull <- dplyr::pull
+  local_mocked_bindings(pull = function(.data, var, ...) {
+    if (identical(substitute(var), "label") && all(c("isna", "pct", "name") %in% names(.data)))
+      stop("filtered the summary again to order missingness panels")
+    pull(.data, {{ var }}, ...)
+  }, .package = "dplyr")
+  for (i in 1:2) {
+    actual <- draw(c("asc", "desc")[i])
+    expect_identical(actual$data, expected[[i]]$data)
+    expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected[[i]])$data)
+  }
+})

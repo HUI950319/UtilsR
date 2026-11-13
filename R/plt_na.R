@@ -162,19 +162,12 @@ plt_na <- function(
     dplyr::filter(.data[["num"]] > 0) |>
     dplyr::mutate(label = map_name(.data[["name"]]))
 
-  variable_summary <- missing_summary |>
-    dplyr::filter(.data[["isna"]])
-  variable_summary <- if (sort == "desc") {
-    variable_summary |>
-      dplyr::arrange(dplyr::desc(.data[["pct"]]))
-  } else {
-    variable_summary |>
-      dplyr::arrange(.data[["pct"]])
-  }
-  display_labels <- dplyr::pull(variable_summary, "label")
+  missing_pct <- counts / nrow(df) * 100
+  ordered_names <- names(counts)[order(missing_pct, decreasing = sort == "desc")]
+  display_labels <- map_name(ordered_names)
   variable_levels <- make.unique(display_labels)
   names(display_labels) <- variable_levels
-  variable_keys <- stats::setNames(variable_levels, variable_summary$name)
+  variable_keys <- stats::setNames(variable_levels, ordered_names)
 
   missing_summary$label <- factor(
     unname(variable_keys[missing_summary$name]),
