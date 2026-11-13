@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Independent continuous panels keep their full shared limits when pairwise comparisons are absent.
+
 * Rank plots locate default Date and integer64 groups once, preserving native group identities.
 
 * Data quality checks reuse observed factor level counts while distinguishing explicit NA levels from missing codes.

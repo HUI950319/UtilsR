@@ -1852,3 +1852,11 @@ test_that("continuous quantile zooms follow a composed decreasing scale", {
     }
   }
 })
+
+test_that("continuous plots keep extreme shared limits without comparisons", {
+  d <- data.frame(x = c(-1e308, -5e307, 5e307, 1e308), z = 1:4,
+    g = rep(c("A", "B"), each = 2L))
+  plots <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+    same.y.lims = TRUE, combine = FALSE))
+  for (p in plots) expect_equal(unname(p$coordinates$limits$y / 1e308), c(-1, 1))
+})

@@ -1424,7 +1424,9 @@ plt_con <- function(data,
       vjust = 0
     )
   }
-  annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
+  if (comparison_count > 0L) {
+    annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
+  }
 
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + .con_component(.con_global_layer, features = feature,
