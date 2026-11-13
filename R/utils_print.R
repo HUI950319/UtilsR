@@ -1298,6 +1298,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       present <- sum(!missing)
       total <- length(missing)
     }
+    if (!total) return(c("", "empty", "NA n/a"))
     percentage <- 100 * ((total - present) / total)
     na <- sprintf("NA %.1f%%", percentage)
     if (percentage > 0 && na == "NA 0.0%") na <- "NA <0.1%"

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` describes zero-cell packed columns as empty.
+
 * `pal_get()` resolves discrete display levels once for a list of palettes.
 
 * `pr_note()` uses pre-separated lines directly and reserves ANSI splitting for embedded breaks.

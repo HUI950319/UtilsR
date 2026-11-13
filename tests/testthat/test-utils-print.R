@@ -1839,3 +1839,10 @@ test_that("notes avoid ANSI splitting for separate single lines", {
   expect_identical(capture.output(pr_note(x)), expected)
   expect_identical(capture.output(pr_note("first\n\nlast")), expected)
 })
+
+test_that("zero-cell nested columns have no missingness denominator", {
+  d <- tibble::tibble(values = data.frame(a = numeric(), b = integer()))
+  expect_match(capture.output(pr_spark(d)), "empty.*NA n/a")
+  d <- tibble::tibble(values = matrix(numeric(), nrow = 3L, ncol = 0L))
+  expect_match(capture.output(pr_spark(d)), "empty.*NA n/a")
+})
