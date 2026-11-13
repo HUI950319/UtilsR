@@ -791,6 +791,7 @@ fmt_tag <- function(plot,
   rename_guide <- function(guide) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
     params <- guide$params
+    if ("title" %in% names(params) && identical(params$title, label)) return(guide)
     params["title"] <- list(label)
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
@@ -807,8 +808,10 @@ fmt_tag <- function(plot,
   }
   scales <- lapply(p$scales$scales, function(sc) {
     if (!any(.is_legend_aes(sc$aesthetics))) return(sc)
+    guide <- rename_guide(sc$guide)
+    if (identical(sc$name, label) && identical(sc$guide, guide)) return(sc)
     do.call(ggplot2::ggproto, list(NULL, sc, name = label,
-      guide = rename_guide(sc$guide)), quote = TRUE, envir = baseenv())
+      guide = guide), quote = TRUE, envir = baseenv())
   })
   if (!identical(scales, p$scales$scales)) {
     p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),

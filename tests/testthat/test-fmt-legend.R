@@ -1010,3 +1010,17 @@ test_that("legend formatting reads the base theme once across panels", {
   expect_identical(calls, 1L)
   expect_equal(lapply(result, function(q) q$theme), lapply(reference, function(q) q$theme))
 })
+
+test_that("repeated legend titling keeps matching scales and guides", {
+  d <- data.frame(x = 1:4, y = 4:1, group = rep(c("one", "two"), 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = group)) + ggplot2::geom_point() +
+    ggplot2::scale_colour_discrete(name = "Original", guide = ggplot2::guide_legend(title = "Original"))
+  for (title in list("Label", NULL)) {
+    a <- .set_legend_title(p, title)
+    b <- .set_legend_title(a, title)
+    expect_identical(a$scales$get_scales("colour")$guide, b$scales$get_scales("colour")$guide)
+    expect_identical(a$scales$get_scales("colour")$guide$params$title, title)
+    expect_s3_class(ggplot2::ggplotGrob(b), "gtable")
+  }
+  expect_identical(p$scales$get_scales("colour")$guide$params$title, "Original")
+})
