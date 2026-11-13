@@ -1496,3 +1496,30 @@ test_that("background group checks use row-aligned assignments", {
   expect_warning(result <- draw(d), "strict superset")
   expect_null(result)
 })
+
+test_that("categorical continuous renderers encode x once", {
+  d <- data.frame(category = rep(c("", "present"), 3L),
+    group = ordered(rep(c("late", "early", NA), each = 2L),
+                    levels = c("late", "unused", "early")))
+  for (type in c("trend", "area")) {
+    draw <- function() cat_test_plot(d, "category", "group", type = type,
+      stat = "count", NA_stat = TRUE, keep_empty = TRUE, label = TRUE)
+    expected <- draw()
+    name <- paste0(".plt_cat_", type)
+    fn <- get(name, envir = asNamespace("UtilsR"))
+    env <- new.env(parent = environment(fn))
+    calls <- 0L
+    env$factor <- function(x, ...) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("encoded the continuous categorical axis twice")
+      base::factor(x, ...)
+    }
+    environment(fn) <- env
+    do.call(local_mocked_bindings, c(stats::setNames(list(fn), name),
+      list(.package = "UtilsR", .env = environment())))
+    actual <- draw()
+    expect_identical(calls, 1L)
+    expect_identical(actual$data, expected$data)
+    expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
+  }
+})

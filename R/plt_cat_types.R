@@ -150,8 +150,9 @@
   }
 
   # Convert x to numeric for consistent geom_area + geom_col rendering
-  x_levels <- levels(factor(plotdata[[x_var]]))
-  plotdata[["x_num"]] <- as.numeric(factor(plotdata[[x_var]], levels = x_levels))
+  x_factor <- factor(plotdata[[x_var]])
+  x_levels <- levels(x_factor)
+  plotdata[["x_num"]] <- as.numeric(x_factor)
 
   # Area background: double rows and offset for stepped appearance
   dat_area <- plotdata[rep(seq_len(nrow(plotdata)), each = 2), , drop = FALSE]
@@ -187,11 +188,12 @@
 .plt_cat_area <- function(plotdata, cols, alpha = 0.8, position = "stack",
                           keep_empty = FALSE, ...) {
   x_var <- .cat_x_var(plotdata)
-  group_levels <- levels(factor(plotdata[[x_var]]))
+  group_factor <- factor(plotdata[[x_var]])
+  group_levels <- levels(group_factor)
   if (x_var != "group_var" || length(group_levels) < 2L) {
     cli::cli_abort("{.arg group.by} must provide at least two displayed levels for {.code type = \"area\"}.")
   }
-  plotdata[["x_num"]] <- as.numeric(factor(plotdata[[x_var]], levels = group_levels))
+  plotdata[["x_num"]] <- as.numeric(group_factor)
 
   if (position == "stack") {
     pos <- ggplot2::position_stack(vjust = 0.5)
