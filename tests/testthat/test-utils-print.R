@@ -1846,3 +1846,13 @@ test_that("zero-cell nested columns have no missingness denominator", {
   d <- tibble::tibble(values = matrix(numeric(), nrow = 3L, ncol = 0L))
   expect_match(capture.output(pr_spark(d)), "empty.*NA n/a")
 })
+
+test_that("impossible console widths fail before formatting cells", {
+  d <- data.frame(id = c("a", "b"), p = c(.025, .125))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$._p_cells <- function(...) stop("formatted p-values before rejecting the width")
+  environment(fn) <- env
+  expect_error(fn(d, p_col = "p", width = 3L), "one character per required column")
+  expect_length(capture.output(fn(d["id"], width = 3L)), 4L)
+})

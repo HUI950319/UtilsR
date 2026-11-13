@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` diagnoses impossible column widths before formatting the cells.
+
 * `pr_spark()` describes zero-cell packed columns as empty.
 
 * `pal_get()` resolves discrete display levels once for a list of palettes.

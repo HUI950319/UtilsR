@@ -647,6 +647,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   at <- if (length(hl)) which(seq_len(nrow(data)) %in% hl) else integer()
   if (!colour && length(at)) indent <- max(indent, 2L)
   avail <- (width %||% console_width()) - indent
+  # The first column and every P-value column must fit.
+  keep <- unique(c(1L, which(is_p)))
+  if (avail < length(keep)) {
+    cli::cli_abort("The line width must leave at least one character per required column.")
+  }
   is_num <- vapply(data, is.numeric, logical(1)) | is_p
   cells  <- lapply(seq_along(data), function(j) {
     v <- ._pr_restore(data[[j]])
@@ -705,13 +710,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   col_w <- vapply(seq_along(cells), function(j) {
     max(cli::ansi_nchar(c(headers[j], cells[[j]]), type = "width"))
   }, numeric(1))
-  # the first and the P-value columns always show; the others follow in
-  # order until one no longer fits the line
-  keep  <- unique(c(1L, which(is_p)))
   gap <- 2L
-  if (avail < length(keep)) {
-    cli::cli_abort("The line width must leave at least one character per required column.")
-  }
   if (length(keep) > 1L) gap <- min(gap, max(0L, floor((avail - length(keep)) / (length(keep) - 1L))))
   if (sum(col_w[keep]) + gap * (length(keep) - 1L) > avail) {
     # Shorten required headings before sacrificing P-value contents.
