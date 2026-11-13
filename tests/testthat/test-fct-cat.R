@@ -771,3 +771,14 @@ test_that("protected numeric vectors retain distinct exact factor levels", {
   y <- I(matrix(1:4, 2L))
   expect_identical(.as_factor(y), factor(y))
 })
+
+test_that("labelled factor conversions preserve exact values and SPSS missingness", {
+  skip_if_not_installed("haven")
+  values <- c(1, 1 + .Machine$double.eps, 99, NA)
+  regular <- haven::labelled(values, c(first = 1))
+  spss <- haven::labelled_spss(values, c(first = 1), na_values = 99)
+  expect_identical(.as_factor(regular), .as_factor(values))
+  expect_identical(.as_factor(spss), .as_factor(replace(values, 3L, NA_real_)))
+  labels <- haven::labelled(c("a", "b", NA), c(alpha = "a"))
+  expect_identical(.as_factor(labels), factor(c("a", "b", NA)))
+})
