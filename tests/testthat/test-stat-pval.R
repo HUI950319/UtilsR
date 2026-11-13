@@ -767,3 +767,12 @@ test_that("p-value parsing strips operators only from bounded text", {
   expect_identical(fn(x, mode = "stars"), expected)
   expect_error(fn(c("0.01", "bad"), mode = "pvalue"), "numeric strings")
 })
+
+test_that("p-value text diagnoses malformed bytes through input validation", {
+  for (encoding in c("UTF-8", "bytes")) {
+    bad <- rawToChar(as.raw(255L))
+    Encoding(bad) <- encoding
+    expect_error(stat_pval(c(".05", bad)), "numeric strings or numeric bounds", class = "rlang_error")
+  }
+  expect_identical(stat_pval(c("\u2264 .01", ".05", NA)), c("\u2264 .01", "0.050*", NA))
+})

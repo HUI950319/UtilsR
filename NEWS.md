@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` reports malformed encodings as invalid numeric strings before decimal parsing.
+
 * Confidence interval formatters preserve malformed text bytes as unparsed rows while continuing to process valid intervals.
 
 * `pr_table()` diagnoses impossible column widths before formatting the cells.

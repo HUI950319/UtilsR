@@ -202,6 +202,9 @@ stat_pval <- function(x,
 
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
+    if (any(!validEnc(x) | Encoding(x) == "bytes")) {
+      cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
+    }
     text <- .trim_pvalue_space(x)
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
