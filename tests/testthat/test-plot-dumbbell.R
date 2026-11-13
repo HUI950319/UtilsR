@@ -880,3 +880,15 @@ test_that("dumbbell coordinate legends use native inside positioning", {
     expect_identical(p$theme$legend.justification, as.numeric(expected > .5))
   }
 })
+
+test_that("empty classed dumbbell insets preserve zero-row endpoint data", {
+  for (x in list(as.Date(character()), as.POSIXct(character(), tz = "UTC"),
+                 as.difftime(numeric(), units = "hours"))) {
+    p <- .build_dumbbell_inset(data.frame(a = x, b = x), "a", "b",
+      "Start", "End", "red", "blue", "boxplot", "none",
+      paired_line = FALSE, jitter = FALSE, theme_obj = ggplot2::theme_void())
+    expect_identical(nrow(p$data), 0L)
+    expect_identical(class(p$data$.value), class(x))
+    expect_length(levels(p$data$.group), 2L)
+  }
+})

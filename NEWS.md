@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Empty `PlotDumbbell()` inset inputs keep the two endpoint groups and their original value storage.
+
 * `check_size()` uses the measured object size as the total when exactly one object was read.
 
 * `stat_ci_parse(output = "ci_p")` constructs the P-value separator directly, leaving the rest of the interval text untouched.

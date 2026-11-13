@@ -646,13 +646,13 @@ PlotDumbbell <- function(
     df_long <- rbind(
       data.frame(
         .id    = ids,
-        .group = group_keys[1L],
+        .group = rep_len(group_keys[1L], length(ids)),
         .value = if (integer64_pair) suppressWarnings(as.double(x_values)) else x_values,
         stringsAsFactors = FALSE
       ),
       data.frame(
         .id    = ids,
-        .group = group_keys[2L],
+        .group = rep_len(group_keys[2L], length(ids)),
         .value = if (integer64_pair) suppressWarnings(as.double(xend_values)) else xend_values,
         stringsAsFactors = FALSE
       )
