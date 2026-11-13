@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Linux diagnostics preserve quoted release names with surrounding whitespace.
+
 * Linux memory diagnostics use `/proc/meminfo` measurements only when the values have the expected kB units.
 
 * Survival formula notices count observed factor codes without hashing each outcome row.

@@ -560,3 +560,15 @@ test_that("Linux memory diagnostics reject incompatible proc memory units", {
   expect_identical(out$system_memory$total_gb, 4)
   expect_identical(out$system_memory$free_gb, 1)
 })
+
+test_that("Linux release names ignore surrounding whitespace outside quotes", {
+  q <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(q)
+  read <- env$readLines
+  env$readLines <- function(con, ...) {
+    if (con == "/etc/os-release") return(c('NAME="Fallback"', 'PRETTY_NAME="Quoted  distribution"   '))
+    read(con, ...)
+  }
+  invisible(capture.output(out <- q(return_result = TRUE)))
+  expect_identical(out$system_info$os_full_name, "Quoted  distribution")
+})

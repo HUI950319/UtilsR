@@ -310,7 +310,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
               for (key in c("PRETTY_NAME=", "NAME=")) {
                 line <- release[startsWith(release, key)]
                 if (!length(line)) next
-                value <- substring(line[length(line)], nchar(key) + 1L)
+                value <- trimws(substring(line[length(line)], nchar(key) + 1L))
                 delimiter <- substr(value, 1L, 1L)
                 if (delimiter %in% c("\"", "'") && endsWith(value, delimiter)) {
                   value <- substring(value, 2L, nchar(value) - 1L)
