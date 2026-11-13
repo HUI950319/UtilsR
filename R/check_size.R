@@ -203,7 +203,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   total_mb <- sum(object_info$Size)
   if (method == "lobstr" && object_count > 1L) {
     values <- unname(lapply(object_metrics[!failed], `[[`, "value"))
-    total_bytes <- do.call(lobstr::obj_size, c(values, list(env = envir)))
+    total_bytes <- do.call(lobstr::obj_size, c(values, list(env = envir)), quote = TRUE)
     total_mb <- as.numeric(total_bytes) / (1024^2)
   }
   source_note <- if (method == "lobstr") {

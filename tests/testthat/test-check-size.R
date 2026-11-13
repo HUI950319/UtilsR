@@ -525,3 +525,15 @@ test_that("single-object size reports do not measure the same value twice", {
   expect_identical(reads, 1L)
   expect_equal(out[["_data"]]$Size[1L], out[["_data"]]$Size[2L])
 })
+
+test_that("joint object sizes keep stored language inert", {
+  skip_if_not_installed("lobstr")
+  call <- quote(stop("stored call evaluated"))
+  symbol <- quote(never_bound_symbol)
+  x <- 1:10
+  e <- list2env(list(call = call, symbol = symbol, x = x), parent = emptyenv())
+  actual <- check_size(envir = e, method = "lobstr")[["_data"]]
+  expect_identical(actual$Object[1L], "**TOTAL**")
+  expect_setequal(actual$Object[-1L], c("call", "symbol", "x"))
+  expect_equal(actual$Size[1L], as.numeric(lobstr::obj_size(call, symbol, x, env = e)) / 1024^2)
+})
