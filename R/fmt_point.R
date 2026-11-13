@@ -502,7 +502,8 @@ fmt_point <- function(plot,
       addNA(as.factor(x), ifany = TRUE)
     })
     if (length(strata) == 1L) {
-      groups <- droplevels(strata[[1L]], exclude = NULL)
+      groups <- strata[[1L]]
+      if (nlevels(groups) > nrow(data)) groups <- droplevels(groups, exclude = NULL)
       rows <- split(seq_len(nrow(data)), groups)
     } else {
       codes <- lapply(strata, as.integer)

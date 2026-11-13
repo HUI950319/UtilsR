@@ -914,3 +914,15 @@ test_that("point sampling defers legacy computed aesthetics", {
   expect_identical(counts[[2L]], counts[[3L]])
   expect_equal(sum(counts[[3L]]), 5)
 })
+
+test_that("single point strata skip redundant factor reconstruction", {
+  d <- data.frame(x = 1:10, y = 10:1,
+    group = factor(rep(c("C", "A", NA, "A", "C"), 2L), levels = c("C", "unused", "A")))
+  mapping <- ggplot2::aes(x, y, group = group)
+  expected <- .fmt_point_sample(d, mapping, sample_n = 2, seed = 12)
+  fn <- .fmt_point_sample
+  env <- new.env(parent = environment(fn))
+  env$droplevels <- function(...) stop("rebuilt an ordinary point stratum")
+  environment(fn) <- env
+  expect_identical(fn(d, mapping, sample_n = 2, seed = 12), expected)
+})
