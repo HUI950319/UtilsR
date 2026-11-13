@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial input filtering reads ordinary factor missing codes directly and still checks explicit missing levels.
+
 * Butterfly bars reflect labelled numeric scores without applying arithmetic to their value labels.
 
 * Sankey labels reuse the node factor codes instead of creating a character key per observation.

@@ -987,7 +987,7 @@ test_that("alluvial observed factor levels reuse integer codes", {
   environment(fn) <- env
   expected <- plt_alluvial(d, "category", "group")
   result <- fn(d, "category", "group")
-  expect_identical(conversions, 2L)
+  expect_identical(conversions, 0L)
   expect_identical(result$data, expected$data)
   observed <- result$data[!result$data$.is_gap, ]
   expect_identical(levels(droplevels(observed$.cat_var)), c("first", "later"))
@@ -1071,4 +1071,23 @@ test_that("alluvial gap levels remap the existing factor codes", {
     stratum_args = list(gap = gap)))
   for (gap in c(0, .04)) expect_identical(draw(fn, gap)$data, draw(plt_alluvial, gap)$data)
   expect_identical(levels(draw(fn, .04)$data$.group), c("", ".gap_1", "G1"))
+})
+
+test_that("alluvial completeness uses ordinary factor missing codes directly", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()[rep(seq_len(nrow(alluvial_data())), 20L), ]
+  d$category <- ordered(d$category, levels = c("B", "A", "unused"))
+  d$category[2L] <- NA
+  d$group <- factor(d$group, levels = c("G2", "G1", NA), exclude = NULL)
+  d$group[3L] <- NA
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$category)) stop("decoded full factor")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(d, "category", "group", facet = "panel"))
+  expect_identical(draw(fn)$data, draw(plt_alluvial)$data)
+  expect_equal(sum(draw(fn)$data$count), 158L)
 })

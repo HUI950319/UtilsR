@@ -416,7 +416,11 @@ plt_alluvial <- function(
     value <- data[[column]]
     .register_integer64(value)
     keep <- keep & !is.na(value)
-    if (is.object(value)) keep <- keep & !is.na(as.character(value))
+    ordinary_factor <- identical(class(value), "factor") ||
+      identical(class(value), c("ordered", "factor"))
+    if (is.object(value) && (!ordinary_factor || anyNA(levels(value)))) {
+      keep <- keep & !is.na(as.character(value))
+    }
   }
   removed <- sum(!keep)
   if (removed > 0L) {
