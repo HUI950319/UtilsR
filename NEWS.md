@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` reports an oversized stratum grid before allocating its zero-count cells.
+
 * `plt_con(ref_group = ...)` identifies observed groups from factor codes before building comparisons.
 
 * `plt_upset(output = "all")` uses its existing intersection counts to size the UpSet panel.

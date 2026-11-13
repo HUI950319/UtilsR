@@ -471,6 +471,11 @@ plt_alluvial <- function(
   pair_id <- vctrs::vec_group_id(plot_input[pair_columns])
   n_pairs <- attr(pair_id, "n")
   n_groups <- length(group_levels)
+  n_strata <- as.double(n_pairs) * n_groups
+  n_gaps <- if (stratum_args$gap > 0) max(0L, n_groups - 1L) else 0L
+  if (n_strata + as.double(n_pairs) * n_gaps >= 2^31) {
+    cli::cli_abort("The alluvial stratum grid must contain fewer than 2^31 cells. Reduce the number of categories or groups.")
+  }
   pairs <- plot_input[!duplicated(pair_id), pair_columns]
   pair_order <- order(pairs$.cat_var, pairs$.facet)
   pairs <- pairs[pair_order, , drop = FALSE]

@@ -1110,3 +1110,19 @@ test_that("gap-free alluvial plots use the existing group levels", {
   expect_identical(actual$data, expected$data)
   expect_identical(levels(actual$data$.group), c("z", "y", "", "x"))
 })
+
+test_that("alluvial stratum grid limits precede expansion", {
+  skip_if_not_installed("ggalluvial")
+  values <- seq_len(46341L)
+  d <- data.frame(category = values, group = values)
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$rep.int <- function(x, times) {
+    if (as.double(length(x)) * times >= 2^31) stop("allocated an oversized stratum grid")
+    base::rep.int(x, times)
+  }
+  environment(fn) <- env
+  expect_error(fn(d, "category", "group"), "stratum grid.*2\\^31")
+  small <- suppressMessages(fn(d[1:3, ], "category", "group", stratum_args = list(gap = 0)))
+  expect_equal(nrow(small$data), 9L)
+})
