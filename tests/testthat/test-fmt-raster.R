@@ -782,3 +782,17 @@ test_that("image rasterization rejects objects without a drawing class", {
   expect_s3_class(fmt_raster(grid::rectGrob(), method = "image", width = 1, height = 1, dpi = 20),
     "patchwork")
 })
+
+test_that("ggrastr leaves unchanged nested vector children in place", {
+  skip_if_not_installed("ggrastr")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_line()
+  original <- (p | p) / (p | p)
+  fn <- .fmt_raster_ggrastr
+  env <- new.env(parent = environment(fn))
+  env[["[[<-"]] <- function(x, i, value) {
+    if (inherits(x, "patchwork")) stop("reassigned an unchanged child")
+    base::`[[<-`(x, i, value)
+  }
+  environment(fn) <- env
+  expect_identical(fn(original, 72, "ragg"), original)
+})

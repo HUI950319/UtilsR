@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Layer rasterization avoids reassigning patchwork children when they have no eligible geometry.
+
 * Text p-value formatting uses interval lookup and checks exact decimals only where they round to a significance cutoff.
 
 * Palette catalogue headings use one console width for layout and rendering within each listing.

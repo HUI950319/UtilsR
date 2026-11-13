@@ -216,7 +216,11 @@ fmt_raster <- function(
 
   raster_one <- function(p) {
     if (inherits(p, "patchwork")) {
-      for (i in seq_along(p)) p[[i]] <- raster_one(p[[i]])
+      for (i in seq_along(p)) {
+        child <- p[[i]]
+        updated <- raster_one(child)
+        if (!identical(updated, child)) p[[i]] <- updated
+      }
       return(p)
     }
     # Points and tiles, as ggrastr's own default: lines, bars and polygons are
