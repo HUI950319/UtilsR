@@ -2062,3 +2062,34 @@ test_that("continuous dot bins reuse prevalidated sorted cut points", {
   expect_identical(fn(x, breaks), expected)
   expect_identical(fn(x, breaks), c(.5, .5, 1.5, 3, 3, NA_real_))
 })
+
+test_that("continuous plot frames retain ordinary grouping factor codes", {
+  d <- data.frame(a = c(1, 2, NA, 4, 5, 6), b = c(2, NA, 4, 5, 6, 7),
+                  g = factor(c("B", "", NA, "B", "", "B"), levels = c("B", "", "unused")))
+  draw <- function(stack) suppressMessages(plt_con(d, c("a", "b"), "g", type = "box",
+    stack = stack, combine = stack, flip = FALSE))
+  expected <- list(draw(FALSE), draw(TRUE))
+  with_check <- function(fn) {
+    env <- new.env(parent = environment(fn))
+    env$factor <- function(x, ...) {
+      if (is.factor(x) && identical(class(x), "factor") &&
+          identical(levels(x), c("B", "", "unused")) && length(x) >= nrow(d))
+        stop("rebuilt a continuous plot grouping factor")
+      base::factor(x, ...)
+    }
+    environment(fn) <- env
+    fn
+  }
+  contrasts <- matrix(c(-1, 0, 1), ncol = 1L)
+  attr(d$g, "contrasts") <- contrasts
+  decorated <- suppressMessages(plt_con(d, "a", "g", type = "box", flip = FALSE))
+  expect_null(attr(decorated$data$group.by, "contrasts"))
+  expect_identical(attr(d$g, "contrasts"), contrasts)
+  attr(d$g, "contrasts") <- NULL
+
+  local_mocked_bindings(.plt_con_single = with_check(.plt_con_single),
+    .plt_con_stacked = with_check(.plt_con_stacked), .package = "UtilsR")
+  actual <- list(draw(FALSE), draw(TRUE))
+  expect_identical(lapply(actual[[1L]], function(p) p$data), lapply(expected[[1L]], function(p) p$data))
+  expect_identical(actual[[2L]]$data, expected[[2L]]$data)
+})

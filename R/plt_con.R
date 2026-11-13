@@ -1291,7 +1291,12 @@ plt_con <- function(data,
     group.by = data[[group.by]],
     stringsAsFactors = FALSE
   )
-  dat[["group.by"]] <- factor(dat[["group.by"]], levels = levels(data[[group.by]]))
+  group_levels <- levels(data[[group.by]])
+  group_attrs <- names(attributes(dat[["group.by"]]))
+  if (!identical(class(dat[["group.by"]]), "factor") || anyNA(group_levels) ||
+      any(!group_attrs %in% c("levels", "class", "names"))) {
+    dat[["group.by"]] <- factor(dat[["group.by"]], levels = group_levels)
+  }
 
   if (fill.by == "group") {
     dat[["fill.by"]] <- dat[["group.by"]]
@@ -1553,9 +1558,13 @@ plt_con <- function(data,
   if (any(selected < n)) {
     rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) (i - 1L) * n + rows[[i]]))
   }
-  dat_long[["group.by"]] <- factor(
-    dat_long[["group.by"]], levels = levels(data[[group.by]])
-  )
+  group_levels <- levels(data[[group.by]])
+  group_attrs <- names(attributes(dat_long[["group.by"]]))
+  if (!identical(class(dat_long[["group.by"]]), "factor") ||
+      !identical(levels(dat_long[["group.by"]]), group_levels) || anyNA(group_levels) ||
+      any(!group_attrs %in% c("levels", "class", "names"))) {
+    dat_long[["group.by"]] <- factor(dat_long[["group.by"]], levels = group_levels)
+  }
 
   if (fill.by == "group") {
     dat_long[["fill.by"]] <- dat_long[["group.by"]]

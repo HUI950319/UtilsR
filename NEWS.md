@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous plots reuse ordinary grouping codes in single and stacked panels, preserving declared levels.
+
 * `check_packages()` formats installed-copy counts without a locale warning when `OutDec` is a comma.
 
 * Linux diagnostics preserve quoted release names with surrounding whitespace.
