@@ -546,3 +546,28 @@ test_that("background stripes share trained scales across fixed facets", {
   expect_equal(bg_rects(ggplot2::ggplot_gtable(b)), expected)
   expect_identical(calls, 1L)
 })
+
+test_that("background stripes map a shared fixed scale once", {
+  d <- data.frame(category = rep(LETTERS[1:3], 4L), value = 1:12, panel = rep(1:4, each = 3L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(category, value)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(panel))
+  q <- fmt_bg(p, palcolor = bg_colors)
+  expected <- bg_rects(ggplot2::ggplotGrob(q))
+  b <- ggplot2::ggplot_build(q)
+  scale <- b$layout$panel_scales_x[[1L]]
+  native_map <- scale$map
+  maps <- 0L
+  scale$map <- function(x, ...) {
+    if (identical(x, LETTERS[1:3])) {
+      maps <<- maps + 1L
+      if (maps > 1L) stop("remapped a shared scale")
+    }
+    native_map(x, ...)
+  }
+  layer <- b$plot$layers[[1L]]
+  grobs <- layer$geom$draw_layer(b$data[[1L]], layer$computed_geom_params, b$layout, b$layout$coord)
+  expect_identical(maps, 1L)
+  actual <- do.call(rbind, lapply(grobs, bg_rects))
+  rownames(actual) <- rownames(expected) <- NULL
+  expect_equal(actual, expected)
+})

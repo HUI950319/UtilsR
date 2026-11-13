@@ -4769,43 +4769,45 @@ fmt_bg <- function(plot,
         scale_ids <- layout$layout[[if (bg_axis == "x") "SCALE_X" else "SCALE_Y"]]
         distinct <- unique(scale_ids)
         scales <- lapply(match(distinct, scale_ids), function(i) layout$get_scales(i)[[bg_axis]])
-        params$bg_scales <- scales[match(scale_ids, distinct)]
-        if (!any(vapply(scales, function(scale) scale$is_discrete(), logical(1)))) {
+        discrete <- vapply(scales, function(scale) scale$is_discrete(), logical(1))
+        trained <- lapply(scales[discrete], function(scale) scale$get_limits())
+        if (!any(discrete)) {
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
-        trained_limits <- unlist(lapply(scales, function(scale) {
-          if (scale$is_discrete()) scale$get_limits() else character()
-        }), use.names = FALSE)
-        params$bg_has_categories <- any(!is.na(trained_limits))
+        trained_limits <- unlist(trained, use.names = FALSE)
         limits <- unique(c(lvs, trained_limits))
         limits <- limits[!is.na(limits)]
         shown <- unique(trained_limits[!is.na(trained_limits)])
-        params$bg_colors <- if (!is.null(names(palcolor)) && all(shown %in% names(palcolor))) {
+        colors <- if (!is.null(names(palcolor)) && all(shown %in% names(palcolor))) {
           palcolor[shown]
         } else if (!is.null(bg_color) && all(limits %in% lvs)) bg_color else resolve_bg_colors(limits)
+        geometry <- vector("list", length(scales))
+        geometry[discrete] <- Map(function(scale, values) {
+          if (!length(shown) || !length(values)) return(NULL)
+          positions <- as.numeric(scale$map(values))
+          keep <- is.finite(positions)
+          if (!any(keep)) return(NULL)
+          positions <- positions[keep]
+          values <- values[keep]
+          fills <- unname(colors[match(values, names(colors))])
+          fills[is.na(values)] <- "grey80"
+          edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
+          list(fill = fills, edges = edges)
+        }, scales[discrete], trained)
+        params$bg_panels <- geometry[match(scale_ids, distinct)]
         ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
       },
-      draw_panel = function(data, panel_params, coord, bg_scales, bg_colors,
-                            bg_has_categories, na.rm = FALSE) {
-        scale <- bg_scales[[as.integer(data$PANEL[1])]]
-        if (!scale$is_discrete()) return(ggplot2::zeroGrob())
-        limits <- scale$get_limits()
-        positions <- as.numeric(scale$map(limits))
-        keep <- is.finite(positions)
-        limits <- limits[keep]
-        positions <- positions[keep]
-        if (!length(limits) || !bg_has_categories) return(ggplot2::zeroGrob())
-        fills <- unname(bg_colors[match(limits, names(bg_colors))])
-        fills[is.na(limits)] <- "grey80"
-        edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
-        rectangles <- data[rep(1L, length(limits)), , drop = FALSE]
+      draw_panel = function(data, panel_params, coord, bg_panels, na.rm = FALSE) {
+        geometry <- bg_panels[[as.integer(data$PANEL[1L])]]
+        if (is.null(geometry)) return(ggplot2::zeroGrob())
+        rectangles <- data[rep(1L, length(geometry$fill)), , drop = FALSE]
         rectangles$xmin <- -Inf
         rectangles$xmax <- Inf
         rectangles$ymin <- -Inf
         rectangles$ymax <- Inf
-        rectangles[[paste0(bg_axis, "min")]] <- c(-Inf, edges)
-        rectangles[[paste0(bg_axis, "max")]] <- c(edges, Inf)
-        rectangles$fill <- fills
+        rectangles[[paste0(bg_axis, "min")]] <- c(-Inf, geometry$edges)
+        rectangles[[paste0(bg_axis, "max")]] <- c(geometry$edges, Inf)
+        rectangles$fill <- geometry$fill
         grob <- ggplot2::GeomRect$draw_panel(rectangles, panel_params, coord)
         grob$vp <- grid::viewport(clip = "on")
         grob$name <- "fmt-bg-stripes"
