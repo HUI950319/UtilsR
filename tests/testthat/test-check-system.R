@@ -572,3 +572,15 @@ test_that("Linux release names ignore surrounding whitespace outside quotes", {
   invisible(capture.output(out <- q(return_result = TRUE)))
   expect_identical(out$system_info$os_full_name, "Quoted  distribution")
 })
+
+test_that("macOS metadata fallbacks handle empty and failed command output", {
+  for (bad in list(character(), c("two", "lines"), structure("failed", status = 1L), "   ")) {
+    q <- .check_system_fixture(os = "Darwin", legacy = list(
+      "sw_vers -productName" = bad, "sw_vers -productVersion" = "  14.2  ",
+      "sysctl -n machdep.cpu.brand_string" = bad))
+    invisible(capture.output(out <- q(return_result = TRUE)))
+    expect_identical(out$system_info$os_full_name, "macOS 14.2")
+    expect_identical(out$system_info$os_version, "14.2")
+    expect_identical(out$cpu$name, "Unknown")
+  }
+})

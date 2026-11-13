@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` uses host fallbacks when macOS commands return empty, malformed or failed metadata.
+
 * Univariate categorical plots tally ordinary factor levels directly before selecting the displayed rows.
 
 * Continuous plots reuse ordinary grouping codes in single and stacked panels, preserving declared levels.

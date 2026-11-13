@@ -348,18 +348,17 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             )
 
           } else if (os_name == "Darwin") {
-            mac_version <- tryCatch(
-              system("sw_vers -productVersion", intern = TRUE),
-              error = function(e) os_release
-            )
-            mac_name <- tryCatch(
-              system("sw_vers -productName", intern = TRUE),
-              error = function(e) "macOS"
-            )
-            cpu_name <- tryCatch(
-              system("sysctl -n machdep.cpu.brand_string", intern = TRUE),
-              error = function(e) "Unknown"
-            )
+            read_metadata <- function(command, fallback) {
+              result <- tryCatch(suppressWarnings(system(command, intern = TRUE)),
+                                 error = function(e) character())
+              status <- attr(result, "status", exact = TRUE)
+              if (!is.null(status) && !isTRUE(status == 0L)) return(fallback)
+              result <- trimws(result)
+              if (.valid_text(result)) result else fallback
+            }
+            mac_version <- read_metadata("sw_vers -productVersion", os_release)
+            mac_name <- read_metadata("sw_vers -productName", "macOS")
+            cpu_name <- read_metadata("sysctl -n machdep.cpu.brand_string", "Unknown")
 
             list(
               os_full_name = paste(mac_name, mac_version),
