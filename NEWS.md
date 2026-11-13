@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Background stripes validate group-to-colour assignments by indexing the first category of each displayed group.
+
 * Categorical Sankey plots retain existing stage codes when applying the display names to their axes.
 
 * `stat_pval()` samples text inputs before deduplication, avoiding a full distinct pass for mostly unique values.

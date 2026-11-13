@@ -1125,13 +1125,13 @@ plt_cat <- function(data,
   }
   group_codes <- match(group_values, axis_levels)
   group_ids <- sort(unique(group_codes))
-  bg_map <- unname(vapply(split(as.character(data[[bg.by]]), group_codes), function(x) {
-    ux <- unique(x)
-    if (length(ux) != 1) return(NA_character_)
-    ux
-  }, character(1)))
+  backgrounds <- as.character(data[[bg.by]])
+  bg_map <- backgrounds[match(group_ids, group_codes)]
+  by_code <- rep(NA_character_, length(axis_levels))
+  by_code[group_ids] <- bg_map
+  consistent <- is.na(group_codes) | backgrounds == by_code[group_codes]
 
-  if (any(is.na(bg_map))) {
+  if (!isTRUE(all(consistent))) {
     cli::cli_warn(
       "{.arg bg.by} is not a strict superset of {.arg group.by}. Background disabled."
     )

@@ -1476,3 +1476,23 @@ test_that("categorical Sankey axes relabel stage codes directly", {
   expect_identical(levels(actual$data$x), vars)
   expect_identical(is.na(actual$data$next_x), as.character(actual$data$x) == "first")
 })
+
+test_that("background group checks use row-aligned assignments", {
+  d <- data.frame(group = rep(c("B", NA, "A", "extra"), 100L),
+                  bg = rep(c("blue", "grey", "red", "other"), 100L))
+  args <- list(group.by = "group", bg.by = "bg", bg_alpha = 0.1,
+               axis_levels = c("A", "unused", "B", NA_character_), continuous = TRUE)
+  expected <- do.call(.build_bg_layer, c(list(data = d), args))
+  fn <- .build_bg_layer
+  env <- new.env(parent = environment(fn))
+  env$split <- function(...) stop("split all background observations")
+  environment(fn) <- env
+  draw <- function(data) do.call(fn, c(list(data = data), args))
+  expect_identical(draw(d)$data, expected$data)
+  d$bg[7L] <- NA_character_
+  expect_warning(result <- draw(d), "strict superset")
+  expect_null(result)
+  d$bg[7L] <- "different"
+  expect_warning(result <- draw(d), "strict superset")
+  expect_null(result)
+})
