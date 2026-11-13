@@ -442,8 +442,15 @@ plt_cat <- function(data,
         }
         missing <- is.na(x)
         length(unique(.cat_time_key(x[!missing]))) + as.integer(NA_stat && any(missing))
+      } else if (is.factor(x)) {
+        labels <- levels(x)
+        observed <- tabulate(x, nbins = length(labels)) > 0L
+        sum(observed & !is.na(labels)) +
+          as.integer(NA_stat && (anyNA(x) || any(observed & is.na(labels))))
       } else {
-        length(unique(x))
+        distinct <- unique(x)
+        missing <- is.na(distinct)
+        sum(!missing) + as.integer(NA_stat && any(missing))
       }
     }, integer(1))
     high_card <- high_card[high_card > 100]

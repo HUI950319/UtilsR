@@ -1405,3 +1405,14 @@ test_that("UpSet separator fallback encodes each visible combination once", {
   expect_identical(result$scales$get_scales("x")$limits, expected$scales$get_scales("x")$limits)
   expect_equal(ggplot2::layer_data(result)$count, ggplot2::layer_data(expected)$count)
 })
+
+test_that("categorical cardinality checks only observed or displayed values", {
+  labels <- sprintf("level-%03d", seq_len(100L))
+  for (x in list(c(labels, NA), c(seq_len(100L), NA_real_, NaN),
+                 factor(c(labels, NA), levels = c(labels, NA), exclude = NULL))) {
+    d <- data.frame(value = x)
+    result <- cat_test_plot(d, "value", NA_stat = FALSE, palette = "hcl_Blues", save = NULL)
+    expect_identical(nrow(result$data), 100L)
+    expect_error(cat_test_plot(d, "value", NA_stat = TRUE, save = NULL), "100 levels")
+  }
+})

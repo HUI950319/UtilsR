@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical plots exclude hidden missing values from the level limit and count displayed missing values once.
+
 * Scatter plots keep valid group ellipses and warn when a different group's covariance cannot be estimated.
 
 * `pr_table()` finds the visible prefix of optional columns without repeatedly summing selected widths.
