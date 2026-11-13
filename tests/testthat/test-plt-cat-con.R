@@ -1454,3 +1454,25 @@ test_that("categorical trend and area labels reuse plotted coordinates", {
     expect_length(labels$label_text, nrow(p$data))
   }
 })
+
+test_that("categorical Sankey axes relabel stage codes directly", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(first = c("one", "one", "two", NA),
+                  next_x = c("red", "red", "blue", "blue"),
+                  last = c("yes", "yes", "no", "yes"))
+  vars <- c("last", "next_x", "first")
+  expected <- cat_test_plot(d, vars, type = "sankey", NA_stat = TRUE)
+  fn <- .plt_cat_sankey
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, levels, ...) {
+    if (!missing(levels) && all(startsWith(levels, ".stage")))
+      stop("matched categorical Sankey stages again")
+    if (missing(levels)) base::factor(x, ...) else base::factor(x, levels = levels, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_cat_sankey = fn, .package = "UtilsR")
+  actual <- cat_test_plot(d, vars, type = "sankey", NA_stat = TRUE)
+  expect_identical(actual$data, expected$data)
+  expect_identical(levels(actual$data$x), vars)
+  expect_identical(is.na(actual$data$next_x), as.character(actual$data$x) == "first")
+})

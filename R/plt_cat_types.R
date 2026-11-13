@@ -258,7 +258,7 @@
   dat_long <- .sankey_path_rows(data, stage_names)
   dat_long[["value"]] <- rep(data[[".count"]], each = length(stage_names))
   for (axis in c("x", "next_x")) {
-    dat_long[[axis]] <- factor(dat_long[[axis]], levels = stage_names, labels = stat.by)
+    dat_long[[axis]] <- structure(as.integer(dat_long[[axis]]), levels = stat.by, class = "factor")
   }
   dat_long[["node"]] <- factor(dat_long[["node"]], levels = rev(names(cols)))
 
