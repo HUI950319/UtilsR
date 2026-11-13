@@ -329,10 +329,12 @@ stat_ci_parse <- function(x,
   out <- switch(output,
     ci = ci_str,
     p = pval,
-    ci_p = ifelse(valid,
-      sub("=<", "<", paste0(ci_str, ", p=", stat_pval(pval, mode = "pvalue")),
-          fixed = TRUE),
-      x),
+    ci_p = {
+      text <- stat_pval(pval[valid], mode = "pvalue")
+      value <- x
+      value[valid] <- paste0(ci_str[valid], ", p", ifelse(startsWith(text, "<"), "", "="), text)
+      value
+    },
     ci_star = ifelse(valid,
       stat_pval(ci_str, add_star_p = pval, map_signif = map_signif),
       x),

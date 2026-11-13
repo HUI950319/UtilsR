@@ -816,3 +816,19 @@ test_that("interval formatters isolate malformed text encodings", {
     expect_identical(formatted[["bad"]], bad)
   }
 })
+
+test_that("CI with p-values assembles the decimal separator directly", {
+  x <- c(strong = "9.0 (8.0, 10.0)", weak = "0 (-1, 1)", missing = NA_character_, bad = "text")
+  expected <- suppressWarnings(stat_ci_parse(x, exp = FALSE, output = "ci_p"))
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (identical(pattern, "=<")) stop("rewrote complete CI strings to attach the p-value")
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressWarnings(fn(x, exp = FALSE, output = "ci_p"))
+  expect_identical(actual, expected)
+  expect_match(actual[["strong"]], "p<0.001", fixed = TRUE)
+  expect_match(actual[["weak"]], "p=1.000", fixed = TRUE)
+})

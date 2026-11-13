@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse(output = "ci_p")` constructs the P-value separator directly, leaving the rest of the interval text untouched.
+
 * `stat_pval()` reports malformed encodings as invalid numeric strings before decimal parsing.
 
 * Confidence interval formatters preserve malformed text bytes as unparsed rows while continuing to process valid intervals.
