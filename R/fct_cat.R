@@ -151,13 +151,11 @@ fct_cat <- function(x, ...,
 
   # 2. groups
   if (!is.null(groups)) {
-    original_levels <- levels(x)
+    n_levels <- nlevels(x)
     for (i in seq_along(groups)) {
-      indices <- .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]),
-                                      length(original_levels))
-      groups[[i]] <- original_levels[indices]
+      groups[[i]] <- .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]), n_levels)
     }
-    return(.recode_factor(x, groups))
+    return(.recode_factor(x, groups, checked_indices = TRUE))
   }
 
   # 3. new_labels
@@ -232,29 +230,30 @@ fct_cat <- function(x, ...,
 
 
 # ---- Internal: recode ----
-.recode_factor <- function(x, newlevels) {
+.recode_factor <- function(x, newlevels, checked_indices = FALSE) {
   if (length(newlevels) == 0) return(x)
 
   lvls <- levels(x)
-  newlevels <- lapply(newlevels, function(i) {
-    if (is.numeric(i) || is.complex(i)) {
-      i <- .check_integer_index(i, "recode index", length(lvls))
-      return(lvls[i])
+  if (checked_indices) {
+    pos <- unlist(newlevels, use.names = FALSE)
+  } else {
+    positions <- lapply(newlevels, function(i) {
+      if (is.numeric(i) || is.complex(i)) {
+        return(.check_integer_index(i, "recode index", length(lvls)))
+      }
+      if (!is.character(i)) {
+        cli::cli_abort("Recode values must be character levels or integer indices.")
+      }
+      match(i, lvls)
+    })
+    pos <- unlist(positions, use.names = FALSE)
+    if (anyNA(pos)) {
+      bad <- unique(unlist(Map(function(i, at) i[is.na(at)], newlevels, positions), use.names = FALSE))
+      cli::cli_abort("Level{?s} not found: {.val {bad}}.")
     }
-    if (!is.character(i)) {
-      cli::cli_abort("Recode values must be character levels or integer indices.")
-    }
-    i
-  })
-
-  all_vals <- unlist(newlevels, use.names = FALSE)
-  pos <- match(all_vals, lvls)
-  bad <- unique(all_vals[is.na(pos)])
-  if (length(bad) > 0L) {
-    cli::cli_abort("Level{?s} not found: {.val {bad}}.")
-  }
+   }
   if (anyDuplicated(pos)) {
-    cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(pos)]}}.")
+    cli::cli_abort("New levels contain non-unique values: {.val {lvls[pos[duplicated(pos)]]}}.")
   }
 
   mapped <- rep(names(newlevels), lengths(newlevels))

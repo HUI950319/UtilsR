@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor grouping uses validated level indices directly and preserves duplicate and missing-level handling.
+
 * Rasterization applies a requested panel background beneath standalone text without converting the text to pixels.
 
 * Missingness matrix plots reuse the combined mask storage while keeping the original observation order.

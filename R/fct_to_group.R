@@ -75,5 +75,5 @@ fct_to_group <- function(x, g_lis,
   }
   names(g_lis) <- cur_names
 
-  .recode_factor(x, lapply(g_lis, function(indices) levels(x)[indices]))
+  .recode_factor(x, g_lis, checked_indices = TRUE)
 }

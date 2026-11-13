@@ -798,3 +798,20 @@ test_that("unchanged factor labels retain data table keys and indices", {
   expect_identical(levels(changed$g), c("second", "first"))
   expect_identical(d, original)
 })
+
+test_that("factor grouping keeps checked integer positions through the recode", {
+  f <- factor(c("b", "a", NA, "c"), levels = c("b", "a", "c", NA), exclude = NULL)
+  fn <- .recode_factor
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(x, c("a", NA_character_))) stop("matched already validated levels")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  testthat::local_mocked_bindings(.recode_factor = fn, .package = "UtilsR")
+  expected <- c("b", "new", "new", "c")
+  expect_identical(as.character(fct_cat(f, groups = list(new = c(2L, 4L)))), expected)
+  expect_identical(as.character(fct_to_group(f, list(new = c(2L, 4L)))), expected)
+  expect_error(fct_cat(f, same = 2L, other = "a"), "non-unique")
+  expect_error(fct_cat(f, missing = "missing"), "not found")
+})
