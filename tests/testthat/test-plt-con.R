@@ -1909,3 +1909,29 @@ test_that("stacked comparison preflight uses feature row indices", {
   layers <- Filter(function(x) "annotation" %in% names(x), b$data)
   expect_setequal(as.integer(layers[[1L]]$PANEL), c(1L, 2L))
 })
+
+test_that("comparison cache indexes repeated references before comparing values", {
+  values <- lapply(1:10, function(i) as.double(seq_len(200L) + i))
+  references <- lapply(values, function(x) list2env(list(value = x), parent = emptyenv()))
+  cache <- lapply(seq_len(40L), function(i) {
+    list(x = references[[(i - 1L) %% 10L + 1L]], y = references[[10L]],
+      p.value = .2, warnings = character())
+  })
+  fn <- .con_cached_test
+  env <- new.env(parent = environment(fn))
+  checks <- 0L
+  env$identical <- function(x, y, ...) {
+    if (is.double(x) && length(x) == 200L) {
+      checks <<- checks + 1L
+      if (checks > 50L) stop("compared shared values again")
+    }
+    base::identical(x, y, ...)
+  }
+  environment(fn) <- env
+  cache[[41L]] <- list(x = list2env(list(value = values[[1L]])), y = references[[10L]],
+    p.value = .3, warnings = character())
+  run <- fn(function(x, y, ...) list(p.value = .9), list(), cache)
+  expect_identical(run(values[[1L]], values[[10L]])$p.value, .3)
+  expect_identical(run(values[[2L]], values[[10L]])$p.value, .2)
+  expect_identical(run(values[[1L]] + .1, values[[10L]])$p.value, .9)
+})

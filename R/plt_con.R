@@ -961,19 +961,24 @@ plt_con <- function(data,
     }
     NA_integer_
   }
-  index <- new.env(hash = TRUE, parent = emptyenv())
-  for (entry in cache) {
-    ids <- integer(2L)
-    for (j in 1:2) {
-      group <- entry[[c("x", "y")[j]]]
-      at <- find_group(group[["value"]])
-      if (is.na(at)) {
-        groups[[length(groups) + 1L]] <- group
-        at <- length(groups)
-      }
-      ids[j] <- at
+  references <- unlist(lapply(cache, function(entry) entry[c("x", "y")]),
+                       recursive = FALSE, use.names = FALSE)
+  reference_ids <- vctrs::vec_group_id(references)
+  group_ids <- integer(attr(reference_ids, "n"))
+  for (i in which(!duplicated(reference_ids))) {
+    group <- references[[i]]
+    at <- find_group(group[["value"]])
+    if (is.na(at)) {
+      groups[[length(groups) + 1L]] <- group
+      at <- length(groups)
     }
-    assign(paste(ids, collapse = ":"), entry[c("p.value", "warnings")], envir = index)
+    group_ids[reference_ids[i]] <- at
+  }
+  ids <- matrix(group_ids[reference_ids], nrow = 2L)
+  keys <- paste(ids[1L, ], ids[2L, ], sep = ":")
+  index <- new.env(hash = TRUE, parent = emptyenv())
+  for (i in seq_along(cache)) {
+    assign(keys[i], cache[[i]][c("p.value", "warnings")], envir = index)
   }
   # Keep compiled loop bindings and construction data outside the returned test.
   env <- list2env(list(test = test, test.args = test.args, groups = groups, index = index), parent = baseenv())
