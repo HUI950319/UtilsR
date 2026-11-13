@@ -197,76 +197,79 @@ stat_ci_parse <- function(x,
     return(out)
   }
 
-  # --- Compute SE and p-value on the working scale ---
-  z95 <- qnorm(0.975)
-  e_s <- est; l_s <- lo; h_s <- hi
-  e_s[is_exp] <- log(est[is_exp])
-  l_s[is_exp] <- log(lo[is_exp])
-  h_s[is_exp] <- log(hi[is_exp])
-  tight <- which(is_exp & pmax(abs(l_s - e_s), abs(h_s - e_s)) <
-                   sqrt(.Machine$double.eps) * pmax(1, abs(e_s)))
-  tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
-  tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
-  tight_se <- ifelse(asym[tight], ifelse(e_s[tight] > 0, tight_lower, tight_upper),
-                     (tight_lower + tight_upper) / 2) / z95
-  # Full width for symmetric intervals; for asymmetric ones the half facing
-  # the null, so that p < 0.05 exactly when the interval excludes the null
-  se_of <- function(l, h) {
-    full <- (h - l) / (2 * z95)
-    half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
-    wide <- is.finite(l) & is.finite(h) & !is.finite(full)
-    full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
-    wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
-    half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
-                         h[wide] / z95 - e_s[wide] / z95)
-    out <- ifelse(asym, half, full)
-    out[tight] <- tight_se
-    out
-  }
-  se <- se_of(l_s, h_s)
-  work_scale <- rep(1, length(est))
-  unstable <- !is.finite(se) | (abs(se) < .Machine$double.xmin & l_s != h_s)
-  if (!is.null(level)) {
-    z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
-    ratio <- z_new / z95
-    unstable <- unstable |
-      !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |
-      !is.finite(e_s + ifelse(asym, (h_s - e_s) * ratio, z_new * se))
-  }
-  rescale <- valid & !is_exp & unstable & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
-  if (any(rescale)) {
-    work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
-    e_s[rescale] <- e_s[rescale] / work_scale[rescale]
-    l_s[rescale] <- l_s[rescale] / work_scale[rescale]
-    h_s[rescale] <- h_s[rescale] / work_scale[rescale]
+  adjust <- !is.null(level) && level != .95
+  if (!is.null(level) && is.null(digits)) d <- pmax(d, 1L)
+  if (output != "ci" || adjust) {
+    # --- Compute SE and p-value on the working scale ---
+    z95 <- qnorm(0.975)
+    e_s <- est; l_s <- lo; h_s <- hi
+    e_s[is_exp] <- log(est[is_exp])
+    l_s[is_exp] <- log(lo[is_exp])
+    h_s[is_exp] <- log(hi[is_exp])
+    tight <- which(is_exp & pmax(abs(l_s - e_s), abs(h_s - e_s)) <
+                     sqrt(.Machine$double.eps) * pmax(1, abs(e_s)))
+    tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
+    tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
+    tight_se <- ifelse(asym[tight], ifelse(e_s[tight] > 0, tight_lower, tight_upper),
+                       (tight_lower + tight_upper) / 2) / z95
+    # Full width for symmetric intervals; for asymmetric ones the half facing
+    # the null, so that p < 0.05 exactly when the interval excludes the null
+    se_of <- function(l, h) {
+      full <- (h - l) / (2 * z95)
+      half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
+      wide <- is.finite(l) & is.finite(h) & !is.finite(full)
+      full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
+      wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
+      half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
+                           h[wide] / z95 - e_s[wide] / z95)
+      out <- ifelse(asym, half, full)
+      out[tight] <- tight_se
+      out
+    }
     se <- se_of(l_s, h_s)
-  }
-
-  # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
-  if (!is.null(level)) {
-    if (is.null(digits)) d <- pmax(d, 1L)   # "2 (1, 3)" -> "2.0 (1.2, 2.8)"
-    if (level != .95) {
-      l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
-      h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
-      lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
-      hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
-      if (length(tight)) {
-        down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
-        up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
-        lo[tight] <- est[tight] * exp(-down)
-        hi[tight] <- est[tight] * exp(up)
-        tight_se <- tight_se * ratio
-      }
+    work_scale <- rep(1, length(est))
+    unstable <- !is.finite(se) | (abs(se) < .Machine$double.xmin & l_s != h_s)
+    if (!is.null(level)) {
+      z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
+      ratio <- z_new / z95
+      unstable <- unstable |
+        !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |
+        !is.finite(e_s + ifelse(asym, (h_s - e_s) * ratio, z_new * se))
+    }
+    rescale <- valid & !is_exp & unstable & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
+    if (any(rescale)) {
+      work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
+      e_s[rescale] <- e_s[rescale] / work_scale[rescale]
+      l_s[rescale] <- l_s[rescale] / work_scale[rescale]
+      h_s[rescale] <- h_s[rescale] / work_scale[rescale]
       se <- se_of(l_s, h_s)
     }
-  }
-  # An estimate on the null has z = 0 even when its null-side half has
-  # rounded to zero width (0 / 0)
-  if (output != "ci") {
-    z <- ifelse(e_s == 0, 0, e_s / se)
-    pval <- ifelse(valid, 2 * pnorm(-abs(z)), NA_real_)
-    underflow <- which(pval == 0 & is.finite(z))
-    pval[underflow] <- exp(log(2) + pnorm(-abs(z[underflow]), log.p = TRUE))
+
+    # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
+    if (!is.null(level)) {
+      if (level != .95) {
+        l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
+        h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
+        lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
+        hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+        if (length(tight)) {
+          down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
+          up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
+          lo[tight] <- est[tight] * exp(-down)
+          hi[tight] <- est[tight] * exp(up)
+          tight_se <- tight_se * ratio
+        }
+        se <- se_of(l_s, h_s)
+      }
+    }
+    # An estimate on the null has z = 0 even when its null-side half has
+    # rounded to zero width (0 / 0)
+    if (output != "ci") {
+      z <- ifelse(e_s == 0, 0, e_s / se)
+      pval <- ifelse(valid, 2 * pnorm(-abs(z)), NA_real_)
+      underflow <- which(pval == 0 & is.finite(z))
+      pval[underflow] <- exp(log(2) + pnorm(-abs(z[underflow]), log.p = TRUE))
+    }
   }
 
   # --- Rebuild the CI string in its original bracket/separator style ---

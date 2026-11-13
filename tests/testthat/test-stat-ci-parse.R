@@ -711,3 +711,14 @@ test_that("empty interval sets skip normal quantile calculations", {
   expect_warning(out <- fn(c("Reference", ""), "p", exp = FALSE), "could not be parsed")
   expect_identical(out, c(NA_real_, NA_real_))
 })
+
+test_that("unchanged CI strings skip inference work while keeping precision", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$qnorm <- function(...) stop("calculated an unused standard error")
+  environment(fn) <- env
+  x <- stats::setNames(c("2 (1, 3)", "1.25 [1.00, 1.50]", NA), c("first", "second", "third"))
+  expect_identical(fn(x, output = "ci", exp = FALSE), x)
+  expect_identical(fn(x, output = "ci", exp = FALSE, level = .95),
+    stats::setNames(c("2.0 (1.0, 3.0)", "1.25 [1.00, 1.50]", NA), names(x)))
+})

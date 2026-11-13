@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI-only formatting skips standard-error calculations when the confidence level is unchanged.
+
 * Object size reports filter failed measurements and stably sort remaining sizes in one row slice.
 
 * Palette previews encode fully opaque swatches as six-digit hex while preserving alpha in mixed palettes.
