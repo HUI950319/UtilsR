@@ -856,3 +856,26 @@ test_that("Sankey fill mappings use prepared node factors", {
   restored$mapping$fill <- ggplot2::aes(fill = factor(.data[["node"]]))$fill
   expect_identical(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(restored)$data)
 })
+
+test_that("Sankey label layers reuse stage and caption positions", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = c("same", "same", "rare", "same"),
+                  b = c("same", "other", NA, "other"),
+                  c = c("same", "rare", "same", "same"))
+  draw <- function(fn) suppressMessages(fn(d, c("c", "b", "a"), show_text = "name",
+    label_args = list(min_pct = .5), theme_use = ggplot2::theme_void()))
+  expected <- draw(plt_sankey)
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(unname(node_stages[ids])))) {
+      stop("re-encoded displayed stage names")
+    }
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(actual$layers[[3L]]$data, expected$layers[[3L]]$data)
+  expect_identical(levels(actual$layers[[3L]]$data$x), paste0(c("c", "b", "a"), "_label"))
+  expect_setequal(actual$layers[[3L]]$data$label, c("same", "other"))
+})

@@ -364,12 +364,13 @@ plt_sankey <- function(data,
     nodes <- plot
     nodes$layers <- plot$layers[2L]
     label_data <- ggplot2::ggplot_build(nodes)$data[[1L]]
-    ids <- as.character(label_data$node)
-    node_stages <- stats::setNames(rep(label_vars, node_counts), all_levels)
-    label_data$x <- factor(unname(node_stages[ids]), levels = levels(plot_data[["x"]]))
-    label_data$label <- unname(node_labels[ids])
+    positions <- match(as.character(label_data$node), all_levels)
+    stage_codes <- rep.int(seq_along(node_counts), node_counts)
+    label_data$x <- structure(stage_codes[positions], levels = levels(plot_data[["x"]]),
+                              class = "factor")
+    label_data$label <- unname(node_labels[positions])
     label_data$y <- (label_data$ymin + label_data$ymax) / 2
-    proportion <- unname(node_pct[ids])
+    proportion <- unname(node_pct[positions])
     keep <- !is.na(label_data$label) & !is.na(proportion) & proportion >= label_args$min_pct
     label_data <- label_data[keep, , drop = FALSE]
     if (nrow(label_data)) {

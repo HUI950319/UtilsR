@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` matches plotted nodes once when applying stage labels and percentage thresholds.
+
 * `fmt_legend()` scales the parent key-spacing unit for both plot and guide themes.
 
 * `plt_dist()` reuses exact numeric category codes when building factors for plotting.
