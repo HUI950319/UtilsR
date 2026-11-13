@@ -758,3 +758,17 @@ test_that("dynamic column keys are resolved only by native scale building", {
   expect_equal(b$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = .1))
   expect_identical(b$layout$panel_scales_x[[1L]]$get_limits(), c("a", "b"))
 })
+
+test_that("coordinate expansion warnings follow the requested and flipped axis", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_warning(fmt_expand(p + ggplot2::coord_cartesian(expand = FALSE), axis = "x"), "expand = FALSE")
+  if (utils::packageVersion("ggplot2") >= "4.0.0") {
+    horizontal <- c(left = FALSE, right = FALSE)
+    q <- p + ggplot2::coord_cartesian(expand = horizontal)
+    expect_warning(fmt_expand(q, axis = "x"), "expand = FALSE")
+    expect_no_warning(fmt_expand(q, axis = "y"))
+    q <- p + ggplot2::coord_flip(expand = horizontal)
+    expect_warning(fmt_expand(q, axis = "y"), "expand = FALSE")
+    expect_no_warning(fmt_expand(q, axis = "x"))
+  }
+})

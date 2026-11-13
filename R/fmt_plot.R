@@ -5589,11 +5589,19 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   axes <- if (is.null(axis)) c("x", "y") else axis
   coord_ignores <- FALSE
   fmt_expand_one <- function(p) {
-    # A scalar or four-sided FALSE disables expansion on every side.
     expand <- p$coordinates$expand
-    if (is.logical(expand) && !anyNA(expand) && !any(expand) &&
-        (length(expand) == 4L || length(expand) == 1L && is.null(names(expand))))
-      coord_ignores <<- TRUE
+    if (!coord_ignores && is.logical(expand) && length(expand) && !anyNA(expand)) {
+      if (is.null(names(expand))) {
+        sides <- rep_len(expand, 4L)
+      } else {
+        sides <- rep(TRUE, 4L)
+        position <- match(names(expand), c("top", "right", "bottom", "left"))
+        sides[position[!is.na(position)]] <- expand[!is.na(position)]
+      }
+      if (inherits(p$coordinates, "CoordFlip")) sides <- sides[c(2L, 1L, 4L, 3L)]
+      disabled <- c(x = !any(sides[c(2L, 4L)]), y = !any(sides[c(1L, 3L)]))
+      coord_ignores <<- any(disabled[axes])
+    }
     scales_cloned <- FALSE
     defer_scale <- any(vapply(p$layers, function(layer) {
       is.function(layer$data)

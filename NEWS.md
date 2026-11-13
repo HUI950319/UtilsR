@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_expand()` detects a fully disabled requested axis in directional Cartesian expansion settings.
+
 * Position formatting leaves `.data[[name]]` lookups to plot building when the name comes from a binding.
 
 * Position scale inference reads the requested aesthetic directly from plot and layer mappings.
