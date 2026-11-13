@@ -493,3 +493,19 @@ test_that("plain combination encodes only the complete observations", {
   expect_identical(result, reference)
   expect_identical(levels(result), c("10 & one", "10 & two", "20 & one"))
 })
+
+test_that("factor combinations encode ordinary categories only on complete rows", {
+  a <- ordered(rep(c("b", NA, "a", "b"), 40L), levels = c("b", "a", "unused"))
+  b <- factor(rep(c(NA, "y", "x", "x"), 40L), levels = c("y", "x", NA), exclude = NULL)
+  x <- rep(c(1L, 2L, NA_integer_, 3L), 40L)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x) && length(x) == length(a)) stop("encoded every factor row")
+    base::as.integer(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(a, b, x), fct_to_combine(a, b, x))
+  expect_true(is.na(fn(a, b, x)[2L]))
+  expect_identical(as.character(fn(a, b, x)[1L]), "b & NA & 1")
+})

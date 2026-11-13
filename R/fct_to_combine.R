@@ -222,8 +222,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   n <- lens[[1L]]
-  plain <- !any(vapply(args, is.object, logical(1L)))
-  missing_rows <- if (plain) {
+  early_filter <- all(vapply(args, function(x) {
+    !is.object(x) || identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+  }, logical(1L)))
+  missing_rows <- if (early_filter) {
     incomplete <- vapply(args, anyNA, logical(1L))
     Reduce(`|`, lapply(args[incomplete], is.na))
   }
@@ -250,7 +252,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     values <- values[ord]
     list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
-  if (!plain) {
+  if (!early_filter) {
     inputs <- unname(lapply(args, encode_input))
     missing_rows <- Reduce(`|`, lapply(args, is.na))
   }
@@ -263,13 +265,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     }
   }
 
-  if (plain) {
+  if (early_filter) {
     if (!is.null(complete_rows)) args <- lapply(args, function(v) v[complete_rows])
     inputs <- unname(lapply(args, encode_input))
   }
   # Group integer codes before building labels; repeated rows need no strings.
   codes <- lapply(inputs, `[[`, "codes")
-  if (!plain && !is.null(complete_rows)) {
+  if (!early_filter && !is.null(complete_rows)) {
     codes <- lapply(codes, function(v) v[complete_rows])
   }
   names(codes) <- paste0("v", seq_along(codes))
