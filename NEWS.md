@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num(type = "equal")` diagnoses infinite data ranges before constructing automatic breaks.
+
 * Recursive plot formatters enumerate patchwork leaves once while preserving the original container.
 
 * `fmt_legend()` keeps collection enabled when a fixed aesthetic or a null mapping removes the apparent inside guide.

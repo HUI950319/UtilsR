@@ -222,6 +222,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     if (rng[1] == rng[2]) {
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
     }
+    if (any(!is.finite(rng))) {
+      cli::cli_abort("{.arg x} must have finite endpoints for equal-width bins. Use explicit {.arg breaks} for infinite observations.")
+    }
     bin_breaks <- seq(rng[1], rng[2], length.out = nbins + 1L)
     if (anyDuplicated(bin_breaks)) {
       cli::cli_abort("Cannot create {nbins} equal-width bins at the numeric precision of {.arg x}. Reduce {.arg nbins} or use explicit {.arg breaks}.")

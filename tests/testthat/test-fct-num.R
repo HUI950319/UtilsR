@@ -300,3 +300,10 @@ test_that("ordered fixed numeric breaks do not require a duplicate index", {
   expect_identical(fn(x, c(-Inf, NA, Inf), "all"),
                    base::cut(x, c(-Inf, NA, Inf), labels = "all", include.lowest = TRUE))
 })
+
+test_that("unbounded equal-width data receive a finite endpoint diagnostic", {
+  for (x in list(c(-Inf, 1, 2), c(1, 2, Inf), c(-Inf, Inf))) {
+    expect_error(fct_num(x, nbins = 4L, type = "equal"), "finite endpoints.*x|x.*finite endpoints")
+    expect_identical(as.integer(fct_num(x, breaks = 0)), ifelse(x > 0, 2L, 1L))
+  }
+})
