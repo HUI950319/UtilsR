@@ -1760,3 +1760,21 @@ test_that("hidden tree branches do not format their child names", {
   expect_identical(capture.output(fn(x, max_lines = 1L, max_items = 1000L)), expected)
   expect_match(tail(expected, 1L), "1,002 more lines", fixed = TRUE)
 })
+
+test_that("notes share one console width across wrapped lines", {
+  withr::local_options(cli.width = 34L, cli.num_colors = 8L)
+  number <- 12L
+  msg <- c("first line {number}", "", "a second line with some longer text", cli::col_red("styled"))
+  expected <- capture.output(pr_note(msg, .envir = environment()))
+  fn <- pr_note
+  env <- new.env(parent = environment(fn))
+  reads <- 0L
+  env$console_width <- function() {
+    reads <<- reads + 1L
+    if (reads > 1L) stop("read console width more than once for a note")
+    console_width()
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(msg, .envir = environment())), expected)
+  expect_identical(reads, 1L)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_note()` shares one console width across all wrapped lines of a note.
+
 * `pr_tree()` counts children past its line limit without escaping or measuring names that will never display.
 
 * `pr_tree()` describes atomic matrix storage without materializing a flattened copy.

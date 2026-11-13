@@ -368,9 +368,10 @@ pr_note <- function(..., .envir = parent.frame()) {
   # line by line: format_inline() and ansi_strwrap() would join the lines
   segs <- unlist(lapply(cli::ansi_strsplit(raw, "\n", fixed = TRUE),
                         function(s) if (length(s)) s else ""))
+  width <- max(1L, console_width() - 2L)
   body <- unlist(lapply(segs, function(s) {
     text <- tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
-    if (nzchar(cli::ansi_strip(text))) ._pr_wrap(text, width = max(1L, console_width() - 2L))
+    if (nzchar(cli::ansi_strip(text))) ._pr_wrap(text, width = width)
     else ""
   }))
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", body))))
