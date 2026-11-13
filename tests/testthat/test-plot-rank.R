@@ -734,3 +734,25 @@ test_that("rank panels keep separate calendar period groups", {
   result <- PlotRank(d, return_type = "data")
   expect_identical(result, PlotRank(reference, return_type = "data"))
 })
+
+test_that("rank panels index default Date and integer64 grouping values once", {
+  skip_if_not_installed("bit64")
+  groups <- list(as.Date("2026-01-01") + 0:3,
+    bit64::as.integer64(c("9007199254740992", "9007199254740993", "9007199254740994", "9223372036854775807")))
+  fn <- .pr_parse
+  env <- new.env(parent = environment(fn))
+  env$`==` <- function(x, y) {
+    if (length(x) == 80L) stop("scanned the full typed group")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  for (g in groups) {
+    d <- data.frame(group = rep(g, each = 20L), name = paste0("item-", 1:80), value = 1:80)
+    out <- fn(d, "group", "name", "value", NULL)
+    expect_identical(names(out), as.character(g))
+    for (i in seq_along(g)) {
+      rows <- seq.int((i - 1L) * 20L + 1L, i * 20L)
+      expect_identical(out[[i]], stats::setNames(d$value[rows], d$name[rows]))
+    }
+  }
+})

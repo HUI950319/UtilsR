@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plots locate default Date and integer64 groups once, preserving native group identities.
+
 * Data quality checks reuse observed factor level counts while distinguishing explicit NA levels from missing codes.
 
 * Alluvial gap ordering remaps the existing factor codes using a single level lookup.

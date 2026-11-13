@@ -435,9 +435,12 @@ PlotRank <- function(
              call. = FALSE)
       }
       if (!is.null(groups)) grps <- groups
-      group_rows <- if (!is.object(data[[group_col]]) || is.factor(data[[group_col]])) {
+      typed_default <- is.null(groups) && inherits(grouping, c("integer64", "Date"))
+      group_rows <- if (typed_default || !is.object(grouping) || is.factor(grouping)) {
         locations <- vctrs::vec_group_loc(data[[group_col]])
-        locations[["loc"]][match(grps, locations[["key"]])]
+        keys <- locations[["key"]]
+        at <- if (typed_default) vctrs::vec_match(grps, keys) else match(grps, keys)
+        locations[["loc"]][at]
       }
       return(lapply(setNames(seq_along(grps), grps), function(i) {
         g <- grps[[i]]
