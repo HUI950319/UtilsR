@@ -211,7 +211,10 @@ stat_pval <- function(x,
     if (any(!is.na(text) & !bounded & !exact)) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
-    values <- sub(paste0("^", prefix), "", text, perl = TRUE)
+    values <- text
+    if (any(bounded)) {
+      values[bounded] <- sub(paste0("^", prefix), "", text[bounded], perl = TRUE)
+    }
     values[values %in% c("NA", "NaN")] <- NA_character_
     .parse_decimal_tokens(values)
   } else if (is.numeric(x)) {

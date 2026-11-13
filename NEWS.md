@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` strips bound operators only from inputs that contain them.
+
 * `stat_pval()` returns empty star suffixes directly when given an empty significance map.
 
 * `show_color()` reports the positions of malformed colour strings with escaped bytes.

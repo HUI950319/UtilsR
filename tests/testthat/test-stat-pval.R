@@ -752,3 +752,18 @@ test_that("empty significance maps skip threshold indexing", {
   expect_identical(fn(c("0.03", "<.01"), mode = "stars", map_signif = empty),
                    c("0.030", "<.01"))
 })
+
+test_that("p-value parsing strips operators only from bounded text", {
+  x <- c(rep("0.025", 200L), "\u2264 0.05", "> 0.02", NA, "NaN")
+  expected <- stat_pval(x, mode = "stars")
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (startsWith(pattern, "^(?:[<>]") && length(x) > 2L)
+      stop("processed exact values with the bound operator expression")
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, mode = "stars"), expected)
+  expect_error(fn(c("0.01", "bad"), mode = "pvalue"), "numeric strings")
+})
