@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Behind insets stay below overlapping grobs even when those grobs have missing layout names.
+
 * Missingness plots read data.table columns in place for both matrix and percentage views.
 
 * Continuous bar range calculations reuse ordinary group factors and include genuinely missing groups.

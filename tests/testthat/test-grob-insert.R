@@ -328,3 +328,13 @@ test_that("plot-aligned insets locate the actual named background", {
   result <- grob_insert(table, grid::textGrob("inset"), align_to = "plot")
   expect_equal(unname(unlist(tail(result$layout, 1L)[c("t", "b", "l", "r")])), c(2, 3, 2, 3))
 })
+
+test_that("behind insets account for overlapping grobs with missing names", {
+  gt <- gtable::gtable(grid::unit(rep(1, 3L), "cm"), grid::unit(rep(1, 3L), "cm"))
+  gt <- gtable::gtable_add_grob(gt,
+    list(grid::rectGrob(), grid::rectGrob(), grid::rectGrob()),
+    t = c(1, 2, 2), b = c(3, 2, 2), l = c(1, 2, 2), r = c(3, 2, 2),
+    name = c("background", NA, "panel"), z = c(-50, -10, 1))
+  result <- grob_insert(gt, grid::rectGrob(), on_top = FALSE)
+  expect_equal(tail(result$layout$z, 1L), -11)
+})

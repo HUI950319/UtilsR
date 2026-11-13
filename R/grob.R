@@ -442,7 +442,7 @@ grob_insert <- function(
     layout <- gt$layout
     overlaps <- layout$t <= ref_b & layout$b >= ref_t &
       layout$l <= ref_r & layout$r >= ref_l
-    background <- layout$name == "background"
+    background <- layout$name %in% "background"
     lowest <- min(Inf, layout$z[overlaps & !background], na.rm = TRUE)
     backgrounds <- layout$z[overlaps & background & layout$z < lowest]
     z_val <- max(min(0, lowest - 1), backgrounds, na.rm = TRUE)
