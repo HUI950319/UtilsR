@@ -274,6 +274,12 @@ PlotDumbbell <- function(
   end_values <- data[[xend_col]]
   start_integer64 <- inherits(start_values, "integer64")
   end_integer64 <- inherits(end_values, "integer64")
+  if (start_integer64 && inherits(end_values, "haven_labelled")) {
+    end_values <- vctrs::vec_data(end_values)
+  }
+  if (end_integer64 && inherits(start_values, "haven_labelled")) {
+    start_values <- vctrs::vec_data(start_values)
+  }
   mixed_integer64 <- (start_integer64 && is.numeric(end_values) && !is.object(end_values)) ||
     (end_integer64 && is.numeric(start_values) && !is.object(start_values))
   if ((start_integer64 && end_integer64) || mixed_integer64) {

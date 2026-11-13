@@ -834,3 +834,19 @@ test_that("dumbbell insets preserve distinct labelled endpoint dictionaries", {
   expect_identical(p[[1L]]$data$start, d$start)
   expect_identical(p[[1L]]$data$end, d$end)
 })
+
+test_that("labelled mixed dumbbell endpoints retain integer64 differences", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("haven")
+  d <- data.frame(start = bit64::as.integer64(c("9007199254740993", "1", "2")),
+    end = haven::labelled(c(2^53, 1.5, 2.25), c(anchor = 2^53)), category = letters[1:3])
+  for (start in c("start", "end")) {
+    end <- setdiff(c("start", "end"), start)
+    p <- dumbbell_plot(d, x_col = start, xend_col = end, sort_by = "none",
+      show_delta = TRUE, show_mean_lines = FALSE, legend_pos = "none")
+    sign <- if (start == "start") 1 else -1
+    expect_equal(p$data$.delta, sign * c(-1, .5, .25))
+    expect_identical(p$data$end, d$end)
+    expect_identical(p$data$start, d$start)
+  }
+})

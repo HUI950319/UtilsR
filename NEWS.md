@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell differences retain integer64 precision when the other endpoint is a labelled numeric vector.
+
 * Continuous plot bounds follow decreasing value transformations in independent and stacked panels.
 
 * Categorical plots exclude hidden missing values from the level limit and count displayed missing values once.
