@@ -1826,3 +1826,16 @@ test_that("logical sparklines count true and false values directly", {
   expect_match(expected[1L], "top FALSE (50.0%)", fixed = TRUE)
   expect_match(expected[2L], "1 level", fixed = TRUE)
 })
+
+test_that("notes avoid ANSI splitting for separate single lines", {
+  x <- c("first", "", "last")
+  expected <- capture.output(pr_note(x))
+  ansi_strsplit <- cli::ansi_strsplit
+  local_mocked_bindings(ansi_strsplit = function(x, split, ...) {
+    if (identical(x, c("first", "", "last")) && identical(split, "\n"))
+      stop("split already separated console note lines")
+    ansi_strsplit(x, split, ...)
+  }, .package = "cli")
+  expect_identical(capture.output(pr_note(x)), expected)
+  expect_identical(capture.output(pr_note("first\n\nlast")), expected)
+})

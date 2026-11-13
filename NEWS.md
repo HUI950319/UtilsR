@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_note()` uses pre-separated lines directly and reserves ANSI splitting for embedded breaks.
+
 * `pr_spark()` derives logical summaries from the observed and true counts without building a full frequency table.
 
 * `pr_spark()` avoids a full distinct-value pass when a sample already exceeds the available bins.
