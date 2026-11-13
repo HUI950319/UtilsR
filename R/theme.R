@@ -162,9 +162,7 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
     }
   }
 
-  inside <- if (is.numeric(legend.position) && !is.object(legend.position) &&
-    is.null(dim(legend.position)) && length(legend.position) == 2L &&
-    all(is.finite(legend.position))) legend.position
+  inside <- .theme_inside_legend(legend.position)
   thm <- theme(
     # Base elements
     line = element_line(colour = colours["axisColor"],
@@ -309,6 +307,15 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
   }
 
   thm
+}
+
+.theme_inside_legend <- function(position) {
+  if (is.null(position)) return(NULL)
+  if (is.numeric(position) && !is.object(position) && is.null(dim(position)) &&
+      length(position) == 2L && all(is.finite(position))) return(position)
+  if (is.character(position) && is.null(dim(position)) && length(position) == 1L &&
+      position %in% c("top", "bottom", "left", "right", "inside", "none")) return(NULL)
+  stop("'legend.position' must be NULL, a legend position name or two finite coordinates.", call. = FALSE)
 }
 
 
@@ -986,17 +993,10 @@ theme_ROC <- function(
           (arg == "base_size" || !inherits(value, "rel"))))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
-  if (!is.null(legend.position) &&
-      !(is.character(legend.position) && is.null(dim(legend.position)) &&
-        length(legend.position) == 1L && !is.na(legend.position) &&
-        legend.position %in% c("top", "bottom", "left", "right", "inside", "none")) &&
-      !(is.numeric(legend.position) && !is.object(legend.position) &&
-        is.null(dim(legend.position)) && length(legend.position) == 2L && all(is.finite(legend.position))))
-    stop("'legend.position' must be NULL, a legend position name or two finite coordinates.", call. = FALSE)
+  inside <- .theme_inside_legend(legend.position)
   if (!is.null(plot_margin) && (!grid::is.unit(plot_margin) || !is.null(dim(plot_margin)) ||
       any(is.infinite(as.numeric(plot_margin)))))
     stop("'plot_margin' must be NULL or finite grid units.", call. = FALSE)
-  inside <- if (is.numeric(legend.position)) legend.position
   thm <- ggplot2::theme_classic(base_size = base_size) +
     ggplot2::theme(
       # Axis

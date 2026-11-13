@@ -307,3 +307,12 @@ test_that("theme constructors use native inside legend coordinates", {
     expect_identical(constructor(legend.position = "bottom")$legend.position, "bottom")
   }
 })
+
+test_that("main theme diagnoses malformed legend positions before building a plot", {
+  for (bad in list("sideways", c(.1, .2, .3), c(.1, Inf), NA_character_, matrix(c(.1, .2)))) {
+    expect_error(theme_my(legend.position = bad), "legend.position")
+  }
+  expect_null(theme_my(legend.position = NULL)$legend.position)
+  expect_identical(theme_my(legend.position = "left")$legend.position, "left")
+  expect_identical(theme_my(legend.position = c(.2, .8))$legend.position.inside, c(.2, .8))
+})
