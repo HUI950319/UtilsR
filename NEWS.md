@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console text formatting avoids allocating a missing-value mask for complete ordinary vectors.
+
 * Console tables create the background style only when a visible row uses coloured highlighting.
 
 * Numeric p-value cells compare directly with significance thresholds without building text operators.

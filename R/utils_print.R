@@ -155,6 +155,9 @@
 ._as_text <- function(v) {
   v <- ._pr_restore(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
+  if (!is.object(v) && (is.character(v) || is.numeric(v) || is.logical(v)) && !anyNA(v)) {
+    return(as.character(v))
+  }
   missing <- if (is.expression(v)) is.na(as.list(v)) else
     if (is.language(v)) rep(FALSE, length(v)) else is.na(v)
   text <- as.character(v)

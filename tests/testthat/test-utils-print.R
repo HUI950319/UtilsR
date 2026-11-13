@@ -1627,3 +1627,18 @@ test_that("console tables create a highlight style only for visible coloured row
   expect_identical(calls, 1L)
   expect_match(output[4L], "\033", fixed = TRUE)
 })
+
+test_that("complete ordinary console values skip a full missing mask", {
+  fn <- ._as_text
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (length(x) > 100L) stop("allocated a missing mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  for (x in list(rep("plain", 512L), rep(c(TRUE, FALSE), 256L), (1:512) / 3)) {
+    expect_identical(fn(x), ._as_text(x))
+  }
+  expect_identical(fn(c(1, NA, NaN)), c("1", NA, NA))
+  expect_identical(fn(factor(c("a", NA), exclude = NULL)), c("a", "<NA>"))
+})
