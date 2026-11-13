@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked continuous plots partition comparison inputs once and reuse the feature rows for each preflight test.
+
 * Stacked continuous bar comparisons reuse the feature data already partitioned for bar summaries.
 
 * Linux diagnostics extract a single CPU model without normalizing duplicate per-core entries.

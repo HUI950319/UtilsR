@@ -1695,10 +1695,19 @@ plt_con <- function(data,
 
   # Facets partition the test data, so each feature is tested independently.
   if (length(comparisons)) {
+    feature_rows <- if (is.null(bar_data)) {
+      split(seq_len(nrow(dat_long)), dat_long[["feature"]], drop = TRUE)
+    }
     comparison_sets <- lapply(stat.by, function(f) {
-      at <- dat_long[["feature"]] == f
-      .con_comparisons(comparisons, dat_long[["group.by"]][at], f,
-                        dat_long[["value"]][at], pairwise_method)
+      if (is.null(bar_data)) {
+        at <- feature_rows[[f]]
+        groups <- dat_long[["group.by"]][at]
+        values <- dat_long[["value"]][at]
+      } else {
+        groups <- bar_data[[f]][["group.by"]]
+        values <- bar_data[[f]][["value"]]
+      }
+      .con_comparisons(comparisons, groups, f, values, pairwise_method)
     })
     comparison_counts <- lengths(comparison_sets)
     if (type != "bar" && all(vapply(comparison_sets, function(pairs) {

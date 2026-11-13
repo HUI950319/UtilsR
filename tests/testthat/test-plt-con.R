@@ -1889,3 +1889,23 @@ test_that("stacked bar comparisons reuse existing feature frames", {
   expect_identical(splits, 1L)
   expect_true(any(vapply(layers, function(x) "annotation" %in% names(x), logical(1))))
 })
+
+test_that("stacked comparison preflight uses feature row indices", {
+  skip_if_not_installed("ggpubr")
+  d <- con_data()
+  fn <- .plt_con_stacked
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (is.factor(x) && length(x) == nrow(d) * 2L && identical(levels(x), c("z", "x"))) {
+      stop("scanned all features per comparison")
+    }
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  testthat::local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  p <- con_plot(d, c("z", "x"), type = "box", stack = TRUE, comparisons = list(c("A", "B")))
+  b <- ggplot2::ggplot_build(p)
+  expect_identical(as.character(b$layout$layout$feature), c("z", "x"))
+  layers <- Filter(function(x) "annotation" %in% names(x), b$data)
+  expect_setequal(as.integer(layers[[1L]]$PANEL), c(1L, 2L))
+})
