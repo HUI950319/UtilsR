@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` limits Unicode dash normalization to intervals that contain those dashes.
+
 * `stat_ci_parse(exp = FALSE)` bypasses unused log-scale asymmetry calculations.
 
 * `stat_pval()` strips bound operators only from inputs that contain them.

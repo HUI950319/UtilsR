@@ -785,3 +785,18 @@ test_that("linear confidence checks bypass log-scale asymmetry", {
   expect_warning(actual <- stat_ci_parse(x, exp = FALSE, output = "p"), "invalid")
   expect_identical(actual, expected)
 })
+
+test_that("interval dash normalization visits only strings with Unicode dashes", {
+  x <- c(rep("0 (-1, 1)", 500L), "\u20131 (\u20132 to 0)", "1 (0\u20132)", NA)
+  expected <- .ci_extract(x)
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  env$gsub <- function(pattern, replacement, x, ...) {
+    if (grepl("\u2013", pattern, fixed = TRUE) && length(x) > 2L)
+      stop("rewrote Unicode dashes in ASCII intervals")
+    base::gsub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), expected)
+  expect_true(all(expected$valid[501:502]))
+})

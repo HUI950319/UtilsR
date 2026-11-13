@@ -373,9 +373,12 @@ stat_ci_parse <- function(x,
   # An en or em dash right before a number is a minus sign, as Word and PDF
   # tables print negatives, when it opens the string or follows the bracket
   # or a separator; between two numbers it stays the separator
-  xs <- gsub(paste0("(^|[[(,;~\u2013\u2014-]", space, "*|", space,
-                    "to", space, "+)[\u2013\u2014](?=\\.?\\d)"),
-             "\\1-", xs, perl = TRUE)
+  dash_rows <- grepl("[\u2013\u2014]", xs, perl = TRUE)
+  if (any(dash_rows)) {
+    xs[dash_rows] <- gsub(paste0("(^|[[(,;~\u2013\u2014-]", space, "*|", space,
+                                "to", space, "+)[\u2013\u2014](?=\\.?\\d)"),
+                         "\\1-", xs[dash_rows], perl = TRUE)
+  }
   suffix <- "(?<![*\\h\\v])[*\\h\\v]++$"
   xs <- sub(suffix, "", xs, perl = TRUE) # strip trailing stars/spaces
   xs <- sub("\\.$", "", xs)            # strip single trailing dot
