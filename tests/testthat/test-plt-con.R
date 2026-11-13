@@ -1965,3 +1965,24 @@ test_that("continuous bar ranges split ordinary factor codes directly", {
   environment(fn) <- env
   expect_identical(fn(x, g), .con_bar_range(x, as.character(g)))
 })
+
+test_that("continuous comparison preflight matches factor levels before observations", {
+  skip_if_not_installed("ggpubr")
+  groups <- ordered(rep(c("B", "A", NA, "C"), 100L), levels = c("C", "unused", "B", "A"))
+  values <- seq_along(groups)
+  pairs <- list(c("A", "B"), c(1L, 3L), c("B", "unused"))
+  fn <- .con_comparisons
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) > 100L) stop("decoded all comparison groups")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_warning(out <- fn(pairs, groups, "x", values, "t.test"), "unavailable groups")
+  cache <- attr(out, ".con_test_cache")
+  attr(out, ".con_test_cache") <- NULL
+  expect_identical(out, pairs[1:2])
+  expect_equal(cache[[1L]]$p.value, stats::t.test(values[which(groups == "A")],
+    values[which(groups == "B")])$p.value)
+  expect_identical(cache[[2L]]$x$value, as.double(values[which(groups == "C")]))
+})

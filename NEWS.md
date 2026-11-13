@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous comparisons resolve available groups and their row positions from the existing factor codes.
+
 * Distribution plots avoid copying unused data.table columns while keeping their output names and table type.
 
 * Distribution plots validate named palettes from observed factor codes without decoding every fill value.

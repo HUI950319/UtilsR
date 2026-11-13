@@ -893,7 +893,12 @@ plt_con <- function(data,
 
 .con_comparisons <- function(comparisons, groups, feature, values, method) {
   if (!length(comparisons)) return(comparisons)
-  available <- unique(as.character(groups[!is.na(groups)]))
+  ordinary_factor <- identical(class(groups), "factor") ||
+    identical(class(groups), c("ordered", "factor"))
+  group_levels <- levels(groups)
+  available <- if (ordinary_factor) {
+    group_levels[tabulate(groups, nbins = length(group_levels)) > 0L]
+  } else unique(as.character(groups[!is.na(groups)]))
   keep <- vapply(comparisons, function(pair) {
     if (is.numeric(pair)) pair <- levels(groups)[pair]
     length(pair) == 2L && !anyNA(pair) && all(pair %in% available)
@@ -907,7 +912,9 @@ plt_con <- function(data,
     test <- .con_pairwise_test(test_params[["test"]])
     pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) levels(groups)[pair] else pair)
     used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
-    locations <- split(seq_along(groups), match(groups, used_groups))
+    group_ids <- if (ordinary_factor) match(group_levels, used_groups)[as.integer(groups)] else
+      match(groups, used_groups)
+    locations <- split(seq_along(groups), group_ids)
     group_data <- lapply(locations, function(rows) values[rows])
     # Shared group environments avoid serializing the same vector for every pair.
     cache_data <- lapply(group_data, function(x) list2env(list(
