@@ -1254,3 +1254,19 @@ test_that("console message continuation lines carry their own ANSI styles", {
     expect_identical(trimws(cli::ansi_strip(actual[2L])), "second")
   }
 })
+
+test_that("table gradients do not interpret matrix cells as extra rows", {
+  skip_if_not_installed("gt")
+  d <- data.frame(id = letters[1:2], x = I(matrix(1:4, 2L)), y = c(1, 2))
+  color <- gt::data_color
+  calls <- list()
+  local_mocked_bindings(data_color = function(data, columns, rows, ...) {
+    if (identical(columns, "x")) stop("numeric data colour called for a matrix")
+    calls[[length(calls) + 1L]] <<- columns
+    color(data, columns = columns, rows = rows, ...)
+  }, .package = "gt")
+  out <- .cat_tb(d, theme = "none", numeric_columns = c("x", "y"))
+  expect_s3_class(out, "gt_tbl")
+  expect_identical(calls, list("y"))
+  expect_identical(out[["_data"]]$x, d$x)
+})

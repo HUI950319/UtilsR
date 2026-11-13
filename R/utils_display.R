@@ -601,7 +601,7 @@ console_width <- function() {
     if (!is.null(cols)) {
       for (col in intersect(cols, names(df))) {
         v <- df[[col]]
-        finite <- if (is.numeric(v)) is.finite(v) else FALSE
+        finite <- if (is.numeric(v) && is.null(dim(v))) is.finite(v) else FALSE
         if (any(finite)) {
           domain <- range(v[finite])
           encoded <- inherits(v, "integer64")
