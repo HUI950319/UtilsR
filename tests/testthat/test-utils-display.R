@@ -1242,3 +1242,15 @@ test_that("console rules keep embedded layout controls on one line", {
   expect_identical(draw("text", "x\ny"), draw("text", "x\\ny"))
   expect_length(draw("text", "\u2500"), 1L)
 })
+
+test_that("console message continuation lines carry their own ANSI styles", {
+  withr::local_options(cli.num_colors = 256L, cli.width = 80L)
+  draw <- function(x, wrap) cli::cli_fmt(.cat_message(x, style = "chip",
+    timestamp_format = NULL, wrap = wrap))
+  for (wrap in c(FALSE, TRUE)) {
+    actual <- draw(cli::col_red("first\r\nsecond"), wrap)
+    expected <- draw(c(cli::col_red("first"), cli::col_red("second")), wrap)
+    expect_identical(actual, expected)
+    expect_identical(trimws(cli::ansi_strip(actual[2L])), "second")
+  }
+})

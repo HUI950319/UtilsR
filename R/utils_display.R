@@ -213,7 +213,8 @@ console_width <- function() {
   lines[is.na(lines)] <- "NA"
   if (any(grepl("\n", lines, fixed = TRUE))) {
     lines <- gsub("\r\n", "\n", lines, fixed = TRUE)
-    lines <- unlist(strsplit(paste0(lines, "\n"), "\n", fixed = TRUE), use.names = FALSE)
+    split_lines <- if (any(grepl("\033", lines, fixed = TRUE))) cli::ansi_strsplit else strsplit
+    lines <- unlist(split_lines(paste0(lines, "\n"), "\n", fixed = TRUE), use.names = FALSE)
   }
   # format(x, "") would fall back to R's default format, not drop the stamp
   ts    <- if (is.null(timestamp_format) || !nzchar(timestamp_format)) "" else
