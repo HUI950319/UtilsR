@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell top-N plots slice the final sorted rows directly instead of reordering the complete table.
+
 * Categorical UpSet plots count combination codes before formatting keys for names that contain the default separator.
 
 * Categorical Venn and UpSet plots evaluate each ordinary factor level once when selecting members.

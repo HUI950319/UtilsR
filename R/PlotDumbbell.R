@@ -291,6 +291,7 @@ PlotDumbbell <- function(
 
   # ---- Sort ----
   sort_by <- match.arg(sort_by, c("end", "start", "delta", "none"))
+  ord <- NULL
   if (sort_by != "none") {
     sort_vals <- switch(sort_by,
       "end"   = data[[xend_col]],
@@ -298,13 +299,13 @@ PlotDumbbell <- function(
       "delta" = data[[delta_var]]
     )
     ord <- order(sort_vals, decreasing = sort_descending)
-    data <- data[ord, , drop = FALSE]
   }
 
   # ---- Top N ----
   if (!is.null(top_n) && top_n > 0 && top_n < nrow(data)) {
-    data <- utils::tail(data, top_n)
+    ord <- utils::tail(ord %||% seq_len(nrow(data)), top_n)
   }
+  if (!is.null(ord)) data <- data[ord, , drop = FALSE]
 
   # Continuous scales strip duration units, so align plotting coordinates
   # after computing deltas in the original units.

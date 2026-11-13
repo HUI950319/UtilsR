@@ -797,3 +797,23 @@ test_that("dumbbell categories keep calendar periods with identical seconds slot
   expect_identical(levels(p$data$category), as.character(months))
   expect_identical(as.character(p$data$category), as.character(months))
 })
+
+test_that("dumbbell top rows avoid reordering the complete frame", {
+  d <- data.frame(start = c(4, 2, 7, 1, 5, 3), end = c(6, 3, 8, 4, 7, 5),
+                  category = letters[1:6], payload = rep("unused", 6L))
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && !missing(i) && "payload" %in% names(x) &&
+        length(i) == nrow(d)) stop("reordered the full frame")
+    call <- sys.call()
+    call[[1L]] <- quote(base::`[`)
+    eval(call, parent.frame())
+  }
+  environment(fn) <- env
+  for (sort in c("end", "start", "delta", "none")) {
+    expected <- dumbbell_plot(d, top_n = 2, sort_by = sort, legend_pos = "none")$data
+    invisible(capture.output(result <- fn(d, top_n = 2, sort_by = sort, legend_pos = "none")))
+    expect_identical(result$data, expected)
+  }
+})
