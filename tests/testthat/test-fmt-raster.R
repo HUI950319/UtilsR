@@ -852,3 +852,14 @@ test_that("nested image rasterization rejects plot arrays before opening a devic
                         .package = "UtilsR")
   expect_error(fmt_raster(list(list(d)), method = "image"), "Plot lists must be one-dimensional")
 })
+
+test_that("raster captures reject overflowing pixel dimensions before opening a device", {
+  skip_if_not_installed("ragg")
+  g <- grid::rectGrob()
+  local_mocked_bindings(.agg_capture = function(...) stop("opened a capture device for an unrepresentable bitmap"),
+                        .package = "UtilsR")
+  expect_error(fmt_raster(g, method = "image", width = 1e308, height = 1, dpi = 300), "integer pixel")
+  expect_error(.rasterize_panel_grob(g, 1, 2^31, 100, "mm", "transparent"), "integer pixel")
+  expect_error(fmt_raster(g, method = "image", width = .001, height = 1, dpi = 100), "one pixel")
+  expect_error(.rasterize_panel_grob(g, .001, 1, 100, "in", "transparent"), "one pixel")
+})

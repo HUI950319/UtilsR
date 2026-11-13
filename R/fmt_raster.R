@@ -478,9 +478,7 @@ fmt_raster <- function(
     if (is.null(height)) height <- device_size[2] * per_inch
   }
 
-  if (width * dpi / per_inch < 1 || height * dpi / per_inch < 1) {
-    cli::cli_abort("Image dimensions and {.arg dpi} must produce at least one pixel per dimension.")
-  }
+  .check_raster_pixels(c(width, height) / per_inch * dpi, "Image")
 
   capture <- .agg_capture(width = width, height = height, units = units,
                           res = dpi, background = bg)
@@ -573,9 +571,7 @@ fmt_raster <- function(
   if (background) output[[1L]] <- grid::rectGrob(gp = grid::gpar(fill = bg, col = NA))
   capture_run <- function(indices) {
     inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
-    if (w * inches * dpi < 1 || h * inches * dpi < 1) {
-      cli::cli_abort("Panel dimensions and {.arg dpi} must produce at least one pixel per dimension.")
-    }
+    .check_raster_pixels(c(w, h) * inches * dpi, "Panel")
     g_geom <- g
     g_geom$children <- do.call(grid::gList, g$children[indices])
     g_geom$childrenOrder <- names(g_geom$children)
@@ -660,6 +656,15 @@ fmt_raster <- function(
 
 # --- In-memory ragg device that leaves the random stream alone ---
 #' @noRd
+.check_raster_pixels <- function(pixels, kind) {
+  if (any(!is.finite(pixels) | pixels > .Machine$integer.max)) {
+    cli::cli_abort("{kind} dimensions and {.arg dpi} must fit the integer pixel range.")
+  }
+  if (any(pixels < 1)) {
+    cli::cli_abort("{kind} dimensions and {.arg dpi} must produce at least one pixel per dimension.")
+  }
+}
+
 .agg_capture <- function(...) {
   # ragg before 1.5.1 names the device with sample() (r-lib/ragg#211).
   seed <- get0(".Random.seed", envir = globalenv(), inherits = FALSE)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Raster backends reject dimensions outside the integer pixel range before allocating a capture device.
+
 * Image rasterization applies the same list-shape check to nested and top-level inputs.
 
 * `fmt_flatten()` reports dimensional plot lists at any nesting level.
