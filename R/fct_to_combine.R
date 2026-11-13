@@ -222,6 +222,24 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   n <- lens[[1L]]
+  if (length(args) == 1L) {
+    x <- args[[1L]]
+    if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+        (n == 0L || nlevels(x) <= n)) {
+      if (!n) return(structure(integer(), levels = character(), class = "factor"))
+      observed <- tabulate(x, nbins = nlevels(x)) > 0L
+      lvls <- levels(x)[observed]
+      lvls[is.na(lvls)] <- "NA"
+      if (anyDuplicated(lvls)) {
+        cli::cli_abort(c(
+          "Distinct combinations produce the same label.",
+          "i" = "Choose a different {.arg sep} or relabel the inputs."
+        ))
+      }
+      codes <- cumsum(observed)[as.integer(x)]
+      return(structure(codes, levels = lvls, class = "factor"))
+    }
+  }
   early_filter <- all(vapply(args, function(x) {
     !is.object(x) || identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
   }, logical(1L)))

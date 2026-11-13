@@ -509,3 +509,19 @@ test_that("factor combinations encode ordinary categories only on complete rows"
   expect_true(is.na(fn(a, b, x)[2L]))
   expect_identical(as.character(fn(a, b, x)[1L]), "b & NA & 1")
 })
+
+test_that("one factor combines without a row dictionary", {
+  x <- structure(c(4L, 2L, NA_integer_, 3L, 4L, 2L),
+    levels = c("unused", "", NA_character_, "b"), class = c("ordered", "factor"))
+  names(x) <- letters[1:6]
+  expected <- fct_to_combine(x)
+  fn <- fct_to_combine.default
+  testthat::local_mocked_bindings(vec_group_id = function(...) {
+    stop("built a row dictionary for one factor")
+  }, .package = "vctrs")
+  expect_identical(fn(x), expected)
+  expect_identical(levels(expected), c("", "NA", "b"))
+  expect_identical(fn(x[FALSE]), factor(character()))
+  attr(x, "levels") <- c("unused", "", NA_character_, "NA")
+  expect_error(fn(x), "Distinct combinations")
+})

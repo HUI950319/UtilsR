@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` compacts a single ordinary factor without building a row dictionary, preserving declared order and missingness.
+
 * `plt_alluvial()` uses the existing category levels to size the page.
 
 * `plt_alluvial()` reports an oversized stratum grid before allocating its zero-count cells.
