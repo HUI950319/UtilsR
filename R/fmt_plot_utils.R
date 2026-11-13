@@ -16,7 +16,7 @@
 # ---- Internal helpers ----
 
 #' @noRd
-.map_plot_leaves <- function(plot, fun) {
+.map_plot_leaves <- function(plot, fun, wrapped = NULL) {
   # An inset wrapping a patchwork is an overlay; a container ending in an
   # inset inherits its class but still owns ordinary grid cells.
   if (inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
@@ -25,7 +25,7 @@
     free_settings <- attr(plot, "patchwork_free_settings")
     for (i in seq_along(plot)) {
       child <- plot[[i]]
-      updated <- .map_plot_leaves(child, fun)
+      updated <- .map_plot_leaves(child, fun, wrapped)
       if (!identical(updated, child)) plot[[i]] <- updated
     }
     if (!is.null(free_settings)) {
@@ -40,10 +40,11 @@
     attr(plot, "patchwork_free_settings") <- NULL
     class(plot) <- setdiff(class(plot), "free_plot")
   }
+  if (!is.null(wrapped) && inherits(plot, "wrapped_patch")) return(wrapped(plot))
   if (inherits(plot, c("spacer", "guide_area", "inset_patch", "wrapped_patch"))) return(plot)
   if (is.list(plot) && !inherits(plot, "gg")) {
     if (!is.null(dim(plot))) cli::cli_abort("Plot lists must be one-dimensional.")
-    return(lapply(plot, .map_plot_leaves, fun = fun))
+    return(lapply(plot, .map_plot_leaves, fun = fun, wrapped = wrapped))
   }
   fun(plot)
 }

@@ -1918,23 +1918,15 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   }
   info <- .to_plot_list(plot)
   map_leaves <- .map_plot_leaves
-  check_wrapped <- function(p) {
-    if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
-        match("inset_patch", class(p)) < match("patchwork", class(p)))) return(invisible(NULL))
-    if (inherits(p, "patchwork")) {
-      for (j in seq_along(p)) check_wrapped(p[[j]])
-    } else if (inherits(p, "wrapped_patch")) {
-      cli::cli_abort("Strip formatting cannot modify panels created by {.fn patchwork::wrap_elements}. Format the original ggplot before wrapping it.")
-    }
-    invisible(NULL)
+  reject_wrapped <- function(p) {
+    cli::cli_abort("Strip formatting cannot modify panels created by {.fn patchwork::wrap_elements}. Format the original ggplot before wrapping it.")
   }
   plots <- list()
   for (p in info$plots) {
-    check_wrapped(p)
     invisible(map_leaves(p, function(leaf) {
       plots[[length(plots) + 1L]] <<- leaf
       leaf
-    }))
+    }, wrapped = reject_wrapped))
   }
   restore <- function(plots) {
     i <- 0L

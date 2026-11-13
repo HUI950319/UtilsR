@@ -122,3 +122,19 @@ test_that("base plot formatting preserves quoted lab values", {
     expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
   }
 })
+
+test_that("strip formatting validates wrapped panels during leaf collection", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  nested <- p | p
+  fn <- fmt_strip
+  env <- new.env(parent = environment(fn))
+  env$inherits <- function(x, what, ...) {
+    if (identical(what, "patchwork") && inherits(x, "patchwork")) {
+      stop("ran a separate wrapped-panel traversal")
+    }
+    base::inherits(x, what, ...)
+  }
+  environment(fn) <- env
+  expect_s3_class(fn(nested / p), "patchwork")
+  expect_error(fn(nested / patchwork::wrap_elements(grid::rectGrob())), "wrap_elements")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Strip formatting checks for wrapped panels while collecting editable leaves, without a separate patchwork traversal.
+
 * Plot-aligned insets use the same inner extent for ggplots and gtables produced from those plots.
 
 * Behind insets stay below overlapping grobs even when those grobs have missing layout names.
