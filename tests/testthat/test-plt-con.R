@@ -1835,3 +1835,20 @@ test_that("stacked continuous long data bind only finite rows", {
   expect_identical(levels(p$data$feature), c("x", "z"))
   expect_identical(levels(p$data$group.by), c("b", "a"))
 })
+
+test_that("continuous quantile zooms follow a composed decreasing scale", {
+  d <- data.frame(x = 1:10, z = seq(100, 190, by = 10), g = rep(c("A", "B"), each = 5L))
+  trans <- scales::transform_compose("log10", "reverse")
+  for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "box", stack = stack, flip = flip,
+                  y.max = "q90")
+    b <- ggplot2::ggplot_build(suppressMessages(p + ggplot2::scale_y_continuous(
+      trans = trans, expand = c(0, 0))))
+    axis <- if (flip) "x.range" else "y.range"
+    for (i in seq_along(b$layout$panel_params)) {
+      x <- d[[c("x", "z")[i]]]
+      expected <- -log10(c(unname(stats::quantile(x, .9)), min(x)))
+      expect_equal(unname(b$layout$panel_params[[i]][[axis]]), expected)
+    }
+  }
+})

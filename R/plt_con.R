@@ -1110,17 +1110,26 @@ plt_con <- function(data,
   layer
 }
 
+.con_decreasing_scale <- function(transformation) {
+  if (identical(transformation$name, "reverse")) return(TRUE)
+  if (identical(transformation$name, "identity")) return(FALSE)
+  ends <- tryCatch(suppressWarnings(transformation$transform(transformation$domain)),
+                   error = function(e) NULL)
+  length(ends) == 2L && isTRUE(ends[1L] > ends[2L])
+}
+
 .con_facet_scales <- function(facet, limits) {
   force(facet)
   force(limits)
   ggplot2::ggproto(NULL, facet,
     init_scales = function(layout, x_scale = NULL, y_scale = NULL, params) {
       result <- facet$init_scales(layout, x_scale, y_scale, params)
+      decreasing <- length(result$y) && .con_decreasing_scale(y_scale$get_transformation())
       for (i in seq_along(result$y)) {
         feature <- as.character(layout$feature[match(i, layout$SCALE_Y)])
         scale <- result$y[[i]]
         bounds <- scale$transform(limits[[feature]])
-        if (identical(scale$get_transformation()$name, "reverse")) bounds <- rev(bounds)
+        if (decreasing) bounds <- rev(bounds)
         scale$limits <- bounds
         scale$oob <- scales::oob_keep
       }
@@ -1163,7 +1172,7 @@ plt_con <- function(data,
       if (!is.null(bounds[["y"]]) && !identical(transformation$name, "identity")) {
         if (is.null(shared)) {
           bounds[["y"]][automatic] <- NA_real_
-          if (identical(transformation$name, "reverse")) bounds[["y"]] <- rev(bounds[["y"]])
+          if (.con_decreasing_scale(transformation)) bounds[["y"]] <- rev(bounds[["y"]])
         } else {
           inverse <- scale_y$get_transformation()$inverse(shared(scale_y)[["limits"]])
           bounds[["y"]][automatic] <- sort(inverse)[automatic]
