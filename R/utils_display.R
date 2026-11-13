@@ -132,9 +132,13 @@ console_width <- function() {
 .cat_box <- function(cat_text,
                      type = c("info", "success", "warning", "error")) {
   cfg <- ._type_cfg(match.arg(type))
-  cat_text <- gsub("\r\n", "\n", as.character(cat_text), fixed = TRUE)
-  cat_text <- unlist(cli::ansi_strsplit(paste0(cat_text, "\n"), "\n", fixed = TRUE),
-                     use.names = FALSE)
+  cat_text <- as.character(cat_text)
+  cat_text[is.na(cat_text)] <- "NA"
+  if (any(grepl("\n", cat_text, fixed = TRUE))) {
+    cat_text <- gsub("\r\n", "\n", cat_text, fixed = TRUE)
+    cat_text <- unlist(cli::ansi_strsplit(paste0(cat_text, "\n"), "\n", fixed = TRUE),
+                       use.names = FALSE)
+  }
   label <- paste(cfg$symbol, cat_text, cfg$symbol)
 
   bg <- ._cli_bg(cfg$type)

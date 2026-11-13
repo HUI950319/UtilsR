@@ -1211,3 +1211,18 @@ test_that("notices split only elements containing line breaks", {
     expect_identical(trimws(out[2:9]), c("", "NA", "{literal}", "last", "two", "lines", "", ""))
   }
 })
+
+test_that("console boxes split text only when a line break is present", {
+  x <- c("ready", "", NA_character_, cli::col_red("done"))
+  draw <- function(text) cli::cli_fmt(.cat_box(text))
+  expected <- draw(x)
+  multiline <- draw("ready\r\n\r\ndone\r\n")
+  ansi_strsplit <- cli::ansi_strsplit
+  local_mocked_bindings(ansi_strsplit = function(x, split, ...) {
+    if (identical(split, "\n") && identical(x, paste0(c("ready", "", NA_character_, cli::col_red("done")), "\n")))
+      stop("split console box text without line breaks")
+    ansi_strsplit(x, split, ...)
+  }, .package = "cli")
+  expect_identical(draw(x), expected)
+  expect_identical(draw("ready\n\ndone\n"), multiline)
+})

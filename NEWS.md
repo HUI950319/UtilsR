@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_box()` uses one-line elements directly and preserves embedded and trailing blank lines.
+
 * `pr_note()` shares one console width across all wrapped lines of a note.
 
 * `pr_tree()` counts children past its line limit without escaping or measuring names that will never display.
