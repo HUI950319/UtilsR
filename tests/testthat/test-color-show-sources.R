@@ -2873,3 +2873,13 @@ test_that("palette catalogue headings reuse the resolved console width", {
   expect_identical(capture.output(fn("^(Set1|Set2|Set3)$", show = FALSE)), expected)
   expect_identical(calls, 1L)
 })
+
+test_that("one-colour previews preserve alpha without constructing ramps", {
+  x <- structure("#FF000080", type = "discrete")
+  expected <- .pal_resize(x, 3L, 10000000L)
+  local_mocked_bindings(colorRamp = function(...) stop("built a ramp for a one-colour preview"),
+                        .package = "grDevices")
+  expect_identical(.pal_resize(x, 3L, 10000000L), expected)
+  expect_identical(as.character(expected), rep("#FF000080", 3L))
+  expect_identical(as.character(.pal_resize("red", 2L, 4L)), rep("#FF0000", 2L))
+})
