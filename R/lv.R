@@ -349,8 +349,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # Center narrow integer64 ranges before converting their differences to
   # doubles, so histogram bins and SD retain values beyond double precision.
-  .spread_values <- function(x) {
-    values <- suppressWarnings(as.numeric(x))
+  .spread_values <- function(x, values = suppressWarnings(as.numeric(x))) {
     if (inherits(x, "integer64")) {
       observed <- x[!is.na(x)]
       if (length(observed) && diff(range(values, na.rm = TRUE)) <= 2^53) {
@@ -547,10 +546,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # A measurement, not a code: its distribution, as skimr gives it, rather
       # than counts of its first values (ages 0, 1, 2, ...). Classed numbers
       # (integer64, labelled) as plain doubles.
-      x <- suppressWarnings(as.numeric(col_data[!is.na(col_data)]))
-      x <- x[is.finite(x)]
-      shape <- .spread_values(col_data[!is.na(col_data)])
-      shape <- shape[is.finite(shape)]
+      observed <- col_data[!is.na(col_data)]
+      values <- suppressWarnings(as.numeric(observed))
+      x <- values[is.finite(values)]
+      shape <- x
+      if (inherits(col_data, "integer64")) {
+        shape <- .spread_values(observed, values)
+        shape <- shape[is.finite(shape)]
+      }
       spread <- sd(shape)
       span <- max(shape) - min(shape)
       if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {

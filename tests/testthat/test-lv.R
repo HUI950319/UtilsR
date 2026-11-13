@@ -1545,3 +1545,23 @@ test_that("all-missing Date columns retain a missing-count summary", {
   invisible(capture.output(expect_no_warning(expect_no_error(lv(d, group = group)))))
   expect_s3_class(d$visit, "Date")
 })
+
+test_that("lv measurement listings convert the observed vector once", {
+  d <- data.frame(x = c(seq_len(1000L), Inf, NA_real_))
+  observed <- d$x[!is.na(d$x)]
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$as.numeric <- function(x, ...) {
+    in_listing <- any(vapply(sys.calls(), function(call) identical(call[[1L]], quote(.lv_listing)), logical(1)))
+    if (in_listing && identical(x, observed)) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("converted the observed vector again")
+    }
+    base::as.numeric(x, ...)
+  }
+  environment(fn) <- env
+  actual <- capture.output(suppressMessages(fn(d, x)))
+  expect_identical(actual, capture.output(suppressMessages(lv.data.frame(d, x))))
+  expect_identical(calls, 1L)
+})

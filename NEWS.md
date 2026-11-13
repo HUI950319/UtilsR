@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Variable listings reuse the observed numeric values for statistics and distribution shape, with separate exact centering for integer64.
+
 * CI-only formatting skips standard-error calculations when the confidence level is unchanged.
 
 * Object size reports filter failed measurements and stably sort remaining sizes in one row slice.
