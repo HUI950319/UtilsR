@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` updates or clears `continuous.limits` on discrete position scales that support it.
+
 * `fmt_scale()` applies the most recent temporal breaks, labels and minor breaks when aliases are mixed across calls.
 
 * `show_color()` decodes colour names and hex values once before building alpha-aware ANSI previews.

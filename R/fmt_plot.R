@@ -5357,7 +5357,8 @@ fmt_his <- function(plot,
   arg_fields <- list(transform = "trans",
                      sec.axis = "secondary.axis", date_breaks = "breaks",
                      date_labels = "labels", date_minor_breaks = "minor_breaks",
-                     timezone = c("timezone", "trans"))
+                     timezone = c("timezone", "trans"),
+                     continuous.limits = "continuous_limits")
   new_trans <- "transform" %in% arg_names
   if (fn_name %in% paste0("scale_", axis, c("_continuous", "_binned")) && !new_trans)
     args$transform <- scale$trans

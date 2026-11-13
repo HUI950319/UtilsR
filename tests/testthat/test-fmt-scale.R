@@ -529,3 +529,21 @@ test_that("deferred temporal settings honor the latest field update across alias
     expect_equal(actual$minor_breaks, native$minor_breaks)
   }
 })
+
+test_that("discrete scale changes update continuous axis limits on existing scales", {
+  d <- data.frame(x = letters[1:3], y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  args <- list(continuous.limits = c(0, 4))
+  explicit <- p + ggplot2::scale_x_discrete()
+  if ("continuous.limits" %in% names(formals(ggplot2::scale_x_discrete))) {
+    panel_range <- function(plot) ggplot2::ggplot_build(plot)$layout$panel_params[[1L]]$x.range
+    output <- fmt_scale(explicit, x = args)
+    expected <- p + do.call(ggplot2::scale_x_discrete, args)
+    expect_equal(panel_range(output), panel_range(expected))
+    expect_equal(panel_range(fmt_scale(output, x = list(continuous.limits = NULL))),
+                 panel_range(explicit))
+    expect_null(explicit$scales$get_scales("x")$continuous_limits)
+  } else {
+    expect_error(fmt_scale(explicit, x = args), "continuous.limits", fixed = TRUE)
+  }
+})
