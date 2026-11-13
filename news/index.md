@@ -2,6 +2,311 @@
 
 ## UtilsR 0.6.23
 
+- Rasterization converts fixed physical gtable cells together and
+  retains viewport measurement for relative units.
+
+- Confidence interval and SD formatting avoid allocating missing masks
+  for complete ordinary numeric inputs.
+
+- Rasterization maps explicit panel dimensions to parent and nested
+  panels in documented depth-first gtable order.
+
+- The main theme diagnoses invalid legend coordinates and position names
+  at the theme call.
+
+- Jaccard similarities skip globally unique integer64 and structured
+  time keys while retaining original set sizes.
+
+- Console tables use formatted text to locate missing cells without
+  checking ordinary input vectors twice.
+
+- Factor grouping uses validated level indices directly and preserves
+  duplicate and missing-level handling.
+
+- Rasterization applies a requested panel background beneath standalone
+  text without converting the text to pixels.
+
+- Missingness matrix plots reuse the combined mask storage while keeping
+  the original observation order.
+
+- Console tables reuse the visible highlight row selection for indent
+  and styling.
+
+- Plot tags reuse the global theme when inheriting font families across
+  multiple panels.
+
+- KNN imputation reuses category codes and checks for display collisions
+  only in labelled doubles.
+
+- KNN imputation translates only imputed labelled values back to their
+  original storage and retains complete predictors unchanged.
+
+- KNN imputation maps backend factor codes back to original levels only
+  for the missing observations.
+
+- Factor combinations filter incomplete rows before encoding ordinary
+  factors, retaining ordered and explicit NA levels.
+
+- Layer rasterization avoids reassigning patchwork children when they
+  have no eligible geometry.
+
+- Text p-value formatting uses interval lookup and checks exact decimals
+  only where they round to a significance cutoff.
+
+- Palette catalogue headings use one console width for layout and
+  rendering within each listing.
+
+- Formula notices classify integer64 outcomes after excluding encoded
+  missing values, including in a fresh R process.
+
+- KNN imputation inspects data.table missingness before allocating a
+  plain copy for the backend.
+
+- Factor relabelling returns keyed data.table inputs unchanged when
+  their factor values and levels are identical.
+
+- Factor conversion distinguishes close labelled scores and treats SPSS
+  user-missing values as missing.
+
+- Factor conversion keeps close double values distinct when the input is
+  protected with I().
+
+- Factor conversion keeps fractional dates and repeated local times
+  distinct, in their native chronological order.
+
+- Image rasterization rejects unclassed non-plot values before opening a
+  graphics device.
+
+- Background stripes map categorical positions and compute shared edges
+  once per trained scale.
+
+- Strip formatting checks for wrapped panels while collecting editable
+  leaves, without a separate patchwork traversal.
+
+- Plot-aligned insets use the same inner extent for ggplots and gtables
+  produced from those plots.
+
+- Behind insets stay below overlapping grobs even when those grobs have
+  missing layout names.
+
+- Missingness plots read data.table columns in place for both matrix and
+  percentage views.
+
+- Continuous bar range calculations reuse ordinary group factors and
+  include genuinely missing groups.
+
+- Dumbbell plots use ggplot2’s current inside-legend interface for
+  coordinate and corner positions.
+
+- Confidence interval parsing skips token and precision extraction when
+  every input lacks interval syntax.
+
+- Variable reports look for a conflicting blank label only when an empty
+  category is present.
+
+- Variable listings reuse the observed numeric values for statistics and
+  distribution shape, with separate exact centering for integer64.
+
+- CI-only formatting skips standard-error calculations when the
+  confidence level is unchanged.
+
+- Object size reports filter failed measurements and stably sort
+  remaining sizes in one row slice.
+
+- Palette previews encode fully opaque swatches as six-digit hex while
+  preserving alpha in mixed palettes.
+
+- Console text formatting avoids allocating a missing-value mask for
+  complete ordinary vectors.
+
+- Console tables create the background style only when a visible row
+  uses coloured highlighting.
+
+- Numeric p-value cells compare directly with significance thresholds
+  without building text operators.
+
+- Console tables reuse formatted p-value cells for repeated text while
+  preserving bound and missing-value displays.
+
+- Rank correlation plots compute ordinary one- and two-observation
+  aesthetic means in batches, retaining native results at numeric
+  extremes.
+
+- Categorical plots build dense count grids from ordinary factor codes
+  while preserving empty combinations and factor order.
+
+- Circle plots scale integer64 scores in a preallocated vector and reuse
+  the sector lookup.
+
+- Numeric dumbbell insets construct paired endpoint columns directly
+  while retaining their value and row order.
+
+- Continuous plots sort groups by computing medians directly from the
+  existing factor partitions.
+
+- Pairwise comparison cache construction compares each shared group
+  vector once before indexing its test results.
+
+- Stacked continuous plots partition comparison inputs once and reuse
+  the feature rows for each preflight test.
+
+- Stacked continuous bar comparisons reuse the feature data already
+  partitioned for bar summaries.
+
+- Linux diagnostics extract a single CPU model without normalizing
+  duplicate per-core entries.
+
+- System diagnostics return the available details when the
+  operating-system name cannot be read.
+
+- UpSet matches character selectors to the two logical values before
+  processing logical columns.
+
+- UpSet membership checks character selectors against factor levels and
+  reuses their codes for the observations.
+
+- Alluvial input filtering reads ordinary factor missing codes directly
+  and still checks explicit missing levels.
+
+- Butterfly bars reflect labelled numeric scores without applying
+  arithmetic to their value labels.
+
+- Sankey labels reuse the node factor codes instead of creating a
+  character key per observation.
+
+- Paired scatter plots display an unavailable p-value for constant
+  differences or too few complete pairs.
+
+- Shared transformed continuous ranges retain finite bounds when there
+  are no pairwise comparison annotations.
+
+- Independent continuous panels keep their full shared limits when
+  pairwise comparisons are absent.
+
+- Rank plots locate default Date and integer64 groups once, preserving
+  native group identities.
+
+- Data quality checks reuse observed factor level counts while
+  distinguishing explicit NA levels from missing codes.
+
+- Alluvial gap ordering remaps the existing factor codes using a single
+  level lookup.
+
+- Butterfly distribution plots normalize labelled numeric scores before
+  reflection and summaries.
+
+- Wide butterfly violin inputs accept labelled numeric scores and
+  respect SPSS user-missing values.
+
+- Point formatting builds jitter or dodge positions only for layers that
+  use automatic positioning.
+
+- Single scatter plots use the current ggplot2 interface for coordinate
+  legends.
+
+- Numeric console columns avoid reparsing formatted values outside the
+  rounding boundary.
+
+- Selective rasterization stops inspecting siblings once a grob is known
+  to contain vector text.
+
+- Console escaping limits replacement passes to strings containing
+  control characters.
+
+- Sankey and categorical path plots reuse stage positions when building
+  the stage and successor factors.
+
+- Dumbbell differences retain integer64 precision when the other
+  endpoint is a labelled numeric vector.
+
+- Continuous plot bounds follow decreasing value transformations in
+  independent and stacked panels.
+
+- Categorical plots exclude hidden missing values from the level limit
+  and count displayed missing values once.
+
+- Scatter plots keep valid group ellipses and warn when a different
+  group’s covariance cannot be estimated.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  finds the visible prefix of optional columns without repeatedly
+  summing selected widths.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  selects visible rows before converting a truncated data.table to a
+  data frame.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  validates distinct calendar period groups by their exact components.
+
+- Dumbbell insets reshape the underlying values when endpoint columns
+  carry different label dictionaries.
+
+- Dumbbell top-N plots slice the final sorted rows directly instead of
+  reordering the complete table.
+
+- Categorical UpSet plots count combination codes before formatting keys
+  for names that contain the default separator.
+
+- Categorical Venn and UpSet plots evaluate each ordinary factor level
+  once when selecting members.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  projects requested data.table columns before factor preparation.
+
+- Grob margins and insets share panel bounds calculated directly from
+  the layout coordinates.
+
+- Single-stratum point sampling reuses factor codes while keeping seeded
+  row order.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  detects a fully disabled requested axis in directional Cartesian
+  expansion settings.
+
+- Position formatting leaves `.data[[name]]` lookups to plot building
+  when the name comes from a binding.
+
+- Position scale inference reads the requested aesthetic directly from
+  plot and layer mappings.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  retains distinct calendar period groups, axis categories and fills.
+
+- Categorical set plots identify observed palette levels without
+  rebuilding ordinary factor columns.
+
+- Split categorical plots retrieve panel rows from a single grouping
+  index.
+
+- Numeric P-value cells reparse only values that can round across a
+  displayed significance threshold.
+
+- Plot-aligned insets use the first named background even when other
+  layout entries have missing names.
+
+- Raster panel measurement restores the caller’s active grid viewport if
+  conversion fails.
+
+- Raster panel sizing indexes measured single cells directly and sums
+  only spanning panels.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  orders and describes only the report rows it will display.
+
+- Factor conversion keeps distinct calendar period values and their
+  missing codes.
+
+- Factor regrouping compacts observed levels using integer positions
+  from a single target lookup.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  reports that the observations must be real-valued before calling
+  numeric binning backends.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  skips re-sorting strictly increasing plain cut points.
+
 - Butterfly bar plots use distinct calendar period labels for grouping
   and grid completion.
 
