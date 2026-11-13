@@ -1530,3 +1530,17 @@ test_that("console tables copy only the visible rows of a data.table", {
   expect_identical(capture.output(fn(table, n = 3L, rownames = TRUE)),
                    capture.output(pr_table(d, n = 3L, rownames = TRUE)))
 })
+
+test_that("console table column selection uses one width prefix", {
+  d <- as.data.frame(setNames(rep(list(c("a", "b")), 40L), paste0("v", 1:40)))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$sum <- function(x, ...) {
+    if (identical(substitute(x), quote(col_w[c(keep, j)]))) stop("resummed selected column widths")
+    base::sum(x, ...)
+  }
+  environment(fn) <- env
+  for (width in c(34L, 200L)) {
+    expect_identical(capture.output(fn(d, width = width)), capture.output(pr_table(d, width = width)))
+  }
+})

@@ -703,11 +703,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       over <- over - cut
     }
   }
-  for (j in setdiff(seq_along(cells), keep)) {
-    if (sum(col_w[c(keep, j)]) + gap * length(keep) > avail) break
-    keep <- c(keep, j)
-  }
-  keep <- sort(keep)
+  optional <- setdiff(seq_along(cells), keep)
+  remaining <- avail - sum(col_w[keep]) - gap * (length(keep) - 1L)
+  fits <- cumsum(col_w[optional] + gap) <= remaining
+  keep <- sort(c(keep, optional[fits]))
   aligned_cells <- lapply(keep, function(j) {
     cli::ansi_align(._pr_trim(c(headers[j], cells[[j]]), col_w[j]),
                     col_w[j], align[j])
