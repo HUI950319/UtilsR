@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell insets reshape the underlying values when endpoint columns carry different label dictionaries.
+
 * Dumbbell top-N plots slice the final sorted rows directly instead of reordering the complete table.
 
 * Categorical UpSet plots count combination codes before formatting keys for names that contain the default separator.

@@ -621,6 +621,8 @@ PlotDumbbell <- function(
   # Reshape to long format in the plotting coordinates.
   x_values <- data[[x_col]]
   xend_values <- data[[xend_col]]
+  if (inherits(x_values, "haven_labelled")) x_values <- vctrs::vec_data(x_values)
+  if (inherits(xend_values, "haven_labelled")) xend_values <- vctrs::vec_data(xend_values)
   integer64_pair <- inherits(x_values, "integer64") && inherits(xend_values, "integer64")
   df_long <- rbind(
     data.frame(

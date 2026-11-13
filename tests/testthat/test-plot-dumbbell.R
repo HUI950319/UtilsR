@@ -817,3 +817,20 @@ test_that("dumbbell top rows avoid reordering the complete frame", {
     expect_identical(result$data, expected)
   }
 })
+
+test_that("dumbbell insets preserve distinct labelled endpoint dictionaries", {
+  skip_if_not_installed("haven")
+  d <- data.frame(start = haven::labelled(1:3, c(low = 1)),
+    end = haven::labelled(2:4, c(medium = 2)), category = letters[1:3])
+  original <- .build_dumbbell_inset
+  inset <- NULL
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  })
+  p <- dumbbell_plot(d, inset_plot = "auto", inset_test = "none",
+                      inset_jitter = FALSE, legend_pos = "none")
+  expect_identical(inset$data$.value, c(1:3, 2:4))
+  expect_identical(p[[1L]]$data$start, d$start)
+  expect_identical(p[[1L]]$data$end, d$end)
+})
