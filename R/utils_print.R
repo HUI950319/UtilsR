@@ -1134,6 +1134,7 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   lines <- if (is.character(x) && is.null(names(x))) {
     unlist(lapply(x, function(s) {
       if (is.na(s) || !grepl("\n", s, fixed = TRUE)) return(._pr_wrap(s, width = avail))
+      s <- gsub("\r\n", "\n", s, fixed = TRUE)
       segs <- cli::ansi_strsplit(paste0(s, "\n"), "\n", fixed = TRUE)[[1]]
       unlist(lapply(segs, function(part) {
         if (nzchar(cli::ansi_strip(part))) ._pr_wrap(part, width = avail) else part

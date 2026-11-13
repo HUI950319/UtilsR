@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_box()` normalizes CRLF line endings before wrapping unlabelled text.
+
 * `stat_pval()` passes through valid bound text even when the endpoint would be too wide for the requested decimal formatter.
 
 * `stat_ci_parse()` preserves narrow positive confidence levels that would round the normal tail probability to one half.

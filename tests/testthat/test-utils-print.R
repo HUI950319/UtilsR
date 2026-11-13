@@ -1701,3 +1701,12 @@ test_that("sparklines summarize ordinary factors from codes", {
   unique <- data.frame(x = factor(letters[1:6], levels = rev(letters[1:6])))
   expect_match(utils::capture.output(fn(unique, bins = 3)), "6 unique values", fixed = TRUE)
 })
+
+test_that("printed boxes retain CRLF text and empty lines", {
+  withr::local_options(width = 80L, cli.num_colors = 8L)
+  show <- function(text) capture.output(pr_box(cli::col_red(text), header = "Input"))
+  expect_identical(show("first\r\n\r\nsecond\r\n"), show("first\n\nsecond\n"))
+  out <- cli::ansi_strip(show("first\r\nsecond"))
+  expect_true(any(grepl("first", out, fixed = TRUE)))
+  expect_true(any(grepl("second", out, fixed = TRUE)))
+})
