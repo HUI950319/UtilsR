@@ -1730,3 +1730,19 @@ test_that("nested sparkline columns measure missing cells rather than columns", 
   expect_match(out[1L], "NA 16.7%", fixed = TRUE)
   expect_match(out[2L], "NA 33.3%", fixed = TRUE)
 })
+
+test_that("tree matrix type abbreviations avoid flattening cells", {
+  values <- list(matrix(1:100, 10L), matrix(c(TRUE, NA), 1L),
+    structure(matrix(1:100, 10L), class = "Date"),
+    structure(matrix(rep(c(1L, 2L), 50L), 10L), levels = c("x", "y"), class = "factor"))
+  expected <- lapply(values, ._obj_desc)
+  fn <- ._obj_desc
+  env <- new.env(parent = environment(fn))
+  env$as.vector <- function(x, ...) {
+    if (!is.null(dim(x))) stop("flattened the tree matrix")
+    base::as.vector(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(lapply(values, fn), expected)
+  expect_match(expected[[1L]], "int matrix", fixed = TRUE)
+})

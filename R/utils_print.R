@@ -816,7 +816,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (!is.null(dim(v))) {
     # an atomic matrix or table with its element type: <int matrix 2 x 3>
     abbr <- if (is.atomic(v)) {
-      tryCatch(vctrs::vec_ptype_abbr(as.vector(unclass(v))), error = function(e) NULL)
+      vctrs::vec_ptype_abbr(vector(typeof(v)))
     }
     return(g(sprintf("<%s %s>", paste(c(abbr, cls), collapse = " "),
                      paste(big(dim(v)), collapse = " x "))))
