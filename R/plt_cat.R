@@ -1040,12 +1040,19 @@ plt_cat <- function(data,
 .build_set_list <- function(data, stat.by, stat_level) {
   resolved <- .resolve_stat_level(data, stat.by, stat_level)
   stats::setNames(lapply(stat.by, function(s) {
-    vals <- data[[s]]
-    keep <- !is.na(vals) & (as.character(vals) %in% resolved[[s]])
-    which(keep)
+    which(.cat_set_members(data[[s]], resolved[[s]]))
   }), stat.by)
 }
 
+
+.cat_set_members <- function(values, selected) {
+  if (identical(class(values), "factor") ||
+      identical(class(values), c("ordered", "factor"))) {
+    found <- levels(values) %in% selected
+    return(!is.na(values) & found[as.integer(values)])
+  }
+  !is.na(values) & as.character(values) %in% selected
+}
 
 .GeomBg <- ggplot2::ggproto(NULL, ggplot2::GeomRect,
   required_aes = c("x", "ymin", "ymax"),

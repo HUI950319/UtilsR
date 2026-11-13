@@ -365,7 +365,7 @@
 
   # Build boolean matrix and compute intersections (vectorized)
   bool_mat <- vapply(stat.by, function(s) {
-    as.character(data[[s]]) %in% resolved[[s]]
+    .cat_set_members(data[[s]], resolved[[s]])
   }, logical(nrow(data)))
   dim(bool_mat) <- c(nrow(data), length(stat.by))
 

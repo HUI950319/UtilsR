@@ -1372,3 +1372,16 @@ test_that("categorical plots project selected data.table columns without a full 
   expect_identical(result$data, expected$data)
   expect_identical(table, before)
 })
+
+test_that("categorical set membership reads factor levels rather than every label", {
+  d <- data.frame(A = factor(c("", "one", NA, "")), B = ordered(c("x", "x", "y", "y")))
+  levels <- list(A = "", B = "x")
+  fn <- .build_set_list
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("converted all factor observations")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, names(d), levels), list(A = c(1L, 4L), B = c(1L, 2L)))
+})
