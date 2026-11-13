@@ -1057,3 +1057,23 @@ test_that("overridden mappings do not block patchwork legend collection", {
     expect_s3_class(patchwork::patchworkGrob(q), "gtable")
   }
 })
+
+test_that("parent legend key spacing scales with directional overrides", {
+  p <- legend_test_plot()
+  gap <- ggplot2::theme(legend.key.spacing = grid::unit(20, "mm"),
+                         legend.key.spacing.x = grid::unit(8, "mm"),
+                         legend.key.spacing.y = NULL)
+  global <- p + gap
+  local <- p + ggplot2::guides(colour = ggplot2::guide_legend(theme = gap))
+  out_global <- fmt_legend(global, scale = .5)
+  out_local <- fmt_legend(local, scale = .5)
+  for (scaled in list(out_global$theme, out_local$guides$guides$colour$params$theme)) {
+    expect_equal(grid::convertWidth(scaled$legend.key.spacing, "mm", TRUE), 10)
+    expect_equal(grid::convertWidth(scaled$legend.key.spacing.x, "mm", TRUE), 4)
+  }
+  expect_equal(grid::convertWidth(global$theme$legend.key.spacing, "mm", TRUE), 20)
+  expect_equal(grid::convertWidth(local$guides$guides$colour$params$theme$legend.key.spacing,
+                                  "mm", TRUE), 20)
+  expect_s3_class(ggplot2::ggplotGrob(out_global), "gtable")
+  expect_s3_class(ggplot2::ggplotGrob(out_local), "gtable")
+})

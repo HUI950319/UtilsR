@@ -1113,7 +1113,8 @@ fmt_legend <- function(plot,
             }
           }
           for (nm in c("legend.key.size", "legend.key.width", "legend.key.height",
-                       "legend.key.spacing.x", "legend.key.spacing.y", "legend.margin")) {
+                       "legend.key.spacing", "legend.key.spacing.x", "legend.key.spacing.y",
+                       "legend.margin")) {
             if (!is.null(local[[nm]])) args[[nm]] <- get_unit(effective, nm) * factor
           }
         }
@@ -1167,7 +1168,7 @@ fmt_legend <- function(plot,
         }
       }
       unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
-                         "legend.key.spacing.x", "legend.key.spacing.y",
+                         "legend.key.spacing", "legend.key.spacing.x", "legend.key.spacing.y",
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
                          "legend.box.spacing", "legend.margin", "legend.box.margin")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
