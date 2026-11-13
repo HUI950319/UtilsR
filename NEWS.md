@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness plots read data.table columns in place for both matrix and percentage views.
+
 * Continuous bar range calculations reuse ordinary group factors and include genuinely missing groups.
 
 * Dumbbell plots use ggplot2's current inside-legend interface for coordinate and corner positions.

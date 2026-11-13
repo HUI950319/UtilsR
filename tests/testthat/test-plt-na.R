@@ -430,3 +430,23 @@ test_that("missingness matrices reuse masks in original row order", {
   expect_identical(as.character(plot$data$label), rep(c("Z", "A"), 3L))
   expect_identical(levels(plot$data$label), c("Z", "A"))
 })
+
+test_that("missingness plots scan data table columns without copying the frame", {
+  skip_if_not_installed("data.table")
+  d <- data.frame(a = c(1, NA, 3, NA), b = c("a", NA, "c", "d"), c = 1:4)
+  dt <- data.table::as.data.table(d)
+  before <- data.table::copy(dt)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table")) stop("copied the input data table")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  for (output in c("matrix", "percentage")) {
+    a <- suppressMessages(fn(dt, output = output))
+    b <- suppressMessages(plt_na(d, output = output))
+    expect_identical(a$data, b$data)
+  }
+  expect_identical(dt, before)
+})
