@@ -1285,3 +1285,26 @@ test_that("survival formula notices classify observed factor codes directly", {
   expect_identical(draw(), expected)
   expect_true(any(grepl("CRR", expected, fixed = TRUE)))
 })
+
+test_that("ANSI palette previews reuse the original colour bytes", {
+  withr::local_options(cli.num_colors = 256L)
+  cols <- c(first = "navy", half = "#FF000080", again = "navy", clear = "#ABCDEF00")
+  for (reverse in c(FALSE, TRUE)) {
+    expected <- capture.output(value <- show_color(cols, rev = reverse))
+    rgb <- grDevices::col2rgb
+    alpha_reads <- 0L
+    withr::local_options(cli.num_colors = 256L)
+    local({
+      local_mocked_bindings(col2rgb = function(col, alpha = FALSE) {
+        if (isTRUE(alpha) && any(col %in% cols)) {
+          alpha_reads <<- alpha_reads + 1L
+          if (alpha_reads > 1L) stop("decoded original palette bytes again")
+        }
+        rgb(col, alpha = alpha)
+      }, .package = "grDevices")
+      expect_identical(capture.output(actual <- show_color(cols, rev = reverse)), expected)
+      expect_identical(actual, value)
+      expect_identical(alpha_reads, 1L)
+    })
+  }
+})

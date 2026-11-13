@@ -762,7 +762,10 @@ show_color <- function(x, rev = FALSE) {
   numeric_index[!bad_encoding] <- !is.na(suppressWarnings(as.numeric(x[!bad_encoding])))
   # Parse labels together, retaining alpha; inspect values only after failure.
   hex <- if (any(numeric_index | bad_encoding)) NULL else {
-    tryCatch(.pal_hex(x), error = function(e) NULL)
+    tryCatch({
+      rgba <- grDevices::col2rgb(x, alpha = TRUE)
+      .pal_hex(x, rgba)
+    }, error = function(e) NULL)
   }
   if (is.null(hex)) {
     to_check <- unique(x[!bad_encoding])
@@ -832,7 +835,7 @@ show_color <- function(x, rev = FALSE) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)
     ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
-    rgba <- grDevices::col2rgb(if (length(ids) < length(hex)) x[ids] else x, alpha = TRUE)
+    rgba <- rgba[, if (rev) ncol(rgba) - ids + 1L else ids, drop = FALSE]
     a <- rgba[4L, ] / 255
     preview <- grDevices::rgb(rgba[1L, ] * a + 255 * (1 - a),
                              rgba[2L, ] * a + 255 * (1 - a),

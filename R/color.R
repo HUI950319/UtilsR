@@ -1885,8 +1885,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 }
 
 # R colour names need conversion before use in CSS; keep non-opaque alpha.
-.pal_hex <- function(colors) {
-  rgba <- grDevices::col2rgb(colors, alpha = TRUE)
+.pal_hex <- function(colors, rgba = grDevices::col2rgb(colors, alpha = TRUE)) {
   opaque <- rgba[4L, ] == 255
   if (all(opaque)) {
     return(grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ], maxColorValue = 255))
