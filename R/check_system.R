@@ -86,6 +86,15 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     length(value) == 1L && !is.na(value) && nzchar(trimws(value))
   }
 
+  read_command <- function(command) {
+    output <- system(command, intern = TRUE)
+    status <- attr(output, "status", exact = TRUE)
+    if (!is.null(status) && !isTRUE(status == 0L)) {
+      stop("System command failed: ", command, call. = FALSE)
+    }
+    output
+  }
+
   native_memory <- NULL
   if ((.Platform[["OS.type"]] == "windows" || host[["sysname"]] == "Darwin") &&
       requireNamespace("ps", quietly = TRUE)) {
@@ -158,8 +167,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           total_cmd <- "wmic OS get TotalVisibleMemorySize /Value"
           free_cmd <- "wmic OS get FreePhysicalMemory /Value"
 
-          total_info <- system(total_cmd, intern = TRUE)
-          free_info <- system(free_cmd, intern = TRUE)
+          total_info <- read_command(total_cmd)
+          free_info <- read_command(free_cmd)
 
           total_line <- total_info[grep("TotalVisibleMemorySize", total_info)]
           free_line <- free_info[grep("FreePhysicalMemory", free_info)]
@@ -210,7 +219,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           if (.valid_memory(memory)) return(memory)
         }
 
-        mem_info <- system("free -b", intern = TRUE)
+        mem_info <- read_command("free -b")
         row <- grep("^\\s*Mem:", mem_info)
         if (length(row) != 1L || row <= 1L) {
           stop("\u65e0\u6cd5\u83b7\u53d6\u5185\u5b58\u4fe1\u606f")
@@ -275,8 +284,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
                     cpu_name = NA_character_)
         if (!.valid_text(sys_info[["os_full_name"]]) ||
             !.valid_text(sys_info[["os_version"]])) {
-          ver_info <- tryCatch(system("wmic os get Caption,Version /format:list",
-                                      intern = TRUE),
+          ver_info <- tryCatch(read_command("wmic os get Caption,Version /format:list"),
                                error = function(e) character())
           for (field in c(os_full_name = "Caption", os_version = "Version")) {
             target <- if (field == "Caption") "os_full_name" else "os_version"
@@ -288,7 +296,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           }
         }
         if (!.valid_text(sys_info[["cpu_name"]])) {
-          cpu_info <- tryCatch(system("wmic cpu get Name /format:list", intern = TRUE),
+          cpu_info <- tryCatch(read_command("wmic cpu get Name /format:list"),
                                error = function(e) character())
           cpu_line <- grep("^Name=", cpu_info, value = TRUE)
           if (length(cpu_line) == 1L)
@@ -349,10 +357,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
 
           } else if (os_name == "Darwin") {
             read_metadata <- function(command, fallback) {
-              result <- tryCatch(suppressWarnings(system(command, intern = TRUE)),
+              result <- tryCatch(suppressWarnings(read_command(command)),
                                  error = function(e) character())
-              status <- attr(result, "status", exact = TRUE)
-              if (!is.null(status) && !isTRUE(status == 0L)) return(fallback)
               result <- trimws(result)
               if (.valid_text(result)) result else fallback
             }

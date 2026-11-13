@@ -584,3 +584,23 @@ test_that("macOS metadata fallbacks handle empty and failed command output", {
     expect_identical(out$cpu$name, "Unknown")
   }
 })
+
+test_that("failed native commands cannot report plausible diagnostics", {
+  linux <- .check_system_fixture(legacy = list(
+    "free -b" = structure(c("total used free shared buff/cache available",
+                            "Mem: 8589934592 4294967296 2147483648 0 2147483648 4294967296"),
+                          status = 1L)))
+  windows <- .check_system_fixture(os = "Windows", legacy = list(
+    "wmic OS get TotalVisibleMemorySize /Value" = structure("TotalVisibleMemorySize=8388608", status = 1L),
+    "wmic OS get FreePhysicalMemory /Value" = "FreePhysicalMemory=2097152",
+    "wmic os get Caption,Version /format:list" = structure(c("Caption=Partial", "Version=11.0"), status = 1L),
+    "wmic cpu get Name /format:list" = structure("Name=Partial", status = 1L)))
+  for (query in list(linux, windows)) {
+    utils::capture.output(result <- query(return_result = TRUE, show_warnings = FALSE))
+    expect_true(all(is.na(unlist(result$system_memory))))
+    if (result$system_info$os_name == "Windows") {
+      expect_identical(result$system_info$os_full_name, "Windows fixture")
+      expect_identical(result$cpu$name, "Unknown")
+    }
+  }
+})

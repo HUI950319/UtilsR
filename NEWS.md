@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` ignores failed `free` and WMIC queries even when their output resembles valid data.
+
 * `fct_num(type = "equal")` diagnoses infinite data ranges before constructing automatic breaks.
 
 * Recursive plot formatters enumerate patchwork leaves once while preserving the original container.
