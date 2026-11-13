@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical plots build dense count grids from ordinary factor codes while preserving empty combinations and factor order.
+
 * Circle plots scale integer64 scores in a preallocated vector and reuse the sector lookup.
 
 * Numeric dumbbell insets construct paired endpoint columns directly while retaining their value and row order.

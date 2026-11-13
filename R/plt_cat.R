@@ -872,7 +872,23 @@ plt_cat <- function(data,
     cli::cli_abort("A categorical frequency table must contain fewer than 2^31 cells. Reduce factor levels or use {.arg keep_empty = FALSE}.")
   }
 
-  if (!is.null(group.by)) {
+  dense <- FALSE
+  if (keep_empty && !is.null(group.by)) {
+    a <- data[[stat.by]]
+    b <- data[[group.by]]
+    dense <- !anyNA(levels(a)) && !anyNA(levels(b)) &&
+      (!NA_stat || (!anyNA(a) && !anyNA(b)))
+  }
+  if (dense) {
+    n_stat <- dimensions[1L]
+    n_group <- dimensions[2L]
+    cells <- as.integer(a) + (as.integer(b) - 1L) * n_stat
+    df <- data.frame(
+      stat_var = structure(rep.int(seq_len(n_stat), n_group), levels = levels(a), class = "factor"),
+      group_var = structure(rep(seq_len(n_group), each = n_stat), levels = levels(b), class = "factor"),
+      n = tabulate(cells, n_stat * n_group)
+    )
+  } else if (!is.null(group.by)) {
     tbl <- table(data[[stat.by]], data[[group.by]],
                  useNA = if (NA_stat) "ifany" else "no")
     df <- as.data.frame(tbl, stringsAsFactors = FALSE)
@@ -894,9 +910,11 @@ plt_cat <- function(data,
     df$label_text <- as.character(df$n)
   }
 
-  df$stat_var <- factor(df$stat_var, levels = levels(data[[stat.by]]))
-  if (!is.null(group.by)) {
-    df$group_var <- factor(df$group_var, levels = levels(data[[group.by]]))
+  if (!dense) {
+    df$stat_var <- factor(df$stat_var, levels = levels(data[[stat.by]]))
+    if (!is.null(group.by)) {
+      df$group_var <- factor(df$group_var, levels = levels(data[[group.by]]))
+    }
   }
 
   # Drop empty factor combinations

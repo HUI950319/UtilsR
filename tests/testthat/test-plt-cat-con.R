@@ -1416,3 +1416,20 @@ test_that("categorical cardinality checks only observed or displayed values", {
     expect_error(cat_test_plot(d, "value", NA_stat = TRUE, save = NULL), "100 levels")
   }
 })
+
+test_that("dense categorical counts tabulate existing factor codes", {
+  d <- data.frame(s = ordered(c("c", "", "c", "b", NA), levels = c("", "c", "a", "b")),
+    g = factor(c("Z", "Z", "Z", "X", "X"), levels = c("Z", "Y", "X")))
+  native <- table(d$s, d$g)
+  fn <- .prepare_cat_data
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("rebuilt a table from category labels")
+  environment(fn) <- env
+  for (mode in c("count", "percent")) {
+    out <- fn(d, "s", "g", mode, NA_stat = FALSE, keep_empty = TRUE)
+    expect_identical(out$n, as.integer(native))
+    expect_identical(levels(out$stat_var), levels(d$s))
+    expect_identical(levels(out$group_var), levels(d$g))
+    if (mode == "percent") expect_equal(out$value, c(1/3, 2/3, 0, 0, rep(0, 7L), 1) * 100)
+  }
+})
