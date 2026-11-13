@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric dumbbell insets construct paired endpoint columns directly while retaining their value and row order.
+
 * Continuous plots sort groups by computing medians directly from the existing factor partitions.
 
 * Pairwise comparison cache construction compares each shared group vector once before indexing its test results.

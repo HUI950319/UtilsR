@@ -850,3 +850,16 @@ test_that("labelled mixed dumbbell endpoints retain integer64 differences", {
     expect_identical(p$data$start, d$start)
   }
 })
+
+test_that("ordinary numeric dumbbell insets assemble paired values directly", {
+  d <- data.frame(start = c(1L, 2L, NA, 4L), end = c(1.5, 3, 4.5, NA))
+  fn <- .build_dumbbell_inset
+  env <- new.env(parent = environment(fn))
+  env$rbind <- function(...) stop("bound numeric inset frames")
+  environment(fn) <- env
+  p <- fn(d, "start", "end", "Value", "Value", "red", "blue",
+    "boxplot", "none", FALSE, FALSE, ggplot2::theme_void())
+  expect_identical(p$data, data.frame(.id = rep(1:4, 2L),
+    .group = factor(rep(c("Value", "Value.1"), each = 4L), levels = c("Value", "Value.1")),
+    .value = c(d$start, d$end)))
+})

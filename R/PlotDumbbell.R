@@ -642,21 +642,29 @@ PlotDumbbell <- function(
   if (inherits(x_values, "haven_labelled")) x_values <- vctrs::vec_data(x_values)
   if (inherits(xend_values, "haven_labelled")) xend_values <- vctrs::vec_data(xend_values)
   integer64_pair <- inherits(x_values, "integer64") && inherits(xend_values, "integer64")
-  df_long <- rbind(
-    data.frame(
-      .id    = seq_len(nrow(data)),
-      .group = group_keys[1L],
-      .value = if (integer64_pair) suppressWarnings(as.double(x_values)) else x_values,
-      stringsAsFactors = FALSE
-    ),
-    data.frame(
-      .id    = seq_len(nrow(data)),
-      .group = group_keys[2L],
-      .value = if (integer64_pair) suppressWarnings(as.double(xend_values)) else xend_values,
-      stringsAsFactors = FALSE
+  ids <- seq_len(nrow(data))
+  if (is.numeric(x_values) && is.numeric(xend_values) &&
+      is.null(attributes(x_values)) && is.null(attributes(xend_values))) {
+    groups <- structure(rep(1:2, each = length(ids)), levels = group_keys, class = "factor")
+    df_long <- data.frame(.id = rep.int(ids, 2L), .group = groups,
+                          .value = c(x_values, xend_values))
+  } else {
+    df_long <- rbind(
+      data.frame(
+        .id    = ids,
+        .group = group_keys[1L],
+        .value = if (integer64_pair) suppressWarnings(as.double(x_values)) else x_values,
+        stringsAsFactors = FALSE
+      ),
+      data.frame(
+        .id    = ids,
+        .group = group_keys[2L],
+        .value = if (integer64_pair) suppressWarnings(as.double(xend_values)) else xend_values,
+        stringsAsFactors = FALSE
+      )
     )
-  )
-  df_long$.group <- factor(df_long$.group, levels = group_keys)
+    df_long$.group <- factor(df_long$.group, levels = group_keys)
+  }
 
   # Colour mapping
   fill_vals  <- stats::setNames(c(color_x, color_xend), group_keys)
