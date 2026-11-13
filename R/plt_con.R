@@ -795,7 +795,7 @@ plt_con <- function(data,
 
 .con_dot_bins <- function(values, breaks = .con_dot_breaks(values)) {
   if (length(breaks) == 1L) return(rep(breaks[1L], length(values)))
-  ids <- cut(values, breaks = breaks, include.lowest = TRUE, labels = FALSE)
+  ids <- .bincode(values, breaks, right = TRUE, include.lowest = TRUE)
   lower <- breaks[-length(breaks)]
   upper <- breaks[-1L]
   midpoints <- lower / 2 + upper / 2

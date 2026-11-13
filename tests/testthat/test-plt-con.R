@@ -2050,3 +2050,15 @@ test_that("stacked continuous observations keep precomputed feature codes", {
   expect_identical(actual$data, expected$data)
   expect_identical(levels(actual$data$feature), c("z", "x"))
 })
+
+test_that("continuous dot bins reuse prevalidated sorted cut points", {
+  x <- c(0, 1, 2, 3, 4, NA_real_)
+  breaks <- c(0, 1, 2, 4)
+  expected <- .con_dot_bins(x, breaks)
+  fn <- .con_dot_bins
+  env <- new.env(parent = environment(fn))
+  env$cut <- function(...) stop("sorted prevalidated continuous dot breaks")
+  environment(fn) <- env
+  expect_identical(fn(x, breaks), expected)
+  expect_identical(fn(x, breaks), c(.5, .5, 1.5, 3, 3, NA_real_))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot plots map numeric values to prevalidated bin breaks without sorting those breaks again.
+
 * `plt_dist()` checks alluvial factor levels and plain vector missingness without decoding every observation.
 
 * `.cat_tb()` applies numeric gradients only to one-dimensional columns, preserving matrix-valued cells for rendering.
