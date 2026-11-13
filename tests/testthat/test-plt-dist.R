@@ -725,3 +725,22 @@ test_that("stacked distribution label styles skip unused formatters", {
   expect_identical(result, reference)
   expect_identical(result$.lab, c("5", NA_character_))
 })
+
+test_that("distribution palettes find observed ordinary factor levels by their codes", {
+  d <- data.frame(x = rep(c("X", "Y"), each = 100L), fill = ordered(
+    rep(c("last", "", "first", "last"), 50L), levels = c("last", "unused", "", "first")))
+  palette <- c(last = "red", "blue", first = "green")
+  names(palette)[2L] <- ""
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$fill)) stop("decoded all distribution fill values")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  output <- function(f) suppressMessages(f(d, c("x", "fill"), type = "bar", color = palette))
+  actual <- output(fn)
+  expected <- output(plt_dist)
+  expect_identical(actual$data, expected$data)
+  expect_equal(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
+})

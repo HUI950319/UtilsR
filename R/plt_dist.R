@@ -409,7 +409,11 @@ plt_dist <- function(data,
     if (!is.null(dim(color))) cli::cli_abort("Named {.arg color} must be one-dimensional.")
     color_names <- names(color)
     fill_values <- data[[dis_vars[length(dis_vars)]]]
-    needed_levels <- if (is.factor(fill_values)) {
+    needed_levels <- if (identical(class(fill_values), "factor") ||
+                         identical(class(fill_values), c("ordered", "factor"))) {
+      labels <- levels(fill_values)
+      labels[tabulate(fill_values, nbins = length(labels)) > 0L]
+    } else if (is.factor(fill_values)) {
       levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
     } else {
       unique(as.character(fill_values[!is.na(fill_values)]))

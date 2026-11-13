@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution plots validate named palettes from observed factor codes without decoding every fill value.
+
 * Confidence interval parsing skips full-input deduplication unless the sample shows enough repeated intervals to reuse.
 
 * KNN imputation avoids scaling and rebuilding the backend data when the only missing observations have no usable predictors.
