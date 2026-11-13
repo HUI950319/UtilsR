@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` derives logical summaries from the observed and true counts without building a full frequency table.
+
 * `pr_spark()` avoids a full distinct-value pass when a sample already exceeds the available bins.
 
 * `.cat_message()` carries styles across line breaks when message text contains ANSI escapes.

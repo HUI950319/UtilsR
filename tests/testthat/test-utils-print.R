@@ -1810,3 +1810,19 @@ test_that("numeric sparklines avoid collecting unique values above the bin count
   environment(fn) <- env
   expect_identical(lapply(values, function(x) capture.output(fn(data.frame(x)))), expected)
 })
+
+test_that("logical sparklines count true and false values directly", {
+  d <- data.frame(mixed = rep(c(TRUE, FALSE, NA), 40L),
+    yes = rep(c(TRUE, NA, TRUE), 40L), no = rep(FALSE, 120L))
+  expected <- capture.output(pr_spark(d))
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$table <- function(x, ...) {
+    if (is.logical(x)) stop("built a frequency table for ordinary logical values")
+    base::table(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d)), expected)
+  expect_match(expected[1L], "top FALSE (50.0%)", fixed = TRUE)
+  expect_match(expected[2L], "1 level", fixed = TRUE)
+})

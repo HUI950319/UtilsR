@@ -1338,6 +1338,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
           return(c("", sprintf("%d unique values", present), na))
         }
         tab <- stats::setNames(factor_counts, levels(v))
+      } else if (is.logical(v) && !is.object(v)) {
+        n_true <- sum(v, na.rm = TRUE)
+        tab <- c("FALSE" = present - n_true, "TRUE" = n_true)
+        tab <- tab[tab > 0L]
       } else {
         ok <- v[!missing]
         if (length(ok) > bins && !anyDuplicated(ok)) {
