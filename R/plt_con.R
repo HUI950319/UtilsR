@@ -1711,7 +1711,7 @@ plt_con <- function(data,
       attr(comparison_sets[[1L]], ".con_test_cache") <- cache
       comparison_data <- list(NULL)
     } else {
-      comparison_data <- split(dat_long, dat_long[["feature"]], drop = TRUE)
+      comparison_data <- bar_data %||% split(dat_long, dat_long[["feature"]], drop = TRUE)
     }
     for (i in seq_along(comparison_sets)) {
       if (!length(comparison_sets[[i]])) next

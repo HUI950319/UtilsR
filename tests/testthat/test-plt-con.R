@@ -1868,3 +1868,24 @@ test_that("shared transformed ranges retain extreme bounds with zero comparisons
   expect_equal(result$data / 1e308, c(-1, 1))
   expect_equal(result$limits / 1e308, c(-1, 1))
 })
+
+test_that("stacked bar comparisons reuse existing feature frames", {
+  skip_if_not_installed("ggpubr")
+  d <- con_data()
+  fn <- .plt_con_stacked
+  env <- new.env(parent = environment(fn))
+  splits <- 0L
+  env$split <- function(x, f, ...) {
+    if (is.data.frame(x) && "feature" %in% names(x)) {
+      splits <<- splits + 1L
+      if (splits > 1L) stop("split the feature frame again")
+    }
+    base::split(x, f, ...)
+  }
+  environment(fn) <- env
+  testthat::local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  p <- con_plot(d, c("x", "z"), type = "bar", stack = TRUE, comparisons = list(c("A", "B")))
+  layers <- ggplot2::ggplot_build(p)$data
+  expect_identical(splits, 1L)
+  expect_true(any(vapply(layers, function(x) "annotation" %in% names(x), logical(1))))
+})
