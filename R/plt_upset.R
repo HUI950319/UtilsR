@@ -397,11 +397,6 @@ plt_upset <- function(data,
                         set.labels[old_names], old_names)
     display_names <- unname(new_names)
   }
-  set_keys <- sprintf("set%0*d", nchar(length(set_list)),
-                      rank(display_names, ties.method = "first"))
-  names(set_list) <- set_keys
-  set_labels <- stats::setNames(display_names, set_keys)
-
   grp_data <- row_codes <- NULL
   if (output %in% c("data", "all")) {
     if (output == "data" && length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
@@ -432,6 +427,11 @@ plt_upset <- function(data,
                                           levels = group_names[ordered], class = "factor")
     if (output == "data") return(grp_data)
   }
+
+  set_keys <- sprintf("set%0*d", nchar(length(set_list)),
+                      rank(display_names, ties.method = "first"))
+  names(set_list) <- set_keys
+  set_labels <- stats::setNames(display_names, set_keys)
 
   # ── Venn ─────────────────────────────────────────────────────────────────
   venn_label <- switch(label,

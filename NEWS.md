@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` avoids allocating display keys used only by the plotting backend.
+
 * `plt_sankey()` uses the prepared node factor directly for fill mapping.
 
 * `plt_sankey()` derives the number of missing observations from each stage tally while keeping explicit missing levels separate.

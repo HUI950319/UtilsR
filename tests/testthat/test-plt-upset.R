@@ -922,3 +922,14 @@ test_that("UpSet logical membership avoids a character lookup per row", {
       plt_upset(d, c("A", "B"), levels = query, output = "data"))
   }
 })
+
+test_that("data-only UpSet grouping skips plotting key labels", {
+  d <- list(A = c(1L, 3L), B = c(1L, 2L), C = c(3L, 4L))
+  labels <- c(A = "same", B = "same", C = "None")
+  expected <- plt_upset(d, output = "data", set.labels = labels)
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$rank <- function(...) stop("created plotting keys for data-only UpSet grouping")
+  environment(fn) <- env
+  expect_identical(fn(d, output = "data", set.labels = labels), expected)
+})
