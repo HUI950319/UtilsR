@@ -654,7 +654,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       }, character(1)))
     }
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
-      fin  <- v[is.finite(v)]
+      finite <- is.finite(v)
+      fin <- v[finite]
       d    <- if (all(fin == round(fin))) 0L else digits
       # 0.0003 would print as 0.00: give the column two significant digits
       tiny <- abs(fin[fin != 0])
@@ -662,9 +663,14 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
       txt <- formatC(v, format = "f", digits = d)
-      rounded <- ._pr_decimal_number(txt)
-      scientific <- which(is.finite(v) &
-        ((v != 0 & rounded == 0) | nchar(txt) > max(10L, avail)))
+      wide <- which(finite & nchar(txt) > max(10L, avail))
+      candidates <- if (getOption("OutDec") %in% c(".", ",")) {
+        which(finite & v != 0 & abs(v) <= 0.5 * 10^-d)
+      } else {
+        which(finite & v != 0)
+      }
+      zero <- candidates[which(._pr_decimal_number(txt[candidates]) == 0)]
+      scientific <- union(wide, zero)
       if (length(scientific)) {
         txt[scientific] <- formatC(v[scientific], format = "e", digits = max(1L, min(digits, 15L)))
       }

@@ -1560,3 +1560,20 @@ test_that("console escaping narrows replacements to affected fields", {
   matrix <- matrix(c("a\nb", "x"), nrow = 1L)
   expect_identical(fn(matrix), gsub("\n", "\\n", matrix, fixed = TRUE))
 })
+
+test_that("console table reparses only potential rounded zeros", {
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$._pr_decimal_number <- function(text) {
+    if (length(text) > 3L) stop("reparsed regular table values")
+    ._pr_decimal_number(text)
+  }
+  environment(fn) <- env
+  d <- data.frame(v = c(1e-100, -1e-100, seq_len(2000L) / 3, NA, Inf))
+  for (decimal in c(".", ",")) {
+    withr::local_options(OutDec = decimal)
+    output <- capture.output(fn(d, width = 80L, n = NULL))
+    expect_identical(output, capture.output(pr_table(d, width = 80L, n = NULL)))
+    expect_true(all(grepl("e-100", output[3:4], fixed = TRUE)))
+  }
+})
