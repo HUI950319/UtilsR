@@ -277,3 +277,23 @@ test_that("gList margins measure their children before grouping", {
     expect_length(result$grobs[[2L]]$children, 2L)
   }
 })
+
+test_that("grob placement reads coordinates without copying panel layout rows", {
+  gt <- gtable::gtable(widths = grid::unit(rep(1, 4L), "cm"), heights = grid::unit(rep(1, 3L), "cm"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), t = 2L, l = 2L, r = 3L, name = "panel")
+  add <- grob_add
+  env <- new.env(parent = environment(add))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && identical(x, gt$layout)) stop("copied the panel layout")
+    call <- sys.call()
+    call[[1L]] <- quote(base::`[`)
+    eval(call, parent.frame())
+  }
+  environment(add) <- env
+  result <- add(gt, grid::rectGrob(), position = "top", space = grid::unit(1, "cm"))
+  expect_equal(unname(unlist(tail(result$layout, 1L)[c("l", "r")])), c(2, 3))
+  inset <- grob_insert
+  environment(inset) <- env
+  result <- inset(gt, grid::rectGrob())
+  expect_equal(unname(unlist(tail(result$layout, 1L)[c("t", "b", "l", "r")])), c(2, 2, 2, 3))
+})

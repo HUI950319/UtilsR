@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grob margins and insets share panel bounds calculated directly from the layout coordinates.
+
 * Single-stratum point sampling reuses factor codes while keeping seeded row order.
 
 * `fmt_expand()` detects a fully disabled requested axis in directional Cartesian expansion settings.

@@ -207,15 +207,9 @@ grob_add <- function(
   # Keep the measured children together in one layout cell.
   if (inherits(grob, "gList")) grob <- grob_as(grob)
 
-  panel_index <- grepl("^panel(-[0-9]+)*$", gt$layout$name) |
-    gt$layout$name %in% "panel-area"
-  if (!any(panel_index)) panel_index <- grepl("panel", gt$layout$name)
-  panel_layout <- gt$layout[panel_index, , drop = FALSE]
-  if (nrow(panel_layout) == 0L) {
-    stop("Cannot find the panel area in 'plot'.", call. = FALSE)
-  }
-  panel_rows <- range(panel_layout$t, panel_layout$b)
-  panel_cols <- range(panel_layout$l, panel_layout$r)
+  bounds <- .grob_panel_bounds(gt$layout)
+  panel_rows <- unname(bounds[c("t", "b")])
+  panel_cols <- unname(bounds[c("l", "r")])
 
   cells <- length(space)
   if (position == "top") {
@@ -395,18 +389,11 @@ grob_insert <- function(
 
   # Find the reference area in the gtable layout
   if (align_to == "panel") {
-    # Prefer standard panel names to avoid matching annotation names.
-    panel_index <- grepl("^panel(-[0-9]+)*$", gt$layout$name) |
-      gt$layout$name %in% "panel-area"
-    if (!any(panel_index)) panel_index <- grepl("panel", gt$layout$name)
-    panel_layout <- gt$layout[panel_index, , drop = FALSE]
-    if (nrow(panel_layout) == 0L) {
-      stop("Cannot find the panel area in 'plot'.", call. = FALSE)
-    }
-    ref_t <- min(panel_layout$t)
-    ref_b <- max(panel_layout$b)
-    ref_l <- min(panel_layout$l)
-    ref_r <- max(panel_layout$r)
+    bounds <- .grob_panel_bounds(gt$layout)
+    ref_t <- bounds[["t"]]
+    ref_b <- bounds[["b"]]
+    ref_l <- bounds[["l"]]
+    ref_r <- bounds[["r"]]
   } else if (align_to == "plot") {
     # Use the entire gtable minus the outer margins
     background <- match("background", gt$layout$name)
@@ -532,4 +519,12 @@ grob_to_gg <- function(grob, ...) {
   eval(quote(ggplot2::ggplot() + ggplot2::annotation_custom(g) +
                ggplot2::theme_void()),
        envir = list2env(list(g = g), parent = baseenv()))
+}
+
+.grob_panel_bounds <- function(layout) {
+  index <- grepl("^panel(-[0-9]+)*$", layout$name) | layout$name %in% "panel-area"
+  if (!any(index)) index <- grepl("panel", layout$name)
+  if (!any(index)) stop("Cannot find the panel area in 'plot'.", call. = FALSE)
+  c(t = min(layout$t[index]), b = max(layout$b[index]),
+    l = min(layout$l[index]), r = max(layout$r[index]))
 }
