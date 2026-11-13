@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_legend()` keeps collection enabled when a fixed aesthetic or a null mapping removes the apparent inside guide.
+
 * `fmt_legend()` preserves guide collection when the effective theme suppresses legends.
 
 * `fmt_legend()` avoids cloning scales and guides whose titles already match.

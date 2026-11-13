@@ -1297,6 +1297,8 @@ fmt_legend <- function(plot,
       if (isTRUE(layer$inherit.aes)) {
         mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
       }
+      mapping <- mapping[setdiff(names(mapping), names(layer$aes_params))]
+      mapping <- mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
       asis <- vapply(mapping, function(value) {
         expr <- rlang::get_expr(value)
         if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)

@@ -1043,3 +1043,17 @@ test_that("hidden inside legends do not prevent collection", {
   q <- fmt_legend(explicit, collect = TRUE)
   expect_identical(q$patches$annotation$theme$legend.box.just, "center")
 })
+
+test_that("overridden mappings do not block patchwork legend collection", {
+  d <- data.frame(x = 1:4, y = 4:1, group = rep(c("one", "two"), 2L))
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = group))
+  outside <- base + ggplot2::geom_point()
+  for (layer in list(ggplot2::geom_point(colour = "black"),
+                    ggplot2::geom_point(ggplot2::aes(colour = NULL)))) {
+    inside <- base + layer + ggplot2::theme(legend.position = "inside")
+    pw <- patchwork::wrap_plots(inside, outside, outside)
+    expect_no_warning(q <- fmt_legend(pw, collect = TRUE))
+    expect_identical(q$patches$layout$guides, "collect")
+    expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+  }
+})
