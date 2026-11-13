@@ -549,3 +549,14 @@ test_that("Linux CPU detection extracts only the first nonblank model", {
     normalized_core_probe = function(c) stop(conditionMessage(c)))
   expect_identical(result$cpu$name, "first core")
 })
+
+test_that("Linux memory diagnostics reject incompatible proc memory units", {
+  b <- 1024^3
+  legacy <- list("free -b" = c("total used free shared buff/cache available",
+    sprintf("Mem: %.0f %.0f %.0f 0 %.0f %.0f", 4*b, 3*b, b, 0, b)))
+  q <- .check_system_fixture(meminfo = c("MemTotal: 8388608 bytes", "MemAvailable: 4194304 kB"),
+                             legacy = legacy)
+  invisible(capture.output(out <- q(return_result = TRUE)))
+  expect_identical(out$system_memory$total_gb, 4)
+  expect_identical(out$system_memory$free_gb, 1)
+})

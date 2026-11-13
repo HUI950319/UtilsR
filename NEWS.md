@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Linux memory diagnostics use `/proc/meminfo` measurements only when the values have the expected kB units.
+
 * Survival formula notices count observed factor codes without hashing each outcome row.
 
 * Continuous dot plots map numeric values to prevalidated bin breaks without sorting those breaks again.

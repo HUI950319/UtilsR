@@ -185,7 +185,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             line <- grep(paste0("^", pat), meminfo, value = TRUE)
             if (length(line) == 1L) {
               value <- trimws(sub("^[^:]+:", "", line))
-              suppressWarnings(as.numeric(sub("\\s.*$", "", value))) / 1024^2
+              if (!grepl("^[0-9]+[[:space:]]+kB$", value)) return(NA_real_)
+              as.numeric(sub("[[:space:]]+kB$", "", value)) / 1024^2
             } else {
               NA
             }
