@@ -789,3 +789,18 @@ test_that("Sankey stages retain distinct month components in Period vectors", {
   expect_identical(as.character(rows$label), as.character(months))
   expect_length(unique(rows$node), 3L)
 })
+
+test_that("Sankey stage factors use the existing positions", {
+  fn <- .sankey_path_rows
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(...) stop("re-encoded stage names")
+  environment(fn) <- env
+  d <- data.frame(A = c("x", NA, "z"), B = c("a", "b", NA), C = c("u", "v", "w"))
+  for (input in list(d, d[0, ])) {
+    rows <- fn(input, c("C", "A", "B"))
+    stages <- if (nrow(input)) c("C", "A", "B") else character()
+    expect_identical(rows$x, factor(rep(c("C", "A", "B"), nrow(input)), levels = stages))
+    expect_identical(rows$next_x, factor(rep(c("A", "B", NA), nrow(input)), levels = stages))
+    expect_identical(rows$next_node, as.vector(rbind(input$A, input$B, rep(NA_character_, nrow(input)))))
+  }
+})

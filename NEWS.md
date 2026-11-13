@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey and categorical path plots reuse stage positions when building the stage and successor factors.
+
 * Dumbbell differences retain integer64 precision when the other endpoint is a labelled numeric vector.
 
 * Continuous plot bounds follow decreasing value transformations in independent and stacked panels.

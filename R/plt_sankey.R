@@ -395,11 +395,14 @@ plt_sankey <- function(data,
   stage <- rep.int(seq_along(stages), nrow(data))
   stage_levels <- if (nrow(data)) stages else character()
   nodes <- as.character(do.call(rbind, unname(lapply(data[stages], as.character))))
-  next_stage <- factor(stages[stage + 1L], levels = stage_levels)
+  final <- stage == length(stages)
+  next_stage <- stage + 1L
+  next_stage[final] <- NA_integer_
   next_node <- dplyr::lead(nodes)
-  next_node[is.na(next_stage)] <- NA_character_
+  next_node[final] <- NA_character_
   tibble::tibble(
-    x = factor(stages[stage], levels = stage_levels), node = nodes,
-    next_x = next_stage, next_node = next_node
+    x = structure(stage, levels = stage_levels, class = "factor"), node = nodes,
+    next_x = structure(next_stage, levels = stage_levels, class = "factor"),
+    next_node = next_node
   )
 }
