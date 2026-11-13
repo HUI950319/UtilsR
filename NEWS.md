@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_line()` escapes embedded layout controls in its label and divider while preserving styled text.
+
 * `fct_cat()` passes validated reference indices directly to its binary recoder.
 
 * `fct_num()` uses a strict-order check for plain fixed breaks without allocating a duplicate index.

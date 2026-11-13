@@ -1234,3 +1234,11 @@ test_that("console colour errors escape malformed byte sequences", {
     expect_error(show_color(c("red", bad)), "positions.*2.*(?:<ff>|ff)", class = "rlang_error")
   }
 })
+
+test_that("console rules keep embedded layout controls on one line", {
+  withr::local_options(cli.num_colors = 8L)
+  draw <- function(x, line = "=") capture.output(.cat_line(x, line_char = line, width = 50L))
+  expect_identical(draw(cli::col_red("first\nsecond")), draw(cli::col_red("first\\nsecond")))
+  expect_identical(draw("text", "x\ny"), draw("text", "x\\ny"))
+  expect_length(draw("text", "\u2500"), 1L)
+})

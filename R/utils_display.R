@@ -99,7 +99,8 @@ console_width <- function() {
   if (length(text) != 1L || !is.null(dim(text)))
     cli::cli_abort("{.arg text} must contain one label without dimensions.")
   cfg <- ._type_cfg(match.arg(type))
-  label <- paste(cfg$symbol, text, cfg$symbol)
+  label <- paste(cfg$symbol, ._pr_escape(as.character(text)), cfg$symbol)
+  line_char <- ._pr_escape(line_char)
 
   # no hand-written ANSI fallback: cli copes with any width (2026-10-25)
   bg <- ._cli_bg(cfg$type)
