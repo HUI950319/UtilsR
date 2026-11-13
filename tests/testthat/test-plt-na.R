@@ -485,3 +485,19 @@ test_that("missingness panel order comes directly from missing counts", {
     expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected[[i]])$data)
   }
 })
+
+test_that("complete factor columns skip allocating missingness masks", {
+  d <- data.frame(full = ordered(rep(c("", NA), 50L), levels = c("", "unused", NA),
+                    exclude = NULL), missing = rep(c(1, NA), 50L))
+  draw <- function(fn) suppressMessages(fn(d, output = "matrix"))
+  expected <- draw(plt_na)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.factor(x) && length(x) == nrow(d))
+      stop("allocated a mask for a complete missingness factor")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(draw(fn)$data, expected$data)
+})

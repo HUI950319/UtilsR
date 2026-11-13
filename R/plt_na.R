@@ -122,7 +122,10 @@ plt_na <- function(
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
-    if (!is.object(x) && is.atomic(x) && !anyNA(x)) {
+    ordinary_factor <- identical(class(x), "factor") ||
+      identical(class(x), c("ordered", "factor"))
+    if (((!is.object(x) && is.atomic(x)) || ordinary_factor) &&
+        !(if (ordinary_factor) anyNA(unclass(x)) else anyNA(x))) {
       return(if (keep_masks) NULL else 0L)
     }
     mask <- is.na(if (is.expression(x)) as.list(x) else x)

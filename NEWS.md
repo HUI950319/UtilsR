@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` skips constructing missing masks for complete ordinary factors.
+
 * `check_system()` uses host fallbacks when macOS commands return empty, malformed or failed metadata.
 
 * Univariate categorical plots tally ordinary factor levels directly before selecting the displayed rows.
