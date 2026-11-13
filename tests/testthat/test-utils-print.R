@@ -1661,3 +1661,22 @@ test_that("console table computes visible highlight rows once", {
     capture.output(pr_table(d, n = 100L, highlight = c(3L, 115L), indent = 0L)))
   expect_identical(rows, 1L)
 })
+
+test_that("console tables use the missing mask from formatted ordinary text", {
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  d <- data.frame(text = c("ok", NA, "NA", "end"),
+    f = factor(c("ok", NA, "NA", "end"), exclude = NULL))
+  env$is.na <- function(x) {
+    call <- sys.call()
+    if (identical(x, d$text) && identical(call[[2L]], quote(v))) {
+      stop("rescanned the source text column")
+    }
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  for (colors in c(1L, 256L)) {
+    withr::local_options(cli.num_colors = colors)
+    expect_identical(capture.output(fn(d)), capture.output(pr_table(d)))
+  }
+})

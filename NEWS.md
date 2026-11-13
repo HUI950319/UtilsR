@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables use formatted text to locate missing cells without checking ordinary input vectors twice.
+
 * Factor grouping uses validated level indices directly and preserves duplicate and missing-level handling.
 
 * Rasterization applies a requested panel background beneath standalone text without converting the text to pixels.

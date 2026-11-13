@@ -684,11 +684,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       # a list column: describe each cell, rather than deparse it (c(1.1, 2.2))
       txt <- vapply(v, ._obj_desc, character(1), width = 40)
     } else {
-      txt <- ._as_text(v)
+      txt <- ._pr_escape(._as_text(v))
+      return(ifelse(is.na(txt), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"), txt))
     }
     txt <- ._pr_escape(txt)
-    missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
-    ifelse(missing, if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
+    ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
            txt)
   })
 
