@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` restores complete integer64 predictors directly and converts only actual predictions.
+
 * `check_na()` counts only missing factor rows when called with `special = character()`.
 
 * `check_system()` keeps readable CIM metadata when Windows memory measurements require a WMIC fallback.

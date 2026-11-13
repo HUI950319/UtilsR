@@ -669,3 +669,21 @@ test_that("KNN wholly missing rows avoid preparing a backend", {
   expect_true(is.na(result$category[501L]))
   expect_identical(rownames(result), rownames(d))
 })
+
+test_that("KNN complete integer64 predictors need no reconstruction", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("bit64")
+  d <- data.frame(value = c(1, NA, 3, 4),
+    id = bit64::as.integer64(c("9007199254740989", "9007199254740990",
+                               "9007199254740991", "9007199254740992")))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  restore <- bit64::as.integer64
+  local_mocked_bindings(as.integer64 = function(x, ...) {
+    if (is.double(x) && !length(x)) stop("reconstructed a complete integer64 predictor")
+    restore(x, ...)
+  }, .package = "bit64")
+  actual <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  expect_identical(actual, expected)
+  expect_identical(actual$id, d$id)
+  expect_false(anyNA(actual$value))
+})

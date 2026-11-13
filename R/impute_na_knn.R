@@ -346,9 +346,11 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   for (var_name in names(integer64_original)) {
     original <- integer64_original[[var_name]]
-    missing <- is.na(original)
-    original[missing] <- bit64::as.integer64(result[[var_name]][missing])
-    attributes(original) <- attributes(integer64_original[[var_name]])
+    if (var_name %in% vars_with_missing) {
+      missing <- is.na(original)
+      original[missing] <- bit64::as.integer64(result[[var_name]][missing])
+      attributes(original) <- attributes(integer64_original[[var_name]])
+    }
     result[[var_name]] <- original
   }
   for (var_name in names(time_original)) {
