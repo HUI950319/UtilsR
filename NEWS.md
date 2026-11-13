@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rasterization applies a requested panel background beneath standalone text without converting the text to pixels.
+
 * Missingness matrix plots reuse the combined mask storage while keeping the original observation order.
 
 * Console tables reuse the visible highlight row selection for indent and styling.

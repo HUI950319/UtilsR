@@ -796,3 +796,14 @@ test_that("ggrastr leaves unchanged nested vector children in place", {
   environment(fn) <- env
   expect_identical(fn(original, 72, "ragg"), original)
 })
+
+test_that("raster text-only panels retain both the explicit background and vector label", {
+  label <- grid::textGrob("Keep vector text", name = "single_label")
+  p <- .rasterize_panel_grob(label, 1, 1, 20, "in", "red")
+  expect_s3_class(p, "gTree")
+  expect_identical(p$children[[1L]]$gp$fill, "red")
+  expect_identical(p$children[[2L]], label)
+  for (bg in c("transparent", NA_character_)) {
+    expect_identical(.rasterize_panel_grob(label, 1, 1, 20, "in", bg), label)
+  }
+})

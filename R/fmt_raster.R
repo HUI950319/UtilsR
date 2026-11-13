@@ -542,8 +542,9 @@ fmt_raster <- function(
 # --- Core: rasterize a single panel grob, preserving text ---
 #' @noRd
 .rasterize_panel_grob <- function(g, w, h, dpi, units, bg) {
+  background <- !is.na(bg) && bg != "transparent"
   if (!inherits(g, "gTree")) {
-    if (.is_text_grob(g, g$name)) return(g)
+    if (!background && .is_text_grob(g, g$name)) return(g)
     g <- grid::grobTree(g)
   }
   ordered <- match(g$childrenOrder, names(g$children))
@@ -551,7 +552,6 @@ fmt_raster <- function(
   ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),
                              c("zeroGrob", "null"))]
   # A panel background belongs below every run, including vector text.
-  background <- !is.na(bg) && bg != "transparent"
   output <- vector("list", length(ordered) + background)
   used <- as.integer(background)
   if (background) output[[1L]] <- grid::rectGrob(gp = grid::gpar(fill = bg, col = NA))
