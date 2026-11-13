@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` preserves decimal commas in measurements without emitting grouping-separator warnings.
+
 * `fmt_expand()` reports when a coordinate system disables the requested padding with a numeric zero flag.
 
 * `fmt_scale()` updates or clears `continuous.limits` on discrete position scales that support it.

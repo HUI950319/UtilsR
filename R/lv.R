@@ -336,7 +336,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # Counts with thousands separators; shares with one decimal, as check_na()
   # writes them, and "<0.1%" for a share that would round to zero.
-  .fmt_int <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+  .fmt_int <- function(x) {
+    format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
+  }
   .fmt_pct <- function(x) {
     text <- sprintf("%.1f%%", x)
     text[!is.na(x) & x > 0 & x < 0.1] <- "<0.1%"
@@ -562,8 +564,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       bins <- tabulate(findInterval(shape, seq(min(shape), max(shape), length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
       # three significant digits, as pr_spark() gives the mean and SD
+      grouping_mark <- if (identical(getOption("OutDec"), ",")) "" else ","
       num <- function(v) {
-        vapply(v, format, character(1), digits = 3, big.mark = ",", trim = TRUE)
+        vapply(v, format, character(1), digits = 3, big.mark = grouping_mark, trim = TRUE)
       }
       q <- num(stats::quantile(x, c(0, 0.25, 0.5, 0.75, 1), names = FALSE))
       pr_kv(list(
@@ -1119,7 +1122,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # the table names its grouping, as the default summary names its data
       gtsummary::modify_caption(sprintf(
         "**Variable summary by %s** (n = %s)", group_var,
-        format(nrow(data), big.mark = ",", scientific = FALSE)
+        .fmt_int(nrow(data))
       ))
 
     .lv_print_report(res_grouped)

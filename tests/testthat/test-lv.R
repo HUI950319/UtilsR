@@ -1580,3 +1580,12 @@ test_that("lv checks the blank label only when an empty value occurs", {
   expect_identical(capture.output(suppressMessages(fn(d, x))),
     capture.output(suppressMessages(lv.data.frame(d, x))))
 })
+
+test_that("inspection tolerates decimal commas in console reports", {
+  withr::local_options(OutDec = ",", cli.num_colors = 1L)
+  data <- data.frame(x = c(seq_len(1200L) / 8, NA))
+  expect_no_warning(result <- capture_lv(lv(data, x)))
+  expect_true(any(grepl("1,200 values", result$output, fixed = TRUE)))
+  expect_true(any(grepl("0,125 to 150", result$output, fixed = TRUE)))
+  expect_identical(result$value$value, data)
+})
