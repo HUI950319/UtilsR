@@ -804,3 +804,24 @@ test_that("Sankey stage factors use the existing positions", {
     expect_identical(rows$next_node, as.vector(rbind(input$A, input$B, rep(NA_character_, nrow(input)))))
   }
 })
+
+test_that("Sankey labels reuse node codes with repeated captions", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = rep(c("same", "A"), each = 120L),
+    b = rep(c("same", "B", NA), 80L))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) > 100L && any(startsWith(levels(x), ".sankey_"))) {
+      stop("expanded all node keys")
+    }
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  args <- list(data = d, vars = c("a", "b"), show_text = "name", label_args = list(min_pct = 1))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  p <- suppressMessages(do.call(fn, args))
+  b <- replace(d$b, is.na(d$b), "NA")
+  expect_identical(as.character(p$data$label), as.vector(rbind(d$a, b)))
+  expect_identical(levels(p$data$label), c("same", "A", "B", "NA"))
+})
