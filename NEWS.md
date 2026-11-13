@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Position formatting leaves `.data[[name]]` lookups to plot building when the name comes from a binding.
+
 * Position scale inference reads the requested aesthetic directly from plot and layer mappings.
 
 * `PlotButterfly2()` retains distinct calendar period groups, axis categories and fills.

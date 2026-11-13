@@ -740,3 +740,21 @@ test_that("fmt_expand rejects encoded and dimensional expansion controls", {
     }
   }
 })
+
+test_that("dynamic column keys are resolved only by native scale building", {
+  env <- new.env()
+  calls <- 0L
+  makeActiveBinding("column", function() { calls <<- calls + 1L; "x" }, env)
+  d <- data.frame(x = factor(c("a", "b", "a")), y = 1:3)
+  mapping <- ggplot2::aes(x, y)
+  mapping$x <- rlang::new_quosure(quote(.data[[column]]), env)
+  p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+  # Older ggplot2 evaluates the key when generating the default axis label.
+  calls <- 0L
+  q <- fmt_expand(p, axis = "x", mult = .1)
+  expect_identical(calls, 0L)
+  b <- ggplot2::ggplot_build(q)
+  expect_gt(calls, 0L)
+  expect_equal(b$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = .1))
+  expect_identical(b$layout$panel_scales_x[[1L]]$get_limits(), c("a", "b"))
+})

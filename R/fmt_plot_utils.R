@@ -183,9 +183,11 @@
       next
     }
     if (defer && is.call(expr)) {
+      accessor <- rlang::call_name(expr)
       direct_column <- length(expr) == 3L &&
-        any(rlang::call_name(expr) %in% c("$", "[[")) &&
-        identical(expr[[2L]], as.name(".data")) && !is.call(expr[[3L]])
+        identical(expr[[2L]], as.name(".data")) &&
+        (identical(accessor, "$") ||
+         (identical(accessor, "[[") && is.character(expr[[3L]])))
       if (!direct_column) return(NULL)
     }
     if (defer && is.symbol(expr) &&
