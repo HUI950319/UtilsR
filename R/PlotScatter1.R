@@ -298,7 +298,12 @@ PlotScatter1 <- function(
   )
   p_main <- p_main + do.call(ggplot2::theme, panel_theme)
   if (!is.null(theme_use)) p_main <- p_main + .resolve_theme(theme_use)
-  p_main <- p_main + ggplot2::theme(legend.position = legend_pos)
+  legend <- if (is.numeric(legend_pos) && length(legend_pos) == 2L) {
+    ggplot2::theme(legend.position = "inside", legend.position.inside = legend_pos)
+  } else {
+    ggplot2::theme(legend.position = legend_pos)
+  }
+  p_main <- p_main + legend
 
   # Custom legend theme
   if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {

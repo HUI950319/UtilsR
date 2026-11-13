@@ -1689,3 +1689,17 @@ test_that("scatter ellipse failures are isolated to the affected group", {
     if (nrow(full)) expect_equal(full[c("x", "y")], good[c("x", "y")])
   }
 })
+
+test_that("single scatter coordinate legends use native inside positioning", {
+  d <- data.frame(x = 1:8, y = c(2, 1, 3, 4, 7, 5, 8, 6), g = rep(c("a", "b"), 4L))
+  native_theme <- ggplot2::theme
+  testthat::local_mocked_bindings(theme = function(...) {
+    args <- list(...)
+    if (is.numeric(args[["legend.position"]])) stop("deprecated coordinates")
+    native_theme(...)
+  }, .package = "ggplot2")
+  p <- scatter1_capture_panels(d, "x", "y", "g", legend_pos = c(.25, .75),
+    show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)$panels$main
+  expect_identical(p$theme$legend.position, "inside")
+  expect_identical(p$theme$legend.position.inside, c(.25, .75))
+})

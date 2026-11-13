@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Single scatter plots use the current ggplot2 interface for coordinate legends.
+
 * Numeric console columns avoid reparsing formatted values outside the rounding boundary.
 
 * Selective rasterization stops inspecting siblings once a grob is known to contain vector text.
