@@ -1565,3 +1565,18 @@ test_that("lv measurement listings convert the observed vector once", {
   expect_identical(actual, capture.output(suppressMessages(lv.data.frame(d, x))))
   expect_identical(calls, 1L)
 })
+
+test_that("lv checks the blank label only when an empty value occurs", {
+  d <- data.frame(x = rep(c("A", "B"), 500L))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(x, "(blank)") && identical(table, d$x)) {
+      stop("looked up the blank label in a complete column")
+    }
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(suppressMessages(fn(d, x))),
+    capture.output(suppressMessages(lv.data.frame(d, x))))
+})

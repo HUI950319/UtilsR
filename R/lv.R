@@ -746,8 +746,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # Reassigning levels would also drop an NA level, so only touch "".
       blank <- levels(x) %in% ""
       if (any(blank) && !"(blank)" %in% levels(x)) levels(x)[blank] <- "(blank)"
-    } else if (is.character(x) && !"(blank)" %in% x) {
-      x[x %in% ""] <- "(blank)"
+    } else if (is.character(x)) {
+      blank <- x %in% ""
+      if (any(blank) && !"(blank)" %in% x) x[blank] <- "(blank)"
     }
     x
   }

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Variable reports look for a conflicting blank label only when an empty category is present.
+
 * Variable listings reuse the observed numeric values for statistics and distribution shape, with separate exact centering for integer64.
 
 * CI-only formatting skips standard-error calculations when the confidence level is unchanged.
