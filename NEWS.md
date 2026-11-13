@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` avoids a full distinct-value pass when a sample already exceeds the available bins.
+
 * `.cat_message()` carries styles across line breaks when message text contains ANSI escapes.
 
 * `.cat_line()` escapes embedded layout controls in its label and divider while preserving styled text.

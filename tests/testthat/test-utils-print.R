@@ -1796,3 +1796,17 @@ test_that("notes and key values preserve CRLF text and existing blank lines", {
   }
   expect_match(cli::ansi_strip(capture.output(pr_note("n = {n}"))), "# n = 12", fixed = TRUE)
 })
+
+test_that("numeric sparklines avoid collecting unique values above the bin count", {
+  values <- list(seq_len(4000L), rep(1:4, 1000L), c(rep(1L, 3990L), 2:11))
+  expected <- lapply(values, function(x) capture.output(pr_spark(data.frame(x))))
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (is.numeric(x) && length(x) == 4000L && x[2L] == 2L && x[4000L] == 4000L)
+      stop("collected all unique values for a binned sparkline")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(lapply(values, function(x) capture.output(fn(data.frame(x)))), expected)
+})
