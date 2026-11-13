@@ -807,3 +807,19 @@ test_that("raster text-only panels retain both the explicit background and vecto
     expect_identical(.rasterize_panel_grob(label, 1, 1, 20, "in", bg), label)
   }
 })
+
+test_that("panel raster dimensions follow depth-first gtable order", {
+  skip_if_not_installed("ragg")
+  make_table <- function(grobs, names) {
+    gt <- gtable::gtable(grid::unit(rep(2, length(grobs)), "in"), grid::unit(1, "in"))
+    gtable::gtable_add_grob(gt, grobs, t = 1L, l = seq_along(grobs), name = names, clip = "on")
+  }
+  rect <- grid::rectGrob(gp = grid::gpar(fill = "black"))
+  nested <- make_table(list(rect), "panel")
+  for (gt in list(make_table(list(rect, nested), c("panel", "nested")),
+                  make_table(list(nested, rect), c("nested", "panel")))) {
+    p <- fmt_raster(gt, method = "ragg", dpi = 20, width = c(1, 2), height = .8)
+    rasters <- raster_find_grobs(patchwork::patchworkGrob(p), "rastergrob")
+    expect_identical(unname(lapply(rasters, function(g) dim(g$raster))), list(c(16L, 20L), c(16L, 40L)))
+  }
+})

@@ -304,8 +304,19 @@ fmt_raster <- function(
     nested <- which(vapply(gt$grobs, inherits, logical(1), "gtable"))
     children <- lapply(gt$grobs[nested], plan_panels)
     counts <- vapply(children, `[[`, integer(1), "count")
-    list(indices = indices, nested = nested[counts > 0L],
-         children = children[counts > 0L], count = length(indices) + sum(counts))
+    keep <- counts > 0L
+    nested <- nested[keep]
+    children <- children[keep]
+    counts <- counts[keep]
+    # A table entry can be both a panel and a parent. Visit the panel first.
+    sizes <- integer(length(gt$grobs))
+    sizes[nested] <- counts
+    sizes[indices] <- sizes[indices] + 1L
+    preceding <- cumsum(c(0L, sizes))
+    list(indices = indices, nested = nested, children = children,
+         positions = preceding[indices] + 1L,
+         offsets = preceding[nested] + as.integer(nested %in% indices),
+         count = preceding[length(preceding)])
   }
   plan <- plan_panels(gtable)
   panel_total <- plan$count
@@ -319,8 +330,7 @@ fmt_raster <- function(
     cli::cli_warn("No panels detected. Returning plot as-is.")
     return(plot)
   }
-  panel_cursor <- 0L
-  raster_table <- function(gtable, plan) {
+  raster_table <- function(gtable, plan, offset = 0L) {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
       nrow = length(gtable$heights), ncol = length(gtable$widths),
       widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
@@ -347,14 +357,14 @@ fmt_raster <- function(
       idx <- nested[i]
       grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
                                         layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
-      gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]], plan$children[[i]])
+      gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]], plan$children[[i]],
+                                         offset + plan$offsets[i])
       grid::popViewport()
     }
 
     indices <- plan$indices
     if (length(indices)) {
-      positions <- panel_cursor + seq_along(indices)
-      panel_cursor <<- panel_cursor + length(indices)
+      positions <- offset + plan$positions
       widths <- if (length(width) > 1L) width[positions] else width
       heights <- if (length(height) > 1L) height[positions] else height
       panel_w <- .resolve_panel_size(gtable, indices, "width", widths, units,

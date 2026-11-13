@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rasterization maps explicit panel dimensions to parent and nested panels in documented depth-first gtable order.
+
 * The main theme diagnoses invalid legend coordinates and position names at the theme call.
 
 * Jaccard similarities skip globally unique integer64 and structured time keys while retaining original set sizes.
