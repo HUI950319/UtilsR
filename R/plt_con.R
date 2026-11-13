@@ -1202,8 +1202,14 @@ plt_con <- function(data,
 }
 
 .con_bar_range <- function(values, groups) {
-  ids <- match(groups, unique(groups))
-  intervals <- unlist(lapply(split(values, ids), function(v) {
+  ordinary_factor <- identical(class(groups), "factor") ||
+    identical(class(groups), c("ordered", "factor"))
+  partitions <- if (ordinary_factor && !anyNA(levels(groups))) {
+    split(values, if (anyNA(groups)) addNA(groups) else groups, drop = TRUE)
+  } else {
+    split(values, match(groups, unique(groups)))
+  }
+  intervals <- unlist(lapply(partitions, function(v) {
     interval <- .con_mean_sd(v)
     c(interval$ymin, interval$ymax)
   }), use.names = FALSE)

@@ -1951,3 +1951,17 @@ test_that("continuous median ordering reuses the grouping factor", {
     expect_identical(levels(p$data$group.by), expected)
   }
 })
+
+test_that("continuous bar ranges split ordinary factor codes directly", {
+  x <- c(1, 4, 7, 8, NA, 10, 19, 3, 9)
+  g <- factor(c("B", "A", NA, "A", "B", NA, "B", "A", NA),
+    levels = c("B", "unused", "A"), ordered = TRUE)
+  fn <- .con_bar_range
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, ...) {
+    if (identical(x, g)) stop("rebuilt numeric group IDs")
+    base::match(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, g), .con_bar_range(x, as.character(g)))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous bar range calculations reuse ordinary group factors and include genuinely missing groups.
+
 * Dumbbell plots use ggplot2's current inside-legend interface for coordinate and corner positions.
 
 * Confidence interval parsing skips token and precision extraction when every input lacks interval syntax.
