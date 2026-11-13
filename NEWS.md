@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point formatting builds jitter or dodge positions only for layers that use automatic positioning.
+
 * Single scatter plots use the current ggplot2 interface for coordinate legends.
 
 * Numeric console columns avoid reparsing formatted values outside the rounding boundary.

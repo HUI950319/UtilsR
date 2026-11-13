@@ -244,40 +244,38 @@ fmt_point <- function(plot,
     }
 
     # --- Compute position ---
-    has_group <- any(c("group", "fill", "colour", "linetype", "shape", "size", "alpha") %in%
-                       names(layer_mapping))
-
-    if (type == "beeswarm") {
-      position <- NULL
-    } else if (dodge.width == 0 || !has_group) {
-      if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
-        position <- ggplot2::position_identity()
-      } else {
-        position <- ggplot2::position_jitter(
-          width = jit$width, height = jit$height, seed = 42
-        )
-      }
-    } else {
-      if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
-        position <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
-      } else {
-        position <- ggplot2::position_jitterdodge(
-          jitter.width = jit$width, jitter.height = jit$height,
-          dodge.width = dodge.width, seed = 42
-        )
-        if (utils::packageVersion("ggplot2") < "4.0.0") {
-          position <- do.call(ggplot2::ggproto, list(NULL, position,
-            setup_params = .fmt_point_jitterdodge_setup), quote = TRUE, envir = baseenv())
+    if (type != "beeswarm" && !"position" %in% names(params)) {
+      has_group <- any(c("group", "fill", "colour", "linetype", "shape", "size", "alpha") %in%
+                         names(layer_mapping))
+      position <- if (dodge.width == 0 || !has_group) {
+        if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
+          ggplot2::position_identity()
+        } else {
+          ggplot2::position_jitter(width = jit$width, height = jit$height, seed = 42)
         }
+      } else {
+        if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
+          dodge <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
+        } else {
+          dodge <- ggplot2::position_jitterdodge(
+            jitter.width = jit$width, jitter.height = jit$height,
+            dodge.width = dodge.width, seed = 42
+          )
+          if (utils::packageVersion("ggplot2") < "4.0.0") {
+            dodge <- do.call(ggplot2::ggproto, list(NULL, dodge,
+              setup_params = .fmt_point_jitterdodge_setup), quote = TRUE, envir = baseenv())
+          }
+        }
+        plain <- if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0))
+          ggplot2::position_identity() else
+          ggplot2::position_jitter(width = jit$width, height = jit$height, seed = 42)
+        do.call(ggplot2::ggproto, list(NULL, ggplot2::Position,
+          required_aes = c("x", "y"), dodge = dodge, plain = plain,
+          explicit_group = !is.null(rlang::get_expr(layer_mapping[["group"]])),
+          setup_params = .fmt_point_position_setup,
+          compute_layer = .fmt_point_position_layer), quote = TRUE, envir = baseenv())
       }
-      plain <- if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0))
-        ggplot2::position_identity() else
-        ggplot2::position_jitter(width = jit$width, height = jit$height, seed = 42)
-      position <- do.call(ggplot2::ggproto, list(NULL, ggplot2::Position,
-        required_aes = c("x", "y"), dodge = position, plain = plain,
-        explicit_group = !is.null(rlang::get_expr(layer_mapping[["group"]])),
-        setup_params = .fmt_point_position_setup,
-        compute_layer = .fmt_point_position_layer), quote = TRUE, envir = baseenv())
+      params[["position"]] <- position
     }
 
     if (!is.null(data)) params[["data"]] <- data
@@ -339,8 +337,6 @@ fmt_point <- function(plot,
     if (type == "beeswarm") {
       params[["dodge.width"]] <- dodge.width
       params[names(bee)] <- bee
-    } else {
-      if (!"position" %in% names(params)) params[["position"]] <- position
     }
 
     # --- Add layer (with optional rasterization) ---

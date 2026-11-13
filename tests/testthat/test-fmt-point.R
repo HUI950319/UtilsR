@@ -926,3 +926,20 @@ test_that("single point strata skip redundant factor reconstruction", {
   environment(fn) <- env
   expect_identical(fn(d, mapping, sample_n = 2, seed = 12), expected)
 })
+
+test_that("fmt_point skips automatic positioning with an explicit position", {
+  d <- data.frame(x = rep(c("a", "b"), each = 5L), y = 1:10, g = rep(c("one", "two"), 5L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  fn <- fmt_point
+  env <- new.env(parent = environment(fn))
+  env$do.call <- function(what, ...) {
+    if (identical(what, ggplot2::ggproto)) stop("constructed an unused dodge")
+    base::do.call(what, ...)
+  }
+  environment(fn) <- env
+  for (type in c("jitter", "point")) {
+    built <- ggplot2::layer_data(fn(p, type = type, position = ggplot2::position_identity()))
+    expect_equal(as.numeric(built$x), rep(1:2, each = 5L))
+    expect_equal(built$y, d$y)
+  }
+})
