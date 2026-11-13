@@ -1658,3 +1658,13 @@ test_that("Pearson scatter correlations use exact centered integer64 differences
                                     show_refline = FALSE))
   expect_match(quiet(ggplot2::layer_data(p$main, 2L))$label, "^r = 1,")
 })
+
+test_that("paired scatter accepts distinct calendar period groups", {
+  skip_if_not_installed("lubridate")
+  values <- lubridate::period(months = c(1L, 2L))
+  d <- tibble::tibble(Control = 1:8, Treat = 2:9, group = rep(values, each = 4L))
+  for (levels in list(NULL, rev(values))) {
+    p <- scatter3_capture_inset(d, group_levels = levels, test_method = "none", cor_method = "none")
+    expect_identical(base::levels(p$main$data$group), as.character(levels %||% values))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` validates distinct calendar period groups by their exact components.
+
 * Dumbbell insets reshape the underlying values when endpoint columns carry different label dictionaries.
 
 * Dumbbell top-N plots slice the final sorted rows directly instead of reordering the complete table.

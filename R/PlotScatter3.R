@@ -249,7 +249,9 @@ PlotScatter3 <- function(
   }
   if (!is.atomic(group_levels) || is.complex(group_levels) ||
       !is.null(dim(group_levels)) || length(group_levels) != 2L ||
-      anyNA(group_levels) || anyDuplicated(group_levels))
+      anyNA(group_levels) ||
+      (if (inherits(group_levels, "Period")) vctrs::vec_duplicate_any(group_levels) else
+        anyDuplicated(group_levels) > 0L))
     stop("'group_levels' must contain two distinct, non-missing values.", call. = FALSE)
   data[[group]] <- .scatter_group_factor(data[[group]], levels = group_levels)
   group_levels <- levels(data[[group]])
