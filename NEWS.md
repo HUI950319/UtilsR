@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` reuses factor codes for counts and missingness while retaining declared levels and their display order.
+
 * Table highlighting evaluates regex patterns on distinct values when a character column contains many repeats.
 
 * Continuous comparisons resolve available groups and their row positions from the existing factor codes.

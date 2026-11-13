@@ -1274,12 +1274,20 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     v <- ._pr_restore(v)
     if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (!length(v)) return(c("", "empty", "NA n/a"))
-    missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
-    percentage <- 100 * mean(missing)
+    factor_counts <- NULL
+    if ((identical(class(v), "factor") || identical(class(v), c("ordered", "factor"))) &&
+        nlevels(v) <= length(v)) {
+      factor_counts <- tabulate(v, nbins = nlevels(v))
+      present <- sum(factor_counts)
+    } else {
+      missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
+      present <- sum(!missing)
+    }
+    percentage <- 100 * ((length(v) - present) / length(v))
     na <- sprintf("NA %.1f%%", percentage)
     if (percentage > 0 && na == "NA 0.0%") na <- "NA <0.1%"
     if (percentage < 100 && na == "NA 100.0%") na <- "NA >99.9%"
-    if (all(missing)) return(c("", "all missing", na))
+    if (!present) return(c("", "all missing", na))
     if (inherits(v, c("Date", "POSIXct"))) {
       fin <- v[!missing & is.finite(v)]
       if (!length(fin)) return(c("", "no finite values", na))
@@ -1312,13 +1320,19 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
                sprintf("mean %s  sd %s", sig3(average), sig3(spread)), na))
     }
     if (is.factor(v) || is.character(v) || is.logical(v)) {
-      # an identifier, every value different: count it rather than table() it
-      # (0.1 s for 1e5 strings, drawn as a flat line of single counts)
-      ok <- v[!missing]
-      if (length(ok) > bins && !anyDuplicated(ok)) {
-        return(c("", sprintf("%d unique values", length(ok)), na))
+      # Report identifiers without drawing one bar per distinct value.
+      if (!is.null(factor_counts)) {
+        if (present > bins && !any(factor_counts > 1L)) {
+          return(c("", sprintf("%d unique values", present), na))
+        }
+        tab <- stats::setNames(factor_counts, levels(v))
+      } else {
+        ok <- v[!missing]
+        if (length(ok) > bins && !anyDuplicated(ok)) {
+          return(c("", sprintf("%d unique values", length(ok)), na))
+        }
+        tab <- table(ok)
       }
-      tab <- table(ok)
       if (!length(tab)) return(c("", "all missing", na))
       k   <- length(tab)
       top <- which.max(tab)
@@ -1326,7 +1340,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       if (is.na(lab)) lab <- "<NA>" else if (!nzchar(lab)) lab <- "\"\""
       lab <- ._pr_escape(lab)
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
-                      lab, 100 * tab[[top]] / sum(!missing))
+                      lab, 100 * tab[[top]] / present)
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
       return(c(spark(tab), info, na))
     }

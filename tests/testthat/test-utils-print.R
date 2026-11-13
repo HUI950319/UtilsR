@@ -1680,3 +1680,24 @@ test_that("console tables use the missing mask from formatted ordinary text", {
     expect_identical(capture.output(fn(d)), capture.output(pr_table(d)))
   }
 })
+
+test_that("sparklines summarize ordinary factors from codes", {
+  withr::local_options(width = 120L)
+  x <- factor(c("z", "", NA, "z", "a", NA),
+              levels = c("z", "unused", "", NA, "a"), exclude = NULL,
+              ordered = TRUE)
+  is.na(x)[6L] <- TRUE
+  d <- data.frame(x = x)
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("built a full factor frequency table")
+  environment(fn) <- env
+  out <- cli::ansi_strip(utils::capture.output(fn(d, bins = 3)))
+  expect_match(out, "5 levels \u00b7 top z (40.0%)", fixed = TRUE)
+  expect_match(out, "NA 16.7%", fixed = TRUE)
+  class(d$x) <- c("custom_ordered", class(d$x))
+  expect_identical(out, cli::ansi_strip(utils::capture.output(pr_spark(d, bins = 3))))
+
+  unique <- data.frame(x = factor(letters[1:6], levels = rev(letters[1:6])))
+  expect_match(utils::capture.output(fn(unique, bins = 3)), "6 unique values", fixed = TRUE)
+})
