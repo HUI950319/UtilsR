@@ -1137,3 +1137,27 @@ test_that("butterfly bars negate labelled scores using their numeric values", {
   layers <- function(p) lapply(seq_along(p), function(i) ggplot2::ggplot_build(p[[i]])$data)
   expect_equal(layers(draw(labelled)), layers(draw(d)))
 })
+
+test_that("gradient butterfly shapes use observed factor codes", {
+  skip_if_not_installed("ggbeeswarm")
+  d <- data.frame(cat = rep(c("A", "B"), 6L), group = rep(c("left", "right"), each = 6L),
+    score = seq_len(12L), fill = ordered(rep(c("", "seen", NA), 4L),
+      levels = c("u1", "seen", "", "u2", "u3")))
+  args <- list(data = d, stat.by = "cat", value.by = "score", group.by = "group",
+               fill.by = "fill", type = "beeswarm", color_by = "logFC")
+  expected <- suppressMessages(do.call(PlotButterfly2, args))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[fill.by]])) && is.factor(x))
+      stop("decoded all fill rows to choose butterfly shapes")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  for (i in seq_along(actual)) {
+    expect_identical(actual[[i]]$data, expected[[i]]$data)
+    expect_identical(actual[[i]]$scales$get_scales("shape")$palette(2L),
+                     expected[[i]]$scales$get_scales("shape")$palette(2L))
+  }
+})

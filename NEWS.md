@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` uses factor tallies when selecting observed fill categories for gradient beeswarm shapes.
+
 * `fct_num()` detects constant plain quantile inputs before generating a bin-sized probability vector.
 
 * `fmt_flatten()` reorders cells by row in one index pass and keeps the order within incomplete rows.
