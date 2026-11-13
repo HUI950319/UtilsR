@@ -823,3 +823,24 @@ test_that("panel raster dimensions follow depth-first gtable order", {
     expect_identical(unname(lapply(rasters, function(g) dim(g$raster))), list(c(16L, 20L), c(16L, 40L)))
   }
 })
+
+test_that("raster tables convert fixed physical cell units together", {
+  skip_if_not_installed("ragg")
+  dimensions <- grid::unit(rep(2, 80L), "points")
+  gt <- gtable::gtable(dimensions, grid::unit(2, "inches"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), t = 1L, l = 1L, r = 80L,
+    name = "panel", clip = "on")
+  reference <- fmt_raster(gt, method = "ragg", dpi = 20)
+  native <- grid::convertWidth
+  calls <- 0L
+  testthat::local_mocked_bindings(convertWidth = function(...) {
+    calls <<- calls + 1L
+    if (calls > 8L) stop("measured each fixed cell separately")
+    native(...)
+  }, .package = "grid")
+  result <- fmt_raster(gt, method = "ragg", dpi = 20)
+  expect_equal(attr(result, "size"), attr(reference, "size"))
+  rasters <- function(p) unname(lapply(raster_find_grobs(patchwork::patchworkGrob(p), "rastergrob"),
+    function(g) g$raster))
+  expect_identical(rasters(result), rasters(reference))
+})

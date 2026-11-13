@@ -339,18 +339,23 @@ fmt_raster <- function(
     # Freeze every cell so nested tables contribute to the complete plot size.
     cell_sizes <- list()
     for (dim in c("width", "height")) {
-      cells <- if (dim == "width") seq_along(gtable$widths) else seq_along(gtable$heights)
+      key <- paste0(dim, "s")
+      spec <- gtable[[key]]
       convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
-      sizes <- vapply(cells, function(cell) {
-        vp <- if (dim == "width") grid::viewport(layout.pos.col = cell) else
-          grid::viewport(layout.pos.row = cell)
-        grid::pushViewport(vp)
-        value <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
-        grid::popViewport()
-        value
-      }, numeric(1))
+      physical <- c("inches", "cm", "mm", "points", "picas", "bigpts", "dida", "cicero", "scaledpts")
+      sizes <- if (length(spec) && inherits(spec, "simpleUnit") && grid::unitType(spec[1L]) %in% physical) {
+        convert_fn(spec, units, valueOnly = TRUE)
+      } else {
+        vapply(seq_along(spec), function(cell) {
+          vp <- if (dim == "width") grid::viewport(layout.pos.col = cell) else
+            grid::viewport(layout.pos.row = cell)
+          grid::pushViewport(vp)
+          on.exit(grid::popViewport(), add = TRUE)
+          convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
+        }, numeric(1))
+      }
       cell_sizes[[dim]] <- sizes
-      gtable[[paste0(dim, "s")]] <- grid::unit(sizes, units)
+      gtable[[key]] <- grid::unit(sizes, units)
     }
     nested <- plan$nested
     for (i in seq_along(nested)) {
