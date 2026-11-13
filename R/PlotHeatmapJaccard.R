@@ -266,16 +266,23 @@ PlotHeatmapJaccard <- function(
                  dimnames = list(ct_labels, ct_labels))
   diag(jmat) <- as.double(set_sizes > 0L)
   occupied <- which(set_sizes > 0L)
-  if (!typed_features && length(occupied) > 4L) {
-    membership <- unlist(top_sets, use.names = FALSE)
-    shared <- duplicated(membership) | duplicated(membership, fromLast = TRUE)
+  if (length(occupied) > 4L) {
+    shared <- if (typed_features) {
+      membership <- do.call(vctrs::vec_c, unname(top_sets))
+      vctrs::vec_duplicate_detect(membership)
+    } else {
+      membership <- unlist(top_sets, use.names = FALSE)
+      duplicated(membership) | duplicated(membership, fromLast = TRUE)
+    }
     if (!all(shared)) {
       end <- cumsum(set_sizes)
       for (i in occupied) {
         rows <- seq.int(end[i] - set_sizes[i] + 1, end[i])
-        top_sets[[i]] <- top_sets[[i]][shared[rows]]
+        top_sets[[i]] <- if (typed_features) vctrs::vec_slice(top_sets[[i]], which(shared[rows])) else
+          top_sets[[i]][shared[rows]]
       }
-      occupied <- which(lengths(top_sets) > 0L)
+      occupied <- if (typed_features) which(vapply(top_sets, vctrs::vec_size, integer(1)) > 0L) else
+        which(lengths(top_sets) > 0L)
     }
   }
   for (pos in seq_along(occupied)) {

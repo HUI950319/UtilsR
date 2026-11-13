@@ -883,3 +883,20 @@ test_that("Jaccard plot cells retain the factor order without converting a table
     expect_identical(unname(diag(result$matrix)), rep(1, 3L))
   }
 })
+
+test_that("typed Jaccard intersections skip globally unique feature keys", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(cell_type = rep(letters[1:6], each = 20L))
+  d$gene <- bit64::as.integer64("9007199254740992") + bit64::as.integer64(seq_len(nrow(d)))
+  d$gene[seq.int(1L, nrow(d), by = 20L)] <- bit64::as.integer64("9007199254740992")
+  d$gene[c(2L, 22L)] <- bit64::as.integer64("-1")
+  base_in <- vctrs::vec_in
+  testthat::local_mocked_bindings(vec_in = function(needles, haystack, ...) {
+    if (is.data.frame(needles) && nrow(needles) > 2L) stop("compared globally unique typed features")
+    base_in(needles, haystack, ...)
+  }, .package = "vctrs")
+  out <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_equal(out["a", "b"], 2 / 38)
+  expect_equal(out["a", "c"], 1 / 39)
+  expect_identical(unname(diag(out)), rep(1, 6L))
+})

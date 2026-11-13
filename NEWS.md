@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard similarities skip globally unique integer64 and structured time keys while retaining original set sizes.
+
 * Console tables use formatted text to locate missing cells without checking ordinary input vectors twice.
 
 * Factor grouping uses validated level indices directly and preserves duplicate and missing-level handling.
