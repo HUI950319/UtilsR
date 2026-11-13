@@ -876,6 +876,26 @@ plt_cat <- function(data,
     cli::cli_abort("A categorical frequency table must contain fewer than 2^31 cells. Reduce factor levels or use {.arg keep_empty = FALSE}.")
   }
 
+  if (is.null(group.by)) {
+    x <- data[[stat.by]]
+    if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+        !anyNA(levels(x)) && (!NA_stat || !anyNA(x))) {
+      n <- tabulate(x, nbins = nlevels(x))
+      df <- data.frame(stat_var = structure(seq_along(n), levels = levels(x), class = "factor"),
+                       n = n, group_var = rep.int("all", length(n)))
+      if (stat == "percent") {
+        total <- sum(n)
+        df$value <- if (total > 0) n / total * 100 else numeric(length(n))
+        df$label_text <- sprintf("%.1f%%", df$value)
+        df <- dplyr::as_tibble(df)
+      } else {
+        df$value <- n
+        df$label_text <- as.character(n)
+      }
+      return(if (keep_empty) df else df[n > 0L, , drop = FALSE])
+    }
+  }
+
   dense <- FALSE
   if (keep_empty && !is.null(group.by)) {
     a <- data[[stat.by]]

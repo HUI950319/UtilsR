@@ -1539,3 +1539,14 @@ test_that("complete categorical factors bypass missing label conversion", {
   actual <- suppressMessages(fn(d, "a", "b", NA_stat = TRUE, keep_empty = TRUE))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("univariate categorical counts use factor tallies", {
+  d <- data.frame(x = factor(rep(c("x", "y", NA, ""), 100L), levels = c("unused", "", "y", "x")))
+  fn <- .prepare_cat_data
+  expected <- lapply(c(FALSE, TRUE), function(keep) fn(d, "x", NULL, "count", keep_empty = keep))
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("built an intermediate table for univariate categorical counts")
+  environment(fn) <- env
+  expect_identical(lapply(c(FALSE, TRUE), function(keep) fn(d, "x", NULL, "count", keep_empty = keep)),
+                   expected)
+})
