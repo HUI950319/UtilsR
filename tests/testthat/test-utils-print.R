@@ -1746,3 +1746,17 @@ test_that("tree matrix type abbreviations avoid flattening cells", {
   expect_identical(lapply(values, fn), expected)
   expect_match(expected[[1L]], "int matrix", fixed = TRUE)
 })
+
+test_that("hidden tree branches do not format their child names", {
+  x <- list(hidden = as.list(stats::setNames(seq_len(1001L), paste0("column", seq_len(1001L)))))
+  expected <- capture.output(pr_tree(x, max_lines = 1L, max_items = 1000L))
+  fn <- pr_tree
+  env <- new.env(parent = environment(fn))
+  env$._pr_escape <- function(text) {
+    if (length(text) > 10L) stop("formatted names in a hidden tree branch")
+    ._pr_escape(text)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(x, max_lines = 1L, max_items = 1000L)), expected)
+  expect_match(tail(expected, 1L), "1,002 more lines", fixed = TRUE)
+})

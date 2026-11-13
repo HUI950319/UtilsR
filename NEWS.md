@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` counts children past its line limit without escaping or measuring names that will never display.
+
 * `pr_tree()` describes atomic matrix storage without materializing a flattened copy.
 
 * `pr_spark()` uses the cell count as its denominator for nested data-frame and matrix columns.
