@@ -352,3 +352,11 @@ test_that("plot alignment matches for ggplots and their rendered gtables", {
     expect_equal(bounds(gt, "full"), bounds(plot, "full"))
   }
 })
+
+test_that("behind insets remain below very negative finite drawing orders", {
+  gt <- gtable::gtable(widths = grid::unit(1, "in"), heights = grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), 1L, 1L, z = -1e30, name = "panel")
+  result <- grob_insert(gt, grid::circleGrob(), on_top = FALSE)
+  expect_lt(result$layout$z[result$layout$name == "inset"], -1e30)
+  expect_identical(result$layout$name[order(result$layout$z)], c("inset", "panel"))
+})

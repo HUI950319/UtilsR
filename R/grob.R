@@ -449,7 +449,11 @@ grob_insert <- function(
     background <- layout$name %in% "background"
     lowest <- min(Inf, layout$z[overlaps & !background], na.rm = TRUE)
     backgrounds <- layout$z[overlaps & background & layout$z < lowest]
-    z_val <- max(min(0, lowest - 1), backgrounds, na.rm = TRUE)
+    below <- lowest - 1
+    if (is.finite(lowest) && below >= lowest) {
+      below <- lowest - abs(lowest) * .Machine$double.eps
+    }
+    z_val <- max(min(0, below), backgrounds, na.rm = TRUE)
   }
 
   gt <- gtable::gtable_add_grob(

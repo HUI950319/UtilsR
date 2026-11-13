@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(on_top = FALSE)` keeps its inset below foreground grobs even when subtracting one does not change their drawing order.
+
 * `PlotCircleLollipop()` obtains each sector's numeric scaling bounds with one range operation.
 
 * Stacked `plt_con()` panels use feature codes directly when assembling observations.
