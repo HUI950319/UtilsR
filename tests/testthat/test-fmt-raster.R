@@ -863,3 +863,14 @@ test_that("raster captures reject overflowing pixel dimensions before opening a 
   expect_error(fmt_raster(g, method = "image", width = .001, height = 1, dpi = 100), "one pixel")
   expect_error(.rasterize_panel_grob(g, .001, 1, 100, "in", "transparent"), "one pixel")
 })
+
+test_that("image lists validate all entries before rendering any plot", {
+  skip_if_not_installed("ragg")
+  local_mocked_bindings(.agg_capture = function(...) stop("opened an image device before validating its siblings"),
+                        .package = "UtilsR")
+  p <- grid::rectGrob()
+  expect_error(fmt_raster(list(first = p, bad = list(42)), method = "image"), "drawable plot object")
+  expect_error(fmt_raster(list(first = p, bad = array(list(p), c(1L, 1L))),
+                          method = "image"), "one-dimensional")
+  expect_error(fmt_raster(list(first = p, bad = list(NULL)), method = "image"), "elements in the list")
+})
