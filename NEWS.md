@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` preserves narrow positive confidence levels that would round the normal tail probability to one half.
+
 * `plt_cat(NA_stat = TRUE)` avoids decoding complete ordinary factors when checking whether to add a missing category.
 
 * Categorical trend and area plots derive axis labels and coordinates from a single factor conversion.

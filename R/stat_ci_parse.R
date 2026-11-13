@@ -230,7 +230,9 @@ stat_ci_parse <- function(x,
     work_scale <- rep(1, length(est))
     unstable <- !is.finite(se) | (abs(se) < .Machine$double.xmin & l_s != h_s)
     if (!is.null(level)) {
-      z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
+      # Near zero, the central normal probability is linear to double precision.
+      z_new <- if (level < sqrt(.Machine$double.eps)) sqrt(pi / 2) * level else
+        qnorm((1 - level) / 2, lower.tail = FALSE)
       ratio <- z_new / z95
       unstable <- unstable |
         !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |

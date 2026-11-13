@@ -753,3 +753,14 @@ test_that("sparsely repeated CI strings skip full deduplication", {
   expect_identical(fn(x), .ci_extract(x))
   expect_identical(fn(x)$estimate[sampled[1:2]], rep(1, 2L))
 })
+
+test_that("tiny positive confidence levels retain finite inferred p-values", {
+  level <- 1e-20
+  z <- sqrt(pi / 2) * level
+  se <- 1 / stats::qnorm(.975)
+  x <- c(positive = "1e-30 (-1, 1)", negative = "-1e-30 (-1, 1)")
+  expected <- rep(2 * stats::pnorm(-1e-30 / (z * se * se)), 2L)
+  expect_equal(stat_ci_parse(x, output = "p", exp = FALSE, level = level),
+               stats::setNames(expected, names(x)), tolerance = 1e-13)
+  expect_identical(stat_ci_parse("0 (-1, 1)", output = "p", exp = FALSE, level = level), 1)
+})
