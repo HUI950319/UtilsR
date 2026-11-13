@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circle plots scale integer64 scores in a preallocated vector and reuse the sector lookup.
+
 * Numeric dumbbell insets construct paired endpoint columns directly while retaining their value and row order.
 
 * Continuous plots sort groups by computing medians directly from the existing factor partitions.

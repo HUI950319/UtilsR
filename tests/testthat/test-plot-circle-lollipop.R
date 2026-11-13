@@ -1269,3 +1269,41 @@ test_that("circular lollipop groups reject SPSS user-missing codes", {
   expect_error(PlotCircleLollipop(d, show_labels = FALSE), "Group labels must not be missing")
   expect_error(PlotCircleLollipop(d[c(1L, 3L), ], show_labels = FALSE), "drawing started")
 })
+
+test_that("circle integer64 scales assign the numeric value column once", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(letters[1:4], each = 4L), name = paste0("item-", seq_len(16L)),
+    value = bit64::as.integer64("9007199254740992") + bit64::as.integer64(rep(1:4, 4L)))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  writes <- 0L
+  env[["$<-"]] <- function(x, name, value) {
+    column <- as.character(substitute(name))
+    if (is.data.frame(x) && identical(column, "value")) {
+      writes <<- writes + 1L
+      if (writes > 1L) stop("assigned the numeric value twice")
+    }
+    do.call(base::`$<-`, list(x, column, value))
+  }
+  environment(fn) <- env
+  observed <- numeric()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  for (mode in c("group", "top_n")) {
+    writes <- 0L
+    observed <- numeric()
+    draw <- function(f) f(d, value_scale = mode, top_n = 3L, show_labels = FALSE,
+      show_links = FALSE, show_yaxis = FALSE)
+    draw(PlotCircleLollipop)
+    expected <- observed
+    observed <- numeric()
+    draw(fn)
+    expect_identical(observed, expected)
+    expect_identical(writes, 1L)
+  }
+})
