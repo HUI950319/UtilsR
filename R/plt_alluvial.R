@@ -696,7 +696,7 @@ plt_alluvial <- function(
   plot <- .apply_fmt_text(plot, fmt_text)
   .save_sized(
     plot, save,
-    c(max(4, 1.6 * length(unique(stat$.cat_var))),
+    c(max(4, 1.6 * length(cat_levels)),
       max(4, 0.45 * length(group_levels))),
     lead = "alluvial plot laid out for",
     filename = "Figure X. Alluvial plot.pdf"

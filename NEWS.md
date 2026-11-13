@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` uses the existing category levels to size the page.
+
 * `plt_alluvial()` reports an oversized stratum grid before allocating its zero-count cells.
 
 * `plt_con(ref_group = ...)` identifies observed groups from factor codes before building comparisons.

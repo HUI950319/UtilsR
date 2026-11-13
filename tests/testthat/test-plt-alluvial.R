@@ -1126,3 +1126,20 @@ test_that("alluvial stratum grid limits precede expansion", {
   small <- suppressMessages(fn(d[1:3, ], "category", "group", stratum_args = list(gap = 0)))
   expect_equal(nrow(small$data), 9L)
 })
+
+test_that("alluvial page width uses the prepared category levels", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(category = ordered(rep(letters[1:5], 3L), levels = c("unused", letters[5:1])),
+                  group = rep(c("a", "b", "c"), each = 5L))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(substitute(x), quote(stat$.cat_var))) stop("rescanned alluvial strata to size the page")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expected <- suppressMessages(plt_alluvial(d, "category", "group"))
+  actual <- suppressMessages(fn(d, "category", "group"))
+  expect_identical(attr(actual, "plot_size"), attr(expected, "plot_size"))
+  expect_identical(actual$data, expected$data)
+})
