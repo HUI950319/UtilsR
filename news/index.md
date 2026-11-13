@@ -2,6 +2,365 @@
 
 ## UtilsR 0.6.23
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) preserves
+  decimal commas in measurements without emitting grouping-separator
+  warnings.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  reports when a coordinate system disables the requested padding with a
+  numeric zero flag.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  updates or clears `continuous.limits` on discrete position scales that
+  support it.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  applies the most recent temporal breaks, labels and minor breaks when
+  aliases are mixed across calls.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  decodes colour names and hex values once before building alpha-aware
+  ANSI previews.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  uses the same group labels for validation and left/right panel
+  assembly.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores complete integer64 predictors directly and converts only
+  actual predictions.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  counts only missing factor rows when called with
+  `special = character()`.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  keeps readable CIM metadata when Windows memory measurements require a
+  WMIC fallback.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  retains plotmath titles and formula label functions through scale
+  construction.
+
+- `check_size(method = "lobstr")` counts stored calls and symbols
+  without evaluating them.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  matches plotted nodes once when applying stage labels and percentage
+  thresholds.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  scales the parent key-spacing unit for both plot and guide themes.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  reuses exact numeric category codes when building factors for
+  plotting.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  identifies an invalid inset host at the input boundary.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  and
+  [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  skip layer scans when the requested position scales already exist.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  compares explicit numeric and text fields without materializing every
+  inherited scale member.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  retains readable Linux metadata when a release or CPU file cannot be
+  read.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  ignores failed `free` and WMIC queries even when their output
+  resembles valid data.
+
+- `fct_num(type = "equal")` diagnoses infinite data ranges before
+  constructing automatic breaks.
+
+- Recursive plot formatters enumerate patchwork leaves once while
+  preserving the original container.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  keeps collection enabled when a fixed aesthetic or a null mapping
+  removes the apparent inside guide.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  preserves guide collection when the effective theme suppresses
+  legends.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  avoids cloning scales and guides whose titles already match.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  preserves axis guide prototypes when their theme already has the
+  requested hiding settings.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  caches cell widths for required P-value columns during narrow layouts.
+
+- Palette catalogue previews reject malformed colour encodings without
+  emitting native regex warnings.
+
+- Image rasterization checks list entries before opening capture devices
+  for valid siblings.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  skips constructing missing masks for complete ordinary factors.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  uses host fallbacks when macOS commands return empty, malformed or
+  failed metadata.
+
+- Univariate categorical plots tally ordinary factor levels directly
+  before selecting the displayed rows.
+
+- Continuous plots reuse ordinary grouping codes in single and stacked
+  panels, preserving declared levels.
+
+- [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
+  formats installed-copy counts without a locale warning when `OutDec`
+  is a comma.
+
+- Linux diagnostics preserve quoted release names with surrounding
+  whitespace.
+
+- Linux memory diagnostics use `/proc/meminfo` measurements only when
+  the values have the expected kB units.
+
+- Survival formula notices count observed factor codes without hashing
+  each outcome row.
+
+- Continuous dot plots map numeric values to prevalidated bin breaks
+  without sorting those breaks again.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  checks alluvial factor levels and plain vector missingness without
+  decoding every observation.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  applies numeric gradients only to one-dimensional columns, preserving
+  matrix-valued cells for rendering.
+
+- `fmt_point(sample_n = 0)` keeps the existing validation and returns an
+  empty sampled layer without drawing random indices.
+
+- `grob_insert(on_top = FALSE)` keeps its inset below foreground grobs
+  even when subtracting one does not change their drawing order.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  obtains each sector’s numeric scaling bounds with one range operation.
+
+- Stacked
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  panels use feature codes directly when assembling observations.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  recycles scalar strata only, retaining the existing vectors for
+  row-aligned groups and facets.
+
+- Raster backends reject dimensions outside the integer pixel range
+  before allocating a capture device.
+
+- Image rasterization applies the same list-shape check to nested and
+  top-level inputs.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  reports dimensional plot lists at any nesting level.
+
+- Empty
+  [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  inset inputs keep the two endpoint groups and their original value
+  storage.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  uses the measured object size as the total when exactly one object was
+  read.
+
+- `stat_ci_parse(output = "ci_p")` constructs the P-value separator
+  directly, leaving the rest of the interval text untouched.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  reports malformed encodings as invalid numeric strings before decimal
+  parsing.
+
+- Confidence interval formatters preserve malformed text bytes as
+  unparsed rows while continuing to process valid intervals.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  diagnoses impossible column widths before formatting the cells.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  describes zero-cell packed columns as empty.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  resolves discrete display levels once for a list of palettes.
+
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  uses pre-separated lines directly and reserves ANSI splitting for
+  embedded breaks.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  derives logical summaries from the observed and true counts without
+  building a full frequency table.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  avoids a full distinct-value pass when a sample already exceeds the
+  available bins.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  carries styles across line breaks when message text contains ANSI
+  escapes.
+
+- [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md)
+  escapes embedded layout controls in its label and divider while
+  preserving styled text.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  passes validated reference indices directly to its binary recoder.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  uses a strict-order check for plain fixed breaks without allocating a
+  duplicate index.
+
+- Palette previews render a single colour directly, retaining its alpha
+  and the requested total.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  limits Unicode dash normalization to intervals that contain those
+  dashes.
+
+- `stat_ci_parse(exp = FALSE)` bypasses unused log-scale asymmetry
+  calculations.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  strips bound operators only from inputs that contain them.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  returns empty star suffixes directly when given an empty significance
+  map.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  reports the positions of malformed colour strings with escaped bytes.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  checks formatted zeros only among values close enough to round to
+  zero.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  compares the two confidence interval half-widths directly, retaining
+  asymmetric intervals around large estimates.
+
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  and [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  normalize CRLF before wrapping lines, retaining each helper’s existing
+  treatment of trailing blank lines.
+
+- [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
+  uses one-line elements directly and preserves embedded and trailing
+  blank lines.
+
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  shares one console width across all wrapped lines of a note.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  counts children past its line limit without escaping or measuring
+  names that will never display.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  describes atomic matrix storage without materializing a flattened
+  copy.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  uses the cell count as its denominator for nested data-frame and
+  matrix columns.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  orders percentage and matrix panels directly from the missing counts,
+  avoiding a second grouped data frame.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  compacts a single ordinary factor without building a row dictionary,
+  preserving declared order and missingness.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  uses the existing category levels to size the page.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  reports an oversized stratum grid before allocating its zero-count
+  cells.
+
+- `plt_con(ref_group = ...)` identifies observed groups from factor
+  codes before building comparisons.
+
+- `plt_upset(output = "all")` uses its existing intersection counts to
+  size the UpSet panel.
+
+- `plt_upset(output = "data")` avoids allocating display keys used only
+  by the plotting backend.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  uses the prepared node factor directly for fill mapping.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  derives the number of missing observations from each stage tally while
+  keeping explicit missing levels separate.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  keeps comma grouping for counts when the session uses a comma as its
+  decimal mark.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  reuses the existing group-level vector when no gaps are drawn.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  derives default facet rows and plot dimensions from its grouped
+  display data rather than rescanning observations.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  uses factor tallies when selecting observed fill categories for
+  gradient beeswarm shapes.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  detects constant plain quantile inputs before generating a bin-sized
+  probability vector.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  reorders cells by row in one index pass and keeps the order within
+  incomplete rows.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  indexes ordinary factor groups through their level labels without
+  decoding the full group column.
+
+- [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  normalizes CRLF line endings before wrapping unlabelled text.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  passes through valid bound text even when the endpoint would be too
+  wide for the requested decimal formatter.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  preserves narrow positive confidence levels that would round the
+  normal tail probability to one half.
+
+- `plt_cat(NA_stat = TRUE)` avoids decoding complete ordinary factors
+  when checking whether to add a missing category.
+
+- Categorical trend and area plots derive axis labels and coordinates
+  from a single factor conversion.
+
+- Background stripes validate group-to-colour assignments by indexing
+  the first category of each displayed group.
+
+- Categorical Sankey plots retain existing stage codes when applying the
+  display names to their axes.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  samples text inputs before deduplication, avoiding a full distinct
+  pass for mostly unique values.
+
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   computes automatic comparison space without overflowing on wide finite
   ranges and keeps transformed global labels at finite positions.

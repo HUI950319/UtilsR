@@ -50,7 +50,107 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> computes automatic comparison space without overflowing on wide finite ranges and keeps transformed global labels at finite positions.</p></li>
+<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> preserves decimal commas in measurements without emitting grouping-separator warnings.</p></li>
+<li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> reports when a coordinate system disables the requested padding with a numeric zero flag.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> updates or clears <code>continuous.limits</code> on discrete position scales that support it.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> applies the most recent temporal breaks, labels and minor breaks when aliases are mixed across calls.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> decodes colour names and hex values once before building alpha-aware ANSI previews.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> uses the same group labels for validation and left/right panel assembly.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores complete integer64 predictors directly and converts only actual predictions.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> counts only missing factor rows when called with <code>special = character()</code>.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> keeps readable CIM metadata when Windows memory measurements require a WMIC fallback.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> retains plotmath titles and formula label functions through scale construction.</p></li>
+<li><p><code>check_size(method = "lobstr")</code> counts stored calls and symbols without evaluating them.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> matches plotted nodes once when applying stage labels and percentage thresholds.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales the parent key-spacing unit for both plot and guide themes.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> reuses exact numeric category codes when building factors for plotting.</p></li>
+<li><p><code><a href="../reference/fmt_flatten.html">fmt_flatten()</a></code> identifies an invalid inset host at the input boundary.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> and <code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> skip layer scans when the requested position scales already exist.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> compares explicit numeric and text fields without materializing every inherited scale member.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> retains readable Linux metadata when a release or CPU file cannot be read.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> ignores failed <code>free</code> and WMIC queries even when their output resembles valid data.</p></li>
+<li><p><code>fct_num(type = "equal")</code> diagnoses infinite data ranges before constructing automatic breaks.</p></li>
+<li><p>Recursive plot formatters enumerate patchwork leaves once while preserving the original container.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> keeps collection enabled when a fixed aesthetic or a null mapping removes the apparent inside guide.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> preserves guide collection when the effective theme suppresses legends.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> avoids cloning scales and guides whose titles already match.</p></li>
+<li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> preserves axis guide prototypes when their theme already has the requested hiding settings.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> caches cell widths for required P-value columns during narrow layouts.</p></li>
+<li><p>Palette catalogue previews reject malformed colour encodings without emitting native regex warnings.</p></li>
+<li><p>Image rasterization checks list entries before opening capture devices for valid siblings.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> skips constructing missing masks for complete ordinary factors.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> uses host fallbacks when macOS commands return empty, malformed or failed metadata.</p></li>
+<li><p>Univariate categorical plots tally ordinary factor levels directly before selecting the displayed rows.</p></li>
+<li><p>Continuous plots reuse ordinary grouping codes in single and stacked panels, preserving declared levels.</p></li>
+<li><p><code><a href="../reference/check_packages.html">check_packages()</a></code> formats installed-copy counts without a locale warning when <code>OutDec</code> is a comma.</p></li>
+<li><p>Linux diagnostics preserve quoted release names with surrounding whitespace.</p></li>
+<li><p>Linux memory diagnostics use <code>/proc/meminfo</code> measurements only when the values have the expected kB units.</p></li>
+<li><p>Survival formula notices count observed factor codes without hashing each outcome row.</p></li>
+<li><p>Continuous dot plots map numeric values to prevalidated bin breaks without sorting those breaks again.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> checks alluvial factor levels and plain vector missingness without decoding every observation.</p></li>
+<li><p><code><a href="../reference/dot-cat_tb.html">.cat_tb()</a></code> applies numeric gradients only to one-dimensional columns, preserving matrix-valued cells for rendering.</p></li>
+<li><p><code>fmt_point(sample_n = 0)</code> keeps the existing validation and returns an empty sampled layer without drawing random indices.</p></li>
+<li><p><code>grob_insert(on_top = FALSE)</code> keeps its inset below foreground grobs even when subtracting one does not change their drawing order.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> obtains each sector’s numeric scaling bounds with one range operation.</p></li>
+<li><p>Stacked <code><a href="../reference/plt_con.html">plt_con()</a></code> panels use feature codes directly when assembling observations.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> recycles scalar strata only, retaining the existing vectors for row-aligned groups and facets.</p></li>
+<li><p>Raster backends reject dimensions outside the integer pixel range before allocating a capture device.</p></li>
+<li><p>Image rasterization applies the same list-shape check to nested and top-level inputs.</p></li>
+<li><p><code><a href="../reference/fmt_flatten.html">fmt_flatten()</a></code> reports dimensional plot lists at any nesting level.</p></li>
+<li><p>Empty <code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> inset inputs keep the two endpoint groups and their original value storage.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> uses the measured object size as the total when exactly one object was read.</p></li>
+<li><p><code>stat_ci_parse(output = "ci_p")</code> constructs the P-value separator directly, leaving the rest of the interval text untouched.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> reports malformed encodings as invalid numeric strings before decimal parsing.</p></li>
+<li><p>Confidence interval formatters preserve malformed text bytes as unparsed rows while continuing to process valid intervals.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> diagnoses impossible column widths before formatting the cells.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> describes zero-cell packed columns as empty.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> resolves discrete display levels once for a list of palettes.</p></li>
+<li><p><code><a href="../reference/pr_note.html">pr_note()</a></code> uses pre-separated lines directly and reserves ANSI splitting for embedded breaks.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> derives logical summaries from the observed and true counts without building a full frequency table.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> avoids a full distinct-value pass when a sample already exceeds the available bins.</p></li>
+<li><p><code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> carries styles across line breaks when message text contains ANSI escapes.</p></li>
+<li><p><code><a href="../reference/dot-cat_line.html">.cat_line()</a></code> escapes embedded layout controls in its label and divider while preserving styled text.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> passes validated reference indices directly to its binary recoder.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> uses a strict-order check for plain fixed breaks without allocating a duplicate index.</p></li>
+<li><p>Palette previews render a single colour directly, retaining its alpha and the requested total.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> limits Unicode dash normalization to intervals that contain those dashes.</p></li>
+<li><p><code>stat_ci_parse(exp = FALSE)</code> bypasses unused log-scale asymmetry calculations.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> strips bound operators only from inputs that contain them.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> returns empty star suffixes directly when given an empty significance map.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> reports the positions of malformed colour strings with escaped bytes.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> checks formatted zeros only among values close enough to round to zero.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> compares the two confidence interval half-widths directly, retaining asymmetric intervals around large estimates.</p></li>
+<li><p><code><a href="../reference/pr_note.html">pr_note()</a></code> and <code><a href="../reference/pr_kv.html">pr_kv()</a></code> normalize CRLF before wrapping lines, retaining each helper’s existing treatment of trailing blank lines.</p></li>
+<li><p><code><a href="../reference/dot-cat_box.html">.cat_box()</a></code> uses one-line elements directly and preserves embedded and trailing blank lines.</p></li>
+<li><p><code><a href="../reference/pr_note.html">pr_note()</a></code> shares one console width across all wrapped lines of a note.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> counts children past its line limit without escaping or measuring names that will never display.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> describes atomic matrix storage without materializing a flattened copy.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> uses the cell count as its denominator for nested data-frame and matrix columns.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> orders percentage and matrix panels directly from the missing counts, avoiding a second grouped data frame.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> compacts a single ordinary factor without building a row dictionary, preserving declared order and missingness.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> uses the existing category levels to size the page.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> reports an oversized stratum grid before allocating its zero-count cells.</p></li>
+<li><p><code>plt_con(ref_group = ...)</code> identifies observed groups from factor codes before building comparisons.</p></li>
+<li><p><code>plt_upset(output = "all")</code> uses its existing intersection counts to size the UpSet panel.</p></li>
+<li><p><code>plt_upset(output = "data")</code> avoids allocating display keys used only by the plotting backend.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> uses the prepared node factor directly for fill mapping.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> derives the number of missing observations from each stage tally while keeping explicit missing levels separate.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> keeps comma grouping for counts when the session uses a comma as its decimal mark.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> reuses the existing group-level vector when no gaps are drawn.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> derives default facet rows and plot dimensions from its grouped display data rather than rescanning observations.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> uses factor tallies when selecting observed fill categories for gradient beeswarm shapes.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> detects constant plain quantile inputs before generating a bin-sized probability vector.</p></li>
+<li><p><code><a href="../reference/fmt_flatten.html">fmt_flatten()</a></code> reorders cells by row in one index pass and keeps the order within incomplete rows.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> indexes ordinary factor groups through their level labels without decoding the full group column.</p></li>
+<li><p><code><a href="../reference/pr_box.html">pr_box()</a></code> normalizes CRLF line endings before wrapping unlabelled text.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> passes through valid bound text even when the endpoint would be too wide for the requested decimal formatter.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> preserves narrow positive confidence levels that would round the normal tail probability to one half.</p></li>
+<li><p><code>plt_cat(NA_stat = TRUE)</code> avoids decoding complete ordinary factors when checking whether to add a missing category.</p></li>
+<li><p>Categorical trend and area plots derive axis labels and coordinates from a single factor conversion.</p></li>
+<li><p>Background stripes validate group-to-colour assignments by indexing the first category of each displayed group.</p></li>
+<li><p>Categorical Sankey plots retain existing stage codes when applying the display names to their axes.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> samples text inputs before deduplication, avoiding a full distinct pass for mostly unique values.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> computes automatic comparison space without overflowing on wide finite ranges and keeps transformed global labels at finite positions.</p></li>
 <li><p><code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> skips string splitting for single-line elements and preserves blank lines, missing values and multiline notices.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> reuses computed x coordinates for trend and area labels, including ordered groups and empty levels.</p></li>
 <li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> reuses factor codes for counts and missingness while retaining declared levels and their display order.</p></li>
