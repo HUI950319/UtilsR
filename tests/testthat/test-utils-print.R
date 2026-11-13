@@ -1592,3 +1592,18 @@ test_that("repeated console P value text is parsed once per distinct value", {
     expect_identical(fn(rep(keys, 400L)), rep(._p_cells(keys), 400L))
   }
 })
+
+test_that("numeric console P cells skip textual operator lookups", {
+  fn <- ._p_cells
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (length(x) > 128L && is.character(x)) stop("checked text operators for numeric p values")
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  x <- rep(c(0, .001, .0499, .05, .25, NA, NaN, 1), 200L)
+  for (colors in c(1L, 256L)) {
+    withr::local_options(cli.num_colors = colors)
+    expect_identical(fn(x), ._p_cells(x))
+  }
+})

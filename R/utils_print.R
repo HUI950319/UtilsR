@@ -437,7 +437,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 # red below 0.001, red below 0.05, grey otherwise. A text bound is significant
 # only when every possible value it describes is below the relevant cut-off.
 ._p_cells <- function(v) {
-  if (is.numeric(v)) {
+  numeric_input <- is.numeric(v)
+  if (numeric_input) {
     num <- v
     txt <- stat_pval(v, mode = "pvalue")
     txt[which(!is.na(v) & v < 0.001)] <- "<0.001"
@@ -452,7 +453,6 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
                                                   (values < 0.01 & shown >= 0.01))]
       txt[candidates] <- formatC(v[candidates], format = "f", digits = d)
     }
-    op <- rep("", length(v))
     valid <- !is.na(num)
   } else {
     txt <- .trim_pvalue_space(as.character(v))
@@ -484,16 +484,12 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       !(op == "<" & zero) & !(op == ">" & one)
   }
   below <- function(cut) {
-    if (is.numeric(v)) {
-      less <- num < cut
-      equal <- num == cut
-    } else {
-      # Decimal endpoints can differ from a cut-off after parsing as doubles.
-      cut_power <- if (cut == 0.001) -3L else -2L
-      cut_digit <- if (cut == 0.05) 5L else 1L
-      less <- zero | power < cut_power | (power == cut_power & digit < cut_digit)
-      equal <- power == cut_power & significant == as.character(cut_digit)
-    }
+    if (numeric_input) return(valid & num < cut)
+    # Decimal endpoints can differ from a cut-off after parsing as doubles.
+    cut_power <- if (cut == 0.001) -3L else -2L
+    cut_digit <- if (cut == 0.05) 5L else 1L
+    less <- zero | power < cut_power | (power == cut_power & digit < cut_digit)
+    equal <- power == cut_power & significant == as.character(cut_digit)
     valid & (op %in% c("", "<", "<=", "\u2264")) &
       (less | (op == "<" & equal))
   }
