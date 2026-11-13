@@ -815,3 +815,16 @@ test_that("factor grouping keeps checked integer positions through the recode", 
   expect_error(fct_cat(f, same = 2L, other = "a"), "non-unique")
   expect_error(fct_cat(f, missing = "missing"), "not found")
 })
+
+test_that("binary factor recoding uses validated reference positions", {
+  x <- structure(c(1L, 2L, NA_integer_, 3L, 1L),
+    levels = c("yes", NA_character_, "no", "unused"), class = c("ordered", "factor"))
+  expected <- fct_cat(x, ref_idx = c(2L, 1L))
+  check <- .check_integer_index
+  local_mocked_bindings(.check_integer_index = function(x, arg_name, n_levels) {
+    if (arg_name == "recode index") stop("revalidated already selected binary indices")
+    check(x, arg_name, n_levels)
+  }, .package = "UtilsR")
+  expect_identical(fct_cat(x, ref_idx = c(2L, 1L)), expected)
+  expect_error(fct_cat(x, ref_idx = c(1L, 1L)), "duplicat|non-unique")
+})

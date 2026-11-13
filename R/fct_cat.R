@@ -290,7 +290,7 @@ fct_cat <- function(x, ...,
     list(ref_idx, other),
     c(ref_name, "Oth")
   )
-  .recode_factor(x, g)
+  .recode_factor(x, g, checked_indices = TRUE)
 }
 
 
