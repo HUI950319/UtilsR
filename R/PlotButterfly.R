@@ -468,6 +468,10 @@ PlotButterfly <- function(
 
     # Pivot by temporary names when a category is the empty string.
     pivot_scores <- function(wide) {
+      labelled <- vapply(wide, inherits, logical(1), "haven_labelled")
+      wide[labelled] <- lapply(wide[labelled], function(value) {
+        vctrs::vec_data(.scatter_axis_values(value))
+      })
       labels <- names(wide)
       blank <- which(!is.na(labels) & labels == "")
       if (length(blank)) {

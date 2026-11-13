@@ -1103,3 +1103,14 @@ test_that("butterfly distributions distinguish calendar period fills", {
   expect_identical(levels(actual[[1L]]$data$fill), unique(as.character(months)))
   expect_equal(ggplot2::ggplot_build(actual[[1L]])$data, ggplot2::ggplot_build(expected[[1L]])$data)
 })
+
+test_that("wide butterfly violins normalize labelled score columns independently", {
+  skip_if_not_installed("haven")
+  left <- data.frame(a = haven::labelled_spss(c(1, 3, 99, 2, 4), na_values = 99),
+    b = haven::labelled(c(2, 4, 3, 5, 6), c(lower = 2)))
+  right <- data.frame(a = 1:5, b = 3:7)
+  plain <- data.frame(a = c(1, 3, NA, 2, 4), b = c(2, 4, 3, 5, 6))
+  draw <- function(data) PlotButterfly(type = "violin", data.left = data, data.right = right)
+  layers <- function(plot) lapply(seq_along(plot), function(i) ggplot2::ggplot_build(plot[[i]])$data)
+  expect_equal(suppressWarnings(layers(draw(left))), suppressWarnings(layers(draw(plain))))
+})
