@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette catalogue previews reject malformed colour encodings without emitting native regex warnings.
+
 * Image rasterization checks list entries before opening capture devices for valid siblings.
 
 * `plt_na()` skips constructing missing masks for complete ordinary factors.

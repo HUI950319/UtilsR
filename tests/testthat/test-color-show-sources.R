@@ -2896,3 +2896,14 @@ test_that("palette lists reuse discrete mapping levels", {
   expect_identical(pal_get(palettes, x = x, reverse = TRUE, alpha = .65), expected)
   expect_identical(pal_get(palettes, x = character()), lapply(palettes, function(x) setNames(character(), character())))
 })
+
+test_that("palette colour detection handles malformed byte encodings quietly", {
+  for (encoding in c("UTF-8", "bytes")) {
+    bad <- rawToChar(as.raw(255L))
+    Encoding(bad) <- encoding
+    expect_no_warning(expect_false(.pal_are_colors(c("red", bad))))
+    expect_no_warning(expect_error(pal_show(c("red", bad), output = "gg"), "No matching palettes"))
+  }
+  expect_false(.pal_are_colors(c("red", "1")))
+  expect_true(.pal_are_colors(c("red", "#22334480")))
+})
