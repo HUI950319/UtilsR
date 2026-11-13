@@ -406,6 +406,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     if (!is.list(plot_obj) || is.object(plot_obj)) {
       return(list(plot_obj))
     }
+    if (!is.null(dim(plot_obj))) cli::cli_abort("Plot lists must be one-dimensional.", call = error_call)
     unlist(lapply(seq_along(plot_obj), function(i) {
       children <- flatten_lists(plot_obj[[i]])
       if (length(children) == 1L && is.null(names(children)) &&

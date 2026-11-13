@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` reports dimensional plot lists at any nesting level.
+
 * Empty `PlotDumbbell()` inset inputs keep the two endpoint groups and their original value storage.
 
 * `check_size()` uses the measured object size as the total when exactly one object was read.

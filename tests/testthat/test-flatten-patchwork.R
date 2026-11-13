@@ -431,3 +431,12 @@ test_that("flattened cells use one stable row order", {
   expect_identical(labels(result), paste0("p", c(8, 5, 3, 2, 1, 4, 7)))
   for (n in c(1L, 8L)) expect_identical(labels(fn(plots, nrow_inds_order = n)), paste0("p", seq_len(8L)))
 })
+
+test_that("flatten rejects nested plot arrays with ambiguous ordering", {
+  p <- ggplot2::ggplot()
+  bad <- array(list(p, p), c(1L, 2L))
+  for (x in list(bad, list(first = p, nested = list(bad)))) {
+    expect_error(fmt_flatten(x), "Plot lists must be one-dimensional", fixed = TRUE)
+  }
+  expect_length(fmt_flatten(list(first = p, nested = list(p))), 2L)
+})
