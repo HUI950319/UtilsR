@@ -731,12 +731,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   header <- paste0(pad, cli::style_bold(aligned_rows[1L]))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
                                              sum(col_w[keep]) + gap * (length(keep) - 1))))
-  hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
   r <- aligned_rows[-1L]
   body <- if (length(r)) paste0(pad, r) else character()
   at <- which(seq_along(r) %in% hl)
   if (length(at)) {
     body[at] <- if (colour) {
+      hl_bg <- cli::make_ansi_style("#FFFF99", bg = TRUE)
       paste0(pad, hl_bg(cli::col_black(cli::ansi_strip(r[at]))))
     } else paste0(">", strrep(" ", max(indent - 1L, 1L)), r[at])
   }

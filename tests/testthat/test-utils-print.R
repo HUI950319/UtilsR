@@ -1607,3 +1607,23 @@ test_that("numeric console P cells skip textual operator lookups", {
     expect_identical(fn(x), ._p_cells(x))
   }
 })
+
+test_that("console tables create a highlight style only for visible coloured rows", {
+  original <- cli::make_ansi_style
+  calls <- 0L
+  testthat::local_mocked_bindings(make_ansi_style = function(...) {
+    args <- list(...)
+    if (length(args) && identical(args[[1L]], "#FFFF99")) calls <<- calls + 1L
+    original(...)
+  }, .package = "cli")
+  d <- data.frame(x = 1:6)
+  withr::local_options(cli.num_colors = 1L)
+  invisible(capture.output(pr_table(d, highlight = 2L)))
+  expect_identical(calls, 0L)
+  withr::local_options(cli.num_colors = 256L)
+  invisible(capture.output(pr_table(d, highlight = 6L, n = 3L)))
+  expect_identical(calls, 0L)
+  output <- capture.output(pr_table(d, highlight = 2L, n = 3L))
+  expect_identical(calls, 1L)
+  expect_match(output[4L], "\033", fixed = TRUE)
+})
