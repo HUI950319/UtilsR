@@ -1032,6 +1032,17 @@ plt_con <- function(data,
   }
 }
 
+.con_annotation_y <- function(lower, upper, fraction, count = 1L, anchor = upper) {
+  if (fraction == 0) return(anchor)
+  y <- anchor + (upper - lower) * fraction * count
+  if (is.infinite(y) && is.finite(lower) && is.finite(upper) && is.finite(anchor)) {
+    # Halve the coordinates before subtracting opposite-sign endpoints.
+    y <- 2 * (anchor / 2 + (upper / 2 - lower / 2) * fraction * count)
+    if (y == Inf) y <- .Machine$double.xmax
+  }
+  y
+}
+
 .con_stat_layer <- function(stat, annotation) {
   force(stat)
   force(annotation)
@@ -1051,10 +1062,15 @@ plt_con <- function(data,
           bounds <- if (!is.null(shared)) shared(scales$y)[["data"]] else
             if (annotation[["type"]] == "bar") .con_bar_range(data$y, data$x) else
               range(data$y, finite = TRUE)
-          span <- max(diff(bounds), diff(scales$y$range$range))
           offset <- annotation[["offset"]]
           if (length(offset) > 1L) offset <- offset[as.integer(data$PANEL[1L])]
-          params[[key]] <- bounds[2L] + span * offset
+          y <- .con_annotation_y(bounds[1L], bounds[2L], offset)
+          panel_range <- scales$y$range$range
+          if (length(panel_range) == 2L) {
+            y <- max(y, .con_annotation_y(panel_range[1L], panel_range[2L], offset,
+                                         anchor = bounds[2L]))
+          }
+          params[[key]] <- y
           if (key == "y_position") params[[key]] <- rep(params[[key]], length(params[["comparisons"]]))
         } else if (!is.null(params[[key]])) {
           params[[key]] <- scales$y$transform(params[[key]])
@@ -1160,8 +1176,10 @@ plt_con <- function(data,
     bounds <- if (is.null(groups)) range(transformed[keep]) else
       .con_bar_range(transformed[keep], groups[keep])
     limits <- bounds
-    if (comparisons > 0L) limits[2L] <- limits[2L] + diff(limits) * 0.15 * comparisons
-    if (isTRUE(global)) limits[2L] <- limits[2L] + diff(limits) * 0.1
+    if (comparisons > 0L) {
+      limits[2L] <- .con_annotation_y(limits[1L], limits[2L], 0.15, comparisons)
+    }
+    if (isTRUE(global)) limits[2L] <- .con_annotation_y(limits[1L], limits[2L], 0.1)
     cached <<- list(data = bounds, limits = limits)
     previous <<- transformation
     cached
@@ -1439,7 +1457,7 @@ plt_con <- function(data,
     )
   }
   if (comparison_count > 0L) {
-    annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
+    annotation_y_max <- .con_annotation_y(y_min_use, annotation_y_max, 0.15, comparison_count)
   }
 
   if (isTRUE(multiplegroup_comparisons)) {
@@ -1452,7 +1470,7 @@ plt_con <- function(data,
       size = sig_labelsize,
       vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
-    annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.1
+    annotation_y_max <- .con_annotation_y(y_min_use, annotation_y_max, 0.1)
   }
   if (isTRUE(auto_y_max)) y_max_use <- annotation_y_max
 
@@ -1751,7 +1769,7 @@ plt_con <- function(data,
     global_data <- if (type == "bar") bar_data else list(NULL)
     for (i in seq_along(global_data)) {
       global_y <- if (type == "bar") {
-        bar_ranges[2L, i] + diff(bar_ranges[, i]) * 0.15 * (comparison_counts[i] + 1L)
+        .con_annotation_y(bar_ranges[1L, i], bar_ranges[2L, i], 0.15, comparison_counts[i] + 1L)
       } else NULL
       p <- p + .con_component(.con_global_layer,
         features = if (type == "bar") stat.by[i] else stat.by,

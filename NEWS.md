@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` computes automatic comparison space without overflowing on wide finite ranges and keeps transformed global labels at finite positions.
+
 * `.cat_message()` skips string splitting for single-line elements and preserves blank lines, missing values and multiline notices.
 
 * `plt_cat()` reuses computed x coordinates for trend and area labels, including ordered groups and empty levels.

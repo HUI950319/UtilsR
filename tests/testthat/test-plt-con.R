@@ -1986,3 +1986,28 @@ test_that("continuous comparison preflight matches factor levels before observat
     values[which(groups == "B")])$p.value)
   expect_identical(cache[[2L]]$x$value, as.double(values[which(groups == "C")]))
 })
+
+test_that("continuous comparisons reserve finite room across extreme shared ranges", {
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(x = c(-1e308, -7e307, -4e307, 4e307, 7e307, 1e308),
+                  z = seq_len(6L), g = rep(c("A", "B"), each = 3L))
+  for (pairs in list(NULL, list(c("A", "B")))) {
+    p <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", flip = FALSE,
+      same.y.lims = TRUE, comparisons = pairs, multiplegroup_comparisons = TRUE,
+      combine = FALSE))
+    upper <- if (is.null(pairs)) 1.2 else 1.53
+    for (plot in p) expect_equal(unname(plot$coordinates$limits$y / 1e308), c(-1, upper))
+    reverse <- ggplot2::scale_y_reverse(expand = c(0, 0))
+    shared <- .con_shared_range(d$x, NULL, length(pairs), TRUE)(reverse)
+    expect_equal(shared$limits / 1e308, c(-1, upper))
+
+    built <- ggplot2::ggplot_build(suppressMessages(p[[2L]] + reverse))
+    global <- Filter(function(x) "p" %in% names(x), built$data)
+    expect_length(global, 1L)
+    expect_equal(global[[1L]]$y / 1e308, if (is.null(pairs)) 1 else 1.3)
+    expect_equal(global[[1L]]$p, stats::kruskal.test(-d$z ~ d$g)$p.value)
+  }
+  beyond <- c(-.Machine$double.xmax, .Machine$double.xmax)
+  limits <- .con_shared_range(beyond, NULL, 2L, TRUE)(ggplot2::scale_y_continuous())$limits
+  expect_identical(limits, beyond)
+})
