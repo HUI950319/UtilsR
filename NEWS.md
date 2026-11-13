@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` applies the most recent temporal breaks, labels and minor breaks when aliases are mixed across calls.
+
 * `show_color()` decodes colour names and hex values once before building alpha-aware ANSI previews.
 
 * `PlotButterfly2()` uses the same group labels for validation and left/right panel assembly.

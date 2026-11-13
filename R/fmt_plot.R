@@ -5329,6 +5329,15 @@ fmt_his <- function(plot,
     # Match against the actual scale before merging aliases from different calls.
     latest <- order(arg_calls)
     latest <- latest[!duplicated(arg_names[latest], fromLast = TRUE)]
+    if (fn_name %in% paste0("scale_", axis, c("_date", "_datetime", "_time"))) {
+      for (field in c("breaks", "labels", "minor_breaks")) {
+        pair <- latest[arg_names[latest] %in% c(field, paste0("date_", field))]
+        # Within one call, let ggplot2 resolve both arguments as usual.
+        if (length(pair) == 2L && arg_calls[pair[1L]] != arg_calls[pair[2L]]) {
+          latest <- latest[latest != pair[1L]]
+        }
+      }
+    }
     args <- args[latest]
     arg_names <- names(args)
   }

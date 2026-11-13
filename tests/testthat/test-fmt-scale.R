@@ -510,3 +510,22 @@ test_that("scale changes preserve plotmath axis titles as data", {
     expect_s3_class(ggplot2::ggplotGrob(output), "gtable")
   }
 })
+
+test_that("deferred temporal settings honor the latest field update across aliases", {
+  days <- as.Date("2026-01-01") + 0:10
+  p <- ggplot2::ggplot(data.frame(x = days, y = seq_along(days)), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = identity)
+  dates <- list(date_breaks = "3 days", date_labels = "%d", date_minor_breaks = "2 days")
+  explicit <- list(breaks = days[c(3L, 7L)], labels = function(x) format(x, "%Y-%m-%d"),
+                   minor_breaks = days[c(2L, 4L)])
+  p1 <- fmt_scale(fmt_scale(p, x = dates), x = explicit)
+  expect_identical(na.omit(x_params(p1)$get_labels()), c("2026-01-03", "2026-01-07"))
+  expect_equal(na.omit(x_params(p1)$minor_breaks), as.numeric(explicit$minor_breaks))
+  native <- x_params(p + do.call(ggplot2::scale_x_date, c(explicit, dates)))
+  for (input in list(fmt_scale(fmt_scale(p, x = explicit), x = dates),
+                     fmt_scale(p, x = c(dates, explicit)))) {
+    actual <- x_params(input)
+    expect_identical(actual$get_labels(), native$get_labels())
+    expect_equal(actual$minor_breaks, native$minor_breaks)
+  }
+})
