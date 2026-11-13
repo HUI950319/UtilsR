@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor relabelling returns keyed data.table inputs unchanged when their factor values and levels are identical.
+
 * Factor conversion distinguishes close labelled scores and treats SPSS user-missing values as missing.
 
 * Factor conversion keeps close double values distinct when the input is protected with I().
