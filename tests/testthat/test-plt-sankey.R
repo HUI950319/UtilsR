@@ -825,3 +825,23 @@ test_that("Sankey labels reuse node codes with repeated captions", {
   expect_identical(as.character(p$data$label), as.vector(rbind(d$a, b)))
   expect_identical(levels(p$data$label), c("same", "A", "B", "NA"))
 })
+
+test_that("Sankey tallies distinguish explicit and missing codes in one pass", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = structure(rep(c(1L, 2L, NA_integer_, 1L), 100L),
+    levels = c("observed", NA_character_, "unused"), class = "factor"),
+    b = rep(c("red", "blue"), 200L))
+  expected <- suppressMessages(plt_sankey(d, c("a", "b"), show_text = "none", theme_use = ggplot2::theme_void()))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.integer(x) && length(x) == nrow(d))
+      stop("rescanned Sankey stage codes for missing values")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, c("a", "b"), show_text = "none", theme_use = ggplot2::theme_void()))
+  expect_identical(actual$data, expected$data)
+  expect_equal(sort(as.integer(table(actual$data$node[actual$data$x == "a_label"]))),
+               c(0L, 0L, 100L, 100L, 200L))
+})

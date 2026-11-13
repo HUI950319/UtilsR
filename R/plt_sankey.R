@@ -281,8 +281,8 @@ plt_sankey <- function(data,
     counts <- tabulate(codes, nbins = nlevels(value))
     observed <- which(counts > 0L)
     if (reverse_levels) observed <- rev(observed)
+    missing <- total - sum(counts)
     counts <- counts[observed]
-    missing <- sum(is.na(codes))
     if (missing) {
       observed <- c(observed, NA_integer_)
       counts <- c(counts, missing)
