@@ -418,6 +418,7 @@ plt_upset <- function(data,
     row_codes <- .upset_row_codes(set_list, nrow(data))
     row_keys <- row_codes + 1L
     counts <- tabulate(row_keys, nbins = length(group_names))
+    nintersects <- sum(counts[-1L] > 0L)
     region_order <- order(-counts[codes + 1L])
     ordered <- c(region_order, length(group_names))
     level_codes <- integer(length(group_names))
@@ -492,8 +493,10 @@ plt_upset <- function(data,
 
   p_upset <- NULL
   if (output %in% c("upset", "both", "all")) {
-    codes <- row_codes %||% .upset_row_codes(set_list)
-    nintersects <- length(unique(codes[codes != 0L]))
+    if (is.null(row_codes)) {
+      codes <- .upset_row_codes(set_list)
+      nintersects <- length(unique(codes[codes != 0L]))
+    }
     p_upset <- .safe_upset(set_list, nintersects, upset_colors)
   }
 

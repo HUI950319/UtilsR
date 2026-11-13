@@ -933,3 +933,18 @@ test_that("data-only UpSet grouping skips plotting key labels", {
   environment(fn) <- env
   expect_identical(fn(d, output = "data", set.labels = labels), expected)
 })
+
+test_that("combined UpSet plots reuse observed region counts", {
+  skip_if_not_installed("ggVennDiagram")
+  d <- data.frame(a = rep(c(TRUE, FALSE), 120L), b = rep(c(TRUE, TRUE, FALSE), 80L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(substitute(x), quote(codes[codes != 0L])))
+      stop("rescanned row codes for plotted intersection counts")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(plt_upset(d, c("a", "b"), levels = TRUE, output = "data")$intersect_group,
+    fn(d, c("a", "b"), levels = TRUE, output = "all")$data$intersect_group)
+})
