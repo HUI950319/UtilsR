@@ -272,3 +272,14 @@ test_that("complex observations fail before numeric bins are constructed", {
     expect_error(fct_num(x, nbins = 2), "real numeric")
   }
 })
+
+test_that("constant plain quantile inputs skip allocating probabilities", {
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  env$seq <- function(...) stop("allocated quantile probabilities for constant values")
+  environment(fn) <- env
+  for (x in list(rep(6L, 3L), c(6, NA, 6), rep(0, 3L))) {
+    expect_error(fn(x, nbins = 5000L), "Cannot split constant")
+  }
+  expect_identical(fn(c(1, NA, 6), breaks = 3), fct_num(c(1, NA, 6), breaks = 3))
+})

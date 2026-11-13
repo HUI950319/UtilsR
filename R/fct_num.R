@@ -198,6 +198,10 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
 
   if (type == "quantile") {
+    if (!is.null(plain_range) && is.finite(plain_range[1L]) &&
+        plain_range[1L] == plain_range[2L]) {
+      cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
+    }
     probs <- seq(0, 1, length.out = nbins + 1L)
     bin_breaks <- if (plain_x) {
       stats::quantile(x, probs = probs, na.rm = has_na, names = FALSE)
