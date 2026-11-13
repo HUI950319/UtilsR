@@ -645,3 +645,27 @@ test_that("KNN checks category collisions only for labelled doubles", {
   expect_identical(result$a, d$a)
   expect_identical(result$b, d$b)
 })
+
+test_that("KNN wholly missing rows avoid preparing a backend", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(value = c(seq_len(500L), NA_real_),
+    time = as.Date("2026-01-01") + c(seq_len(500L), NA_integer_),
+    category = haven::labelled_spss(c(rep(1:2, 250L), 99L), na_values = 99L),
+    row.names = paste0("patient-", seq_len(501L)))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$range <- function(x, ...) {
+    if (identical(x, d$value[-501L])) stop("prepared an unused KNN backend")
+    base::range(x, ...)
+  }
+  environment(fn) <- env
+  expect_warning(result <- fn(d, k = 2L, verbose = FALSE), "left 3 missing")
+  expect_warning(expected <- impute_na_knn(d, k = 2L, verbose = FALSE), "left 3 missing")
+  expect_identical(result, expected)
+  expect_identical(result$value, d$value)
+  expect_identical(result$time, d$time)
+  expect_identical(result$category[-501L], d$category[-501L])
+  expect_true(is.na(result$category[501L]))
+  expect_identical(rownames(result), rownames(d))
+})

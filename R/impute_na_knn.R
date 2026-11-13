@@ -275,49 +275,52 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   backend_data <- if (all(observed_rows)) data_for_impute else
     data_for_impute[observed_rows, , drop = FALSE]
-  names(backend_data) <- backend_names
-  backend_scales <- rep(1, ncol(backend_data))
-  backend_centers <- rep(0, ncol(backend_data))
-  for (j in seq_along(backend_data)) {
-    values <- backend_data[[j]]
-    if (!is.numeric(values)) next
-    bounds <- range(values, na.rm = TRUE)
-    if (all(is.finite(bounds)) && !is.finite(diff(bounds))) {
-      backend_scales[j] <- max(abs(bounds))
-      backend_data[[j]] <- values / backend_scales[j]
-    } else if (is.double(values) && !is.object(values) && all(is.finite(bounds)) &&
-               diff(bounds) > 0 && max(abs(bounds)) / diff(bounds) > 1 / sqrt(.Machine$double.eps)) {
-      # Center before the backend divides by range and subtracts distances.
-      backend_centers[j] <- bounds[1L]
-      backend_data[[j]] <- values - backend_centers[j]
-    }
-  }
   backend_variables <- backend_names[vapply(backend_data, anyNA, logical(1))]
-  backend_args <- list(
-    data = backend_data, variable = backend_variables, k = as.integer(k),
-    numFun = weighted_mean, catFun = weighted_category, weightDist = TRUE,
-    useImputedDist = TRUE, imp_var = FALSE, trace = FALSE
-  )
-  backend_formals <- names(formals(VIM::kNN))
-  if ("ordFun" %in% backend_formals) backend_args$ordFun <- weighted_ordered
-  if ("methodStand" %in% backend_formals) backend_args$methodStand <- "range"
-  result <- if (length(backend_variables)) withCallingHandlers(
-    do.call(VIM::kNN, backend_args),
-    warning = function(w) {
-      if (identical(conditionCall(w), quote(min(x[x > 0])))) invokeRestart("muffleWarning")
+  result <- data_for_impute
+  if (length(backend_variables)) {
+    names(backend_data) <- backend_names
+    backend_scales <- rep(1, ncol(backend_data))
+    backend_centers <- rep(0, ncol(backend_data))
+    for (j in seq_along(backend_data)) {
+      values <- backend_data[[j]]
+      if (!is.numeric(values)) next
+      bounds <- range(values, na.rm = TRUE)
+      if (all(is.finite(bounds)) && !is.finite(diff(bounds))) {
+        backend_scales[j] <- max(abs(bounds))
+        backend_data[[j]] <- values / backend_scales[j]
+      } else if (is.double(values) && !is.object(values) && all(is.finite(bounds)) &&
+                 diff(bounds) > 0 && max(abs(bounds)) / diff(bounds) > 1 / sqrt(.Machine$double.eps)) {
+        # Center before the backend divides by range and subtracts distances.
+        backend_centers[j] <- bounds[1L]
+        backend_data[[j]] <- values - backend_centers[j]
+      }
     }
-  ) else backend_data
-  for (j in which(backend_scales != 1 | backend_centers != 0)) {
-    original <- data_for_impute[[j]][observed_rows]
-    missing <- is.na(original)
-    original[missing] <- result[[j]][missing] * backend_scales[j] + backend_centers[j]
-    result[[j]] <- original
-  }
-  names(result) <- names(data_for_impute)
-  if (any(!observed_rows)) {
-    expanded <- data_for_impute
-    for (var_name in names(result)) expanded[[var_name]][observed_rows] <- result[[var_name]]
-    result <- expanded
+    backend_args <- list(
+      data = backend_data, variable = backend_variables, k = as.integer(k),
+      numFun = weighted_mean, catFun = weighted_category, weightDist = TRUE,
+      useImputedDist = TRUE, imp_var = FALSE, trace = FALSE
+    )
+    backend_formals <- names(formals(VIM::kNN))
+    if ("ordFun" %in% backend_formals) backend_args$ordFun <- weighted_ordered
+    if ("methodStand" %in% backend_formals) backend_args$methodStand <- "range"
+    result <- withCallingHandlers(
+      do.call(VIM::kNN, backend_args),
+      warning = function(w) {
+        if (identical(conditionCall(w), quote(min(x[x > 0])))) invokeRestart("muffleWarning")
+      }
+    )
+    for (j in which(backend_scales != 1 | backend_centers != 0)) {
+      original <- data_for_impute[[j]][observed_rows]
+      missing <- is.na(original)
+      original[missing] <- result[[j]][missing] * backend_scales[j] + backend_centers[j]
+      result[[j]] <- original
+    }
+    names(result) <- names(data_for_impute)
+    if (any(!observed_rows)) {
+      expanded <- data_for_impute
+      for (var_name in names(result)) expanded[[var_name]][observed_rows] <- result[[var_name]]
+      result <- expanded
+    }
   }
 
   for (var_name in names(factor_na_original)) {

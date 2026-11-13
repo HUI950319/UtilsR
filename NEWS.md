@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation avoids scaling and rebuilding the backend data when the only missing observations have no usable predictors.
+
 * Rasterization converts fixed physical gtable cells together and retains viewport measurement for relative units.
 
 * Confidence interval and SD formatting avoid allocating missing masks for complete ordinary numeric inputs.
