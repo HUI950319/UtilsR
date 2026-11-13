@@ -442,6 +442,7 @@ fmt_raster <- function(
     return(lapply(plot, .fmt_raster_image, dpi = dpi, width = width,
                   height = height, units = units, bg = bg))
   }
+  if (!is.object(plot)) cli::cli_abort("Image rasterization requires a drawable plot object.")
 
   # A missing dimension takes the open device's size (pdf.options() without
   # one), converted from inches to `units`.

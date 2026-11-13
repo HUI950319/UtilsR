@@ -769,3 +769,16 @@ test_that("raster text detection stops at the first text descendant", {
   p <- grid::grobTree(grid::rectGrob(), grid::rectGrob())
   expect_false(fn(p, p$name))
 })
+
+test_that("image rasterization rejects objects without a drawing class", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL)
+  before <- grDevices::dev.cur()
+  for (x in list(NULL, 1:3, "not a plot")) {
+    expect_error(invisible(capture.output(fmt_raster(x, method = "image", width = 1, height = 1, dpi = 20))),
+      "drawable")
+  }
+  expect_identical(grDevices::dev.cur(), before)
+  expect_s3_class(fmt_raster(grid::rectGrob(), method = "image", width = 1, height = 1, dpi = 20),
+    "patchwork")
+})

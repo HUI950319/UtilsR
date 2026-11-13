@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Image rasterization rejects unclassed non-plot values before opening a graphics device.
+
 * Background stripes map categorical positions and compute shared edges once per trained scale.
 
 * Strip formatting checks for wrapped panels while collecting editable leaves, without a separate patchwork traversal.
