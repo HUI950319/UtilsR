@@ -1194,10 +1194,9 @@ plt_cat <- function(data,
     pos <- ggplot2::position_stack(vjust = 0.5)
   }
 
-  # For trend/area: x-axis is continuous (x_num), not discrete
+  # The trend and area renderers already map the categories to coordinates.
   if (type %in% c("trend", "area")) {
-    plotdata[["x_num"]] <- as.numeric(factor(plotdata[[x_var]],
-                                             levels = levels(factor(plotdata[[x_var]]))))
+    plotdata[["x_num"]] <- p$data[["x_num"]]
     x_aes <- "x_num"
   } else {
     x_aes <- x_var

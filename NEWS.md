@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` reuses computed x coordinates for trend and area labels, including ordered groups and empty levels.
+
 * `pr_spark()` reuses factor codes for counts and missingness while retaining declared levels and their display order.
 
 * Table highlighting evaluates regex patterns on distinct values when a character column contains many repeats.

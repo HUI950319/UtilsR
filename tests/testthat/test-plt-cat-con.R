@@ -1433,3 +1433,24 @@ test_that("dense categorical counts tabulate existing factor codes", {
     if (mode == "percent") expect_equal(out$value, c(1/3, 2/3, 0, 0, rep(0, 7L), 1) * 100)
   }
 })
+
+test_that("categorical trend and area labels reuse plotted coordinates", {
+  d <- data.frame(
+    category = rep(c("", "present"), 4L),
+    group = factor(rep(c("later", "earlier", NA, "later"), each = 2L),
+                   levels = c("later", "unused", "earlier"), ordered = TRUE)
+  )
+  fn <- .add_cat_labels
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(...) stop("rebuilt categorical label coordinates")
+  environment(fn) <- env
+  local_mocked_bindings(.add_cat_labels = fn, .package = "UtilsR")
+  for (type in c("trend", "area")) for (keep_empty in c(FALSE, TRUE)) {
+    p <- cat_test_plot(d, "category", "group", type = type, stat = "count",
+                      NA_stat = TRUE, keep_empty = keep_empty, label = TRUE)
+    labels <- p$layers[[length(p$layers)]]$data
+    expect_true(length(p$data$x_num) > 0L)
+    expect_identical(labels$x_num, p$data$x_num)
+    expect_length(labels$label_text, nrow(p$data))
+  }
+})
