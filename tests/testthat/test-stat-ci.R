@@ -265,3 +265,17 @@ test_that("mixed confidence interval text formats only parsed rows", {
   x <- c("1.20 (0.90, 1.50)", rep(NA_character_, 40), "2.00 [1.00; 3.00]", "")
   expect_identical(fn(x), stat_ci(x))
 })
+
+test_that("complete numeric confidence interval formatting avoids missing masks", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.double(x) && length(x) == 500L && !anyNA(x)) stop("built a full numeric missing mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  x <- stats::setNames(as.double(seq_len(500L)), seq_len(500L))
+  expect_identical(fn(x, x - .5, x + .5), stat_ci(x, x - .5, x + .5))
+  expect_identical(fn(x, x / 2), stat_ci(x, x / 2))
+  expect_identical(fn(x[1:2], x[1:2] / 2, digits = 7900), stat_ci(x[1:2], x[1:2] / 2, digits = 7900))
+})

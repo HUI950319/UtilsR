@@ -188,7 +188,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_abort("All vectors must have the same length.")
     }
     d <- digits %||% 2L
-    observed <- !(is.na(x) | is.na(y) | is.na(z))
+    complete <- !is.object(x) && !is.object(y) && !is.object(z) &&
+      !anyNA(x) && !anyNA(y) && !anyNA(z)
+    observed <- if (complete) TRUE else !(is.na(x) | is.na(y) | is.na(z))
     .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     if (all(observed)) {
@@ -210,7 +212,8 @@ stat_ci <- function(x, y = NULL, z = NULL,
     cli::cli_abort("All vectors must have the same length.")
   }
   d <- digits %||% 1L
-  observed <- !(is.na(x) | is.na(y))
+  complete <- !is.object(x) && !is.object(y) && !anyNA(x) && !anyNA(y)
+  observed <- if (complete) TRUE else !(is.na(x) | is.na(y))
   .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   if (all(observed)) {

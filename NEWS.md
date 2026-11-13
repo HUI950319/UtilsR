@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval and SD formatting avoid allocating missing masks for complete ordinary numeric inputs.
+
 * Rasterization maps explicit panel dimensions to parent and nested panels in documented depth-first gtable order.
 
 * The main theme diagnoses invalid legend coordinates and position names at the theme call.
