@@ -402,8 +402,12 @@ grob_insert <- function(
       ref_b <- gt$layout$b[background]
       ref_l <- gt$layout$l[background]
       ref_r <- gt$layout$r[background]
-      if (inherits(plot, "ggplot") && !inherits(plot, "patchwork") &&
-          ref_t == 1L && ref_b == nrow(gt) && ref_l == 1L && ref_r == ncol(gt)) {
+      ggplot_layout <- inherits(plot, "ggplot") && !inherits(plot, "patchwork")
+      if (inherits(plot, "gtable") && identical(gt$name, "layout")) {
+        ggplot_layout <- all(c("title", "subtitle", "caption", "xlab-b", "ylab-l") %in% gt$layout$name)
+      }
+      if (ggplot_layout && ref_t == 1L && ref_b == nrow(gt) &&
+          ref_l == 1L && ref_r == ncol(gt)) {
         ref_t <- ref_t + 1L
         ref_b <- ref_b - 1L
         ref_l <- ref_l + 1L

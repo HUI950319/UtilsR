@@ -338,3 +338,17 @@ test_that("behind insets account for overlapping grobs with missing names", {
   result <- grob_insert(gt, grid::rectGrob(), on_top = FALSE)
   expect_equal(tail(result$layout$z, 1L), -11)
 })
+
+test_that("plot alignment matches for ggplots and their rendered gtables", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point() +
+    ggplot2::theme(plot.margin = ggplot2::margin(7, 11, 13, 17))
+  bounds <- function(x, align) {
+    row <- tail(grob_insert(x, grid::rectGrob(), align_to = align)$layout, 1L)
+    unname(unlist(row[c("t", "l", "b", "r")]))
+  }
+  for (plot in list(p, p + ggplot2::facet_wrap(ggplot2::vars(cyl)))) {
+    gt <- grob_as(plot)
+    expect_equal(bounds(gt, "plot"), bounds(plot, "plot"))
+    expect_equal(bounds(gt, "full"), bounds(plot, "full"))
+  }
+})
