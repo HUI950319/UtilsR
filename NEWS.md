@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` uses the same group labels for validation and left/right panel assembly.
+
 * `impute_na_knn()` restores complete integer64 predictors directly and converts only actual predictions.
 
 * `check_na()` counts only missing factor rows when called with `special = character()`.

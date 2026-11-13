@@ -244,7 +244,8 @@ PlotButterfly2 <- function(
   }
 
   # ---- Two groups ----
-  groups <- unique(as.character(data[[group.by]]))
+  group <- as.character(data[[group.by]])
+  groups <- unique(group)
   if (length(groups) != 2L)
     cli::cli_abort("{.arg group.by} must have exactly 2 levels, got {length(groups)}.")
 
@@ -256,7 +257,6 @@ PlotButterfly2 <- function(
   # ==================================================================
   if (is.null(fill.by) && !is_beeswarm) {
     category <- as.character(data[[stat.by]])
-    group <- as.character(data[[group.by]])
     left <- which(group == groups[1L])
     right <- which(group == groups[2L])
     common_ct <- intersect(category[left], category[right])

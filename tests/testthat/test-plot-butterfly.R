@@ -1161,3 +1161,28 @@ test_that("gradient butterfly shapes use observed factor codes", {
                      expected[[i]]$scales$get_scales("shape")$palette(2L))
   }
 })
+
+test_that("unfilled butterfly panels decode side labels once", {
+  d <- data.frame(item = rep(c("a", "b"), each = 6L), value = 1:12,
+                  side = factor(rep(c("r", "l"), 6L), levels = c("l", "unused", "r")))
+  draw <- function(fn) fn(d, stat.by = "item", value.by = "value",
+                          group.by = "side", type = "box")
+  expected <- draw(PlotButterfly2)
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  decodes <- 0L
+  env$as.character <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[group.by]]))) {
+      decodes <<- decodes + 1L
+      if (decodes > 1L) stop("decoded butterfly sides again")
+    }
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(decodes, 1L)
+  for (i in seq_along(expected)) {
+    expect_identical(ggplot2::ggplot_build(actual[[i]])$data,
+                     ggplot2::ggplot_build(expected[[i]])$data)
+  }
+})
