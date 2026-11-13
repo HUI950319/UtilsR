@@ -712,3 +712,11 @@ test_that("p-value text avoids deduplication for mostly unique samples", {
   expect_identical(fn(x, mode = "stars"), expected)
   expect_identical(fn(x[1:5], mode = "stars"), expected[1:5])
 })
+
+test_that("literal p-value bounds bypass decimal field width checks", {
+  x <- c(lower = ">-1", upper = ">1e308", missing = NA_character_, exact = "0.5")
+  out <- stat_pval(x, mode = "plain", digits = 8190L)
+  expect_identical(out[1:3], x[1:3])
+  expect_identical(unname(nchar(out[4L])), 8192L)
+  expect_error(stat_pval(c(">1e308", "-1"), mode = "plain", digits = 8190L), "8192-byte")
+})

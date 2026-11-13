@@ -256,14 +256,6 @@ stat_pval <- function(x,
     if (mode == "stars") .add_stars(x_num, map_signif)
     return(stats::setNames(character(), input_names))
   }
-  # A finite double needs at most 310 bytes before the decimal point.
-  if (d > 7881L) {
-    widths <- nchar(sprintf("%.0f", trunc(x_num[is.finite(x_num)])))
-    if (any(widths + 1L + d > 8192L)) {
-      cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number in {.arg x}.")
-    }
-  }
-
   # Reuse formatting work only for repeated ordinary numeric P-values.
   expand <- NULL
   if (mode != "plain" && is.numeric(x) && !is.object(x) && length(x_num) > 1024L &&
@@ -283,6 +275,13 @@ stat_pval <- function(x,
     format_x <- x_num[format_at]
   } else {
     format_x <- x_num
+  }
+  # A finite double needs at most 310 bytes before the decimal point.
+  if (d > 7881L) {
+    widths <- nchar(sprintf("%.0f", trunc(format_x[is.finite(format_x)])))
+    if (any(widths + 1L + d > 8192L)) {
+      cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number in {.arg x}.")
+    }
   }
   fmt <- sprintf("%%.%df", d)
   out <- sprintf(fmt, format_x)
