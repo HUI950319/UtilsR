@@ -5334,7 +5334,7 @@ fmt_his <- function(plot,
   }
   construct <- function(args) {
     tryCatch({
-      new <- do.call(fn, args)
+      new <- do.call(fn, args, quote = TRUE)
       limits <- new$limits
       if (inherits(new, c("ScaleContinuous", "ScaleBinnedPosition")) &&
           is.numeric(limits) && length(limits) == 2L && !anyNA(limits) && limits[1L] > limits[2L])

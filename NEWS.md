@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` retains plotmath titles and formula label functions through scale construction.
+
 * `check_size(method = "lobstr")` counts stored calls and symbols without evaluating them.
 
 * `plt_sankey()` matches plotted nodes once when applying stage labels and percentage thresholds.

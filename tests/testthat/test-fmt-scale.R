@@ -494,3 +494,19 @@ test_that("explicit position scales need no layer callback scan", {
   mixed <- fmt_scale(p, x = list(breaks = c(1L, 3L)), y = list(breaks = 2L))
   expect_identical(ggplot2::ggplot_build(mixed)$layout$panel_params[[1L]]$y$get_labels(), "2")
 })
+
+test_that("scale changes preserve plotmath axis titles as data", {
+  title <- quote(log[10](Dose))
+  d <- data.frame(x = 1:3, y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  inputs <- list(p + ggplot2::geom_point(),
+                 p + ggplot2::geom_point() + ggplot2::scale_x_continuous(name = "Old"),
+                 p + ggplot2::geom_point(data = identity))
+  for (input in inputs) {
+    output <- fmt_scale(input, x = list(name = title, breaks = 1:3, labels = ~ paste0(.x, "%")))
+    built <- ggplot2::ggplot_build(output)
+    expect_identical(built$plot$scales$get_scales("x")$name, title)
+    expect_identical(built$layout$panel_params[[1L]]$x$get_labels(), c("1%", "2%", "3%"))
+    expect_s3_class(ggplot2::ggplotGrob(output), "gtable")
+  }
+})
