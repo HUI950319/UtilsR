@@ -317,7 +317,7 @@ plt_cat <- function(data,
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.cls {class(data)}}.")
   }
-  data <- as.data.frame(data)
+  if (!inherits(data, "data.table")) data <- as.data.frame(data)
   if (!nrow(data)) cli::cli_abort("{.arg data} must contain at least one observation.")
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
     cli::cli_abort("{.arg data} must have unique, non-empty column names.")
@@ -413,7 +413,10 @@ plt_cat <- function(data,
 
   # --- Safety check for high-cardinality columns ------------------------------
   selected <- unique(c(stat.by, group.by, split.by, bg.by))
-  data <- data[, selected, drop = FALSE]
+  data <- if (inherits(data, "data.table")) {
+    vctrs::new_data_frame(stats::setNames(lapply(selected, function(nm) data[[nm]]), selected),
+                          n = nrow(data))
+  } else data[, selected, drop = FALSE]
   for (col in selected) {
     x <- data[[col]]
     if (!is.null(dim(x)) || (is.list(x) && !inherits(x, "POSIXlt"))) {

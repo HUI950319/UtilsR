@@ -1353,3 +1353,22 @@ test_that("categorical set palettes use observed factor codes", {
   expect_identical(result$scales$get_scales("fill")$palette(4L),
                    expected$scales$get_scales("fill")$palette(4L))
 })
+
+test_that("categorical plots project selected data.table columns without a full copy", {
+  skip_if_not_installed("data.table")
+  d <- data.frame(value = c("A", "B", "B", "A"), group = c("g1", "g1", "g2", "g2"))
+  table <- data.table::as.data.table(d)
+  table$payload <- lapply(seq_len(nrow(table)), function(i) raw(10000L))
+  before <- data.table::copy(table)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && "payload" %in% names(x)) stop("copied unused data.table columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(table, "value", "group", save = NULL))
+  expected <- cat_test_plot(d, "value", "group", save = NULL)
+  expect_identical(result$data, expected$data)
+  expect_identical(table, before)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` projects requested data.table columns before factor preparation.
+
 * Grob margins and insets share panel bounds calculated directly from the layout coordinates.
 
 * Single-stratum point sampling reuses factor codes while keeping seeded row order.
