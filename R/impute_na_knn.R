@@ -327,14 +327,15 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     result[[var_name]] <- restored
   }
   for (var_name in names(labelled_original)) {
-    values <- result[[var_name]]
-    codes <- if (is.factor(values)) as.integer(values) else
-      match(as.character(values), levels(data_for_impute[[var_name]]))
-    values <- labelled_lookup[[var_name]][codes]
     original <- labelled_original[[var_name]]
     missing <- is.na(original)
-    original[missing] <- values[missing]
-    attributes(original) <- attributes(labelled_original[[var_name]])
+    if (any(missing)) {
+      values <- result[[var_name]][missing]
+      codes <- if (is.factor(values)) as.integer(values) else
+        match(as.character(values), levels(data_for_impute[[var_name]]))
+      original[missing] <- labelled_lookup[[var_name]][codes]
+      attributes(original) <- attributes(labelled_original[[var_name]])
+    }
     result[[var_name]] <- original
   }
   for (var_name in names(integer64_original)) {

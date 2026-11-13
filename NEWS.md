@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation translates only imputed labelled values back to their original storage and retains complete predictors unchanged.
+
 * KNN imputation maps backend factor codes back to original levels only for the missing observations.
 
 * Factor combinations filter incomplete rows before encoding ordinary factors, retaining ordered and explicit NA levels.

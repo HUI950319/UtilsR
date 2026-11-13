@@ -603,3 +603,24 @@ test_that("KNN restores explicit missing factor levels only for imputed rows", {
   expect_identical(as.integer(tail(result$f, 1L)), 2L)
   expect_identical(attributes(result$f), attributes(f))
 })
+
+test_that("KNN labelled restoration leaves complete predictors on their original storage", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  n <- 120L
+  d <- data.frame(x = c(NA, 2:n),
+    group = haven::labelled(rep(c("alpha", "beta"), length.out = n), c(A = "alpha")))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x) && length(x) == n &&
+        any(vapply(sys.calls(), function(call) grepl("^as.integer\\(values\\)", deparse1(call)),
+                   logical(1)))) stop("decoded complete labelled predictions")
+    base::as.integer(x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(result, impute_na_knn(d, k = 1L, verbose = FALSE))
+  expect_identical(result$group, d$group)
+  expect_false(anyNA(result$x))
+})
