@@ -457,3 +457,19 @@ test_that("scale inference reads only the requested mapped axis", {
   expect_identical(.detect_scale_type(p, "x", defer = TRUE), "scale_x_date")
   expect_identical(.detect_scale_type(p, "y", defer = TRUE), "scale_y_continuous")
 })
+
+test_that("position scale changes read only requested fields for literal settings", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::scale_x_continuous(breaks = 1:3)
+  fn <- fmt_scale
+  env <- new.env(parent = environment(fn))
+  env$as.list <- function(x, ...) {
+    if (inherits(x, "ScaleContinuousPosition")) stop("enumerated all scale fields")
+    base::as.list(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(p, x = list(breaks = 1:3))$scales, p$scales)
+  updated <- fn(p, x = list(labels = c("one", "two", "three")))
+  expect_identical(x_params(updated)$get_labels(), c("one", "two", "three"))
+  expect_identical(x_params(p)$get_labels(), as.character(1:3))
+})

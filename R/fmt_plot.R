@@ -5515,8 +5515,14 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       } else if (!is.null(scale)) {
         fields <- .update_position_scale(scale, args, axis, .detect_scale_type(p, axis),
                                           fields_only = TRUE)
-        original_fields <- as.list(scale, all.names = TRUE)
-        changed <- names(fields)[!vapply(names(fields), function(f) identical(original_fields[[f]], fields[[f]]), logical(1))]
+        # Callable ggproto members are wrapped on direct access.
+        original_fields <- if (any(vapply(fields, is.function, logical(1))))
+          as.list(scale, all.names = TRUE)
+        same <- vapply(names(fields), function(field) {
+          original <- if (is.null(original_fields)) scale[[field]] else original_fields[[field]]
+          identical(original, fields[[field]])
+        }, logical(1))
+        changed <- names(fields)[!same]
         if (!length(changed)) next
         if (!scales_cloned) {
           p$scales <- .clone_plot_scales(p$scales)

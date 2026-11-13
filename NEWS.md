@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` compares explicit numeric and text fields without materializing every inherited scale member.
+
 * `check_system()` retains readable Linux metadata when a release or CPU file cannot be read.
 
 * `check_system()` ignores failed `free` and WMIC queries even when their output resembles valid data.
