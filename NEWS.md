@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` reorders cells by row in one index pass and keeps the order within incomplete rows.
+
 * `PlotHeatmapJaccard()` indexes ordinary factor groups through their level labels without decoding the full group column.
 
 * `pr_box()` normalizes CRLF line endings before wrapping unlabelled text.

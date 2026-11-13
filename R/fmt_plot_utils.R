@@ -488,11 +488,11 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
         nrow_inds_order < 1 || nrow_inds_order > length(all_subplots)) {
       cli::cli_abort("{.arg nrow_inds_order} must be a single positive integer no larger than the number of selected plots.")
     }
-    inds_order <- unlist(lapply(
-      seq_len(nrow_inds_order),
-      function(i) seq(i, length(all_subplots), by = nrow_inds_order)
-    ))
-    all_subplots <- all_subplots[inds_order]
+    n <- length(all_subplots)
+    if (nrow_inds_order > 1L && nrow_inds_order < n) {
+      rows <- (seq_len(n) - 1L) %% as.integer(nrow_inds_order)
+      all_subplots <- all_subplots[order(rows, method = "radix")]
+    }
   }
 
   layout_args <- list()

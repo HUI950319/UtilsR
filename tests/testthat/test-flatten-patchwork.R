@@ -419,3 +419,15 @@ test_that("flattening large plot lists does not copy accumulated cells", {
   expect_length(result, n)
   expect_identical(result[[n]]$labels$title, "last")
 })
+
+test_that("flattened cells use one stable row order", {
+  plots <- lapply(seq_len(8L), function(i) ggplot2::ggplot() + ggplot2::labs(title = paste0("p", i)))
+  fn <- fmt_flatten
+  env <- new.env(parent = environment(fn))
+  env$seq <- function(...) stop("built row indices one row at a time")
+  environment(fn) <- env
+  labels <- function(p) vapply(seq_along(p), function(i) p[[i]]$labels$title, "")
+  result <- fn(plots, select_inds = c(8, 2, 4, 5, 1, 7, 3), nrow_inds_order = 3L)
+  expect_identical(labels(result), paste0("p", c(8, 5, 3, 2, 1, 4, 7)))
+  for (n in c(1L, 8L)) expect_identical(labels(fn(plots, nrow_inds_order = n)), paste0("p", seq_len(8L)))
+})
