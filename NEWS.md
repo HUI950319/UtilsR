@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette catalogue headings use one console width for layout and rendering within each listing.
+
 * Formula notices classify integer64 outcomes after excluding encoded missing values, including in a fresh R process.
 
 * KNN imputation inspects data.table missingness before allocating a plain copy for the backend.

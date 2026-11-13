@@ -2854,3 +2854,22 @@ test_that("opaque palette swatches use RGB without trimming alpha", {
     c("#FF0000", "#11223380", "#FFFFFF00", "#FFFFFF00"))
   expect_identical(fn(character()), character())
 })
+
+test_that("palette catalogue headings reuse the resolved console width", {
+  fn <- pal_list
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$console_width <- function() {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("queried console width for another heading")
+    80L
+  }
+  original <- .pal_print_heading
+  environment(original) <- env
+  env$.pal_print_heading <- original
+  environment(fn) <- env
+  withr::local_options(cli.width = 80L)
+  expected <- capture.output(pal_list("^(Set1|Set2|Set3)$", show = FALSE))
+  expect_identical(capture.output(fn("^(Set1|Set2|Set3)$", show = FALSE)), expected)
+  expect_identical(calls, 1L)
+})

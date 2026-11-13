@@ -331,19 +331,20 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
     cli::cli_inform("No palettes matched.")
     return(invisible(list()))
   }
+  width <- min(console_width(), 80L)
   for (nm in names(pals)) {
     tp <- attr(pals[[nm]], "type") %||% "?"
     cat("\n")
-    .pal_print_heading(nm, length(pals[[nm]]), tp)
+    .pal_print_heading(nm, length(pals[[nm]]), tp, width)
     if (show) show_color(pals[[nm]])
   }
   invisible(pals)
 }
 
-.pal_print_heading <- function(name, n, type) {
+.pal_print_heading <- function(name, n, type, width) {
   title <- sprintf("%s (%s colours, %s)", name, n, type)
-  if (nchar(._pr_escape(title), type = "width") <= min(console_width(), 80L) - 6L) {
-    pr_section(title)
+  if (nchar(._pr_escape(title), type = "width") <= width - 6L) {
+    pr_section(title, width = width)
   } else {
     ._pr_out(._pr_escape(name))
     metadata <- sprintf("%s colours, %s", n, type)
@@ -1257,10 +1258,11 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 
   # --- Console output ---
   if (output == "console") {
+    width <- min(console_width(), 80L)
     for (nm in names(pals)) {
       tp <- attr(pals[[nm]], "type") %||% "?"
       cat("\n")
-      .pal_print_heading(nm, n_label[[nm]], tp)
+      .pal_print_heading(nm, n_label[[nm]], tp, width)
       show_color(pals[[nm]])
     }
     return(invisible(pals))
