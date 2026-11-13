@@ -707,15 +707,16 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   headers <- names(data)
   headers[is.na(headers)] <- "<NA>"
   headers <- ._pr_escape(headers)
-  col_w <- vapply(seq_along(cells), function(j) {
-    max(cli::ansi_nchar(c(headers[j], cells[[j]]), type = "width"))
+  cell_w <- vapply(cells, function(column) {
+    max(c(0L, cli::ansi_nchar(column, type = "width")))
   }, numeric(1))
+  col_w <- pmax(cli::ansi_nchar(headers, type = "width"), cell_w)
   gap <- 2L
   if (length(keep) > 1L) gap <- min(gap, max(0L, floor((avail - length(keep)) / (length(keep) - 1L))))
   if (sum(col_w[keep]) + gap * (length(keep) - 1L) > avail) {
     # Shorten required headings before sacrificing P-value contents.
     for (j in setdiff(keep, 1L)) {
-      col_w[j] <- min(col_w[j], max(c(1L, cli::ansi_nchar(cells[[j]], type = "width"))))
+      col_w[j] <- min(col_w[j], max(1L, cell_w[j]))
     }
     col_w[1] <- min(col_w[1], max(1L, avail - sum(col_w[setdiff(keep, 1L)]) - gap * (length(keep) - 1L)))
     over <- sum(col_w[keep]) + gap * (length(keep) - 1L) - avail

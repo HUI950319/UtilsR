@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` caches cell widths for required P-value columns during narrow layouts.
+
 * Palette catalogue previews reject malformed colour encodings without emitting native regex warnings.
 
 * Image rasterization checks list entries before opening capture devices for valid siblings.

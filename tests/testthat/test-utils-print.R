@@ -1856,3 +1856,19 @@ test_that("impossible console widths fail before formatting cells", {
   expect_error(fn(d, p_col = "p", width = 3L), "one character per required column")
   expect_length(capture.output(fn(d["id"], width = 3L)), 4L)
 })
+
+test_that("narrow console tables reuse measured P-value cell widths", {
+  withr::local_options(cli.num_colors = 1L)
+  d <- data.frame(id = c("aaa", "bbb"), very_long_p_value_heading = c(.025, .125))
+  draw <- function() capture.output(pr_table(d, p_col = "very_long_p_value_heading", width = 15))
+  expected <- draw()
+  ansi_nchar <- cli::ansi_nchar
+  seen <- list()
+  local_mocked_bindings(ansi_nchar = function(x, type = "chars") {
+    if (type == "width" && any(grepl("0.025", cli::ansi_strip(x), fixed = TRUE)))
+      seen[[length(seen) + 1L]] <<- cli::ansi_strip(x)
+    ansi_nchar(x, type = type)
+  }, .package = "cli")
+  expect_identical(draw(), expected)
+  expect_length(seen, 3L)
+})
