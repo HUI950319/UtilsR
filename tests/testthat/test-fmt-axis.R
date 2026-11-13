@@ -479,3 +479,14 @@ test_that("axis layout computes cell bounds without slicing individual frames", 
   environment(fn) <- env
   expect_identical(axis_hidden_indices(fn(layout, plot_dims = c(2, 2))), reference)
 })
+
+test_that("repeated axis hiding keeps matching guide prototypes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::scale_x_continuous(
+      guide = ggplot2::guide_axis(theme = ggplot2::theme(axis.text.x = ggplot2::element_text(colour = "red"))))
+  a <- fmt_axis(p, x.axis = TRUE)
+  b <- fmt_axis(a, x.axis = TRUE)
+  expect_identical(a$scales$get_scales("x")$guide, b$scales$get_scales("x")$guide)
+  expect_identical(axis_grob_labels(ggplot2::ggplotGrob(a)), axis_grob_labels(ggplot2::ggplotGrob(b)))
+  expect_identical(p$scales$get_scales("x")$guide$params$theme$axis.text.x$colour, "red")
+})

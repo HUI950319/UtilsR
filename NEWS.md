@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axis()` preserves axis guide prototypes when their theme already has the requested hiding settings.
+
 * `pr_table()` caches cell widths for required P-value columns during narrow layouts.
 
 * Palette catalogue previews reject malformed colour encodings without emitting native regex warnings.

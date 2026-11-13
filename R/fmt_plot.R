@@ -303,7 +303,9 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   hide_guide_theme <- function(guide, axis_theme) {
     if (!inherits(guide, "Guide") || is.null(guide$params$theme)) return(guide)
     params <- guide$params
-    params$theme <- params$theme + axis_theme
+    updated <- params$theme + axis_theme
+    if (identical(updated, params$theme)) return(guide)
+    params$theme <- updated
     ggplot2::ggproto(NULL, guide, params = params)
   }
   for (i in which(hide_x | hide_y)) {
