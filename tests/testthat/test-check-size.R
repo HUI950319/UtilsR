@@ -510,3 +510,18 @@ test_that("object size reports filter and order measured objects in one slice", 
   result <- check_size(envir = data, method = "object.size")[["_data"]]
   expect_identical(result$Object, c("**TOTAL**", "large", "A", "B"))
 })
+
+test_that("single-object size reports do not measure the same value twice", {
+  skip_if_not_installed("lobstr")
+  e <- list2env(list(one = 1:1000), parent = emptyenv())
+  measure <- lobstr::obj_size
+  reads <- 0L
+  local_mocked_bindings(obj_size = function(...) {
+    reads <<- reads + 1L
+    if (reads > 1L) stop("measured the only object twice")
+    measure(...)
+  }, .package = "lobstr")
+  out <- check_size(envir = e, method = "lobstr")
+  expect_identical(reads, 1L)
+  expect_equal(out[["_data"]]$Size[1L], out[["_data"]]$Size[2L])
+})
