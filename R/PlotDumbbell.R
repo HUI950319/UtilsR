@@ -471,19 +471,13 @@ PlotDumbbell <- function(
 
   # ---- Labels and theme ----
   thm <- .resolve_theme(theme_use %||% ggplot2::theme_classic)
-  p <- p +
-    ggplot2::labs(x = x_label, y = y_label, title = title) +
-    thm +
+  legend <- if (is.numeric(leg_position)) {
+    ggplot2::theme(legend.position = "inside", legend.position.inside = leg_position,
+                   legend.justification = as.numeric(leg_position > 0.5))
+  } else {
     ggplot2::theme(legend.position = leg_position)
-
-  # Inside-plot legends need justification
-  if (is.numeric(leg_position)) {
-    just_x <- ifelse(leg_position[1] > 0.5, 1, 0)
-    just_y <- ifelse(leg_position[2] > 0.5, 1, 0)
-    p <- p + ggplot2::theme(
-      legend.justification = c(just_x, just_y)
-    )
   }
+  p <- p + ggplot2::labs(x = x_label, y = y_label, title = title) + thm + legend
 
   # Apply legend_theme (e.g., theme_legend1())
   if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {

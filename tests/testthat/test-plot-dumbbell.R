@@ -863,3 +863,20 @@ test_that("ordinary numeric dumbbell insets assemble paired values directly", {
     .group = factor(rep(c("Value", "Value.1"), each = 4L), levels = c("Value", "Value.1")),
     .value = c(d$start, d$end)))
 })
+
+test_that("dumbbell coordinate legends use native inside positioning", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  native <- ggplot2::theme
+  testthat::local_mocked_bindings(theme = function(...) {
+    args <- list(...)
+    if (is.numeric(args[["legend.position"]])) stop("deprecated coordinates")
+    native(...)
+  }, .package = "ggplot2")
+  for (pos in list("tr", c(.25, .75))) {
+    p <- dumbbell_plot(d, legend_pos = pos)
+    expected <- if (is.character(pos)) c(.85, .85) else pos
+    expect_identical(p$theme$legend.position, "inside")
+    expect_identical(p$theme$legend.position.inside, expected)
+    expect_identical(p$theme$legend.justification, as.numeric(expected > .5))
+  }
+})

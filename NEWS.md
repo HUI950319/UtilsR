@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell plots use ggplot2's current inside-legend interface for coordinate and corner positions.
+
 * Confidence interval parsing skips token and precision extraction when every input lacks interval syntax.
 
 * Variable reports look for a conflicting blank label only when an empty category is present.
