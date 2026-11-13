@@ -113,9 +113,9 @@ test_that("Windows diagnostics obtain memory and CPU with PowerShell CIM", {
 
 test_that("failed or malformed CIM queries retain the legacy Windows fallback", {
   for (response in list(structure("CIM unavailable", status = 1L),
-                       c('"Caption"', '"Windows"'),
+                       c('"Unrecognized"', '"Windows"'),
                        c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
-                         '"invalid","1024","Windows","10","CPU"'))) {
+                         '"invalid","1024","","",""'))) {
     query_count <- 0L
     legacy_queries <- character()
     env <- new.env(parent = environment(check_system))
@@ -622,5 +622,26 @@ test_that("Linux metadata survives independent file read errors", {
     expect_identical(result$system_info$os_full_name, if (blocked == "/etc/os-release")
       "Readable secondary release" else "Readable primary release")
     expect_identical(result$cpu$name, if (blocked == "/proc/cpuinfo") "Unknown" else "Fixture CPU")
+  }
+})
+
+test_that("Windows CIM metadata survives unusable memory fields", {
+  outputs <- list(
+    c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+      '"invalid","1024","Working CIM metadata","12.2","Working CIM CPU"'),
+    c('"Caption","Version","CpuName"', '"Working CIM metadata","12.2","Working CIM CPU"')
+  )
+  for (cim in outputs) {
+    query <- .check_system_fixture(os = "Windows", cim = cim, legacy = list(
+      "wmic OS get TotalVisibleMemorySize /Value" = "TotalVisibleMemorySize=8388608",
+      "wmic OS get FreePhysicalMemory /Value" = "FreePhysicalMemory=2097152",
+      "wmic os get Caption,Version /format:list" = c("Caption=Windows fixture", "Version=10.0"),
+      "wmic cpu get Name /format:list" = "Name=Fixture CPU"))
+    utils::capture.output(result <- query(return_result = TRUE))
+    expect_identical(result$system_info$os_full_name, "Working CIM metadata")
+    expect_identical(result$system_info$os_version, "12.2")
+    expect_identical(result$cpu$name, "Working CIM CPU")
+    expect_identical(result$system_memory, list(total_gb = 8, used_gb = 6, free_gb = 2,
+                                              usage_percent = 75))
   }
 })

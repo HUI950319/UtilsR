@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` keeps readable CIM metadata when Windows memory measurements require a WMIC fallback.
+
 * `fmt_scale()` retains plotmath titles and formula label functions through scale construction.
 
 * `check_size(method = "lobstr")` counts stored calls and symbols without evaluating them.

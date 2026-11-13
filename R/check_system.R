@@ -137,15 +137,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
                               colClasses = "character", encoding = "UTF-8")
       fields <- c("TotalVisibleMemorySize", "FreePhysicalMemory", "Caption",
                   "Version", "CpuName")
-      if (nrow(info) != 1L || !all(fields[1:2] %in% names(info)))
-        stop("Incomplete Windows CIM result.")
+      if (nrow(info) != 1L) stop("Incomplete Windows CIM result.")
       for (field in setdiff(fields, names(info))) info[[field]] <- NA_character_
-      memory <- suppressWarnings(as.numeric(info[1L, fields[1:2]]))
-      if (is.null(native_memory) &&
-          (any(!is.finite(memory)) || memory[1L] <= 0 ||
-           memory[2L] < 0 || memory[2L] > memory[1L])) {
-        stop("Invalid Windows CIM memory result.")
-      }
       info
     }, error = function(e) NULL)
   }
@@ -160,10 +153,11 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     tryCatch({
       if (!is.null(native_memory)) return(native_memory)
       if (.Platform$OS.type == "windows") {
-        if (!is.null(windows_info)) {
-          total_mem_kb <- as.numeric(windows_info[["TotalVisibleMemorySize"]])
-          free_mem_kb <- as.numeric(windows_info[["FreePhysicalMemory"]])
-        } else {
+        total_mem_kb <- as.numeric(windows_info[["TotalVisibleMemorySize"]])
+        free_mem_kb <- as.numeric(windows_info[["FreePhysicalMemory"]])
+        if (length(total_mem_kb) != 1L || length(free_mem_kb) != 1L ||
+            !is.finite(total_mem_kb) || !is.finite(free_mem_kb) ||
+            total_mem_kb <= 0 || free_mem_kb < 0 || free_mem_kb > total_mem_kb) {
           total_cmd <- "wmic OS get TotalVisibleMemorySize /Value"
           free_cmd <- "wmic OS get FreePhysicalMemory /Value"
 
