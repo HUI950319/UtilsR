@@ -772,3 +772,14 @@ test_that("coordinate expansion warnings follow the requested and flipped axis",
     expect_no_warning(fmt_expand(q, axis = "x"))
   }
 })
+
+test_that("coordinate numeric flags receive the same expansion warning as logical flags", {
+  d <- data.frame(x = 1:3, y = 4:6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  blocked <- p + ggplot2::coord_cartesian(expand = 0)
+  enabled <- p + ggplot2::coord_cartesian(expand = 1)
+  expect_warning(output <- fmt_expand(blocked, axis = "x", add = 1), "expand = FALSE")
+  expect_equal(ggplot2::ggplot_build(output)$layout$panel_params[[1L]]$x.range, c(1, 3))
+  expect_no_warning(output <- fmt_expand(enabled, axis = "x", add = 1))
+  expect_equal(ggplot2::ggplot_build(output)$layout$panel_params[[1L]]$x.range, c(0, 4))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_expand()` reports when a coordinate system disables the requested padding with a numeric zero flag.
+
 * `fmt_scale()` updates or clears `continuous.limits` on discrete position scales that support it.
 
 * `fmt_scale()` applies the most recent temporal breaks, labels and minor breaks when aliases are mixed across calls.

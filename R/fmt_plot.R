@@ -5619,6 +5619,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   coord_ignores <- FALSE
   fmt_expand_one <- function(p) {
     expand <- p$coordinates$expand
+    if (is.numeric(expand) && all(expand %in% c(0, 1))) expand <- as.logical(expand)
     if (!coord_ignores && is.logical(expand) && length(expand) && !anyNA(expand)) {
       if (is.null(names(expand))) {
         sides <- rep_len(expand, 4L)
