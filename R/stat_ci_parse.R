@@ -442,16 +442,16 @@ stat_ci_parse <- function(x,
     ok <- pos
   }
 
-  # Asymmetry a = |hi + lo - 2 est| / (hi - lo) on each scale, and r = the
-  # part of it that rounding alone can produce
-  a_lin <- abs(hi + lo - 2 * est) / (hi - lo)
-  r_lin <- ((ul + uh) / 2 + ue) / (hi - lo)
+  # Compare the two half-widths before subtracting to preserve small differences.
+  span <- hi - lo
+  a_lin <- abs((hi - est) - (est - lo)) / span
+  r_lin <- (ul / 2 + uh / 2 + ue) / span
   wide <- which(ok & is.finite(est) & is.finite(lo) & is.finite(hi) &
-                  (!is.finite(a_lin) | !is.finite(r_lin)))
+                  (!is.finite(span) | !is.finite(a_lin) | !is.finite(r_lin)))
   if (length(wide)) {
     magnitude <- pmax(abs(est[wide]), abs(lo[wide]), abs(hi[wide]))
     e <- est[wide] / magnitude; l <- lo[wide] / magnitude; h <- hi[wide] / magnitude
-    a_lin[wide] <- abs(h + l - 2 * e) / (h - l)
+    a_lin[wide] <- abs((h - e) - (e - l)) / (h - l)
     r_lin[wide] <- (ul[wide] / magnitude / 2 + uh[wide] / magnitude / 2 +
                      ue[wide] / magnitude) / (h - l)
   }

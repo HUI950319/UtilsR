@@ -764,3 +764,12 @@ test_that("tiny positive confidence levels retain finite inferred p-values", {
                stats::setNames(expected, names(x)), tolerance = 1e-13)
   expect_identical(stat_ci_parse("0 (-1, 1)", output = "p", exp = FALSE, level = level), 1)
 })
+
+test_that("linear interval asymmetry survives large common offsets", {
+  x <- "1000000000000000.0000 (999999999999999.8750, 1000000000000000.2500)"
+  expect_warning(out <- stat_ci_parse(x, exp = FALSE, level = .9, digits = 4),
+                 "not symmetric")
+  expect_identical(out, x)
+  symmetric <- "1000000000000000.0000 (999999999999999.7500, 1000000000000000.2500)"
+  expect_no_warning(stat_ci_parse(symmetric, exp = FALSE, level = .9, digits = 4))
+})
