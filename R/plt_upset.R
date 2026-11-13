@@ -225,6 +225,12 @@ plt_upset <- function(data,
       selected[usable] <- bit64::as.integer64(values[usable]) %in% query
       return(selected)
     }
+    if (is.character(query) && !is.object(query) &&
+        (identical(class(values), "factor") || identical(class(values), c("ordered", "factor")))) {
+      selected <- (base::levels(values) %in% query)[as.integer(values)]
+      if (anyNA(selected)) selected[is.na(selected)] <- NA_character_ %in% query
+      return(selected)
+    }
     if (is.factor(values) && is.factor(query)) {
       pool <- unique(c(base::levels(values), base::levels(query)))
       values <- match(base::levels(values), pool)[as.integer(values)]

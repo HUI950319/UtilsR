@@ -889,3 +889,20 @@ test_that("UpSet matches scalar time storage without formatting row keys", {
   expect_identical(as.character(fn(d, vars = names(d), levels = as.difftime(3600, units = "secs"),
                                   output = "data")$intersect_group), c("A/B", "None", "B"))
 })
+
+test_that("UpSet character selectors match ordinary factor levels once", {
+  d <- data.frame(A = factor(rep(c("yes", "no", NA, "NA"), 200L), exclude = NULL),
+    B = ordered(rep(c("Yes", "NO", "yes", NA), 200L)))
+  is.na(d$A)[7L] <- TRUE
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (is.factor(x) && length(x) == nrow(d) && is.character(table)) stop("matched all factor rows")
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  for (query in list(c("Yes", "yes"), c("NA", NA), "no")) {
+    expect_identical(fn(d, c("A", "B"), levels = query, output = "data"),
+      plt_upset(d, c("A", "B"), levels = query, output = "data"))
+  }
+})
