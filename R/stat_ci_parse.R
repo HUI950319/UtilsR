@@ -163,7 +163,7 @@ stat_ci_parse <- function(x,
   if (!is.null(digits)) d[] <- as.integer(digits)
 
   # Warn about unparseable elements (NA and "" pass through silently)
-  n_fail <- sum(grepl("[^\\h\\v]", x[!valid], perl = TRUE))
+  n_fail <- .ci_unparsed_count(x[!valid])
   if (n_fail > 0L) {
     cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
   }
@@ -348,7 +348,14 @@ stat_ci_parse <- function(x,
 # ---- Internal helpers (not exported) ----
 
 #' @noRd
+.ci_unparsed_count <- function(text) {
+  bad <- !validEnc(text) | Encoding(text) == "bytes"
+  sum(bad) + sum(grepl("[^\\h\\v]", text[!bad], perl = TRUE))
+}
+
 .ci_extract <- function(x) {
+  bad <- !validEnc(x) | Encoding(x) == "bytes"
+  if (any(bad)) x[bad] <- NA_character_
   n <- length(x)
   if (n > 1024L &&
       length(unique(x[seq.int(1L, n, length.out = 1024L)])) < 512L) {

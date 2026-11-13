@@ -800,3 +800,19 @@ test_that("interval dash normalization visits only strings with Unicode dashes",
   expect_identical(fn(x), expected)
   expect_true(all(expected$valid[501:502]))
 })
+
+test_that("interval formatters isolate malformed text encodings", {
+  for (encoding in c("UTF-8", "bytes")) {
+    bad <- rawToChar(as.raw(255L))
+    Encoding(bad) <- encoding
+    x <- c(good = "1 (0, 2)", bad = bad, blank = "", missing = NA_character_)
+    expect_warning(out <- stat_ci_parse(x, exp = FALSE, digits = 2), "1 element.*could not")
+    expect_identical(out[["good"]], "1.00 (0.00, 2.00)")
+    expect_identical(out[["bad"]], bad)
+    expect_warning(p <- stat_ci_parse(x, exp = FALSE, output = "p"), "1 element.*could not")
+    expect_true(is.finite(p[["good"]]))
+    expect_true(is.na(p[["bad"]]))
+    expect_warning(formatted <- stat_ci(x, digits = 2), "1 element.*could not")
+    expect_identical(formatted[["bad"]], bad)
+  }
+})

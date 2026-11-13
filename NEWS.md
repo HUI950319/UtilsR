@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval formatters preserve malformed text bytes as unparsed rows while continuing to process valid intervals.
+
 * `pr_table()` diagnoses impossible column widths before formatting the cells.
 
 * `pr_spark()` describes zero-cell packed columns as empty.
