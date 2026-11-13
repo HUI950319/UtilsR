@@ -52,7 +52,9 @@
 #' @noRd
 .to_plot_list <- function(plot, recurse = FALSE) {
   if (recurse) {
-    info <- .to_plot_list(plot)
+    info <- if (inherits(plot, "patchwork")) {
+      list(plots = NULL, is_patchwork = TRUE, is_single = FALSE, pw_orig = plot)
+    } else .to_plot_list(plot)
     plots <- list()
     invisible(.map_plot_leaves(plot, function(p) {
       plots[[length(plots) + 1L]] <<- p

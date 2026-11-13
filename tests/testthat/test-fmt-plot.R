@@ -138,3 +138,15 @@ test_that("strip formatting validates wrapped panels during leaf collection", {
   expect_s3_class(fn(nested / p), "patchwork")
   expect_error(fn(nested / patchwork::wrap_elements(grid::rectGrob())), "wrap_elements")
 })
+
+test_that("recursive plot inspection walks patchwork leaves only once", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  pw <- patchwork::wrap_plots(p, patchwork::plot_spacer(), patchwork::wrap_plots(p, p))
+  expected <- .to_plot_list(pw, recurse = TRUE)
+  fn <- .to_plot_list
+  env <- new.env(parent = environment(fn))
+  env$.to_plot_list <- function(...) stop("scanned patchwork children before visiting leaves")
+  environment(fn) <- env
+  expect_identical(fn(pw, recurse = TRUE), expected)
+  expect_length(expected$plots, 3L)
+})
