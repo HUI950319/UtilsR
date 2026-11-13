@@ -202,6 +202,7 @@
   unlist(lapply(seq_along(keys), function(i) {
     value <- vals[[i]]
     segs <- if (grepl("\n", value, fixed = TRUE)) {
+      value <- gsub("\r\n", "\n", value, fixed = TRUE)
       cli::ansi_strsplit(paste0(value, "\n"), "\n", fixed = TRUE)[[1L]]
     } else value
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
@@ -366,6 +367,7 @@ pr_note <- function(..., .envir = parent.frame()) {
   raw  <- paste0(...)
   if (!length(raw)) return(._pr_out(character()))
   # line by line: format_inline() and ansi_strwrap() would join the lines
+  raw <- gsub("\r\n", "\n", raw, fixed = TRUE)
   segs <- unlist(lapply(cli::ansi_strsplit(raw, "\n", fixed = TRUE),
                         function(s) if (length(s)) s else ""))
   width <- max(1L, console_width() - 2L)

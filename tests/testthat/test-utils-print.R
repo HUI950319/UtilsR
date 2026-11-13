@@ -1778,3 +1778,21 @@ test_that("notes share one console width across wrapped lines", {
   expect_identical(capture.output(fn(msg, .envir = environment())), expected)
   expect_identical(reads, 1L)
 })
+
+test_that("notes and key values preserve CRLF text and existing blank lines", {
+  withr::local_options(cli.width = 70L, cli.num_colors = 8L)
+  n <- 12L
+  draws <- list(
+    function(x) capture.output(pr_note(x, .envir = environment())),
+    function(x) capture.output(pr_kv(list(value = x))),
+    function(x) capture.output(pr_box(list(value = x)))
+  )
+  for (draw in draws) {
+    crlf <- draw(cli::col_red("first\r\n\r\nsecond\r\n"))
+    lf <- draw(cli::col_red("first\n\nsecond\n"))
+    expect_identical(crlf, lf)
+    expect_true(any(grepl("first", crlf, fixed = TRUE)))
+    expect_true(any(grepl("second", crlf, fixed = TRUE)))
+  }
+  expect_match(cli::ansi_strip(capture.output(pr_note("n = {n}"))), "# n = 12", fixed = TRUE)
+})
