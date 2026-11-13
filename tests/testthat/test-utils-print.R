@@ -1544,3 +1544,19 @@ test_that("console table column selection uses one width prefix", {
     expect_identical(capture.output(fn(d, width = width)), capture.output(pr_table(d, width = width)))
   }
 })
+
+test_that("console escaping narrows replacements to affected fields", {
+  fn <- ._pr_escape
+  env <- new.env(parent = environment(fn))
+  env$gsub <- function(pattern, replacement, x, ...) {
+    if (length(x) > 3L) stop("reprocessed clean fields")
+    base::gsub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  text <- stats::setNames(c("a\nb", "a\\nb", "a\tb", rep(c("plain", NA), 2048)), seq_len(4099L))
+  expected <- text
+  expected[c(1L, 3L)] <- c("a\\nb", "a\\tb")
+  expect_identical(fn(text), expected)
+  matrix <- matrix(c("a\nb", "x"), nrow = 1L)
+  expect_identical(fn(matrix), gsub("\n", "\\n", matrix, fixed = TRUE))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console escaping limits replacement passes to strings containing control characters.
+
 * Sankey and categorical path plots reuse stage positions when building the stage and successor factors.
 
 * Dumbbell differences retain integer64 precision when the other endpoint is a labelled numeric vector.
