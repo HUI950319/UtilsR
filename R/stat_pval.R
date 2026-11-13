@@ -128,8 +128,15 @@ stat_pval <- function(x,
       stars[is.na(pvals)] <- ""
       return(stars)
     }
-    out <- rep("", length(pvals))
-    observed <- !is.na(pvals)
+    if (is.null(endpoints)) {
+      out <- rep("", length(pvals))
+      observed <- !is.na(pvals)
+      for (i in rev(seq_along(map))) out[observed & pvals <= map[[i]]] <- names(map)[[i]]
+      return(out)
+    }
+    map <- map[!duplicated(map)]
+    index <- findInterval(pvals, map, left.open = TRUE) + 1L
+    tied <- which(!is.na(pvals) & pvals == unname(map[index]))
     decimal <- function(text) {
       mantissa <- sub("[eE].*$", "", text)
       exponent <- as.numeric(ifelse(grepl("[eE]", text), sub("^.*[eE]", "", text), "0"))
@@ -138,21 +145,20 @@ stat_pval <- function(x,
       list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),
            digits = sub("0+$", "", coefficient))
     }
-    for (i in rev(seq_along(map))) {
-      below <- pvals <= map[[i]]
-      tied <- which(observed & pvals == map[[i]])
-      if (!is.null(endpoints) && length(tied)) {
-        candidates <- sprintf("%.*g", 1:17, map[[i]])
-        cutoff <- decimal(candidates[which(as.numeric(candidates) == map[[i]])[1L]])
-        input <- decimal(endpoints[tied])
-        width <- pmax(nchar(input$digits), nchar(cutoff$digits))
-        a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
-        b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))
-        below[tied] <- input$power < cutoff$power | (input$power == cutoff$power & a <= b)
-      }
-      out[observed & below] <- names(map)[[i]]
+    for (rows in split(tied, index[tied])) {
+      cut <- map[[index[rows[1L]]]]
+      candidates <- sprintf("%.*g", 1:17, cut)
+      cutoff <- decimal(candidates[which(as.numeric(candidates) == cut)[1L]])
+      input <- decimal(endpoints[rows])
+      width <- pmax(nchar(input$digits), nchar(cutoff$digits))
+      a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
+      b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))
+      above <- input$power > cutoff$power | (input$power == cutoff$power & a > b)
+      index[rows[above]] <- index[rows[above]] + 1L
     }
-    out
+    stars <- c(names(map), "")[index]
+    stars[is.na(pvals)] <- ""
+    stars
   }
 
   # --- Mode 2: Add stars to x based on external p ---

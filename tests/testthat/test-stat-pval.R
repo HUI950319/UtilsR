@@ -678,3 +678,20 @@ test_that("repeated p-value strings parse only distinct text", {
     expect_identical(fn(x, mode = mode), expected)
   }
 })
+
+test_that("decimal P stars use intervals and correct only tied cutoffs", {
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$findInterval <- function(x, ...) {
+    calls <<- calls + 1L
+    base::findInterval(x, ...)
+  }
+  environment(fn) <- env
+  x <- c("0.01", "0.0100000000000000001", "0.0099999999999999999",
+    "0.0500000000000000001", "1e-999", "0", NA)
+  map <- c(loose = .05, first = .01, second = .01, zero = 0)
+  expect_identical(fn(x, map_signif = map), c("0.010first", "0.010loose", "0.010first",
+    "0.050", "<0.001first", "<0.001zero", NA_character_))
+  expect_true(calls == 1L, info = "used no interval lookup")
+})

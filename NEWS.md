@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Text p-value formatting uses interval lookup and checks exact decimals only where they round to a significance cutoff.
+
 * Palette catalogue headings use one console width for layout and rendering within each listing.
 
 * Formula notices classify integer64 outcomes after excluding encoded missing values, including in a fresh R process.
