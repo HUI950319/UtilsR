@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous plots sort groups by computing medians directly from the existing factor partitions.
+
 * Pairwise comparison cache construction compares each shared group vector once before indexing its test results.
 
 * Stacked continuous plots partition comparison inputs once and reuse the feature rows for each preflight test.

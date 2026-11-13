@@ -1935,3 +1935,19 @@ test_that("comparison cache indexes repeated references before comparing values"
   expect_identical(run(values[[2L]], values[[10L]])$p.value, .2)
   expect_identical(run(values[[1L]] + .1, values[[10L]])$p.value, .9)
 })
+
+test_that("continuous median ordering reuses the grouping factor", {
+  d <- con_data()
+  d$g <- factor(d$g, levels = c("B", "A", "unused"), ordered = TRUE)
+  d$x[1L] <- NA_real_
+  native <- stats::aggregate
+  testthat::local_mocked_bindings(aggregate = function(x, by, ...) {
+    if (length(by) == 1L && is.factor(by[[1L]])) stop("rebuilt the grouping table")
+    native(x, by, ...)
+  }, .package = "stats")
+  for (direction in c("increasing", "decreasing")) {
+    p <- con_plot(d, sort = direction, type = "box")
+    expected <- if (direction == "increasing") c("A", "B") else c("B", "A")
+    expect_identical(levels(p$data$group.by), expected)
+  }
+})

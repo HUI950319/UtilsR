@@ -621,14 +621,10 @@ plt_con <- function(data,
   if (!isFALSE(sort) && !dummy_group) {
     sort_values <- data[[stat.by[1L]]]
     sort_values[!is.finite(sort_values)] <- NA_real_
-    df_sort <- stats::aggregate(
-      sort_values, by = list(data[[group.by]]), FUN = stats::median,
-      na.rm = TRUE
-    )
+    medians <- vapply(split(sort_values, data[[group.by]], drop = TRUE),
+                      stats::median, numeric(1), na.rm = TRUE)
     decreasing <- !(is.character(sort) && sort == "increasing")
-    sorted_levels <- as.character(
-      df_sort[order(df_sort[[2]], decreasing = decreasing), 1]
-    )
+    sorted_levels <- names(medians)[order(medians, decreasing = decreasing)]
     data[[group.by]] <- factor(data[[group.by]], levels = sorted_levels)
   }
 
