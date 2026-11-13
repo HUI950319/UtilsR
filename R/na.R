@@ -140,10 +140,15 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     return(invisible(NULL))
   }
 
-  missing_count <- unlist(lapply(data, .count_missing_values),
-                          use.names = FALSE)
-  special_count <- unlist(lapply(data, .count_special_values, special = special),
-                          use.names = FALSE)
+  counts <- lapply(data, function(x) {
+    ordinary_factor <- is.factor(x) &&
+      (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))
+    if (!ordinary_factor) return(c(.count_missing_values(x), .count_special_values(x, special)))
+    n <- tabulate(x, nbins = nlevels(x))
+    c(length(x) - sum(n), .count_special_values(x, special, counts = n))
+  })
+  missing_count <- vapply(counts, `[[`, numeric(1), 1L, USE.NAMES = FALSE)
+  special_count <- vapply(counts, `[[`, numeric(1), 2L, USE.NAMES = FALSE)
   rows <- if (show_all) seq_along(missing_count) else which(missing_count + special_count > 0)
   if (!length(rows)) {
     pr_head("check_na", "no missing or special values found", bg = "green")
@@ -299,12 +304,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # whitespace-only values are blank. `special`, a character vector of regular
 # expressions, replaces the built-in markers. Values recognized by is.na() are
 # missing, not special.
-.count_special_values <- function(x, special = NULL) {
+.count_special_values <- function(x, special = NULL, counts = NULL) {
   if (!is.factor(x) && !is.character(x)) return(0L)
   if (!is.null(special) && length(special) == 0L) return(0)
   if (is.factor(x)) {
     u <- levels(x)
-    n <- tabulate(as.integer(x), nbins = length(u))
+    n <- counts %||% tabulate(as.integer(x), nbins = length(u))
     observed <- n > 0L
     u <- u[observed]
     n <- n[observed]

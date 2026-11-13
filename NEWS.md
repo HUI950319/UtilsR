@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Data quality checks reuse observed factor level counts while distinguishing explicit NA levels from missing codes.
+
 * Alluvial gap ordering remaps the existing factor codes using a single level lookup.
 
 * Butterfly distribution plots normalize labelled numeric scores before reflection and summaries.

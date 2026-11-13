@@ -738,3 +738,22 @@ test_that("quality reports skip constructing clean variable rows", {
   expect_identical(result[["_data"]]$variable, "issue")
   expect_identical(check_na(d, show_all = TRUE)[["_data"]]$variable, c("issue", "clean"))
 })
+
+test_that("data quality factor tallies reuse observed level counts", {
+  f <- factor(c("ok", "Unknown", NA, NA, ""), levels = c("ok", "Unknown", "", NA), exclude = NULL)
+  is.na(f)[4L] <- TRUE
+  d <- data.frame(stage = f, other = 1:5)
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env$.count_missing_values <- function(x) {
+    if (is.factor(x)) stop("recounted factor missing values")
+    .count_missing_values(x)
+  }
+  environment(fn) <- env
+  for (special in list(NULL, "Unknown", character())) {
+    actual <- capture_gt_data(fn(d, show_all = TRUE, special = special))[[1L]]
+    expected <- capture_gt_data(check_na(d, show_all = TRUE, special = special))[[1L]]
+    expect_identical(actual, expected)
+    expect_identical(.count_missing_values(f), 1L)
+  }
+})
