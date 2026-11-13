@@ -311,10 +311,13 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         sys_info <- tryCatch({
           if (os_name == "Linux") {
             distro <- "Unknown Linux"
-            release_file <- if (file.exists("/etc/os-release")) "/etc/os-release" else
-              if (file.exists("/usr/lib/os-release")) "/usr/lib/os-release"
-            if (!is.null(release_file)) {
-              release <- readLines(release_file)
+            release <- NULL
+            for (path in c("/etc/os-release", "/usr/lib/os-release")) {
+              if (!file.exists(path)) next
+              release <- tryCatch(suppressWarnings(readLines(path)), error = function(e) NULL)
+              if (!is.null(release)) break
+            }
+            if (!is.null(release)) {
               for (key in c("PRETTY_NAME=", "NAME=")) {
                 line <- release[startsWith(release, key)]
                 if (!length(line)) next
@@ -330,15 +333,19 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
                 }
               }
             } else if (file.exists("/etc/redhat-release")) {
-              distro <- readLines("/etc/redhat-release")[1]
+              value <- tryCatch(suppressWarnings(readLines("/etc/redhat-release"))[1L],
+                                error = function(e) NA_character_)
+              if (.valid_text(value)) distro <- value
             } else if (file.exists("/etc/debian_version")) {
-              debian_ver <- readLines("/etc/debian_version")[1]
-              distro <- paste("Debian", debian_ver)
+              value <- tryCatch(suppressWarnings(readLines("/etc/debian_version"))[1L],
+                                error = function(e) NA_character_)
+              if (.valid_text(value)) distro <- paste("Debian", value)
             }
 
             cpu_name <- "Unknown"
             if (file.exists("/proc/cpuinfo")) {
-              cpuinfo <- readLines("/proc/cpuinfo")
+              cpuinfo <- tryCatch(suppressWarnings(readLines("/proc/cpuinfo")),
+                                  error = function(e) character())
               for (field in c("model name", "Model", "Hardware")) {
                 model <- grep(paste0("^", field, "[[:space:]]*:[ \t\r\n]*[^ \t\r\n]"),
                               cpuinfo)[1L]

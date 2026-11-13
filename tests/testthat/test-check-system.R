@@ -604,3 +604,23 @@ test_that("failed native commands cannot report plausible diagnostics", {
     }
   }
 })
+
+test_that("Linux metadata survives independent file read errors", {
+  for (blocked in c("/etc/os-release", "/proc/cpuinfo")) {
+    query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+    env <- environment(query)
+    env$file.exists <- function(path) path %in% c(
+      "/etc/os-release", "/usr/lib/os-release", "/proc/cpuinfo", "/proc/meminfo")
+    read_fixture <- env$readLines
+    env$readLines <- function(con, ...) {
+      if (con == blocked) stop("File unreadable")
+      if (con == "/etc/os-release") return("PRETTY_NAME='Readable primary release'")
+      if (con == "/usr/lib/os-release") return("PRETTY_NAME='Readable secondary release'")
+      read_fixture(con, ...)
+    }
+    utils::capture.output(result <- query(return_result = TRUE))
+    expect_identical(result$system_info$os_full_name, if (blocked == "/etc/os-release")
+      "Readable secondary release" else "Readable primary release")
+    expect_identical(result$cpu$name, if (blocked == "/proc/cpuinfo") "Unknown" else "Fixture CPU")
+  }
+})
