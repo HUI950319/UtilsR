@@ -5483,11 +5483,14 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
   }
   fmt_scale_one <- function(p) {
     scales_cloned <- FALSE
-    defer_scale <- any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))
+    defer_scale <- NULL
     for (axis in c("x", "y")) {
       args <- if (axis == "x") x else y
       if (is.null(args) || !length(args)) next
       scale <- p$scales$get_scales(axis)
+      if (is.null(scale) && is.null(defer_scale)) {
+        defer_scale <- any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))
+      }
       fn_name <- if (is.null(scale) && !defer_scale)
         .detect_scale_type(p, axis, defer = TRUE) else NULL
       if (is.null(scale) && (defer_scale || is.null(fn_name))) {
@@ -5618,11 +5621,12 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
       coord_ignores <<- any(disabled[axes])
     }
     scales_cloned <- FALSE
-    defer_scale <- any(vapply(p$layers, function(layer) {
-      is.function(layer$data)
-    }, logical(1)))
+    defer_scale <- NULL
     for (ax in axes) {
       scale <- p$scales$get_scales(ax)
+      if (is.null(scale) && is.null(defer_scale)) {
+        defer_scale <- any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))
+      }
       fn_name <- if (is.null(scale) && !defer_scale)
         .detect_scale_type(p, ax, defer = TRUE) else NULL
       if (!is.null(scale)) {

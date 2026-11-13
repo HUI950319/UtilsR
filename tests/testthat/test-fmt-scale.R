@@ -473,3 +473,24 @@ test_that("position scale changes read only requested fields for literal setting
   expect_identical(x_params(updated)$get_labels(), c("one", "two", "three"))
   expect_identical(x_params(p)$get_labels(), as.character(1:3))
 })
+
+test_that("explicit position scales need no layer callback scan", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) +
+    ggplot2::geom_point(data = function(x) x) + ggplot2::scale_x_continuous()
+  guard <- function(fn) {
+    env <- new.env(parent = environment(fn))
+    env$vapply <- function(X, FUN, FUN.VALUE, ...) {
+      if (identical(X, p$layers)) stop("scanned layers for existing scales")
+      base::vapply(X, FUN, FUN.VALUE, ...)
+    }
+    environment(fn) <- env
+    fn
+  }
+  scale <- guard(fmt_scale)(p, x = list(breaks = c(1L, 3L)))
+  expect_identical(x_params(scale)$get_labels(), c("1", "3"))
+  expand <- guard(fmt_expand)(p, mult = .1, axis = "x")
+  expect_equal(expand$scales$get_scales("x")$expand, ggplot2::expansion(mult = .1))
+  expect_null(expand$scales$get_scales("y"))
+  mixed <- fmt_scale(p, x = list(breaks = c(1L, 3L)), y = list(breaks = 2L))
+  expect_identical(ggplot2::ggplot_build(mixed)$layout$panel_params[[1L]]$y$get_labels(), "2")
+})
