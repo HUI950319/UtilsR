@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` reuses the existing group-level vector when no gaps are drawn.
+
 * `plt_dist()` derives default facet rows and plot dimensions from its grouped display data rather than rescanning observations.
 
 * `PlotButterfly2()` uses factor tallies when selecting observed fill categories for gradient beeswarm shapes.

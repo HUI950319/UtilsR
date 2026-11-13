@@ -553,14 +553,11 @@ plt_alluvial <- function(
     stat <- rbind(stat, gap_rows)
   }
 
-  all_group_levels <- unlist(lapply(seq_along(group_levels), function(index) {
-    if (index < length(group_levels)) {
-      c(group_levels[index], gap_names[index])
-    } else {
-      group_levels[index]
-    }
-  }))
+  all_group_levels <- group_levels
   if (length(gap_names)) {
+    all_group_levels <- character(length(group_levels) + length(gap_names))
+    all_group_levels[seq.int(1L, length(all_group_levels), by = 2L)] <- group_levels
+    all_group_levels[seq.int(2L, length(all_group_levels), by = 2L)] <- gap_names
     codes <- match(levels(stat$.group), all_group_levels)[as.integer(stat$.group)]
     stat$.group <- structure(codes, levels = all_group_levels, class = "factor")
   }

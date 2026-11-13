@@ -1091,3 +1091,22 @@ test_that("alluvial completeness uses ordinary factor missing codes directly", {
   expect_identical(draw(fn)$data, draw(plt_alluvial)$data)
   expect_equal(sum(draw(fn)$data$count), 158L)
 })
+
+test_that("gap-free alluvial plots use the existing group levels", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(cat = rep(c("a", "b", "c"), 4L),
+    grp = factor(rep(c("x", "y", "", "z"), each = 3L), levels = c("z", "y", "", "x")))
+  draw <- function(fn) suppressMessages(fn(d, cat_var = "cat", group = "grp", stratum_args = list(gap = 0)))
+  expected <- draw(plt_alluvial)
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$lapply <- function(X, FUN, ...) {
+    if (identical(substitute(X), quote(seq_along(group_levels))))
+      stop("rebuilt gap-free alluvial group levels")
+    base::lapply(X, FUN, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(actual$data, expected$data)
+  expect_identical(levels(actual$data$.group), c("z", "y", "", "x"))
+})
