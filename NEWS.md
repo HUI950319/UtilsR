@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation maps backend factor codes back to original levels only for the missing observations.
+
 * Factor combinations filter incomplete rows before encoding ordinary factors, retaining ordered and explicit NA levels.
 
 * Layer rasterization avoids reassigning patchwork children when they have no eligible geometry.

@@ -584,3 +584,22 @@ test_that("complete data table imputation returns without copying the frame", {
   expect_identical(fn(d, verbose = FALSE), before)
   expect_identical(d, before)
 })
+
+test_that("KNN restores explicit missing factor levels only for imputed rows", {
+  skip_if_not_installed("VIM")
+  scores <- c(seq_len(100L), 1.01)
+  f <- structure(c(2L, rep(c(1L, 3L), length.out = 99L), NA_integer_),
+    levels = c("a", NA, "b"), class = c("ordered", "factor"))
+  d <- data.frame(f = f, score = scores)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("decoded every imputed factor row")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(result, impute_na_knn(d, k = 1L, verbose = FALSE))
+  expect_identical(as.integer(tail(result$f, 1L)), 2L)
+  expect_identical(attributes(result$f), attributes(f))
+})

@@ -320,9 +320,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   for (var_name in names(factor_na_original)) {
     original <- factor_na_original[[var_name]]
     missing <- is.na(original)
-    codes <- match(as.character(result[[var_name]]), levels(data_for_impute[[var_name]]))
+    codes <- match(as.character(result[[var_name]][missing]), levels(data_for_impute[[var_name]]))
     restored <- as.integer(original)
-    restored[missing] <- codes[missing]
+    restored[missing] <- codes
     attributes(restored) <- attributes(original)
     result[[var_name]] <- restored
   }
