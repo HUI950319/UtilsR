@@ -720,3 +720,20 @@ test_that("literal p-value bounds bypass decimal field width checks", {
   expect_identical(unname(nchar(out[4L])), 8192L)
   expect_error(stat_pval(c(">1e308", "-1"), mode = "plain", digits = 8190L), "8192-byte")
 })
+
+test_that("rounded-zero p-value detection visits only possible zeros", {
+  x <- c(-0, 0, 1e-30, .0004999, .0005, .0005001, NA, seq(.01, 1, length.out = 3000L))
+  expected <- stat_pval(x, mode = "stars")
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$grepl <- function(pattern, x, ...) {
+    if (identical(pattern, "^-?0\\.0*$") && length(x) > 10L)
+      stop("checked ordinary p-values for formatted zero")
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, mode = "stars"), expected)
+  expect_identical(fn(x[1:7], mode = "stars"), expected[1:7])
+  expect_identical(fn(c(0, 5e-324, .1), digits = 325L, mode = "pvalue"),
+                   stat_pval(c(0, 5e-324, .1), digits = 325L, mode = "pvalue"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` checks formatted zeros only among values close enough to round to zero.
+
 * `stat_ci_parse()` compares the two confidence interval half-widths directly, retaining asymmetric intervals around large estimates.
 
 * `pr_note()` and `pr_kv()` normalize CRLF before wrapping lines, retaining each helper's existing treatment of trailing blank lines.
