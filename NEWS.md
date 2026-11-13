@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation inspects data.table missingness before allocating a plain copy for the backend.
+
 * Factor relabelling returns keyed data.table inputs unchanged when their factor values and levels are identical.
 
 * Factor conversion distinguishes close labelled scores and treats SPSS user-missing values as missing.

@@ -89,7 +89,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   input_is_tibble <- inherits(data, "tbl_df")
-  data_for_impute <- as.data.frame(data)
+  input_is_data_table <- inherits(data, "data.table")
+  data_for_impute <- if (input_is_data_table) data else as.data.frame(data)
   supported <- vapply(data_for_impute, function(x) {
     is.null(dim(x)) && ((!is.list(x) && !is.expression(x)) || inherits(x, "POSIXlt"))
   }, logical(1))
@@ -119,6 +120,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     }
     return(data)
   }
+  if (input_is_data_table) data_for_impute <- as.data.frame(data_for_impute)
   if (ncol(data_for_impute) < 2L) {
     cli::cli_abort("KNN imputation needs at least one predictor column in addition to the variable being imputed.")
   }

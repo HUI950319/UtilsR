@@ -568,3 +568,19 @@ test_that("ordinary KNN donor means skip the magnitude pass", {
   }, .package = "VIM")
   expect_identical(fn(d, k = 2, verbose = FALSE)$x, c(11, 19, 17, 25))
 })
+
+test_that("complete data table imputation returns without copying the frame", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(a = rep(1:20, 20L), b = rep(20:1, 20L))
+  data.table::setkeyv(d, "a")
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && !anyNA(x$a)) stop("copied a complete data table")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  before <- data.table::copy(d)
+  expect_identical(fn(d, verbose = FALSE), before)
+  expect_identical(d, before)
+})
