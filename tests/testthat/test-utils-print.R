@@ -1710,3 +1710,15 @@ test_that("printed boxes retain CRLF text and empty lines", {
   expect_true(any(grepl("first", out, fixed = TRUE)))
   expect_true(any(grepl("second", out, fixed = TRUE)))
 })
+
+test_that("tree counts respect their grouping with a comma decimal mark", {
+  x <- list(table = data.frame(x = rep(1L, 1001L)), nested = as.list(seq_len(1002L)))
+  show <- function(...) cli::ansi_strip(capture.output(pr_tree(x, ...)))
+  expected <- show(max_depth = 2L, max_items = 2L)
+  truncated <- show(max_depth = 2L, max_items = 2L, max_lines = 2L)
+  withr::local_options(OutDec = ",")
+  expect_silent(actual <- show(max_depth = 2L, max_items = 2L))
+  expect_identical(actual, expected)
+  expect_identical(show(max_depth = 2L, max_items = 2L, max_lines = 2L), truncated)
+  expect_true(any(grepl("1,001", actual, fixed = TRUE)))
+})

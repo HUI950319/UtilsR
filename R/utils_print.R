@@ -774,7 +774,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   v <- ._pr_restore(v)
   g <- if (colour) cli::col_grey else identity
   if (is.null(v)) return(g("<NULL>"))
-  big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
+  big <- function(n) format(n, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
   # values as text: strings quoted, a labelled value with its label
   # ("1 [Male]"), NA red with `colour`
   text_of <- function(first, labs = attr(first, "labels", exact = TRUE)) {
@@ -1037,7 +1037,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         h <- slot(shown)
         if (h != "count") kids <- c(kids, add(paste0(id, "/more"), if (h == "show") {
           rest <- sprintf("%s %s more", cli::symbol$ellipsis,
-                          format(length(p) - max_items, big.mark = ","))
+                          format(length(p) - max_items, big.mark = ",", decimal.mark = "."))
           # the names left out, as far as the line goes
           if (!is.null(names(p))) {
             rest <- cli::ansi_strtrim(paste0(rest, ": ", paste(
@@ -1064,7 +1064,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (how != "count") add(id, label, kids) else id
   }
 
-  big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
+  big <- function(n) format(n, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
   root_desc <- if (is.data.frame(x)) {
     cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
       ._pr_escape(class(x)[1]), big(nrow(x)), big(ncol(x))))
@@ -1091,7 +1091,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     # the argument that cut them, as rlang names what shows hidden frames
     tree <- c(tree[seq_len(max_lines)], ._pr_wrap(cli::col_grey(sprintf(
       "# %s %s more lines (max_lines = %d)", cli::symbol$ellipsis,
-      format(rows$n - max_lines, big.mark = ","), max_lines)), width))
+      format(rows$n - max_lines, big.mark = ",", decimal.mark = "."), max_lines)), width))
   }
   ._pr_out(tree)
 }

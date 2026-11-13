@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` keeps comma grouping for counts when the session uses a comma as its decimal mark.
+
 * `plt_alluvial()` reuses the existing group-level vector when no gaps are drawn.
 
 * `plt_dist()` derives default facet rows and plot dimensions from its grouped display data rather than rescanning observations.
