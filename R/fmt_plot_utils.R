@@ -456,6 +456,10 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       }
       insets <- if (next_i > i + 1L) children[seq.int(i + 1L, next_i - 1L)] else list()
       child_cells <- if (length(insets)) {
+        if (!inherits(child, c("ggplot", "grob"))) {
+          cli::cli_abort("Input must contain ggplot, patchwork, or grob objects, not {.cls {class(child)}}.",
+                         call = error_call)
+        }
         list(list(plot = child, insets = insets))
       } else flatten_recursive(child)
       if (length(child_cells) == 1L && is.null(names(child_cells)) &&

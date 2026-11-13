@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` identifies an invalid inset host at the input boundary.
+
 * `fmt_scale()` and `fmt_expand()` skip layer scans when the requested position scales already exist.
 
 * `fmt_scale()` compares explicit numeric and text fields without materializing every inherited scale member.

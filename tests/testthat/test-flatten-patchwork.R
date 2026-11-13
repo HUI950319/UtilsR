@@ -440,3 +440,14 @@ test_that("flatten rejects nested plot arrays with ambiguous ordering", {
   }
   expect_length(fmt_flatten(list(first = p, nested = list(p))), 2L)
 })
+
+test_that("flattened inset hosts are validated before patchwork assembly", {
+  p <- flatten_test_plot("Host")
+  inset <- patchwork::inset_element(grid::textGrob("Inset"), 0, 0, .5, .5)
+  expect_error(fmt_flatten(list(1, inset)), "Input must contain ggplot, patchwork, or grob objects",
+               fixed = TRUE)
+  expect_error(fmt_flatten(list(p, list("bad", inset))), "Input must contain ggplot",
+               fixed = TRUE)
+  output <- fmt_flatten(list(p, inset))
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(output)) == "Inset"), 1L)
+})
