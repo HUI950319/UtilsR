@@ -483,3 +483,20 @@ test_that("a tagged plot does not carry the other plots fmt_tag() tagged", {
     expect_gt(size(tagged) - size(tagged[[1]]), 3)
   }
 })
+
+test_that("plot tags resolve the global font theme once per container", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  plain <- list(p + ggplot2::theme(text = ggplot2::element_text(family = "serif")),
+    p + ggplot2::theme(plot.tag = ggplot2::element_text(family = "mono")))
+  original <- ggplot2::theme_get
+  calls <- 0L
+  testthat::local_mocked_bindings(theme_get = function() {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("read the global tag theme again")
+    original()
+  }, .package = "ggplot2")
+  out <- fmt_tag(plain, labels = c("A", "B"))
+  expect_identical(calls, 1L)
+  expect_identical(vapply(out, function(x) x$layers[[2L]]$aes_params$family, ""),
+    c("serif", "mono"))
+})

@@ -654,9 +654,10 @@ fmt_tag <- function(plot,
   npcy <- rep_len(pos$y, n)
   size <- rep_len(size, n)
   color <- rep_len(color, n)
-  # ggpp labels and plain grobs default to the device font, not the theme's.
+  # ggpp labels and plain grobs need the inherited plot theme family.
+  base_theme <- ggplot2::theme_get()
   family <- vapply(plots, function(p) {
-    value <- ggplot2::calc_element("plot.tag", ggplot2::theme_get() + p$theme)$family
+    value <- ggplot2::calc_element("plot.tag", base_theme + p$theme)$family
     if (is.character(value) && length(value) == 1L && !is.na(value)) value else ""
   }, character(1))
 
