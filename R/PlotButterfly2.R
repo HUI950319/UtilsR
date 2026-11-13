@@ -239,8 +239,8 @@ PlotButterfly2 <- function(
     labels <- .butterfly_category_labels(data[[col]])
     data[[col]] <- if (inherits(labels, "Period")) as.character(labels) else labels
   }
-  if (inherits(data[[value.by]], "haven_labelled_spss")) {
-    data[[value.by]] <- .scatter_axis_values(data[[value.by]])
+  if (inherits(data[[value.by]], "haven_labelled")) {
+    data[[value.by]] <- vctrs::vec_data(.scatter_axis_values(data[[value.by]]))
   }
 
   # ---- Two groups ----

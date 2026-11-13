@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly distribution plots normalize labelled numeric scores before reflection and summaries.
+
 * Wide butterfly violin inputs accept labelled numeric scores and respect SPSS user-missing values.
 
 * Point formatting builds jitter or dodge positions only for layers that use automatic positioning.

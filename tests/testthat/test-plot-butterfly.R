@@ -1114,3 +1114,15 @@ test_that("wide butterfly violins normalize labelled score columns independently
   layers <- function(plot) lapply(seq_along(plot), function(i) ggplot2::ggplot_build(plot[[i]])$data)
   expect_equal(suppressWarnings(layers(draw(left))), suppressWarnings(layers(draw(plain))))
 })
+
+test_that("filled butterfly boxplots reflect labelled numeric scores", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = "A", fill = rep(c("one", "two"), each = 3L),
+    g = rep(c("L", "R"), each = 6L), score = 1:12)
+  labelled <- d
+  labelled$score <- haven::labelled(d$score, c(first = 1))
+  draw <- function(input) PlotButterfly2(input, stat.by = "category", value.by = "score",
+    group.by = "g", fill.by = "fill", type = "box")
+  layers <- function(p) lapply(seq_along(p), function(i) ggplot2::ggplot_build(p[[i]])$data)
+  expect_equal(layers(draw(labelled)), layers(draw(d)))
+})
