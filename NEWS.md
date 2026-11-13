@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked `plt_con()` panels use feature codes directly when assembling observations.
+
 * `fmt_point()` recycles scalar strata only, retaining the existing vectors for row-aligned groups and facets.
 
 * Raster backends reject dimensions outside the integer pixel range before allocating a capture device.

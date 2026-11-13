@@ -2031,3 +2031,22 @@ test_that("reference comparisons reuse observed factor tallies", {
   expect_identical(tail(actual$layers, 1L)[[1L]]$stat_params$comparisons, list(c("B", "C"), c("B", "")))
   expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
 })
+
+test_that("stacked continuous observations keep precomputed feature codes", {
+  d <- data.frame(z = c(NA, 2:12), x = c(1:11, Inf), g = rep(c("b", "a"), 6L))
+  draw <- function() suppressMessages(plt_con(d, c("z", "x"), "g", type = "box",
+    stack = TRUE, flip = FALSE))
+  expected <- draw()
+  fn <- .plt_con_stacked
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(dat_long[["feature"]])))
+      stop("refactored all feature labels after stacking")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  actual <- draw()
+  expect_identical(actual$data, expected$data)
+  expect_identical(levels(actual$data$feature), c("z", "x"))
+})

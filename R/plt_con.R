@@ -1547,12 +1547,12 @@ plt_con <- function(data,
       group <- group[rows[[i]]]
     }
     data.frame(value = value, group.by = group,
-               feature = rep_len(stat.by[i], length(value)), stringsAsFactors = FALSE)
+               feature = structure(rep.int(i, length(value)), levels = stat.by, class = "factor"),
+               stringsAsFactors = FALSE)
   }))
   if (any(selected < n)) {
     rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) (i - 1L) * n + rows[[i]]))
   }
-  dat_long[["feature"]] <- factor(dat_long[["feature"]], levels = stat.by)
   dat_long[["group.by"]] <- factor(
     dat_long[["group.by"]], levels = levels(data[[group.by]])
   )
