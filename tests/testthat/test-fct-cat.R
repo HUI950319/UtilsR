@@ -763,3 +763,11 @@ test_that("time factor conversion preserves distinct instants with the same labe
   ordinary <- as.Date(c("2020-01-03", "2020-01-01", NA))
   expect_identical(.as_factor(ordinary), factor(ordinary))
 })
+
+test_that("protected numeric vectors retain distinct exact factor levels", {
+  x <- stats::setNames(c(1 + .Machine$double.eps, 1, 2, NA), letters[1:4])
+  expect_identical(.as_factor(I(x)), .as_factor(x))
+  expect_identical(as.integer(.as_factor(I(x))), c(2L, 1L, 3L, NA_integer_))
+  y <- I(matrix(1:4, 2L))
+  expect_identical(.as_factor(y), factor(y))
+})

@@ -331,6 +331,7 @@ fct_cat <- function(x, ...,
       return(factor(labels, levels = unique(labels[order(x, na.last = NA)])))
     }
   }
+  if (is.double(x) && identical(class(x), "AsIs") && is.null(dim(x))) x <- unclass(x)
   if (is.double(x) && !is.object(x) && is.null(dim(x))) {
     distinct <- sort(unique(x), na.last = NA)
     labels <- as.character(distinct)
