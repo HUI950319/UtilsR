@@ -175,9 +175,9 @@ PlotHeatmapJaccard <- function(
   } else {
     data[[name_col]]
   }
-  indexable_groups <- identical(class(group_values), "factor") ||
-    identical(class(group_values), c("ordered", "factor")) ||
-    (is.character(group_values) && !is.object(group_values))
+  factor_groups <- identical(class(group_values), "factor") ||
+    identical(class(group_values), c("ordered", "factor"))
+  indexable_groups <- factor_groups || (is.character(group_values) && !is.object(group_values))
   lookup_levels <- if (inherits(ct_names, "haven_labelled")) as.vector(ct_names) else ct_names
   base_groups <- !is.object(group_values) && !is.object(lookup_levels) &&
     ((is.numeric(group_values) && is.numeric(lookup_levels)) ||
@@ -215,10 +215,14 @@ PlotHeatmapJaccard <- function(
       }
       if (!integer64[1L]) keys <- as_group_key(keys)
       if (!integer64_levels) labels <- as_group_key(labels)
-    } else if (!base_groups) {
-      keys <- as.character(keys)
     }
-    ids <- if (integer64_groups || time_groups) vctrs::vec_match(keys, labels) else match(keys, labels)
+    ids <- if (integer64_groups || time_groups) {
+      vctrs::vec_match(keys, labels)
+    } else if (factor_groups) {
+      match(levels(keys), labels)[as.integer(keys)]
+    } else {
+      match(keys, labels)
+    }
     split(rows, factor(ids, levels = seq_along(ct_names)))
   } else NULL
   if (is.null(group_rows)) {

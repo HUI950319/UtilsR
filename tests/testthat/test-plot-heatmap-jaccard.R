@@ -900,3 +900,24 @@ test_that("typed Jaccard intersections skip globally unique feature keys", {
   expect_equal(out["a", "c"], 1 / 39)
   expect_identical(unname(diag(out)), rep(1, 6L))
 })
+
+test_that("Jaccard factor levels map to requested labels without decoding rows", {
+  d <- data.frame(cell_type = ordered(rep(c("", "B", "C", NA), 101L),
+                   levels = c("unused", "", "B", "C", NA), exclude = NULL),
+                  gene = rep(seq_len(101L), each = 4L))
+  is.na(d$cell_type)[8L] <- TRUE
+  d$gene[5L] <- NA_integer_
+  args <- list(data = d, group_levels = c("B", "", "unused"), return_type = "data")
+  expected <- do.call(PlotHeatmapJaccard, args)
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) > 100L) stop("decoded Jaccard group rows")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- do.call(fn, args)
+  expect_identical(actual, expected)
+  expect_identical(rownames(actual), c("B", "", "unused"))
+  expect_equal(unname(actual[1:2, 1:2]), matrix(c(1, 100/101, 100/101, 1), 2L))
+})

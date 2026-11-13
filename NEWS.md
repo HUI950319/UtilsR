@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` indexes ordinary factor groups through their level labels without decoding the full group column.
+
 * `pr_box()` normalizes CRLF line endings before wrapping unlabelled text.
 
 * `stat_pval()` passes through valid bound text even when the endpoint would be too wide for the requested decimal formatter.
