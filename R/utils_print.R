@@ -456,6 +456,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     valid <- !is.na(num)
   } else {
     txt <- .trim_pvalue_space(as.character(v))
+    if (length(txt) > 1024L && anyDuplicated(txt[seq_len(128L)])) {
+      keys <- unique(txt)
+      if (length(keys) < length(txt) / 2L) return(._p_cells(keys)[match(txt, keys)])
+    }
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)

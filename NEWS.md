@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables reuse formatted p-value cells for repeated text while preserving bound and missing-value displays.
+
 * Rank correlation plots compute ordinary one- and two-observation aesthetic means in batches, retaining native results at numeric extremes.
 
 * Categorical plots build dense count grids from ordinary factor codes while preserving empty combinations and factor order.

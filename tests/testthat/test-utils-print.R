@@ -1577,3 +1577,18 @@ test_that("console table reparses only potential rounded zeros", {
     expect_true(all(grepl("e-100", output[3:4], fixed = TRUE)))
   }
 })
+
+test_that("repeated console P value text is parsed once per distinct value", {
+  keys <- c("<.05", ">0.8", "0.0099999999999999999", "N/A", NA, "  1e-4", "<1e-999")
+  fn <- ._p_cells
+  env <- new.env(parent = environment(fn))
+  env$grepl <- function(pattern, x, ...) {
+    if (length(x) > 1024L) stop("parsed each repeated p string")
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  for (colors in c(1L, 256L)) {
+    withr::local_options(cli.num_colors = colors)
+    expect_identical(fn(rep(keys, 400L)), rep(._p_cells(keys), 400L))
+  }
+})
