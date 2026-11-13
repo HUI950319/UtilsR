@@ -533,3 +533,19 @@ test_that("system diagnostics remain available when the OS name is missing", {
   expect_identical(result$system_info$is_macos, FALSE)
   expect_identical(result$system_info$architecture, "x86_64")
 })
+
+test_that("Linux CPU detection extracts only the first nonblank model", {
+  query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(query)
+  read <- env$readLines
+  fields <- c("model name :  ", "Hardware : fallback", rep("model name : first core ", 256L))
+  env$readLines <- function(con, ...) if (con == "/proc/cpuinfo") fields else read(con, ...)
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (length(x) > 100L) stop(structure(list(message = "normalized every core", call = NULL),
+      class = c("normalized_core_probe", "condition")))
+    base::sub(pattern, replacement, x, ...)
+  }
+  withCallingHandlers(invisible(capture.output(result <- query(return_result = TRUE))),
+    normalized_core_probe = function(c) stop(conditionMessage(c)))
+  expect_identical(result$cpu$name, "first core")
+})

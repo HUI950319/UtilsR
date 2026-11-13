@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Linux diagnostics extract a single CPU model without normalizing duplicate per-core entries.
+
 * System diagnostics return the available details when the operating-system name cannot be read.
 
 * UpSet matches character selectors to the two logical values before processing logical columns.

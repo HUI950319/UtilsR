@@ -331,11 +331,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             if (file.exists("/proc/cpuinfo")) {
               cpuinfo <- readLines("/proc/cpuinfo")
               for (field in c("model name", "Model", "Hardware")) {
-                lines <- grep(paste0("^", field, "[[:space:]]*:"), cpuinfo, value = TRUE)
-                values <- trimws(sub("^[^:]+:", "", lines))
-                values <- values[nzchar(values)]
-                if (length(values)) {
-                  cpu_name <- values[1L]
+                model <- grep(paste0("^", field, "[[:space:]]*:[ \t\r\n]*[^ \t\r\n]"),
+                              cpuinfo)[1L]
+                if (!is.na(model)) {
+                  cpu_name <- trimws(sub("^[^:]+:", "", cpuinfo[model]))
                   break
                 }
               }
