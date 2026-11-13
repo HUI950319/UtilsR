@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Survival formula notices count observed factor codes without hashing each outcome row.
+
 * Continuous dot plots map numeric values to prevalidated bin breaks without sorting those breaks again.
 
 * `plt_dist()` checks alluvial factor levels and plain vector missingness without decoding every observation.

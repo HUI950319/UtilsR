@@ -445,7 +445,12 @@ console_width <- function() {
       }
       values <- haven::zap_missing(values)
     }
-    model   <- if (dplyr::n_distinct(values, na.rm = TRUE) == 3L) "CRR" else "Cox"
+    ordinary_factor <- identical(class(values), "factor") ||
+      identical(class(values), c("ordered", "factor"))
+    observed <- if (ordinary_factor && !anyNA(levels(values))) {
+      sum(tabulate(values, nbins = nlevels(values)) > 0L)
+    } else dplyr::n_distinct(values, na.rm = TRUE)
+    model <- if (observed == 3L) "CRR" else "Cox"
     formula <- sprintf("Surv(%s, %s) ~ %s", quote_names(time),
                        quote_names(outcome), rhs)
   }

@@ -1270,3 +1270,18 @@ test_that("table gradients do not interpret matrix cells as extra rows", {
   expect_identical(calls, list("y"))
   expect_identical(out[["_data"]]$x, d$x)
 })
+
+test_that("survival formula notices classify observed factor codes directly", {
+  d <- data.frame(time = 1:6, status = ordered(c("0", "1", "0", NA, "2", "0"),
+    levels = c("unused", "2", "1", "0")))
+  draw <- function() cli::ansi_strip(cli::cli_fmt(.cat_formula(d, "time", time = "time", outcome = "status")))
+  expected <- draw()
+  n_distinct <- dplyr::n_distinct
+  local_mocked_bindings(n_distinct = function(...) {
+    x <- list(...)
+    if (is.factor(x[[1L]])) stop("hashed every factor outcome to classify the notice")
+    n_distinct(...)
+  }, .package = "dplyr")
+  expect_identical(draw(), expected)
+  expect_true(any(grepl("CRR", expected, fixed = TRUE)))
+})
