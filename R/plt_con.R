@@ -1152,7 +1152,7 @@ plt_con <- function(data,
     bounds <- if (is.null(groups)) range(transformed[keep]) else
       .con_bar_range(transformed[keep], groups[keep])
     limits <- bounds
-    limits[2L] <- limits[2L] + diff(limits) * 0.15 * comparisons
+    if (comparisons > 0L) limits[2L] <- limits[2L] + diff(limits) * 0.15 * comparisons
     if (isTRUE(global)) limits[2L] <- limits[2L] + diff(limits) * 0.1
     cached <<- list(data = bounds, limits = limits)
     previous <<- transformation

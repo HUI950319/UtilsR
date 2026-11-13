@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared transformed continuous ranges retain finite bounds when there are no pairwise comparison annotations.
+
 * Independent continuous panels keep their full shared limits when pairwise comparisons are absent.
 
 * Rank plots locate default Date and integer64 groups once, preserving native group identities.

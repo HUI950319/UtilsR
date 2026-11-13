@@ -1860,3 +1860,11 @@ test_that("continuous plots keep extreme shared limits without comparisons", {
     same.y.lims = TRUE, combine = FALSE))
   for (p in plots) expect_equal(unname(p$coordinates$limits$y / 1e308), c(-1, 1))
 })
+
+test_that("shared transformed ranges retain extreme bounds with zero comparisons", {
+  values <- c(-1e308, -5e307, 5e307, 1e308, 1:4)
+  scale <- ggplot2::scale_y_reverse()
+  result <- .con_shared_range(values, NULL, 0L, FALSE)(scale)
+  expect_equal(result$data / 1e308, c(-1, 1))
+  expect_equal(result$limits / 1e308, c(-1, 1))
+})
