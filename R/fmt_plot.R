@@ -1275,8 +1275,9 @@ fmt_legend <- function(plot,
     if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
         match("inset_patch", class(p)) < match("patchwork", class(p)))) return(FALSE)
     if (inherits(p, "patchwork")) {
-      annotation_inside <- annotation_inside || is_inside(
-        (base_theme + p$patches$annotation$theme)$legend.position)
+      annotation_position <- (base_theme + p$patches$annotation$theme)$legend.position
+      if (identical(annotation_position, "none")) return(FALSE)
+      annotation_inside <- annotation_inside || is_inside(annotation_position)
       return(any(vapply(seq_along(p), function(i) {
         child <- p[[i]]
         if (inherits(child, "patchwork") &&
@@ -1285,6 +1286,8 @@ fmt_legend <- function(plot,
       }, logical(1))))
     }
     if (inherits(p, c("spacer", "guide_area", "wrapped_patch"))) return(FALSE)
+    plot_position <- (base_theme + p$theme)$legend.position
+    if (identical(plot_position, "none")) return(FALSE)
     fixed <- unique(unlist(lapply(p$scales$scales, function(sc) {
       if (!is.null(sc$limits)) sc$aesthetics else character()
     })))
@@ -1315,7 +1318,7 @@ fmt_legend <- function(plot,
       }
       if (identical(guide, "none") || identical(guide, FALSE) || inherits(guide, "GuideNone")) next
       position <- if (inherits(guide, "Guide")) guide$params$position else NULL
-      position <- position %||% (base_theme + p$theme)$legend.position
+      position <- position %||% plot_position
       if (annotation_inside || is_inside(position)) return(TRUE)
     }
     FALSE
@@ -1330,15 +1333,19 @@ fmt_legend <- function(plot,
       }
       if (identical(p$patches$layout$guides, "collect")) {
         if (length(leg_theme)) p <- p + patchwork::plot_annotation(theme = leg_theme)
+        th <- base_theme + p$patches$annotation$theme
+        args <- list()
         if (scaling) {
-          th <- base_theme + p$patches$annotation$theme
-          args <- list()
           for (nm in c("legend.spacing", "legend.spacing.x", "legend.spacing.y",
                        "legend.box.spacing", "legend.box.margin")) {
             if (!is.null(th[[nm]])) args[[nm]] <- get_unit(th, nm) * factor
           }
-          if (length(args)) p <- p + patchwork::plot_annotation(theme = do.call(ggplot2::theme, args))
         }
+        # Older ggplot2 guide boxes have no default justification for "none".
+        if (identical(th$legend.position, "none") && is.null(th$legend.box.just)) {
+          args$legend.box.just <- c("left", "top")
+        }
+        if (length(args)) p <- p + patchwork::plot_annotation(theme = do.call(ggplot2::theme, args))
         if (has_inside_legend(p)) {
           p <- p + patchwork::plot_layout(guides = "keep")
           collection_skipped <<- TRUE

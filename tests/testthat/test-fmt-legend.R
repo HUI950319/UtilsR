@@ -1024,3 +1024,22 @@ test_that("repeated legend titling keeps matching scales and guides", {
   }
   expect_identical(p$scales$get_scales("colour")$guide$params$title, "Original")
 })
+
+test_that("hidden inside legends do not prevent collection", {
+  d <- data.frame(x = 1:4, y = 4:1, group = rep(c("one", "two"), 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = group)) + ggplot2::geom_point() +
+    ggplot2::guides(colour = ggplot2::guide_legend(position = "inside"))
+  leaf <- p + ggplot2::theme(legend.position = "none")
+  hidden <- patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "none"))
+  for (pw in list(patchwork::wrap_plots(leaf, leaf), patchwork::wrap_plots(p, p) + hidden)) {
+    expect_no_warning(q <- fmt_legend(pw, collect = TRUE))
+    expect_identical(q$patches$layout$guides, "collect")
+    g <- patchwork::patchworkGrob(q)
+    expect_s3_class(g, "gtable")
+    expect_false("guide-box" %in% g$layout$name)
+  }
+  explicit <- patchwork::wrap_plots(p, p) + patchwork::plot_annotation(
+    theme = ggplot2::theme(legend.position = "none", legend.box.just = "center"))
+  q <- fmt_legend(explicit, collect = TRUE)
+  expect_identical(q$patches$annotation$theme$legend.box.just, "center")
+})

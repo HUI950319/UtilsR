@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_legend()` preserves guide collection when the effective theme suppresses legends.
+
 * `fmt_legend()` avoids cloning scales and guides whose titles already match.
 
 * `fmt_axis()` preserves axis guide prototypes when their theme already has the requested hiding settings.
