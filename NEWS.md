@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness matrix plots reuse the combined mask storage while keeping the original observation order.
+
 * Console tables reuse the visible highlight row selection for indent and styling.
 
 * Plot tags reuse the global theme when inheriting font families across multiple panels.

@@ -450,3 +450,19 @@ test_that("missingness plots scan data table columns without copying the frame",
   }
   expect_identical(dt, before)
 })
+
+test_that("missingness matrix reshaping keeps the row-major logical vector without a copy", {
+  fn <- .plt_na_plot
+  env <- new.env(parent = environment(fn))
+  env$as.vector <- function(x, ...) {
+    if (is.matrix(x) && is.logical(x)) stop("copied the complete missingness mask")
+    base::as.vector(x, ...)
+  }
+  environment(fn) <- env
+  d <- data.frame(a = c(1, NA, 3), b = c(NA, 5, 6), c = c(NA, 9, NA))
+  reference <- suppressMessages(plt_na(d, output = "matrix"))
+  testthat::local_mocked_bindings(.plt_na_plot = fn, .package = "UtilsR")
+  out <- suppressMessages(plt_na(d, output = "matrix"))
+  expect_identical(out$data, reference$data)
+  expect_identical(out$data$isna, c(FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE))
+})
