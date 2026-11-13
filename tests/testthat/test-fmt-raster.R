@@ -755,3 +755,17 @@ test_that("failed raster panel measurements restore the previous viewport", {
   expect_error(.resolve_panel_size(table, 1L, "width", NULL, "cm"), "measurement failed")
   expect_identical(grid::current.viewport()$name, "caller")
 })
+
+test_that("raster text detection stops at the first text descendant", {
+  fn <- .is_text_grob
+  env <- new.env(parent = environment(fn))
+  env$.is_text_grob <- function(child, name) {
+    if (identical(name, "second")) stop("inspected another sibling")
+    fn(child, name)
+  }
+  environment(fn) <- env
+  g <- grid::grobTree(grid::textGrob("title"), grid::rectGrob(name = "second"), name = "container")
+  expect_true(fn(g, g$name))
+  p <- grid::grobTree(grid::rectGrob(), grid::rectGrob())
+  expect_false(fn(p, p$name))
+})

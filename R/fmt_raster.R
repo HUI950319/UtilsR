@@ -661,5 +661,8 @@ fmt_raster <- function(
   }
   children <- if (inherits(child, "gtable")) child$grobs else
     if (inherits(child, "gTree")) child$children
-  any(vapply(children, function(g) .is_text_grob(g, g$name), logical(1)))
+  for (g in children) {
+    if (.is_text_grob(g, g$name)) return(TRUE)
+  }
+  FALSE
 }

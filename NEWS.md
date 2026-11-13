@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Selective rasterization stops inspecting siblings once a grob is known to contain vector text.
+
 * Console escaping limits replacement passes to strings containing control characters.
 
 * Sankey and categorical path plots reuse stage positions when building the stage and successor factors.
