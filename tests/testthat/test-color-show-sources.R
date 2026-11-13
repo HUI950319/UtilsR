@@ -2883,3 +2883,16 @@ test_that("one-colour previews preserve alpha without constructing ramps", {
   expect_identical(as.character(expected), rep("#FF000080", 3L))
   expect_identical(as.character(.pal_resize("red", 2L, 4L)), rep("#FF0000", 2L))
 })
+
+test_that("palette lists reuse discrete mapping levels", {
+  palettes <- list(a = c("red", "blue"), b = "#22334480", c = c("orange", "grey"))
+  x <- factor(c("first", "", NA), levels = c("unused", "first", "", NA), exclude = NULL)
+  expected <- pal_get(palettes, x = x, reverse = TRUE, alpha = .65)
+  fn <- .pal_apply
+  local_mocked_bindings(.pal_apply = function(cols, n, x, reverse, alpha, ...) {
+    if (!"discrete_levels" %in% names(list(...))) stop("read discrete palette mapping levels repeatedly")
+    fn(cols, n, x, reverse, alpha, ...)
+  }, .package = "UtilsR")
+  expect_identical(pal_get(palettes, x = x, reverse = TRUE, alpha = .65), expected)
+  expect_identical(pal_get(palettes, x = character()), lapply(palettes, function(x) setNames(character(), character())))
+})

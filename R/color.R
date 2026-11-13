@@ -572,8 +572,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
       }
     }
+    levels <- if (!is.null(x) && !is.numeric(x)) .pal_discrete_levels(x) else NULL
     return(lapply(palette, .pal_apply,
-                  n = n, x = x, reverse = reverse, alpha = alpha))
+                  n = n, x = x, reverse = reverse, alpha = alpha, discrete_levels = levels))
   }
   if (!is.character(palette) || length(palette) == 0L)
     cli::cli_abort(paste("{.arg palette} must be a palette name, a colour",
@@ -711,7 +712,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 # palettes can be mapped over one element at a time.
 #' @keywords internal
 #' @noRd
-.pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
+.pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1,
+                       discrete_levels = NULL) {
   if (!is.null(x) && is.numeric(x)) {
     if (length(cols) == 1L) {
       placed <- is.finite(.pal_numeric_values(x))
@@ -729,15 +731,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   # --- Map to x (discrete) ---
   if (!is.null(x)) {
-    lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
-    lvs <- lvs[!is.na(lvs)]
-    lvs <- as.character(lvs)
-    if (anyDuplicated(lvs)) {
-      cli::cli_abort(c(
-        "Distinct values of {.arg x} produce the same discrete colour name.",
-        "i" = "Convert {.arg x} to explicit unique labels before mapping."
-      ))
-    }
+    lvs <- discrete_levels %||% .pal_discrete_levels(x)
     n_lvs <- length(lvs)
     if (n_lvs <= length(cols)) {
       out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
@@ -783,6 +777,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
 
   stats::setNames(as.character(out), nms)
+}
+
+.pal_discrete_levels <- function(x) {
+  values <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
+  labels <- as.character(values[!is.na(values)])
+  if (anyDuplicated(labels)) {
+    cli::cli_abort(c(
+      "Distinct values of {.arg x} produce the same discrete colour name.",
+      "i" = "Convert {.arg x} to explicit unique labels before mapping."
+    ))
+  }
+  labels
 }
 
 # Bounded, spread-out probes avoid a full hash pass for sparse repetitions.

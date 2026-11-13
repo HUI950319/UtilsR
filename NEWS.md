@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` resolves discrete display levels once for a list of palettes.
+
 * `pr_note()` uses pre-separated lines directly and reserves ANSI splitting for embedded breaks.
 
 * `pr_spark()` derives logical summaries from the observed and true counts without building a full frequency table.
