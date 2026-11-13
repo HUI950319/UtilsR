@@ -943,3 +943,35 @@ test_that("fmt_point skips automatic positioning with an explicit position", {
     expect_equal(built$y, d$y)
   }
 })
+
+test_that("point sampling leaves full-length group and facet vectors unreplicated", {
+  d <- data.frame(x = 1:24, y = 24:1, g = ordered(rep(c("a", "b", NA), 8L)),
+                  panel = rep(c("one", "two"), each = 12L))
+  mapping <- ggplot2::aes(x, y, group = g)
+  facets <- ggplot2::vars(panel)
+  expected <- .fmt_point_sample(d, mapping, sample_n = 2L, seed = 40L, facets = facets)
+  fn <- .fmt_point_sample
+  env <- new.env(parent = environment(fn))
+  env$rep_len <- function(x, length.out) {
+    if (length(x) == nrow(d)) stop("recycled a row-aligned point stratum")
+    base::rep_len(x, length.out)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, mapping, sample_n = 2L, seed = 40L, facets = facets), expected)
+
+  # Preserve the recycling dispatch for custom strata and matrix columns.
+  custom <- d
+  custom$g <- structure(rep(c(1L, 2L, NA_integer_), 8L), class = "custom_stratum")
+  custom$panel <- I(matrix(d$panel, ncol = 1L))
+  plain <- custom
+  plain$g <- rep_len(custom$g, nrow(custom))
+  plain$panel <- rep_len(custom$panel, nrow(custom))
+  used <- character()
+  env$rep_len <- function(x, length.out) {
+    used <<- c(used, class(x)[1L])
+    base::rep_len(x, length.out)
+  }
+  expect_identical(fn(custom, mapping, sample_n = 2L, seed = 40L, facets = facets)$x,
+    .fmt_point_sample(plain, mapping, sample_n = 2L, seed = 40L, facets = facets)$x)
+  expect_identical(used, c("custom_stratum", "AsIs"))
+})

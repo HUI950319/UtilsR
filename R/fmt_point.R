@@ -444,7 +444,10 @@ fmt_point <- function(plot,
       values <- .butterfly_category_labels(values)
       if (inherits(values, c("Duration", "Period", "Interval"))) values <- as.character(values)
     }
-    values
+    recycle <- length(values) == 1L || !is.null(dim(values)) ||
+      (is.object(values) && !identical(class(values), "factor") &&
+         !identical(class(values), c("ordered", "factor")))
+    if (recycle) rep_len(values, nrow(data)) else values
   }
   for (aes_name in c("group", "colour", "fill")) {
     aesthetic <- mapping[[aes_name]]
@@ -465,7 +468,7 @@ fmt_point <- function(plot,
       if (!length(values) %in% c(1L, nrow(data))) {
         cli::cli_abort("Sampling {.arg {aes_name}} must have length 1 or nrow(data).")
       }
-      group_values <- c(group_values, list(rep_len(stratum_values(values), nrow(data))))
+      group_values <- c(group_values, list(stratum_values(values)))
       if (aes_name == "group") break
     }
   }
@@ -477,7 +480,7 @@ fmt_point <- function(plot,
       cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")
     if (!length(values) %in% c(1L, nrow(data)))
       cli::cli_abort("Sampling facet values must have length 1 or nrow(data).")
-    group_values <- c(group_values, list(rep_len(stratum_values(values), nrow(data))))
+    group_values <- c(group_values, list(stratum_values(values)))
   }
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {

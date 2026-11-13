@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` recycles scalar strata only, retaining the existing vectors for row-aligned groups and facets.
+
 * Raster backends reject dimensions outside the integer pixel range before allocating a capture device.
 
 * Image rasterization applies the same list-shape check to nested and top-level inputs.
