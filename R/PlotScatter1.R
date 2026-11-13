@@ -320,7 +320,7 @@ PlotScatter1 <- function(
   # Group ellipses
   if (show_ellipse) {
     p_main <- p_main +
-      ggplot2::stat_ellipse(
+      .scatter_ellipse(
         ggplot2::aes(colour = .data[[group_col]]),
         level = ellipse_level, show.legend = FALSE
       )
@@ -567,6 +567,24 @@ PlotScatter1 <- function(
   }
   names(labels) <- names(value)
   factor(labels, levels = level_labels)
+}
+
+# Keep a singular covariance in one group from discarding the other paths.
+.scatter_ellipse <- function(mapping, ...) {
+  layer <- ggplot2::stat_ellipse(mapping, ...)
+  layer$stat <- ggplot2::ggproto(NULL, ggplot2::StatEllipse,
+    compute_group = function(data, scales, type = "t", level = .95,
+                             segments = 51, na.rm = FALSE) {
+      tryCatch(
+        ggplot2::StatEllipse$compute_group(data, scales, type = type, level = level,
+                                           segments = segments, na.rm = na.rm),
+        error = function(error) {
+          cli::cli_warn("Could not compute an ellipse for one scatter group.", parent = error)
+          data.frame()
+        }
+      )
+    })
+  layer
 }
 
 # Normalize encoded values before numeric scatter operations.

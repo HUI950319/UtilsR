@@ -351,7 +351,7 @@ PlotScatter2 <- function(
   # Ellipses
   if (show_ellipse) {
     p_main <- p_main +
-      ggplot2::stat_ellipse(ggplot2::aes(
+      .scatter_ellipse(ggplot2::aes(
         x = .data[[x]], y = .data[[y]],
         color = .data[[group]], group = .data[[group]]
       ), inherit.aes = FALSE, show.legend = FALSE)

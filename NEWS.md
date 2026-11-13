@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter plots keep valid group ellipses and warn when a different group's covariance cannot be estimated.
+
 * `pr_table()` finds the visible prefix of optional columns without repeatedly summing selected widths.
 
 * `pr_table()` selects visible rows before converting a truncated data.table to a data frame.

@@ -1668,3 +1668,24 @@ test_that("paired scatter accepts distinct calendar period groups", {
     expect_identical(base::levels(p$main$data$group), as.character(levels %||% values))
   }
 })
+
+test_that("scatter ellipse failures are isolated to the affected group", {
+  d <- data.frame(x = c(0, 1, 1, 0, .5, 3:7),
+    y = c(0, 0, 1, 1, .5, 3:7), g = rep(c("A", "B"), each = 5L))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  quiet <- function(expr) withCallingHandlers(expr, warning = function(w) {
+    if (grepl("stat_ellipse|ellipse for one scatter group|convergence|singular",
+              conditionMessage(w), ignore.case = TRUE)) invokeRestart("muffleWarning")
+  })
+  draw <- list(
+    function(data) scatter1_capture_panels(data, "x", "y", "g", show_ellipse = TRUE,
+      show_refline = FALSE, box_jitter = FALSE)$panels$main,
+    function(data) PlotScatter2(data, "x", "y", "g", show_ellipse = TRUE)[[1L]]
+  )
+  for (fn in draw) {
+    full <- quiet(ggplot2::layer_data(fn(d), 2L))
+    good <- ggplot2::layer_data(fn(d[d$g == "A", ]), 2L)
+    expect_identical(nrow(full), 52L)
+    if (nrow(full)) expect_equal(full[c("x", "y")], good[c("x", "y")])
+  }
+})
