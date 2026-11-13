@@ -1515,3 +1515,18 @@ test_that("numeric P cells only refine threshold candidates", {
   environment(fn) <- env
   expect_identical(fn(x), expected)
 })
+
+test_that("console tables copy only the visible rows of a data.table", {
+  skip_if_not_installed("data.table")
+  d <- data.frame(term = letters[1:12], value = 1:12)
+  table <- data.table::as.data.table(d)
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && nrow(x) > 3L) stop("copied hidden data.table rows")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(table, n = 3L, rownames = TRUE)),
+                   capture.output(pr_table(d, n = 3L, rownames = TRUE)))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` selects visible rows before converting a truncated data.table to a data frame.
+
 * `PlotScatter3()` validates distinct calendar period groups by their exact components.
 
 * Dumbbell insets reshape the underlying values when endpoint columns carry different label dictionaries.

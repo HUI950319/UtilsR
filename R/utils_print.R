@@ -610,9 +610,14 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
   if (!ncol(data) && !isTRUE(rownames)) return(._pr_out(character()))
-  data   <- as.data.frame(data)
-  n_rows <- nrow(data)
-  if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
+  if (inherits(data, "data.table") && !is.null(n) && nrow(data) > n) {
+    n_rows <- nrow(data)
+    data <- as.data.frame(data[seq_len(n), , drop = FALSE])
+  } else {
+    data <- as.data.frame(data)
+    n_rows <- nrow(data)
+    if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
+  }
   is_p <- names(data) %in% p_col
   # not automatic for character row names: rbind() of a named list leaves
   # "cox.1", "cox.2", which would become a column of their own
