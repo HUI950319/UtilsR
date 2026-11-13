@@ -1280,11 +1280,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         nlevels(v) <= length(v)) {
       factor_counts <- tabulate(v, nbins = nlevels(v))
       present <- sum(factor_counts)
+      total <- length(v)
     } else {
       missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
       present <- sum(!missing)
+      total <- length(missing)
     }
-    percentage <- 100 * ((length(v) - present) / length(v))
+    percentage <- 100 * ((total - present) / total)
     na <- sprintf("NA %.1f%%", percentage)
     if (percentage > 0 && na == "NA 0.0%") na <- "NA <0.1%"
     if (percentage < 100 && na == "NA 100.0%") na <- "NA >99.9%"

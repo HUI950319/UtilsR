@@ -1722,3 +1722,11 @@ test_that("tree counts respect their grouping with a comma decimal mark", {
   expect_identical(show(max_depth = 2L, max_items = 2L, max_lines = 2L), truncated)
   expect_true(any(grepl("1,001", actual, fixed = TRUE)))
 })
+
+test_that("nested sparkline columns measure missing cells rather than columns", {
+  nested <- tibble::tibble(a = c(1, NA, 3), b = 1:3)
+  d <- tibble::tibble(values = nested, matrix = matrix(c(1, NA, 3, NA, 5, 6), ncol = 2L))
+  out <- cli::ansi_strip(capture.output(pr_spark(d)))
+  expect_match(out[1L], "NA 16.7%", fixed = TRUE)
+  expect_match(out[2L], "NA 33.3%", fixed = TRUE)
+})
