@@ -397,11 +397,11 @@
   if (any(grepl(separator, stat.by, fixed = TRUE))) {
     # Use the public merge-list adapter with a separator absent from set names.
     while (any(grepl(separator, stat.by, fixed = TRUE))) separator <- paste0(separator, "_")
-    keys <- vapply(data[[intersection_col]], function(x) {
+    keys <- vapply(combinations[nonempty], function(x) {
       paste(sort(x), collapse = separator)
     }, character(1))
-    limits <- utils::head(names(sort(table(keys), decreasing = TRUE)), 20L)
-    rm(keys)
+    counts <- tabulate(groups, nbins = length(combinations))[nonempty]
+    limits <- keys[utils::head(order(-counts, keys), 20L)]
     x_scale <- list(
       ggupset::scale_x_mergelist(sep = separator, limits = limits),
       ggupset::axis_combmatrix(sep = separator, levels = stat.by)

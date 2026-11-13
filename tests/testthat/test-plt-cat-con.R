@@ -1385,3 +1385,23 @@ test_that("categorical set membership reads factor levels rather than every labe
   environment(fn) <- env
   expect_identical(fn(d, names(d), levels), list(A = c(1L, 4L), B = c(1L, 2L)))
 })
+
+test_that("UpSet separator fallback encodes each visible combination once", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = rep(c(TRUE, FALSE, TRUE), c(100L, 120L, 120L)),
+                  B = rep(c(FALSE, TRUE, TRUE), c(100L, 120L, 120L)))
+  names(d)[2L] <- "B-__-__-_-old"
+  expected <- cat_test_plot(d, names(d), type = "upset", stat_level = TRUE, save = NULL)
+  fn <- .plt_cat_upset
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(X, FUN, FUN.VALUE, ...) {
+    if (is.list(X) && length(X) == nrow(d)) stop("formatted repeated intersection rows")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_cat_upset = fn, .package = "UtilsR")
+  result <- cat_test_plot(d, names(d), type = "upset", stat_level = TRUE, save = NULL)
+  expect_identical(result$scales$get_scales("x")$limits, expected$scales$get_scales("x")$limits)
+  expect_equal(ggplot2::layer_data(result)$count, ggplot2::layer_data(expected)$count)
+})
