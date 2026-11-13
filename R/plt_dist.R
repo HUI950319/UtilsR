@@ -363,8 +363,10 @@ plt_dist <- function(data,
       cli::cli_abort("Inspecting {.cls {class(value)[1]}} columns requires package {.pkg {pkg}}.")
     }
     keep <- keep & !is.na(value)
-    if (length(dis_vars) == 2L && type == "alluvial") {
-      keep <- keep & !is.na(as.character(value))
+    if (length(dis_vars) == 2L && type == "alluvial" && is.object(value)) {
+      ordinary_factor <- identical(class(value), "factor") ||
+        identical(class(value), c("ordered", "factor"))
+      if (!ordinary_factor || anyNA(levels(value))) keep <- keep & !is.na(as.character(value))
     }
   }
   removed <- sum(!keep)

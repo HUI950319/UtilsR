@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` checks alluvial factor levels and plain vector missingness without decoding every observation.
+
 * `.cat_tb()` applies numeric gradients only to one-dimensional columns, preserving matrix-valued cells for rendering.
 
 * `fmt_point(sample_n = 0)` keeps the existing validation and returns an empty sampled layer without drawing random indices.

@@ -788,3 +788,18 @@ test_that("distribution layout sizes reuse grouped plot columns", {
   expect_identical(attr(actual, "plot_size"), attr(expected, "plot_size"))
   expect_identical(actual$facet$params$nrow, 2)
 })
+
+test_that("alluvial distributions check ordinary missingness without decoding rows", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(a = factor(rep(c("a", "b"), 60L)), b = ordered(rep(c("x", "y", NA), 40L)))
+  draw <- function(fn) suppressMessages(fn(d, c("a", "b"), type = "alluvial"))
+  expected <- draw(plt_dist)
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("decoded complete alluvial factor rows for missingness")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(draw(fn)$data, expected$data)
+})
