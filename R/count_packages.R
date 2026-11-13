@@ -61,7 +61,7 @@ check_packages <- function(refresh = FALSE) {
   total <- result[["Package_Count"]][nrow(result)]
   pr_head("check_packages", sprintf("%d libraries", length(lib_paths)),
           if (is.na(total)) "incomplete counts" else
-            sprintf("%s installed copies", format(total, big.mark = ",", trim = TRUE)),
+            sprintf("%s installed copies", format(total, big.mark = ",", decimal.mark = ".", trim = TRUE)),
           if (refresh) "refreshed",
           bg = if (is.na(total)) "yellow" else "blue",
           fg = if (is.na(total)) "black" else "br_white")
@@ -69,7 +69,7 @@ check_packages <- function(refresh = FALSE) {
   display <- result[c("Package_Count", "Library_Path")]
   names(display) <- c("Packages", "Library")
   display[["Packages"]] <- format(display[["Packages"]], big.mark = ",",
-                                    scientific = FALSE, trim = TRUE)
+                                    decimal.mark = ".", scientific = FALSE, trim = TRUE)
   count_width <- max(nchar(c("Packages", display[["Packages"]]), type = "width"))
   display[["Library"]] <- as.character(._pr_trim(
     display[["Library"]], max(8L, console_width() - count_width - 4L)))

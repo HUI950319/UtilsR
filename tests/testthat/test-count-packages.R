@@ -181,3 +181,19 @@ test_that("wide library inventory skips unnecessary ANSI truncation", {
   expect_identical(result$Library_Path, c(.libPaths(), "Total"))
   expect_false(any(grepl("Full paths", out, fixed = TRUE)))
 })
+
+test_that("package library counts do not conflict with a comma decimal mark", {
+  fn <- check_packages
+  env <- new.env(parent = environment(fn))
+  env$.libPaths <- function() "fixture"
+  env$dir.exists <- function(...) TRUE
+  env$file.access <- function(...) 0L
+  environment(fn) <- env
+  local_mocked_bindings(installed.packages = function(...) matrix("", 1250L, 1L),
+                        .package = "utils")
+  expected <- capture.output(fn())
+  withr::local_options(OutDec = ",")
+  expect_no_warning(actual <- capture.output(fn()))
+  expect_identical(actual, expected)
+  expect_true(any(grepl("1,250", actual, fixed = TRUE)))
+})
