@@ -2,6 +2,40 @@
 
 ## UtilsR 0.6.23
 
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  computes automatic comparison space without overflowing on wide finite
+  ranges and keeps transformed global labels at finite positions.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  skips string splitting for single-line elements and preserves blank
+  lines, missing values and multiline notices.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  reuses computed x coordinates for trend and area labels, including
+  ordered groups and empty levels.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  reuses factor codes for counts and missingness while retaining
+  declared levels and their display order.
+
+- Table highlighting evaluates regex patterns on distinct values when a
+  character column contains many repeats.
+
+- Continuous comparisons resolve available groups and their row
+  positions from the existing factor codes.
+
+- Distribution plots avoid copying unused data.table columns while
+  keeping their output names and table type.
+
+- Distribution plots validate named palettes from observed factor codes
+  without decoding every fill value.
+
+- Confidence interval parsing skips full-input deduplication unless the
+  sample shows enough repeated intervals to reuse.
+
+- KNN imputation avoids scaling and rebuilding the backend data when the
+  only missing observations have no usable predictors.
+
 - Rasterization converts fixed physical gtable cells together and
   retains viewport measurement for relative units.
 

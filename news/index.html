@@ -50,7 +50,17 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Rasterization converts fixed physical gtable cells together and retains viewport measurement for relative units.</p></li>
+<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> computes automatic comparison space without overflowing on wide finite ranges and keeps transformed global labels at finite positions.</p></li>
+<li><p><code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> skips string splitting for single-line elements and preserves blank lines, missing values and multiline notices.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> reuses computed x coordinates for trend and area labels, including ordered groups and empty levels.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> reuses factor codes for counts and missingness while retaining declared levels and their display order.</p></li>
+<li><p>Table highlighting evaluates regex patterns on distinct values when a character column contains many repeats.</p></li>
+<li><p>Continuous comparisons resolve available groups and their row positions from the existing factor codes.</p></li>
+<li><p>Distribution plots avoid copying unused data.table columns while keeping their output names and table type.</p></li>
+<li><p>Distribution plots validate named palettes from observed factor codes without decoding every fill value.</p></li>
+<li><p>Confidence interval parsing skips full-input deduplication unless the sample shows enough repeated intervals to reuse.</p></li>
+<li><p>KNN imputation avoids scaling and rebuilding the backend data when the only missing observations have no usable predictors.</p></li>
+<li><p>Rasterization converts fixed physical gtable cells together and retains viewport measurement for relative units.</p></li>
 <li><p>Confidence interval and SD formatting avoid allocating missing masks for complete ordinary numeric inputs.</p></li>
 <li><p>Rasterization maps explicit panel dimensions to parent and nested panels in documented depth-first gtable order.</p></li>
 <li><p>The main theme diagnoses invalid legend coordinates and position names at the theme call.</p></li>
