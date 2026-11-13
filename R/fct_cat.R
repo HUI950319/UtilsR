@@ -324,6 +324,13 @@ fct_cat <- function(x, ...,
     names(labels) <- names(x)
     return(factor(labels))
   }
+  if (inherits(x, c("Date", "POSIXt"))) {
+    labels <- .butterfly_category_labels(x)
+    if (!identical(labels, x)) {
+      names(labels) <- names(x)
+      return(factor(labels, levels = unique(labels[order(x, na.last = NA)])))
+    }
+  }
   if (is.double(x) && !is.object(x) && is.null(dim(x))) {
     distinct <- sort(unique(x), na.last = NA)
     labels <- as.character(distinct)

@@ -749,3 +749,17 @@ test_that("factor conversion retains calendar period components", {
   expect_identical(fct_cat(p), expected)
   expect_identical(fct_cat(p, reverse = TRUE), fct_cat(expected, reverse = TRUE))
 })
+
+test_that("time factor conversion preserves distinct instants with the same labels", {
+  dates <- stats::setNames(as.Date(c(.75, .25, 1.25, NA), origin = "1970-01-01"), letters[1:4])
+  timestamps <- as.POSIXct("2026-11-01 05:30:00", tz = "UTC") + c(3600, 0, 7200, NA)
+  attr(timestamps, "tzone") <- "America/New_York"
+  names(timestamps) <- names(dates)
+  for (x in list(dates, timestamps, as.POSIXlt(timestamps))) {
+    out <- .as_factor(x)
+    expect_identical(as.integer(out), c(2L, 1L, 3L, NA_integer_))
+    expect_identical(names(out), names(x))
+  }
+  ordinary <- as.Date(c("2020-01-03", "2020-01-01", NA))
+  expect_identical(.as_factor(ordinary), factor(ordinary))
+})

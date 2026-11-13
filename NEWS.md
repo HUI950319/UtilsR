@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor conversion keeps fractional dates and repeated local times distinct, in their native chronological order.
+
 * Image rasterization rejects unclassed non-plot values before opening a graphics device.
 
 * Background stripes map categorical positions and compute shared edges once per trained scale.
