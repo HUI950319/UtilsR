@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation reuses category codes and checks for display collisions only in labelled doubles.
+
 * KNN imputation translates only imputed labelled values back to their original storage and retains complete predictors unchanged.
 
 * KNN imputation maps backend factor codes back to original levels only for the missing observations.

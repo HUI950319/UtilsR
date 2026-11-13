@@ -624,3 +624,24 @@ test_that("KNN labelled restoration leaves complete predictors on their original
   expect_identical(result$group, d$group)
   expect_false(anyNA(result$x))
 })
+
+test_that("KNN checks category collisions only for labelled doubles", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(score = c(NA, 2:60),
+    a = haven::labelled_spss(rep(1:3, 20L), na_values = 99L),
+    b = haven::labelled(rep(c("low", "high"), 30L)))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (length(x) == nrow(d) && (is.integer(x) || is.character(x))) {
+      stop("scanned raw labels for integer and character values")
+    }
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(result, impute_na_knn(d, k = 1L, verbose = FALSE))
+  expect_identical(result$a, d$a)
+  expect_identical(result$b, d$b)
+})

@@ -190,17 +190,20 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     original <- labelled_original[[var_name]]
     raw <- vctrs::vec_data(original)
     categories <- data_for_impute[[var_name]]
-    values <- unique(raw[!is.na(original)])
-    level_ids <- as.integer(categories)[match(values, raw)]
-    if (anyDuplicated(level_ids)) {
-      values <- values[order(level_ids)]
-      codes <- match(raw, values)
-      codes[is.na(original)] <- NA_integer_
-      labels <- if (is.double(values)) sprintf("%.17g", values) else as.character(values)
-      categories <- factor(codes, levels = seq_along(values), labels = labels)
-      data_for_impute[[var_name]] <- categories
+    codes <- as.integer(categories)
+    if (is.double(raw)) {
+      missing <- is.na(original)
+      values <- unique(raw[!missing])
+      level_ids <- codes[match(values, raw)]
+      if (anyDuplicated(level_ids)) {
+        values <- values[order(level_ids)]
+        codes <- match(raw, values)
+        codes[missing] <- NA_integer_
+        categories <- factor(codes, levels = seq_along(values), labels = sprintf("%.17g", values))
+        data_for_impute[[var_name]] <- categories
+      }
     }
-    labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), as.integer(categories))]
+    labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), codes)]
   }
 
   non_finite <- vapply(data_for_impute, function(x) {
