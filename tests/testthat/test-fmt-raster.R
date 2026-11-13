@@ -844,3 +844,11 @@ test_that("raster tables convert fixed physical cell units together", {
     function(g) g$raster))
   expect_identical(rasters(result), rasters(reference))
 })
+
+test_that("nested image rasterization rejects plot arrays before opening a device", {
+  skip_if_not_installed("ragg")
+  d <- array(list(grid::rectGrob(), grid::rectGrob()), c(1L, 2L))
+  local_mocked_bindings(.agg_capture = function(...) stop("opened a device for a plot array"),
+                        .package = "UtilsR")
+  expect_error(fmt_raster(list(list(d)), method = "image"), "Plot lists must be one-dimensional")
+})

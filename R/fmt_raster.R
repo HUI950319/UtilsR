@@ -455,6 +455,7 @@ fmt_raster <- function(
   # Only a plain list holds several plots; a classed list such as a forestplot
   # is one figure that its print method draws.
   if (is.list(plot) && !is.object(plot)) {
+    if (!is.null(dim(plot))) cli::cli_abort("Plot lists must be one-dimensional.")
     if (any(vapply(plot, is.null, logical(1)))) {
       cli::cli_abort("All elements in the list must be plots.")
     }
