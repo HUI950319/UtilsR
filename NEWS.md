@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point(sample_n = 0)` keeps the existing validation and returns an empty sampled layer without drawing random indices.
+
 * `grob_insert(on_top = FALSE)` keeps its inset below foreground grobs even when subtracting one does not change their drawing order.
 
 * `PlotCircleLollipop()` obtains each sector's numeric scaling bounds with one range operation.

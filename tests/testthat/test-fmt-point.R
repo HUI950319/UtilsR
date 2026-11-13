@@ -975,3 +975,16 @@ test_that("point sampling leaves full-length group and facet vectors unreplicate
     .fmt_point_sample(plain, mapping, sample_n = 2L, seed = 40L, facets = facets)$x)
   expect_identical(used, c("custom_stratum", "AsIs"))
 })
+
+test_that("zero point sampling does not draw random indices", {
+  d <- data.frame(x = 1:12, y = 12:1, g = factor(rep(c("a", "b"), 6L)))
+  fn <- .fmt_point_sample
+  env <- new.env(parent = environment(fn))
+  env$sample.int <- function(...) stop("drew random indices for a zero-row sample")
+  environment(fn) <- env
+  for (mapping in list(ggplot2::aes(x, y), ggplot2::aes(x, y, group = g))) {
+    expect_identical(fn(d, mapping, sample_n = 0L, seed = 2L), d[FALSE, , drop = FALSE])
+  }
+  expect_error(fn(d, ggplot2::aes(x, y), sample_n = 0L, seed = 2L,
+                  fixed = list(size = 1:12)), "scalar fixed aesthetics")
+})

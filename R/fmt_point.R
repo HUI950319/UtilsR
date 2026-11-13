@@ -482,6 +482,11 @@ fmt_point <- function(plot,
       cli::cli_abort("Sampling facet values must have length 1 or nrow(data).")
     group_values <- c(group_values, list(stratum_values(values)))
   }
+  if (sample_n == 0L) {
+    data <- data[integer(), , drop = FALSE]
+    rownames(data) <- NULL
+    return(data)
+  }
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {
       if (inherits(x, "haven_labelled") && is.numeric(x)) {
