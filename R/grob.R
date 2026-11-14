@@ -160,8 +160,7 @@ grob_add <- function(
     if (!is.character(clip) || !is.null(dim(clip)) || length(clip) != 1L ||
         is.na(clip) || !clip %in% c("on", "off", "inherit"))
       stop("'clip' must be one of 'on', 'off' or 'inherit'.", call. = FALSE)
-    if (!is.null(space) && (!grid::is.unit(space) ||
-        (inherits(space, "simpleUnit") && any(!is.finite(as.numeric(space))))))
+    if (!is.null(space) && (!grid::is.unit(space) || !.grob_finite_unit(space)))
       stop("'space' must be NULL or a finite grid unit.", call. = FALSE)
   }
 
@@ -347,7 +346,7 @@ grob_insert <- function(
     .register_integer64(value)
     if (!(is.numeric(value) || inherits(value, "unit")) ||
         length(value) != 1L || !is.null(dim(value)) ||
-        !is.finite(as.numeric(value))) {
+        !(if (grid::is.unit(value)) .grob_finite_unit(value) else is.finite(as.numeric(value)))) {
       stop("'", arg, "' must be a finite numeric scalar or a scalar grid unit.",
            call. = FALSE)
     }
@@ -527,6 +526,16 @@ grob_to_gg <- function(grob, ...) {
   eval(quote(ggplot2::ggplot() + ggplot2::annotation_custom(g) +
                ggplot2::theme_void()),
        envir = list2env(list(g = g), parent = baseenv()))
+}
+
+.grob_finite_unit <- function(value) {
+  if (any(!is.finite(as.numeric(value)))) return(FALSE)
+  if (!inherits(value, "unit_v2")) return(TRUE)
+  # Compound units store their operands separately from the numeric coefficient.
+  compound <- which(grid::unitType(value) %in% c("sum", "min", "max"))
+  all(vapply(unclass(value)[compound], function(part) {
+    all(vapply(part[[2L]], .grob_finite_unit, logical(1)))
+  }, logical(1)))
 }
 
 .grob_panel_bounds <- function(layout) {

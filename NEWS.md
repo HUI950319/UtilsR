@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_add()` and `grob_insert()` reject non-finite terms inside compound units before converting the plot.
+
 * `plt_sankey()` constructs each default stage colour ramp once, including when the palette cycle repeats.
 
 * `lv()` preserves decimal commas in measurements without emitting grouping-separator warnings.

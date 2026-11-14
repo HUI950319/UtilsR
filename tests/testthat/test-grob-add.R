@@ -297,3 +297,17 @@ test_that("grob placement reads coordinates without copying panel layout rows", 
   result <- inset(gt, grid::rectGrob())
   expect_equal(unname(unlist(tail(result$layout, 1L)[c("t", "b", "l", "r")])), c(2, 2, 2, 3))
 })
+
+test_that("compound grid units expose nonfinite component coefficients before plotting", {
+  rect <- grid::rectGrob()
+  for (bad in list(grid::unit(Inf, "npc") + grid::unit(1, "mm"),
+                   grid::unit.pmax(grid::unit(2, "cm"), grid::unit(NA, "mm")))) {
+    expect_error(grob_add(stop("plot evaluated"), rect, space = bad), "space")
+    expect_error(grob_insert(stop("plot evaluated"), rect, left = bad), "left")
+  }
+  p <- ggplot2::ggplot()
+  valid <- grid::unit(0.1, "npc") + grid::unit(1, "mm")
+  expect_s3_class(grob_add(p, rect, space = valid), "gtable")
+  expect_s3_class(grob_insert(p, rect, left = valid), "gtable")
+  expect_s3_class(grob_add(p, rect, space = grid::grobHeight(rect)), "gtable")
+})
