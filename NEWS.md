@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` keeps compound list elements intact when pruning globally unique features.
+
 * `fmt_tag()` rejects multidimensional plot lists before traversing or replacing their elements.
 
 * `fmt_boxplot()` searches layer data for explicitly requested `.data` columns even with an empty plot-level frame.

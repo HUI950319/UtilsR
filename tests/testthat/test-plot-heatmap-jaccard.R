@@ -921,3 +921,17 @@ test_that("Jaccard factor levels map to requested labels without decoding rows",
   expect_identical(rownames(actual), c("B", "", "unused"))
   expect_equal(unname(actual[1:2, 1:2]), matrix(c(1, 100/101, 100/101, 1), 2L))
 })
+
+test_that("Jaccard pruning keeps list feature elements intact", {
+  keys <- list(c("a", "b"), c("b", "a"), letters[3:5], "solo",
+               c("a", "b"), "w", letters[10:13], "q",
+               c("a", "b"), "r", letters[14:15], "s")
+  d <- data.frame(cell_type = rep(LETTERS[1:6], each = 2L))
+  d$gene <- I(keys)
+  group <- split(keys, d$cell_type)
+  expected <- outer(seq_along(group), seq_along(group), Vectorize(function(i, j) {
+    length(intersect(group[[i]], group[[j]])) / length(union(group[[i]], group[[j]]))
+  }))
+  dimnames(expected) <- list(names(group), names(group))
+  expect_equal(PlotHeatmapJaccard(d, return_type = "data"), expected)
+})

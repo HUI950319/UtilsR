@@ -275,7 +275,8 @@ PlotHeatmapJaccard <- function(
       membership <- do.call(vctrs::vec_c, unname(top_sets))
       vctrs::vec_duplicate_detect(membership)
     } else {
-      membership <- unlist(top_sets, use.names = FALSE)
+      membership <- if (is.list(feature_values)) do.call(c, unname(top_sets)) else
+        unlist(top_sets, use.names = FALSE)
       duplicated(membership) | duplicated(membership, fromLast = TRUE)
     }
     if (!all(shared)) {
