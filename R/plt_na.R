@@ -162,8 +162,7 @@ plt_na <- function(
     total = nrow(df),
     pct = .data[["num"]] / .data[["total"]] * 100
   ) |>
-    dplyr::filter(.data[["num"]] > 0) |>
-    dplyr::mutate(label = map_name(.data[["name"]]))
+    dplyr::filter(.data[["num"]] > 0)
 
   missing_pct <- counts / nrow(df) * 100
   ordered_names <- names(counts)[order(missing_pct, decreasing = sort == "desc")]

@@ -501,3 +501,19 @@ test_that("complete factor columns skip allocating missingness masks", {
   environment(fn) <- env
   expect_identical(draw(fn)$data, expected$data)
 })
+
+test_that("missingness aliases are mapped only for unique plotted variables", {
+  d <- data.frame(a = c(1, NA, 3), b = c(NA, 5, 6), c = c(1, 2, 3))
+  draw <- function() suppressMessages(plt_na(d, name.map = c(a = "Alias", b = "Alias"),
+                                            output = "percentage"))
+  expected <- draw()
+  mutate <- dplyr::mutate
+  local_mocked_bindings(mutate = function(.data, ...) {
+    if (identical(names(.data), c("name", "isna", "num", "total", "pct")))
+      stop("mapped the same missingness alias twice")
+    mutate(.data, ...)
+  }, .package = "dplyr")
+  out <- draw()
+  expect_identical(out$data, expected$data)
+  expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
+})

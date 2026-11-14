@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` maps aliases once and uses the resulting shared labels for percentage and matrix plots.
+
 * `check_size()` formats the total once for both the table and its caption.
 
 * `PlotHeatmapJaccard()` keeps compound list elements intact when pruning globally unique features.
