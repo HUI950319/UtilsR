@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` applies the bound grammar only to bound text and the exact-number grammar only to other observations.
+
 * `plt_cat()` uses existing factor codes to split panels in declared order.
 
 * `plt_cat(NA_stat = TRUE)` avoids building a shared replacement label for complete data.

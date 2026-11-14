@@ -776,3 +776,20 @@ test_that("p-value text diagnoses malformed bytes through input validation", {
   }
   expect_identical(stat_pval(c("\u2264 .01", ".05", NA)), c("\u2264 .01", "0.050*", NA))
 })
+
+test_that("P value tokens use the applicable validation pattern", {
+  x <- c("0.002", " <= 0.05 ", "\u22650.2", "0.30", NA, "NaN", "0.08", "<0.001")
+  expected <- stat_pval(x)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$grepl <- function(pattern, x, ...) {
+    if (length(x) == length(expected) && startsWith(pattern, "^(?:")) {
+      stop("applied both P-value grammars to every value")
+    }
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), expected)
+  expect_error(fn(c("0.01", "<bad")), "numeric strings or numeric bounds", fixed = TRUE)
+  expect_error(fn(c("0.01", "=")), "numeric strings or numeric bounds", fixed = TRUE)
+})

@@ -208,10 +208,14 @@ stat_pval <- function(x,
     text <- .trim_pvalue_space(x)
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
-    bounded <- !is.na(text) & grepl(paste0("^", prefix, number, "$"), text, perl = TRUE)
-    exact <- grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
-                   text, perl = TRUE)
-    if (any(!is.na(text) & !bounded & !exact)) {
+    present <- which(!is.na(text))
+    bound_rows <- grepl("^[<>\u2264\u2265]", text[present])
+    bound_at <- present[bound_rows]
+    exact_at <- present[!bound_rows]
+    bounded[bound_at] <- grepl(paste0("^", prefix, number, "$"), text[bound_at], perl = TRUE)
+    if (!all(bounded[bound_at]) ||
+        !all(grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
+                   text[exact_at], perl = TRUE))) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
     values <- text
