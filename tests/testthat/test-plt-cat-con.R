@@ -1582,3 +1582,23 @@ test_that("categorical missing label generation waits for missing rows", {
   actual <- draw(plt_cat, d)
   expect_true("<NA>.1" %in% levels(actual$data$stat_var))
 })
+
+test_that("categorical panel splits reuse observed factor positions", {
+  d <- data.frame(s = c("a", "b", "b", "a"),
+                  site = factor(c("second", "", "", "second"), levels = c("", "unused", "second")))
+  draw <- function(fn) suppressMessages(fn(d, "s", split.by = "site", stat = "count"))
+  expected <- draw(plt_cat)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(data[[split.by]]))) stop("re-encoded split panel factors")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_length(actual, 2L)
+  for (i in seq_along(expected)) {
+    expect_identical(actual[[i]]$data, expected[[i]]$data)
+    expect_identical(actual[[i]]$labels$title, expected[[i]]$labels$title)
+  }
+})

@@ -636,9 +636,17 @@ plt_cat <- function(data,
 
   # --- Handle split.by --------------------------------------------------------
   if (!is.null(split.by)) {
-    panels <- factor(data[[split.by]])
-    split_levels <- levels(panels)
-    panel_rows <- split(seq_len(nrow(data)), panels)
+    panels <- data[[split.by]]
+    ordinary_factor <- identical(class(panels), "factor") ||
+      identical(class(panels), c("ordered", "factor"))
+    if (ordinary_factor && !anyNA(levels(panels))) {
+      panel_rows <- split(seq_len(nrow(data)), panels, drop = TRUE)
+      split_levels <- names(panel_rows)
+    } else {
+      panels <- factor(panels)
+      split_levels <- levels(panels)
+      panel_rows <- split(seq_len(nrow(data)), panels)
+    }
     if (!is.null(facet_nrow) && !is.null(facet_ncol) &&
         facet_nrow < ceiling(length(split_levels) / facet_ncol)) {
       cli::cli_abort("{.arg facet_nrow} and {.arg facet_ncol} must accommodate all {length(split_levels)} panels.")
