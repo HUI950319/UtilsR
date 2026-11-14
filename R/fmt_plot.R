@@ -551,7 +551,10 @@ fmt_tag <- function(plot,
                           p$layers)
       return(p)
     }
-    if (is.list(p)) return(lapply(p, clear_tags))
+    if (is.list(p)) {
+      if (!is.null(dim(p))) cli::cli_abort("Plot lists must be one-dimensional.")
+      return(lapply(p, clear_tags))
+    }
     p
   }
   plot <- clear_tags(plot)

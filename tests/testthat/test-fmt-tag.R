@@ -500,3 +500,11 @@ test_that("plot tags resolve the global font theme once per container", {
   expect_identical(vapply(out, function(x) x$layers[[2L]]$aes_params$family, ""),
     c("serif", "mono"))
 })
+
+test_that("tagging rejects shaped plot lists before clearing tags", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_error(fmt_tag(array(list(p, p), dim = c(1L, 2L))), "one-dimensional", fixed = TRUE)
+  out <- fmt_tag(list(first = p, second = p))
+  expect_named(out, c("first", "second"))
+  expect_s3_class(ggplot2::ggplotGrob(out[[2L]]), "gtable")
+})
