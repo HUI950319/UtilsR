@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_boxplot()` searches layer data for explicitly requested `.data` columns even with an empty plot-level frame.
+
 * `fmt_boxplot()` and `fmt_point()` preserve inherited and dot-prefixed position settings when copying their layers.
 
 * `fmt_scale()` and `fmt_expand()` retain the category scale selected by later data layers after infinite position placeholders.

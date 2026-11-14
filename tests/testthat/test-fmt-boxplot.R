@@ -1191,3 +1191,17 @@ test_that("formatted positions snapshot hidden inherited fields", {
     expect_s3_class(ggplot2::ggplotGrob(out), "gtable")
   }
 })
+
+test_that("boxplot source selection checks explicit layer data columns", {
+  d1 <- data.frame(g = rep(c("A", "B"), each = 5L), r = 1:10)
+  d2 <- data.frame(g = d1$g, measurement = 11:20)
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_point(ggplot2::aes(g, r), data = d1) +
+    ggplot2::geom_point(ggplot2::aes(g, measurement), data = d2)
+  for (mapping in list(ggplot2::aes(y = .data$measurement),
+                       ggplot2::aes(y = .data[["measurement"]]))) {
+    output <- fmt_boxplot(p, list(mapping = mapping), inherit.aes = FALSE)
+    expect_identical(output$layers[[3L]]$data, d2)
+    expect_equal(ggplot2::layer_data(output, 3L)$middle, c(13, 18))
+  }
+})

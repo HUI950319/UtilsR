@@ -5847,16 +5847,16 @@ fmt_boxplot <- function(plot,
     if (resolve_source) {
       resolved <- NULL
       requested_columns <- character()
-      if (is.null(args[["data"]]) && is.data.frame(p$data)) {
+      if (is.null(args[["data"]])) {
         for (axis in intersect(positions, names(mapping))) {
           expr <- rlang::get_expr(mapping[[axis]])
-          column <- if (is.symbol(expr)) as.character(expr) else if (
-            is.call(expr) && length(expr) == 3L && identical(expr[[2L]], quote(.data))
-          ) {
+          column <- if (is.symbol(expr)) {
+            intersect(as.character(expr), names(p$data))
+          } else if (is.call(expr) && length(expr) == 3L && identical(expr[[2L]], quote(.data))) {
             if (identical(expr[[1L]], quote(`[[`)) && is.character(expr[[3L]])) expr[[3L]] else
               if (identical(expr[[1L]], quote(`$`)) && is.symbol(expr[[3L]])) as.character(expr[[3L]])
           }
-          requested_columns <- c(requested_columns, intersect(column, names(p$data)))
+          requested_columns <- c(requested_columns, column)
         }
       }
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
