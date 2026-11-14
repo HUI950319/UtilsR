@@ -375,7 +375,9 @@ pr_note <- function(..., .envir = parent.frame()) {
   }
   width <- max(1L, console_width() - 2L)
   body <- unlist(lapply(segs, function(s) {
-    text <- tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
+    text <- if (grepl("[{}]", s)) {
+      tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
+    } else s
     if (nzchar(cli::ansi_strip(text))) ._pr_wrap(text, width = width)
     else ""
   }))

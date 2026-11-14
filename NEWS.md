@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_note()` wraps plain lines without first invoking the CLI interpolation parser.
+
 * `stat_pval()` applies the bound grammar only to bound text and the exact-number grammar only to other observations.
 
 * `plt_cat()` uses existing factor codes to split panels in declared order.

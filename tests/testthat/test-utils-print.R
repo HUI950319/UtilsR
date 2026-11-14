@@ -1872,3 +1872,18 @@ test_that("narrow console tables reuse measured P-value cell widths", {
   expect_identical(draw(), expected)
   expect_length(seen, 3L)
 })
+
+test_that("plain console notes skip the CLI markup parser", {
+  withr::local_options(cli.num_colors = 8L)
+  n <- 2L
+  text <- c("plain", "", cli::col_red("styled"), "count {n}", "{{literal}}")
+  expected <- capture.output(pr_note(text))
+  format_inline <- cli::format_inline
+  calls <- character()
+  local_mocked_bindings(format_inline = function(text, ...) {
+    calls <<- c(calls, cli::ansi_strip(text))
+    format_inline(text, ...)
+  }, .package = "cli")
+  expect_identical(capture.output(pr_note(text)), expected)
+  expect_identical(calls, c("count {n}", "{{literal}}"))
+})
