@@ -2384,6 +2384,8 @@ fmt_strip2 <- function(plot,
       row_sizes[rows[i]] <- max(row_sizes[rows[i]], grids[[i]]$nrow)
       col_sizes[cols[i]] <- max(col_sizes[cols[i]], grids[[i]]$ncol)
     }
+    row_offsets <- c(0L, cumsum(row_sizes))
+    col_offsets <- c(0L, cumsum(col_sizes))
     entries <- list()
     for (i in seq_len(n)) {
       child <- grids[[i]]
@@ -2391,8 +2393,8 @@ fmt_strip2 <- function(plot,
       if (child$nrow != row_sizes[rows[i]] || child$ncol != col_sizes[cols[i]]) {
         cli::cli_abort("Nested patchworks must form aligned rectangular grids.")
       }
-      row_offset <- sum(row_sizes[seq_len(rows[i] - 1L)])
-      col_offset <- sum(col_sizes[seq_len(cols[i] - 1L)])
+      row_offset <- row_offsets[rows[i]]
+      col_offset <- col_offsets[cols[i]]
       for (entry in child$entries) {
         entry$row <- entry$row + row_offset
         entry$col <- entry$col + col_offset

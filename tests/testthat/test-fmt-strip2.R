@@ -1115,3 +1115,23 @@ test_that("filled strip borders reuse the global theme across plots", {
                      lapply(.fmt_strip_text(reference[[i]], "rect"), `[[`, "gp"))
   }
 })
+
+test_that("strip grids calculate each axis offset once", {
+  skip_if_not_installed("ggh4x")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  grid <- rep(list(p), 24L)
+  args <- list(plot = grid, top_label = "tag", ncol = 1L, top_right_fill = NULL)
+  expected <- do.call(fmt_strip2, args)
+  fn <- fmt_strip2
+  env <- new.env(parent = environment(fn))
+  env$sum <- function(..., na.rm = FALSE) {
+    args <- list(...)
+    if (length(args) == 1L && length(args[[1L]]) %in% 10:23 && all(args[[1L]] == 1L))
+      stop("rescanned a prefix of strip rows")
+    base::sum(..., na.rm = na.rm)
+  }
+  environment(fn) <- env
+  out <- do.call(fn, args)
+  expect_length(out, 24L)
+  expect_identical(lapply(out, function(p) p$facet$params), lapply(expected, function(p) p$facet$params))
+})

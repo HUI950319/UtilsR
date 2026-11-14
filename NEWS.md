@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip2()` calculates each row and column offset once when traversing regular plot grids.
+
 * `fmt_boxplot()` selects the complete summary matching an explicitly requested identity boxplot orientation.
 
 * `plt_na()` maps aliases once and uses the resulting shared labels for percentage and matrix plots.
