@@ -240,7 +240,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     )
 
   # Total size string
-  total_str <- format_size(total_mb)
+  total_str <- if (object_count) object_info$Size_fmt[[1L]] else format_size(total_mb)
 
   # Render simple bars directly in HTML, including an all-zero column.
   bar_html <- function(x) {

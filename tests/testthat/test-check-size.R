@@ -537,3 +537,18 @@ test_that("joint object sizes keep stored language inert", {
   expect_setequal(actual$Object[-1L], c("call", "symbol", "x"))
   expect_equal(actual$Size[1L], as.numeric(lobstr::obj_size(call, symbol, x, env = e)) / 1024^2)
 })
+
+test_that("object size captions reuse the displayed total", {
+  target <- list2env(list(a = 1:9, b = raw(20L)), parent = emptyenv())
+  fn <- check_size
+  env <- new.env(parent = environment(fn))
+  sizes <- 0L
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.0f B")) sizes <<- sizes + length(list(...)[[1L]])
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  actual <- fn(envir = target, method = "object.size")
+  expect_identical(sizes, 3L)
+  expect_identical(actual[["_data"]], check_size(envir = target)[["_data"]])
+})

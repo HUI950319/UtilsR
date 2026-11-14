@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` formats the total once for both the table and its caption.
+
 * `PlotHeatmapJaccard()` keeps compound list elements intact when pruning globally unique features.
 
 * `fmt_tag()` rejects multidimensional plot lists before traversing or replacing their elements.
