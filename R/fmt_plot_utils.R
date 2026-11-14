@@ -217,6 +217,7 @@
       "factor", "ordered", "Date", "POSIXct", "POSIXlt", "POSIXt",
       "hms", "difftime", "numeric", "integer", "character", "logical"
     ))) return(NULL)
+    if (is.atomic(d) && is.infinite(d[[1L]]) && all(is.infinite(d))) next
     if (is.factor(d) || is.character(d) || is.logical(d)) {
       return(paste0("scale_", axis, "_discrete"))
     } else if (inherits(d, "Date")) {

@@ -547,3 +547,17 @@ test_that("discrete scale changes update continuous axis limits on existing scal
     expect_error(fmt_scale(explicit, x = args), "continuous.limits", fixed = TRUE)
   }
 })
+
+test_that("infinite placeholder layers leave category scale selection to data", {
+  p <- ggplot2::ggplot(data.frame(x = c(Inf, -Inf), y = 1:2), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_point(data = data.frame(x = letters[1:3], y = 1:3))
+  axis <- function(p) ggplot2::ggplot_build(p)$plot$scales$get_scales("x")
+  expect_s3_class(axis(p), "ScaleDiscretePosition")
+  padded <- fmt_expand(p, axis = "x", add = 1)
+  expect_s3_class(axis(padded), "ScaleDiscretePosition")
+  expect_equal(axis(padded)$expand, ggplot2::expansion(add = 1))
+  titled <- fmt_scale(p, x = list(labels = toupper))
+  expect_identical(as.character(x_params(titled)$get_labels()), c("A", "B", "C"))
+  expect_null(p$scales$get_scales("x"))
+})
