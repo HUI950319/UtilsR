@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grouped categorical plots reuse integer positions for both axes after counting occupied cells.
+
 * `impute_na_knn()` leaves complete factor predictors on their original codes, including observed explicit NA levels.
 
 * `plt_dist()` reports invalid scalar labels, transparency and facet or legend dimensions before plot preparation.

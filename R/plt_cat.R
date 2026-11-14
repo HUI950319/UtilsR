@@ -855,8 +855,8 @@ plt_cat <- function(data,
     i <- stat_code[first][order_at]
     j <- group_code[first][order_at]
     df <- data.frame(
-      stat_var = factor(levels(data[[stat.by]])[i], levels = levels(data[[stat.by]])),
-      group_var = factor(levels(data[[group.by]])[j], levels = levels(data[[group.by]])),
+      stat_var = structure(i, levels = levels(data[[stat.by]]), class = "factor"),
+      group_var = structure(j, levels = levels(data[[group.by]]), class = "factor"),
       n = tabulate(ids, attr(ids, "n"))[order_at]
     )
     if (stat == "percent") {

@@ -1550,3 +1550,18 @@ test_that("univariate categorical counts use factor tallies", {
   expect_identical(lapply(c(FALSE, TRUE), function(keep) fn(d, "x", NULL, "count", keep_empty = keep)),
                    expected)
 })
+
+test_that("sparse categorical plot factors reuse observed cell codes", {
+  d <- data.frame(s = ordered(rep(c("A", "B", "A"), 40L), levels = c("B", "", "A")),
+                  g = factor(rep(c("Q", "P", ""), 40L), levels = c("", "P", "Q", "R")))
+  fn <- .prepare_cat_data
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (is.character(x) && length(x) == 3L) stop("re-encoded occupied categorical cells")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  for (mode in c("count", "percent")) {
+    expect_identical(fn(d, "s", "g", mode), .prepare_cat_data(d, "s", "g", mode))
+  }
+})
