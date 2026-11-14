@@ -5912,8 +5912,12 @@ fmt_boxplot <- function(plot,
         if (identity_stat && !keep_mapping) {
           available <- c(names(mapping)[!vapply(mapping, is.null, logical(1))],
                          names(args)[!vapply(args, is.null, logical(1))])
-          if (!all(c("x", "ymin", "lower", "middle", "upper", "ymax") %in% available) &&
-              !all(c("y", "xmin", "xlower", "xmiddle", "xupper", "xmax") %in% available)) next
+          orientation <- boxplot.args[["orientation"]]
+          vertical <- !identical(orientation, "y") &&
+            all(c("x", "ymin", "lower", "middle", "upper", "ymax") %in% available)
+          horizontal <- !identical(orientation, "x") &&
+            all(c("y", "xmin", "xlower", "xmiddle", "xupper", "xmax") %in% available)
+          if (!vertical && !horizontal) next
         }
         if (keep_mapping || !is.null(mapping[["x"]]) || !is.null(mapping[["y"]])) {
           resolved <- list(data = pd, mapping = mapping)

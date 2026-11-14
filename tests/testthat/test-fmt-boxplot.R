@@ -1205,3 +1205,22 @@ test_that("boxplot source selection checks explicit layer data columns", {
     expect_equal(ggplot2::layer_data(output, 3L)$middle, c(13, 18))
   }
 })
+
+test_that("identity boxplot sources respect orientation when scanning layers", {
+  vertical <- data.frame(g = c("A", "B"), lo = 1:2, q1 = 3:4, mid = 5:6,
+                         q3 = 7:8, hi = 9:10)
+  horizontal <- transform(vertical, g = c("C", "D"), mid = 5:6 + .5)
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_boxplot(ggplot2::aes(x = g, ymin = lo, lower = q1, middle = mid,
+      upper = q3, ymax = hi), data = vertical, stat = "identity", orientation = "x") +
+    ggplot2::geom_boxplot(ggplot2::aes(y = g, xmin = lo, xlower = q1, xmiddle = mid,
+      xupper = q3, xmax = hi), data = horizontal, stat = "identity", orientation = "y")
+  for (orientation in c("x", "y")) {
+    output <- fmt_boxplot(p, list(stat = "identity", orientation = orientation),
+                         inherit.aes = FALSE)
+    data <- if (orientation == "x") vertical else horizontal
+    expect_identical(output$layers[[3L]]$data, data)
+    built <- ggplot2::layer_data(output, 3L)
+    expect_equal(as.numeric(built[[if (orientation == "x") "middle" else "xmiddle"]]), data$mid)
+  }
+})
