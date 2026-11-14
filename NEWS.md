@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(NA_stat = TRUE)` avoids building a shared replacement label for complete data.
+
 * Grouped categorical plots reuse integer positions for both axes after counting occupied cells.
 
 * `impute_na_knn()` leaves complete factor predictors on their original codes, including observed explicit NA levels.

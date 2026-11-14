@@ -549,10 +549,7 @@ plt_cat <- function(data,
     }
   } else {
     na_cols <- unique(c(stat.by, group.by, split.by))
-    used_levels <- unique(unlist(lapply(na_cols, function(col) levels(data[[col]]))))
-    used_levels <- used_levels[!is.na(used_levels)]
-    missing_level <- tail(make.unique(c(used_levels,
-      if ("NA" %in% used_levels) "<NA>" else "NA")), 1L)
+    missing_level <- NULL
     for (col in na_cols) {
       column <- data[[col]]
       ordinary_factor <- identical(class(column), "factor") ||
@@ -560,6 +557,12 @@ plt_cat <- function(data,
       if (ordinary_factor && !anyNA(levels(column)) && !anyNA(column)) next
       values <- as.character(column)
       if (anyNA(values)) {
+        if (is.null(missing_level)) {
+          used_levels <- unique(unlist(lapply(na_cols, function(k) levels(data[[k]]))))
+          used_levels <- used_levels[!is.na(used_levels)]
+          missing_level <- tail(make.unique(c(used_levels,
+            if ("NA" %in% used_levels) "<NA>" else "NA")), 1L)
+        }
         lvls <- levels(data[[col]])
         lvls <- lvls[!is.na(lvls)]
         values[is.na(values)] <- missing_level

@@ -1565,3 +1565,20 @@ test_that("sparse categorical plot factors reuse observed cell codes", {
     expect_identical(fn(d, "s", "g", mode), .prepare_cat_data(d, "s", "g", mode))
   }
 })
+
+test_that("categorical missing label generation waits for missing rows", {
+  d <- data.frame(s = factor(c("a", "a", "NA", "b"), levels = c("a", "NA", "<NA>", "b")),
+                  g = factor(c("N", "M", "N", "M"), levels = c("M", "N")))
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$make.unique <- function(names, ...) {
+    if ("<NA>" %in% names && anyDuplicated(names)) stop("built a missing label for complete categories")
+    base::make.unique(names, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, d) suppressMessages(f(d, "s", "g", NA_stat = TRUE, keep_empty = TRUE))
+  expect_identical(draw(fn, d)$data, draw(plt_cat, d)$data)
+  d$s[1L] <- NA
+  actual <- draw(plt_cat, d)
+  expect_true("<NA>.1" %in% levels(actual$data$stat_var))
+})
