@@ -879,3 +879,26 @@ test_that("Sankey label layers reuse stage and caption positions", {
   expect_identical(levels(actual$layers[[3L]]$data$x), paste0(c("c", "b", "a"), "_label"))
   expect_setequal(actual$layers[[3L]]$data$label, c("same", "other"))
 })
+
+test_that("Sankey stages reuse default ramp constructors across the palette cycle", {
+  skip_if_not_installed("ggsankey")
+  d <- as.data.frame(setNames(lapply(1:8, function(i) rep(letters[seq_len(i)], length.out = 8L)),
+                            paste0("stage", 1:8)))
+  draw <- function(fn) suppressMessages(fn(d, names(d), show_text = "none",
+                                           theme_use = ggplot2::theme_void()))
+  expected <- draw(plt_sankey)
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  used <- character()
+  env$pal_get <- function(palette, ...) {
+    if (palette %in% used) stop("rebuilt a repeated stage colour ramp")
+    used <<- c(used, palette)
+    pal_get(palette, ...)
+  }
+  environment(fn) <- env
+  out <- draw(fn)
+  expect_length(used, 6L)
+  expect_identical(out$data, expected$data)
+  expect_identical(out$scales$get_scales("fill")$palette(length(levels(out$data$node))),
+    expected$scales$get_scales("fill")$palette(length(levels(expected$data$node))))
+})

@@ -322,14 +322,11 @@ plt_sankey <- function(data,
   # Generate colours (always as plain character, not palette class)
   if (is.null(palette)) {
     hcl_pals <- c("Blues", "Oranges", "Greens", "Purples", "Reds", "Grays")
-    col_list <- lapply(seq_along(vars), function(i) {
-      pal_name <- hcl_pals[((i - 1) %% length(hcl_pals)) + 1]
-      n_lvs <- node_counts[i]
-      grDevices::colorRampPalette(
-        as.character(pal_get(paste0("hcl_", pal_name), n = 5))[2:4]
-      )(n_lvs)
+    stage_palette <- rep_len(seq_along(hcl_pals), length(vars))
+    ramps <- lapply(hcl_pals[unique(stage_palette)], function(name) {
+      grDevices::colorRampPalette(as.character(pal_get(paste0("hcl_", name), n = 5))[2:4])
     })
-    mycol <- unlist(col_list)
+    mycol <- unlist(Map(function(ramp, n) ramp(n), ramps[stage_palette], node_counts))
   } else if (length(palette) == 1 && palette %in% names(palette_list)) {
     mycol <- as.character(pal_get(palette, n = length(all_levels)))
   } else {

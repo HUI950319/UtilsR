@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` constructs each default stage colour ramp once, including when the palette cycle repeats.
+
 * `lv()` preserves decimal commas in measurements without emitting grouping-separator warnings.
 
 * `fmt_expand()` reports when a coordinate system disables the requested padding with a numeric zero flag.
