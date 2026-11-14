@@ -819,3 +819,17 @@ test_that("numeric distribution factors reuse matching codes with full precision
   expect_identical(actual$data, expected$data)
   expect_identical(levels(actual$data$x), sprintf("%.17g", c(1, near, 2)))
 })
+
+test_that("distribution scalar controls diagnose shaped and oversized settings", {
+  d <- data.frame(a = c("x", "y"), b = c("u", "v"), site = c("P", "Q"))
+  draw <- function(...) plt_dist(d, c("a", "b"), type = "bar",
+     theme_use = function(...) stop("theme evaluated"), ...)
+  expect_error(draw(alpha = matrix(.5)), "alpha")
+  expect_error(draw(facet = matrix("site")), "facet")
+  expect_error(draw(label_args = list(style = matrix("count"))), "style")
+  expect_error(draw(label_args = list(size = matrix(2))), "size")
+  expect_error(draw(facet_args = list(ncol = 2^31)), "facet_args")
+  expect_error(draw(legend_args = list(ncol = 2^31)), "legend_args")
+  expect_s3_class(dist_test_plot(d, c("a", "b"), type = "bar",
+    alpha = .5, facet = "site", facet_args = list(ncol = 2)), "ggplot")
+})

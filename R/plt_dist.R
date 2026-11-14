@@ -272,14 +272,15 @@ plt_dist <- function(data,
   if (length(dis_vars) == 2L) {
     type <- match.arg(type)
     if (!is.null(facet)) {
-      if (!is.character(facet) || length(facet) != 1L || is.na(facet) ||
+      if (!is.character(facet) || !is.null(dim(facet)) || length(facet) != 1L || is.na(facet) ||
           !nzchar(facet) || !facet %in% names(data) || facet %in% dis_vars) {
         cli::cli_abort("{.arg facet} must name one existing column different from {.arg dis_vars}.")
       }
       facet <- unname(facet)
     }
   }
-  if (!is.numeric(alpha) || length(alpha) != 1L || is.na(alpha) ||
+  if (!is.numeric(alpha) || is.object(alpha) || !is.null(dim(alpha)) ||
+      length(alpha) != 1L || is.na(alpha) ||
       !is.finite(alpha) || alpha < 0 || alpha > 1) {
     cli::cli_abort("{.arg alpha} must be one finite number between 0 and 1.")
   }
@@ -301,14 +302,17 @@ plt_dist <- function(data,
   # Fields used by the bar and heatmap code; plt_alluvial() checks
   # flow_args and stratum_args, which only alluvial mode uses.
   is_number <- function(value, lower = -Inf, upper = Inf, lower_open = FALSE) {
-    is.numeric(value) && length(value) == 1L && !is.na(value) &&
+    is.numeric(value) && !is.object(value) && is.null(dim(value)) &&
+      length(value) == 1L && !is.na(value) &&
       is.finite(value) && (if (lower_open) value > lower else value >= lower) &&
       value <= upper
   }
   is_string <- function(value) {
-    is.character(value) && length(value) == 1L && !is.na(value)
+    is.character(value) && is.null(dim(value)) && length(value) == 1L && !is.na(value)
   }
-  is_count <- function(value) is_number(value, lower = 1) && value == trunc(value)
+  is_count <- function(value) {
+    is_number(value, lower = 1, upper = .Machine$integer.max) && value == trunc(value)
+  }
   one_of <- function(values) paste("one of", paste0('"', values, '"', collapse = ", "))
   check_field <- function(ok, arg, requirement) {
     if (!ok) cli::cli_abort("{.arg {arg}} must be {requirement}.")
