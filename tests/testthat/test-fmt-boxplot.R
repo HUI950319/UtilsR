@@ -1173,3 +1173,21 @@ test_that("explicit boxplot position columns resolve from parent data", {
   columns <- c("lower", "middle", "upper", "ymin", "ymax")
   expect_identical(result[columns], reference[columns])
 })
+
+test_that("formatted positions snapshot hidden inherited fields", {
+  base <- ggplot2::ggproto("PositionHiddenBase", ggplot2::PositionIdentity, .inherited = 7L)
+  position <- ggplot2::ggproto("PositionHiddenChild", base, .local = 17L)
+  d <- data.frame(x = rep(c("a", "b"), each = 5L), y = 1:10)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  boxes <- fmt_boxplot(p, list(position = position))
+  points <- fmt_point(p, position = position)
+  base$.inherited <- 99L
+  position$.local <- 101L
+  for (out in list(boxes, points)) {
+    pos <- out$layers[[2L]]$position
+    expect_identical(pos$.inherited, 7L)
+    expect_identical(pos$.local, 17L)
+    expect_s3_class(pos, "PositionHiddenChild")
+    expect_s3_class(ggplot2::ggplotGrob(out), "gtable")
+  }
+})

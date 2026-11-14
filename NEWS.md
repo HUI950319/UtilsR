@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_boxplot()` and `fmt_point()` preserve inherited and dot-prefixed position settings when copying their layers.
+
 * `fmt_scale()` and `fmt_expand()` retain the category scale selected by later data layers after infinite position placeholders.
 
 * `pr_note()` wraps plain lines without first invoking the CLI interpolation parser.

@@ -360,8 +360,7 @@ fmt_point <- function(plot,
   force(rasterize)
   force(dpi)
   if (inherits(params[["position"]], "Position")) {
-    params$position <- rlang::exec(ggplot2::ggproto, NULL, params[["position"]],
-      !!!as.list(params[["position"]], inherit = TRUE))
+    params$position <- .clone_plot_position(params[["position"]])
   }
   args <- lapply(names(params), function(name) call("[[", quote(params), name))
   names(args) <- names(params)

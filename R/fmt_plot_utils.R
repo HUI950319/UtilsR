@@ -238,6 +238,20 @@
           quote = TRUE, envir = baseenv())
 }
 
+.clone_plot_position <- function(position) {
+  fields <- list()
+  current <- position
+  repeat {
+    local <- as.list(current, inherit = FALSE, all.names = TRUE)
+    missing <- setdiff(names(local), names(fields))
+    fields[missing] <- local[missing]
+    if (!is.function(current$super)) break
+    current <- current$super()
+    if (is.null(current)) break
+  }
+  rlang::exec(ggplot2::ggproto, NULL, position, !!!fields)
+}
+
 .clone_plot_scales <- function(scales) {
   flatten <- function(original, copy) {
     parent <- original

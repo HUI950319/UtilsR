@@ -5687,8 +5687,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 .fmt_boxplot_layer <- function(args) {
   force(args)
   if (inherits(args[["position"]], "Position")) {
-    args$position <- rlang::exec(ggplot2::ggproto, NULL, args[["position"]],
-      !!!as.list(args[["position"]], inherit = TRUE))
+    args$position <- .clone_plot_position(args[["position"]])
   }
   params <- lapply(names(args), function(nm) call("[[", quote(args), nm))
   names(params) <- names(args)
