@@ -687,3 +687,22 @@ test_that("KNN complete integer64 predictors need no reconstruction", {
   expect_identical(actual$id, d$id)
   expect_false(anyNA(actual$value))
 })
+
+test_that("complete explicit NA factor predictors need no KNN recoding", {
+  skip_if_not_installed("VIM")
+  f <- structure(rep(c(1L, 2L, 3L), 4L), levels = c("a", NA, "b"),
+                 class = c("ordered", "factor"))
+  d <- data.frame(x = c(1, NA, 3:12), marker = seq_len(12L), category = f)
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$as.integer <- function(x, ...) {
+    if (identical(x, f)) stop("recoded a complete factor predictor")
+    base::as.integer(x, ...)
+  }
+  environment(fn) <- env
+  actual <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(actual, expected)
+  expect_identical(actual$category, f)
+  expect_false(anyNA(actual$x))
+})
