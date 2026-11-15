@@ -2107,3 +2107,15 @@ test_that("shared dot count limits pool layer ranges without copying counts", {
   extract <- function(ps) lapply(ps, function(p) p$scales$get_scales("size")$limits)
   expect_identical(extract(fn(plots)), extract(.con_dot_scales(plots)))
 })
+
+test_that("dot tallies coerce only the observed group rows", {
+  d <- tibble::tibble(g = rep(c("b", "a", NA), 80L), x = rep(c(2L, 1L, 1L), 80L))
+  fn <- .con_dot_counts
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (nrow(x) > 3L) stop("coerced the complete dot input")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, c("g", "x")), .con_dot_counts(d, c("g", "x")))
+})
