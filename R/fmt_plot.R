@@ -1788,7 +1788,9 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
         single <- values[variable]
         for (nm in c("type", "facet")) attr(single, nm) <- attr(values, nm)
         current <- original(single)[[1L]]
-        mapped[kept] <- if (is.character(current)) current[kept] else keys[kept]
+        if (is.expression(current)) mapped <- as.expression(mapped)
+        if (is.list(current)) mapped <- as.list(mapped)
+        mapped[kept] <- current[kept]
       }
     }
     if (length(values) == 1L) return(stats::setNames(list(mapped), variable))
@@ -1802,12 +1804,14 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
     others <- values[setdiff(names(values), variable)]
     for (nm in c("type", "facet")) attr(others, nm) <- attr(values, nm)
     remaining <- original(others)[[1L]]
-    out[[1L]] <- if (is.expression(remaining) || is.list(remaining)) {
+    out[[1L]] <- if (is.expression(remaining) || is.list(remaining) ||
+                        is.expression(mapped) || is.list(mapped)) {
       Map(function(text, value) {
+        if (is.expression(text) && length(text) == 1L) text <- text[[1L]]
         if (is.expression(value) && length(value) == 1L) value <- value[[1L]]
         as.expression(list(substitute(paste(text, ", ", value),
                                       list(text = text, value = value))))
-      }, mapped, as.list(remaining))
+      }, as.list(mapped), as.list(remaining))
     } else {
       paste(mapped, remaining, sep = ", ")
     }

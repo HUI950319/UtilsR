@@ -1135,3 +1135,16 @@ test_that("strip grids calculate each axis offset once", {
   expect_length(out, 24L)
   expect_identical(lapply(out, function(p) p$facet$params), lapply(expected, function(p) p$facet$params))
 })
+
+test_that("partially relabelled strips retain other plotmath expressions", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("alpha", "beta^2"), each = 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(g), labeller = ggplot2::label_parsed)
+  actual <- fmt_strip(p, label = c(alpha = "First"))
+  labels <- function(p) lapply(.fmt_strip_text(p), function(g) {
+    value <- g$label
+    if (is.expression(value)) value[[1L]] else value
+  })
+  expect_identical(labels(actual), list("First", quote(beta^2)))
+  expect_identical(labels(p), list(quote(alpha), quote(beta^2)))
+})

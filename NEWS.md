@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip()` retains plotmath labels for levels whose names are absent from a partial replacement.
+
 * `fmt_strip()` and `fmt_strip2()` preserve axis tiles when replacing the facet behind them.
 
 * `fmt_axisTile()` reuses the existing guide and facet when tile formatting settings are equivalent.
