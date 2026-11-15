@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axisText()` shares axis guide prototypes when the same formatting is applied again.
+
 * `stat_ci_parse(exp = TRUE)` computes asymmetry on its requested ratio scale without calculating additive half-widths.
 
 * `pr_tree(max_lines = 0)` counts omitted lines without generating root labels or drawing a tree.

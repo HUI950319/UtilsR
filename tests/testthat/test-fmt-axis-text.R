@@ -436,3 +436,14 @@ test_that("axis text theme overrides skip guide inspection", {
   expect_identical(result$theme, expected$theme)
   expect_identical(result$scales$scales, expected$scales$scales)
 })
+
+test_that("repeating axis text formatting reuses guide prototypes", {
+  p <- axis_text_plot() + ggplot2::guides(x = ggplot2::guide_axis(
+    theme = ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 10))))
+  first <- fmt_axisText(p, x = 45)
+  next_plot <- fmt_axisText(first, x = 45)
+  expect_true(identical(next_plot$guides$guides$x, first$guides$guides$x))
+  expect_equal(axis_text_labels(next_plot)$angle, axis_text_labels(first)$angle)
+  expect_identical(p$guides$guides$x$params$theme$axis.text.x$angle, 10)
+  expect_lt(abs(length(serialize(next_plot, NULL)) - length(serialize(first, NULL))), 50000L)
+})

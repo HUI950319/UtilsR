@@ -3385,7 +3385,8 @@ fmt_axisText <- function(plot,
     params$theme <- theme + text_theme_for(plot_theme + theme,
                                            axes = axis, guide_angle = angle)
     if (reset_angle) params$angle <- NULL
-    ggplot2::ggproto(NULL, guide, params = params)
+    if (identical(params, guide$params)) return(guide)
+    do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
 
   # ---- Apply to plots ----
@@ -3406,7 +3407,8 @@ fmt_axisText <- function(plot,
         }
       }
       if (!identical(guides, p$guides$guides)) {
-        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
+                            envir = baseenv())
       }
     }
     scale_axes <- if (radial) c(x = p$coordinates$theta, y = p$coordinates$r)[axes] else
@@ -3424,12 +3426,15 @@ fmt_axisText <- function(plot,
         return(scale)
       }
       if (!is.null(secondary) && !identical(secondary_guide, secondary$guide)) {
-        secondary <- do.call(ggplot2::ggproto, list(NULL, secondary, guide = secondary_guide))
+        secondary <- do.call(ggplot2::ggproto, list(NULL, secondary, guide = secondary_guide),
+                             envir = baseenv())
       }
-      ggplot2::ggproto(NULL, scale, guide = guide, secondary.axis = secondary)
+      do.call(ggplot2::ggproto, list(NULL, scale, guide = guide, secondary.axis = secondary),
+              envir = baseenv())
     })
-    if (!identical(scales, p$scales$scales)) {
-      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+    if (length(scales) && !identical(scales, p$scales$scales)) {
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
+                          envir = baseenv())
     }
     p
   })
