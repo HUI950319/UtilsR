@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` bounds tally allocation by the observations when a factor declares many unused levels.
+
 * `plt_upset()` uses its membership indices directly for complete unclassed columns.
 
 * `plt_na()` reads ordinary tibble columns directly for both summaries and matrices.

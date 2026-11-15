@@ -775,3 +775,22 @@ test_that("disabled special markers skip unused factor level tables", {
   expect_identical(actual, expected)
   expect_identical(.count_missing_values(values), 1L)
 })
+
+test_that("data quality tallies only observed sparse factor levels", {
+  values <- structure(c(1L, NA_integer_, 2L, 3L, 1L, 4L),
+    levels = c("Unknown", NA, "present", "", paste0("unused", seq_len(20000L))),
+    class = c("ordered", "factor"))
+  d <- data.frame(values = values)
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins = max(1L, bin, na.rm = TRUE)) {
+    if (nbins > length(values)) stop("allocated tally bins for unused levels")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  for (special in list(NULL, "Unknown")) {
+    expected <- capture_gt_data(check_na(d, special = special, show_all = TRUE))[[1L]]
+    actual <- capture_gt_data(fn(d, special = special, show_all = TRUE))[[1L]]
+    expect_identical(actual, expected)
+  }
+})
