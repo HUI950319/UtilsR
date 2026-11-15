@@ -1152,13 +1152,21 @@ plt_cat <- function(data,
 
 .build_bg_layer <- function(data, group.by, bg.by, bg_alpha,
                             bg_palette = NULL, axis_levels = NULL, continuous = FALSE) {
-  group_values <- as.character(data[[group.by]])
-  if (is.null(axis_levels)) {
-    axis_levels <- if (is.factor(data[[group.by]])) levels(data[[group.by]]) else levels(factor(data[[group.by]]))
-    axis_levels <- axis_levels[!is.na(axis_levels)]
-    if (anyNA(group_values)) axis_levels <- c(axis_levels, NA_character_)
+  groups <- data[[group.by]]
+  plain_factor <- identical(class(groups), "factor") || identical(class(groups), c("ordered", "factor"))
+  if (!is.null(axis_levels) && plain_factor) {
+    codes <- as.integer(groups)
+    group_codes <- match(levels(groups), axis_levels)[codes]
+    if (anyNA(codes)) group_codes[is.na(codes)] <- match(NA_character_, axis_levels)
+  } else {
+    group_values <- as.character(groups)
+    if (is.null(axis_levels)) {
+      axis_levels <- levels(if (is.factor(groups)) groups else factor(groups))
+      axis_levels <- axis_levels[!is.na(axis_levels)]
+      if (anyNA(group_values)) axis_levels <- c(axis_levels, NA_character_)
+    }
+    group_codes <- match(group_values, axis_levels)
   }
-  group_codes <- match(group_values, axis_levels)
   group_ids <- sort(unique(group_codes))
   backgrounds <- as.character(data[[bg.by]])
   bg_map <- backgrounds[match(group_ids, group_codes)]

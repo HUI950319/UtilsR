@@ -1617,3 +1617,19 @@ test_that("trend areas offset existing doubled coordinates directly", {
   expect_equal(actual$layers[[1L]]$data$x_num,
     rep(rep(1:3, each = 2L), each = 2L) + c(-.3, .3))
 })
+
+test_that("group backgrounds use factor codes with known axis levels", {
+  values <- factor(rep(c("z", "a", NA), 60L), levels = c("unused", "a", "z"))
+  d <- data.frame(g = values, bg = rep(c("blue group", "red group", "missing group"), 60L))
+  axes <- c("z", NA_character_, "a")
+  expected <- .build_bg_layer(d, "g", "bg", .2, axis_levels = axes, continuous = TRUE)
+  fn <- .build_bg_layer
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, values)) stop("decoded every background group label")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- fn(d, "g", "bg", .2, axis_levels = axes, continuous = TRUE)
+  expect_identical(actual$data, expected$data)
+})

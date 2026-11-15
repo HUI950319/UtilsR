@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical and continuous background strips reuse factor codes when a displayed axis order is already known.
+
 * Categorical trend plots build the staggered area coordinates from their existing doubled rows without allocating separate odd and even indices.
 
 * `stat_pval(add_star_p = ...)` checks the lengths of ordinary inputs before converting their displayed values to text.
