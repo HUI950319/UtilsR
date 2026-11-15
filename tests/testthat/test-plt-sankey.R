@@ -902,3 +902,20 @@ test_that("Sankey stages reuse default ramp constructors across the palette cycl
   expect_identical(out$scales$get_scales("fill")$palette(length(levels(out$data$node))),
     expected$scales$get_scales("fill")$palette(length(levels(expected$data$node))))
 })
+
+test_that("Sankey node counts ignore unused factor tally bins", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(a = structure(c(1L, 2L, 3L, NA_integer_, 1L),
+    levels = c("x", NA, "z", paste0("unused", 1:25000)), class = "factor"),
+    b = factor(c("n", "m", "m", "n", "m")))
+  expected <- suppressMessages(plt_sankey(d, c("a", "b"), reverse_levels = TRUE))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins) {
+    if (nbins > nrow(d)) stop("allocated Sankey tally bins for unused levels")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(d, c("a", "b"), reverse_levels = TRUE))
+  expect_identical(result$data, expected$data)
+})

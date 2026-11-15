@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` shares the observed factor tally so node counts stay proportional to the data for sparse factors.
+
 * `fct_to_combine()` skips table copies and grouped-column updates when the requested combined column already matches.
 
 * `fct_label()` returns data frames directly when the relabelled column is identical to the original.

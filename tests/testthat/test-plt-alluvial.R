@@ -837,7 +837,8 @@ test_that("flow plots retain integer64 categories in cold processes", {
   script <- file.path(directory, "verify.R")
   d <- data.frame(cat = rep(c("u", "v"), 2L))
   d$g <- bit64::as.integer64(rep(c("-1", "-2"), each = 2L))
-  saveRDS(list(data = d, functions = list(plt_alluvial = plt_alluvial, plt_sankey = plt_sankey, .butterfly_category_labels = .butterfly_category_labels)), fixture)
+  saveRDS(list(data = d, functions = list(plt_alluvial = plt_alluvial, plt_sankey = plt_sankey,
+    .butterfly_category_labels = .butterfly_category_labels, .factor_tally = .factor_tally)), fixture)
   for (mode in c("alluvial", "sankey")) {
     writeLines(c("options(device = function(...) grDevices::pdf(NULL, ...), lifecycle_verbosity = 'quiet')",
       sprintf("payload <- readRDS(%s)", deparse(fixture)),

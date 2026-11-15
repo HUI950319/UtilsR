@@ -278,11 +278,14 @@ plt_sankey <- function(data,
   for (i in seq_along(vars)) {
     value <- data[[vars[i]]]
     codes <- as.integer(value)
-    counts <- tabulate(codes, nbins = nlevels(value))
-    observed <- which(counts > 0L)
-    if (reverse_levels) observed <- rev(observed)
+    tally <- .factor_tally(value)
+    observed <- tally$codes
+    counts <- tally$counts
+    if (reverse_levels) {
+      observed <- rev(observed)
+      counts <- rev(counts)
+    }
     missing <- total - sum(counts)
-    counts <- counts[observed]
     if (missing) {
       observed <- c(observed, NA_integer_)
       counts <- c(counts, missing)
