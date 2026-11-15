@@ -3135,7 +3135,7 @@ fmt_text <- function(plot,
     if (length(styles))         p <- p + style_theme_for(p)
     legend_i <- legend_vec[[i]]
     if (is.character(legend_i) && identical(legend_i, "")) {
-      p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
+      p <- .set_legend_title(p, NULL) + ggplot2::theme(legend.title = ggplot2::element_blank())
     } else if (!is.null(legend_i)) {
       p <- .set_legend_title(p, legend_i)
     }

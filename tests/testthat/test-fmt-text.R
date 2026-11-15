@@ -290,3 +290,14 @@ test_that("label-only formatting does not inspect text themes", {
   expect_identical(out$labels$x, "New axis")
   expect_identical(out$theme, p$theme)
 })
+
+test_that("clearing legend text removes guide local titles", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, g = rep(c("one", "two"), 2L)),
+                       ggplot2::aes(x, x, colour = g)) + ggplot2::geom_point() +
+    ggplot2::guides(colour = ggplot2::guide_legend(title = "Hidden title",
+      theme = ggplot2::theme(legend.title = ggplot2::element_text(colour = "red",
+        inherit.blank = FALSE))))
+  out <- fmt_text(p, legend_title = "")
+  expect_equal(text_test_count(out, "Hidden title"), 0L)
+  expect_equal(text_test_count(p, "Hidden title"), 1L)
+})
