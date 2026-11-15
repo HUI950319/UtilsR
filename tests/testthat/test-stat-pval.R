@@ -806,3 +806,16 @@ test_that("numeric P-value formatting needs no bound vector", {
   environment(fn) <- env
   expect_identical(fn(x), expected)
 })
+
+test_that("external significance lengths validate before coercing values", {
+  x <- rep("row", 1500L)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (length(x) == 1500L) stop("converted all values before checking external P-value length")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_error(fn(x, add_star_p = 0.01), "same length")
+  expect_identical(fn(c("entry", NA), add_star_p = c(0.012, .5)), c("entry*", NA_character_))
+})

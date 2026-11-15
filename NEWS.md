@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval(add_star_p = ...)` checks the lengths of ordinary inputs before converting their displayed values to text.
+
 * `stat_ci_parse()` uses `log1p()` directly for nearby ratio endpoints while keeping the difference of logs for widely separated endpoints.
 
 * `stat_ci_parse()` bypasses scale inference when every input is missing or unparseable.
