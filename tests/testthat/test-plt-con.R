@@ -2131,3 +2131,18 @@ test_that("continuous mean and SD skip masks for ordinary observations", {
   extreme <- c(-1e308, -1e308, 1e308, NA_real_, 1e308)
   expect_true(all(is.finite(unlist(.con_mean_sd(extreme)))))
 })
+
+test_that("median group sorting retains complete integer columns", {
+  d <- data.frame(x = rep(c(10L, 9L, 2L, 1L), 100L), g = rep(c("H", "H", "L", "L"), 100L))
+  expected <- con_plot(d, type = "box", sort = TRUE)
+  fn <- plt_con
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, ...) {
+    if (identical(as.double(x), as.double(d$x)) && !is.integer(x)) stop("copied the complete sort column")
+    base::split(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "x", "g", type = "box", sort = TRUE))
+  expect_identical(levels(actual$data$group.by), levels(expected$data$group.by))
+  expect_identical(levels(actual$data$group.by), c("H", "L"))
+})

@@ -624,7 +624,10 @@ plt_con <- function(data,
   # --- Sort group levels by median -------------------------------------------
   if (!isFALSE(sort) && !dummy_group) {
     sort_values <- data[[stat.by[1L]]]
-    sort_values[!is.finite(sort_values)] <- NA_real_
+    if (!is.integer(sort_values) || is.object(sort_values) || anyNA(sort_values)) {
+      omit <- !is.finite(sort_values)
+      if (any(omit)) sort_values[omit] <- NA_real_
+    }
     medians <- vapply(split(sort_values, data[[group.by]], drop = TRUE),
                       stats::median, numeric(1), na.rm = TRUE)
     decreasing <- !(is.character(sort) && sort == "increasing")

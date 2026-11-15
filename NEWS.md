@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con(sort = TRUE)` avoids replacing and coercing intact sort columns while still omitting non-finite observations from medians.
+
 * `pr_spark()` keeps the declared level count and zero bars while tallying only observed values for sparse factors.
 
 * `lv()` derives observed levels, missingness, and special-marker counts from one factor tally and avoids allocating bins for unused levels.
