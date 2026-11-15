@@ -1211,3 +1211,20 @@ test_that("alluvial category order inverts its permutation directly", {
   actual <- suppressMessages(fn(d, "x", "g", facet = "f"))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("alluvial strata reuse prepared facet and category codes", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = ordered(rep(letters[1:3], 4L)), g = factor(rep(c("b", "a"), each = 6L)),
+    f = ordered(rep(c("right", "left"), 6L), levels = c("left", "right")))
+  expected <- suppressMessages(plt_alluvial(d, "x", "g", facet = "f"))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(pairs$.facet)) ||
+        identical(substitute(x), quote(pairs$.cat_var))) stop("rebuilt prepared alluvial factors")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "x", "g", facet = "f"))
+  expect_identical(actual$data, expected$data)
+})
