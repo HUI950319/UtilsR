@@ -1933,3 +1933,16 @@ test_that("sparse factor sparklines keep unused levels without a full table", {
     expect_match(actual, "20004 levels")
   }
 })
+
+test_that("tree descriptions skip filtering absent attribute names", {
+  input <- list(1, "two", TRUE, list(3L, 4))
+  expected <- capture.output(pr_tree(input, max_lines = 10L))
+  fn <- pr_tree
+  env <- new.env(parent = environment(fn))
+  env$setdiff <- function(x, y) {
+    if (is.null(x)) stop("filtered an absent attribute list")
+    base::setdiff(x, y)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(input, max_lines = 10L)), expected)
+})

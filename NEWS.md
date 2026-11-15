@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` bypasses attribute-name filtering for nodes without attributes.
+
 * `plt_con(sort = TRUE)` avoids replacing and coercing intact sort columns while still omitting non-finite observations from medians.
 
 * `pr_spark()` keeps the declared level count and zero bars while tallying only observed values for sparse factors.

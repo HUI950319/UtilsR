@@ -972,11 +972,12 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   # zone, value labels, a formula's environment, S7 properties), as str()
   # lists them on every node
   extra <- function(v) {
-    if (isS4(v) || is.environment(v) || is.function(v)) return(character())
+    attrs <- names(attributes(v))
+    if (!length(attrs) || isS4(v) || is.environment(v) || is.function(v)) return(character())
     own <- c(drop_attr, "levels", "contrasts", "tzone", "units", "labels", "balanced",
              ".Environment", ".internal.selfref", "S7_class",
              names(attr(attr(v, "S7_class", exact = TRUE), "properties", exact = TRUE)))
-    a <- setdiff(names(attributes(v)), own)
+    a <- setdiff(attrs, own)
     if (length(a) > 3L) c(a[1:3], cli::symbol$ellipsis) else a
   }
   rows <- new.env(parent = emptyenv())
@@ -1059,7 +1060,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       }
       # an S4 object's attributes are its slots, listed above
       if (isTRUE(attrs) && !(isS4(v) && !is.list(v))) {
-        for (a in setdiff(names(attributes(v)), drop_attr)) {
+        attrs <- names(attributes(v))
+        for (a in if (length(attrs)) setdiff(attrs, drop_attr)) {
           h <- slot(shown)
           if (h != "count") kids <- c(kids, add(paste0(id, "/@", a), if (h == "show") {
             name <- ._pr_escape(a)
