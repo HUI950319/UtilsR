@@ -271,6 +271,28 @@ PlotHeatmapJaccard <- function(
                  dimnames = list(ct_labels, ct_labels))
   diag(jmat) <- as.double(set_sizes > 0L)
   occupied <- which(set_sizes > 0L)
+  sparse_pairs <- length(occupied) > 16L && !typed_features && is.atomic(feature_values)
+  if (sparse_pairs) {
+    membership <- unlist(top_sets, use.names = FALSE)
+    first_at <- match(membership, membership)
+    repeated <- which(first_at != seq_along(membership))
+    first <- first_at[repeated]
+    sparse_pairs <- !anyDuplicated(first)
+    if (sparse_pairs && length(repeated)) {
+      groups <- rep(seq_len(n_ct), times = set_sizes)
+      i <- groups[repeated]
+      j <- groups[first]
+      keys <- i + (j - 1) * n_ct
+      pairs <- unique(keys)
+      counts <- tabulate(match(keys, pairs), nbins = length(pairs))
+      first_pair <- match(pairs, keys)
+      i <- i[first_pair]
+      j <- j[first_pair]
+      values <- counts / (set_sizes[i] + set_sizes[j] - counts)
+      jmat[cbind(i, j)] <- jmat[cbind(j, i)] <- values
+    }
+    if (sparse_pairs) occupied <- integer()
+  }
   if (length(occupied) > 4L) {
     shared <- if (typed_features) {
       membership <- do.call(vctrs::vec_c, unname(top_sets))

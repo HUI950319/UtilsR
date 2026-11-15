@@ -943,3 +943,27 @@ test_that("Jaccard factor selectors use their labels across different levels", {
   expected <- PlotHeatmapJaccard(d, group_levels = c("y", "x"), return_type = "data")
   expect_identical(PlotHeatmapJaccard(d, group_levels = selector, return_type = "data"), expected)
 })
+
+test_that("sparse Jaccard pairs do not compare groups sharing no features", {
+  n <- 48L
+  d <- data.frame(cell_type = rep(paste0("g", seq_len(n)), each = 4L),
+    gene = as.vector(rbind(paste0("pair", rep(seq_len(n/2), each = 2)),
+      paste0("local", seq_len(n)), paste0("extra", seq_len(n)), paste0("local", seq_len(n)))))
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_equal(expected[1, 2], 1/5)
+  expect_identical(expected[1, 3], 0)
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(substitute(x), quote(gi))) stop("compared sparse feature groups individually")
+    base::'%in%'(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, return_type = "data"), expected)
+})
+
+test_that("frequently shared Jaccard features retain pairwise ratios", {
+  d <- data.frame(cell_type = rep(LETTERS[1:20], each = 2), gene = c(rbind("shared", LETTERS[1:20])))
+  result <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_equal(unname(result[row(result) != col(result)]), rep(1/3, 380L))
+})
