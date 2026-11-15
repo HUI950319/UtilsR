@@ -848,3 +848,14 @@ test_that("ratio confidence checks bypass linear asymmetry", {
   expect_warning(actual <- stat_ci_parse(x, exp = TRUE, output = "p"), "invalid")
   expect_identical(actual, expected)
 })
+
+test_that("unparsed confidence intervals skip scale inference", {
+  testthat::local_mocked_bindings(.ci_scale = function(...) stop("inferred scales without valid intervals"))
+  d <- c(a = NA_character_, b = "", c = "not an interval")
+  expect_warning(actual <- stat_ci_parse(d, output = "p"), "could not be parsed")
+  expect_identical(actual, c(a = NA_real_, b = NA_real_, c = NA_real_))
+  expect_warning(actual <- stat_ci_parse(d, output = "ci"), "could not be parsed")
+  expect_identical(actual, d)
+  expect_identical(stat_ci_parse(c(a = NA_character_, b = ""), output = "p_star"),
+    c(a = NA_character_, b = NA_character_))
+})

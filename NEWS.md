@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` bypasses scale inference when every input is missing or unparseable.
+
 * `fmt_ref()` prepares per-axis line styles once when adding the same references across several plots.
 
 * `PlotButterfly()` omits the `expand.grid()` display attributes that are discarded during the subsequent join.

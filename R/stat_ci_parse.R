@@ -172,22 +172,24 @@ stat_ci_parse <- function(x,
     cli::cli_warn("{n_tail} element{?s} had trailing text after the closing bracket, which was dropped.")
   }
 
-  # --- Scale of each interval (ratio -> log scale, null = 0 there) ---
-  scale <- .ci_scale(est, lo, hi, parsed$unit, exp, valid)
-  is_exp <- scale$is_exp
-  asym <- scale$asymmetric
-  valid <- valid & !scale$invalid
-  n_bad <- sum(scale$invalid)
-  if (n_bad > 0L) {
-    cli::cli_warn("{n_bad} interval{?s} {?is/are} invalid (estimate outside the bounds, zero width, or a bound <= 0 under {.code exp = TRUE}) and {?was/were} returned as-is.")
-  }
-  n_amb <- sum(scale$ambiguous)
-  if (n_amb > 0L) {
-    cli::cli_warn("{n_amb} interval{?s} did not reveal {?its/their} scale from the printed digits and {?was/were} treated as ratio{?s} ({.code exp = TRUE}); set {.arg exp} explicitly.")
-  }
-  n_asym <- sum(asym)
-  if (n_asym > 0L) {
-    cli::cli_warn("{n_asym} interval{?s} {?is/are} not symmetric on {?its/their} scale; p uses the half facing the null and {.arg level} rescales each half.")
+  if (any(valid)) {
+    # --- Scale of each interval (ratio -> log scale, null = 0 there) ---
+    scale <- .ci_scale(est, lo, hi, parsed$unit, exp, valid)
+    is_exp <- scale$is_exp
+    asym <- scale$asymmetric
+    valid <- valid & !scale$invalid
+    n_bad <- sum(scale$invalid)
+    if (n_bad > 0L) {
+      cli::cli_warn("{n_bad} interval{?s} {?is/are} invalid (estimate outside the bounds, zero width, or a bound <= 0 under {.code exp = TRUE}) and {?was/were} returned as-is.")
+    }
+    n_amb <- sum(scale$ambiguous)
+    if (n_amb > 0L) {
+      cli::cli_warn("{n_amb} interval{?s} did not reveal {?its/their} scale from the printed digits and {?was/were} treated as ratio{?s} ({.code exp = TRUE}); set {.arg exp} explicitly.")
+    }
+    n_asym <- sum(asym)
+    if (n_asym > 0L) {
+      cli::cli_warn("{n_asym} interval{?s} {?is/are} not symmetric on {?its/their} scale; p uses the half facing the null and {.arg level} rescales each half.")
+    }
   }
 
   if (!any(valid)) {
