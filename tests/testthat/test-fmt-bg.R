@@ -571,3 +571,25 @@ test_that("background stripes map a shared fixed scale once", {
   rownames(actual) <- rownames(expected) <- NULL
   expect_equal(actual, expected)
 })
+
+test_that("background stripes follow reordered discrete scale positions", {
+  d <- data.frame(g = factor(LETTERS[1:3]), y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  colors <- c(A = "red", B = "green", C = "blue")
+  scale <- ggplot2::scale_x_discrete()
+  scale$map <- function(self, x, limits = self$get_limits()) {
+    pos <- ggplot2::ggproto_parent(ggplot2::ScaleDiscretePosition, self)$map(x, limits)
+    if (is.character(x) || is.factor(x)) 4 - as.numeric(pos) else pos
+  }
+  p <- p + scale
+  out <- fmt_bg(p, palcolor = colors, alpha = 1)
+  gt <- ggplot2::ggplotGrob(out)
+  find <- function(g) {
+    if (identical(g$name, "fmt-bg-stripes")) return(list(g))
+    kids <- if (inherits(g, "gtable")) g$grobs else as.list(g$children)
+    unlist(lapply(kids, find), recursive = FALSE)
+  }
+  stripe <- find(gt)[[1L]]
+  expect_true(all(as.numeric(stripe$width) > 0))
+  expect_identical(toupper(stripe$gp$fill), c("#0000FF", "#00FF00", "#FF0000"))
+})

@@ -4810,6 +4810,11 @@ fmt_bg <- function(plot,
           if (!any(keep)) return(NULL)
           positions <- positions[keep]
           values <- values[keep]
+          if (is.unsorted(positions)) {
+            index <- order(positions)
+            positions <- positions[index]
+            values <- values[index]
+          }
           fills <- unname(colors[match(values, names(colors))])
           fills[is.na(values)] <- "grey80"
           edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
