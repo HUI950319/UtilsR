@@ -296,6 +296,7 @@ lv <- function(data, ...) {
       "{.fn lv}: HTML table not shown outside interactive sessions;",
       "run the call interactively or knit it to see the table."
     )))
+    return(invisible(NULL))
   }
   invisible(x)
 }
@@ -1005,7 +1006,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       }
 
       last <- nrow(cross_tab)
-      cross_gt <- cross_tab %>%
+      .lv_print_report(cross_tab %>%
         gt::gt(rowname_col = count_vars[1]) %>%
         gt::tab_header(
           title = gt::md(glue::glue("**{count_vars[1]} \u00d7 {count_vars[2]}**")),
@@ -1027,9 +1028,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           column_labels.background.color = "#E8F4FD",
           heading.background.color = "#F0F8FF",
           stub.background.color = "#F5F5F5"
-        )
-
-      .lv_print_report(cross_gt)
+        ))
     }
 
     if (knitting) cli::cli_rule()

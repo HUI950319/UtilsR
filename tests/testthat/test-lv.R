@@ -1603,3 +1603,15 @@ test_that("wide inspection counts skip long percentage construction", {
     }, .package = "dplyr")
   expect_identical(capture_reports(lv(d, count = c(a, b)))[[1L]][["_data"]], expected)
 })
+
+test_that("noninteractive inspection does not style an undisplayed HTML table", {
+  withr::local_options(rlang_interactive = FALSE, knitr.in.progress = FALSE)
+  d <- expand.grid(a = letters[1:4], b = LETTERS[1:5], stringsAsFactors = FALSE)
+  testthat::local_mocked_bindings(gt = function(...) stop("built an undisplayed HTML table"),
+    .package = "gt")
+  expect_message(output <- capture.output(result <- withVisible(lv(d, count = c(a, b)))),
+    "HTML table not shown")
+  expect_identical(result$value, d)
+  expect_false(result$visible)
+  expect_true(any(grepl("Cells give n", output, fixed = TRUE)))
+})

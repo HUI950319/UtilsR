@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` builds the styled two-way HTML table only when knitting or when the session displays it.
+
 * `lv(count = ...)` skips the long percentage table when counts are displayed as a two-way table.
 
 * `grob_insert(on_top = FALSE)` keeps insets above backgrounds and below foregrounds that share the same draw order.
