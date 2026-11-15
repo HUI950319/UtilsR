@@ -891,9 +891,16 @@ plt_cat <- function(data,
     x <- data[[stat.by]]
     if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
         !anyNA(levels(x)) && (!NA_stat || !anyNA(x))) {
-      n <- tabulate(x, nbins = nlevels(x))
-      df <- data.frame(stat_var = structure(seq_along(n), levels = levels(x), class = "factor"),
-                       n = n, group_var = rep.int("all", length(n)))
+      if (!keep_empty && nlevels(x) > length(x)) {
+        tally <- .factor_tally(x)
+        codes <- tally$codes
+        n <- tally$counts
+      } else {
+        n <- tabulate(x, nbins = nlevels(x))
+        codes <- seq_along(n)
+      }
+      df <- data.frame(stat_var = structure(codes, levels = levels(x), class = "factor"),
+                       n = n, group_var = rep.int("all", length(n)), row.names = codes)
       if (stat == "percent") {
         total <- sum(n)
         df$value <- if (total > 0) n / total * 100 else numeric(length(n))

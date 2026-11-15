@@ -1633,3 +1633,17 @@ test_that("group backgrounds use factor codes with known axis levels", {
   actual <- fn(d, "g", "bg", .2, axis_levels = axes, continuous = TRUE)
   expect_identical(actual$data, expected$data)
 })
+
+test_that("univariate sparse categories count without dense empty bins", {
+  d <- data.frame(s = factor(c("a", "c", NA, "a"), levels = c("a", "c", paste0("unused", 1:20000))))
+  expected <- lapply(c("count", "percent"), function(stat) .prepare_cat_data(d, "s", NULL, stat))
+  fn <- .prepare_cat_data
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins) {
+    if (nbins > nrow(d)) stop("allocated categorical bins for unused levels")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  actual <- lapply(c("count", "percent"), function(stat) fn(d, "s", NULL, stat))
+  expect_identical(actual, expected)
+})

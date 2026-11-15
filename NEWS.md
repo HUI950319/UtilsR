@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` counts observed univariate categories directly while preserving their factor levels and row order.
+
 * `fct_to_group()` checks automatic naming controls before processing observations.
 
 * `fct_to_combine()` handles a single sparse factor without grouping the complete declared level set.
