@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` restores complete labelled and time predictors directly from the original columns.
+
 * `impute_na_knn()` reuses its missing-column selection when backend preparation keeps all rows and ordinary column values.
 
 * `impute_na_knn()` avoids allocating a row mask when a predictor is complete.

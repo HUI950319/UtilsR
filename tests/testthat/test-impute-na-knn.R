@@ -736,3 +736,24 @@ test_that("KNN prepares ordinary backend columns without a second missingness sc
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("complete labelled and time predictors need no restoration masks", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(y = c(NA_integer_, 2:27), x = 1:27, time = as.Date("2026-01-01") + 1:27,
+    label = haven::labelled(rep(1:3, 9L), c(A = 1L, B = 2L, C = 3L)))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(substitute(x), quote(original)) &&
+        (inherits(x, "Date") || inherits(x, "haven_labelled"))) {
+      stop("allocated a complete predictor restoration mask")
+    }
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  actual <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(actual, expected)
+  expect_identical(actual[c("time", "label")], d[c("time", "label")])
+})

@@ -340,8 +340,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   for (var_name in names(labelled_original)) {
     original <- labelled_original[[var_name]]
-    missing <- is.na(original)
-    if (any(missing)) {
+    if (var_name %in% vars_with_missing) {
+      missing <- is.na(original)
       values <- result[[var_name]][missing]
       codes <- if (is.factor(values)) as.integer(values) else
         match(as.character(values), levels(data_for_impute[[var_name]]))
@@ -361,11 +361,11 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   for (var_name in names(time_original)) {
     original <- time_original[[var_name]]
-    missing <- is.na(original)
-    if (!any(missing)) {
+    if (!var_name %in% vars_with_missing) {
       result[[var_name]] <- original
       next
     }
+    missing <- is.na(original)
     values <- result[[var_name]][missing]
     if (inherits(original, "Date")) {
       values <- as.Date(values, origin = "1970-01-01")
