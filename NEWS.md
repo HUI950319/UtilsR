@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` constructs group factors from positions without matching repeated group labels.
+
 * `plt_alluvial()` rejects an impossible combined gap before expanding category and group counts.
 
 * `fmt_text()` reads theme elements only when text styling is requested.

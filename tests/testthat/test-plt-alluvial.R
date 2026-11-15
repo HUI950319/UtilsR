@@ -1157,3 +1157,21 @@ test_that("alluvial percentage gap validation precedes grid allocation", {
   expect_error(fn(d, "x", "g", stratum_args = list(gap = 0.4)),
                "space must be less than 1")
 })
+
+test_that("alluvial strata reuse existing group indices", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = LETTERS[1:5], g = ordered(c("z", "", "x", "z", ""),
+    levels = c("", "unused", "z", "x")))
+  draw <- function(fn) suppressMessages(fn(d, "x", "g", stratum_args = list(gap = 0)))
+  expected <- draw(plt_alluvial)
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (is.character(x) && length(x) == 15L) stop("re-encoded every alluvial stratum group")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  out <- draw(fn)
+  expect_identical(out$data, expected$data)
+  expect_identical(levels(out$data$.group), c("", "z", "x"))
+})
