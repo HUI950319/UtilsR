@@ -466,11 +466,18 @@ plt_alluvial <- function(
   group_levels <- levels(plot_input$.group)
   facet_levels <- levels(plot_input$.facet)
 
+  n_groups <- length(group_levels)
+  total_gap <- stratum_args$gap * max(n_groups - 1L, 0L)
+  if (y_type == "percent" && total_gap >= 1) {
+    cli::cli_abort(
+      "The total {.arg stratum_args$gap} space must be less than 1 in percent mode."
+    )
+  }
+
   # Count only observed facet/category pairs, keeping zero-count group strata.
   pair_columns <- c(".facet", ".cat_var")
   pair_id <- vctrs::vec_group_id(plot_input[pair_columns])
   n_pairs <- attr(pair_id, "n")
-  n_groups <- length(group_levels)
   n_strata <- as.double(n_pairs) * n_groups
   n_gaps <- if (stratum_args$gap > 0) max(0L, n_groups - 1L) else 0L
   if (n_strata + as.double(n_pairs) * n_gaps >= 2^31) {
@@ -491,12 +498,6 @@ plt_alluvial <- function(
   stat$percent <- stat$count / stat$group_total
   stat$.is_gap <- FALSE
 
-  total_gap <- stratum_args$gap * max(length(group_levels) - 1L, 0L)
-  if (y_type == "percent" && total_gap >= 1) {
-    cli::cli_abort(
-      "The total {.arg stratum_args$gap} space must be less than 1 in percent mode."
-    )
-  }
   stat$.y <- if (y_type == "percent") {
     stat$percent * (1 - total_gap)
   } else {

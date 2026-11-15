@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` rejects an impossible combined gap before expanding category and group counts.
+
 * `fmt_text()` reads theme elements only when text styling is requested.
 
 * `fmt_his()` uses eligible nonempty layer data when the inherited frame is empty and no source was explicitly supplied.

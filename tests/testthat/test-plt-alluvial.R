@@ -1122,7 +1122,7 @@ test_that("alluvial stratum grid limits precede expansion", {
     base::rep.int(x, times)
   }
   environment(fn) <- env
-  expect_error(fn(d, "category", "group"), "stratum grid.*2\\^31")
+  expect_error(fn(d, "category", "group", stratum_args = list(gap = 0)), "stratum grid.*2\\^31")
   small <- suppressMessages(fn(d[1:3, ], "category", "group", stratum_args = list(gap = 0)))
   expect_equal(nrow(small$data), 9L)
 })
@@ -1142,4 +1142,18 @@ test_that("alluvial page width uses the prepared category levels", {
   actual <- suppressMessages(fn(d, "category", "group"))
   expect_identical(attr(actual, "plot_size"), attr(expected, "plot_size"))
   expect_identical(actual$data, expected$data)
+})
+
+test_that("alluvial percentage gap validation precedes grid allocation", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = LETTERS[1:4], g = letters[1:4])
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins, ...) {
+    if (nbins == 16L) stop("allocated the alluvial grid")
+    base::tabulate(bin, nbins, ...)
+  }
+  environment(fn) <- env
+  expect_error(fn(d, "x", "g", stratum_args = list(gap = 0.4)),
+               "space must be less than 1")
 })
