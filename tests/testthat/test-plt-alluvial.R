@@ -1195,3 +1195,19 @@ test_that("sparse alluvial factors remap only observed level codes", {
   result <- suppressMessages(fn(d, "x", "g"))
   expect_identical(result$data, expected$data)
 })
+
+test_that("alluvial category order inverts its permutation directly", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = factor(rep(c("c", "b", "a", "d"), 4L)),
+    g = rep(c("first", "second"), each = 8L), f = rep(c("f2", "f1"), 8L))
+  expected <- suppressMessages(plt_alluvial(d, "x", "g", facet = "f"))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$order <- function(x, ...) {
+    if (identical(substitute(x), quote(pair_order))) stop("resorted the alluvial pair permutation")
+    base::order(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "x", "g", facet = "f"))
+  expect_identical(actual$data, expected$data)
+})

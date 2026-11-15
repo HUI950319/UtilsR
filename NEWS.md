@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` translates category and facet row indices to display order without sorting the already computed permutation.
+
 * Categorical and continuous background strips reuse factor codes when a displayed axis order is already known.
 
 * Categorical trend plots build the staggered area coordinates from their existing doubled rows without allocating separate odd and even indices.

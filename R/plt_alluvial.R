@@ -490,7 +490,9 @@ plt_alluvial <- function(
   pairs <- plot_input[!duplicated(pair_id), pair_columns]
   pair_order <- order(pairs$.cat_var, pairs$.facet)
   pairs <- pairs[pair_order, , drop = FALSE]
-  pair_id <- order(pair_order)[pair_id]
+  pair_rank <- integer(length(pair_order))
+  pair_rank[pair_order] <- seq_along(pair_order)
+  pair_id <- pair_rank[pair_id]
   count_id <- pair_id + (as.integer(plot_input$.group) - 1) * n_pairs
   stat <- data.frame(
     .facet = rep.int(factor(pairs$.facet, levels = facet_levels, ordered = FALSE), n_groups),
