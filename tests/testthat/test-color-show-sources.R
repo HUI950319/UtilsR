@@ -2923,3 +2923,21 @@ test_that("finite palette positions return their colours without a missing buffe
   }
   expect_identical(pal_get(cols, x = c(1, NA, 3))[2L], NA_character_)
 })
+
+test_that("console colour swatches decode a repeated palette once", {
+  withr::local_options(cli.num_colors = 1L)
+  colors <- stats::setNames(rep(c("red", "blue", "#CCDDFF80"), 350), paste0("c", 1:1050))
+  fn <- show_color
+  env <- new.env(parent = environment(fn))
+  decoded <- integer()
+  env$.pal_hex <- function(colors, rgba) {
+    decoded <<- c(decoded, ncol(rgba))
+    .pal_hex(colors, rgba)
+  }
+  environment(fn) <- env
+  expected <- capture.output(value <- show_color(colors, rev = TRUE))
+  actual <- capture.output(result <- fn(colors, rev = TRUE))
+  expect_identical(decoded, 3L, info = "decoded every recurring swatch")
+  expect_identical(actual, expected)
+  expect_identical(result, value)
+})

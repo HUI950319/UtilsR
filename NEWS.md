@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` decodes repeated swatches at their distinct values while retaining preview order, labels, and alpha.
+
 * `PlotButterfly2()` shares category indices across both wings and retains per-side padding and category order.
 
 * `PlotRankCor()` assigns the singleton rank directly for complete one-row method groups.
