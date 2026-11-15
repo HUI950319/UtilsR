@@ -537,3 +537,16 @@ test_that("identical combined columns do not copy a data table", {
   }, .package = "data.table")
   expect_identical(fct_to_combine(d, c("a", "b")), d)
 })
+
+test_that("single sparse factors combine from observed code tallies", {
+  x <- structure(c(1L, 3L, 1L, 2L, NA_integer_), levels =
+    c("a", NA, "b", paste0("unused", seq_len(20000))), class = c("ordered", "factor"))
+  expected <- fct_to_combine(x)
+  group <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x, ...) {
+    stop("grouped sparse single-factor codes through the generic fallback")
+  }, .package = "vctrs")
+  expect_identical(fct_to_combine(x), expected)
+  expect_identical(fct_to_combine(factor(character(), levels = letters)),
+    structure(integer(), levels = character(), class = "factor"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` handles a single sparse factor without grouping the complete declared level set.
+
 * `PlotDumbbell()` keeps integer endpoint subtraction in integer storage when their combined bounds guarantee an exact result.
 
 * `lv()` avoids regrouping already distinct frequency rows when their labels are unique.
