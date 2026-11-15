@@ -1913,3 +1913,23 @@ test_that("spark histogram selection does not round clearly continuous columns",
   environment(fn) <- env
   expect_identical(capture.output(fn(d)), expected)
 })
+
+test_that("sparse factor sparklines keep unused levels without a full table", {
+  withr::local_options(width = 120L)
+  value <- factor(c("z", "z", "", NA, "a", NA), levels =
+    c("a", "z", "", NA, paste0("unused", seq_len(20000L))), exclude = NULL)
+  is.na(value)[6L] <- TRUE
+  d <- data.frame(v = value)
+  fallback <- d
+  class(fallback$v) <- c("custom_factor", "factor")
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("allocated a table of unused sparkline levels")
+  environment(fn) <- env
+  for (bins in c(3L, 8L)) {
+    expected <- cli::ansi_strip(capture.output(pr_spark(fallback, bins = bins)))
+    actual <- cli::ansi_strip(capture.output(fn(d, bins = bins)))
+    expect_identical(actual, expected)
+    expect_match(actual, "20004 levels")
+  }
+})

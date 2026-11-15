@@ -1295,11 +1295,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     v <- ._pr_restore(v)
     if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (!length(v)) return(c("", "empty", "NA n/a"))
-    factor_counts <- NULL
-    if ((identical(class(v), "factor") || identical(class(v), c("ordered", "factor"))) &&
-        nlevels(v) <= length(v)) {
-      factor_counts <- tabulate(v, nbins = nlevels(v))
-      present <- sum(factor_counts)
+    factor_tally <- NULL
+    if (identical(class(v), "factor") || identical(class(v), c("ordered", "factor"))) {
+      factor_tally <- .factor_tally(v)
+      present <- sum(factor_tally$counts)
       total <- length(v)
     } else {
       missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
@@ -1345,11 +1344,23 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     }
     if (is.factor(v) || is.character(v) || is.logical(v)) {
       # Report identifiers without drawing one bar per distinct value.
-      if (!is.null(factor_counts)) {
-        if (present > bins && !any(factor_counts > 1L)) {
+      if (!is.null(factor_tally)) {
+        counts <- factor_tally$counts
+        if (present > bins && !any(counts > 1L)) {
           return(c("", sprintf("%d unique values", present), na))
         }
-        tab <- stats::setNames(factor_counts, levels(v))
+        k <- nlevels(v)
+        top <- which.max(counts)
+        lab <- levels(v)[factor_tally$codes[top]]
+        share <- counts[top]
+        if (k > bins) {
+          tab <- head(sort(counts, decreasing = TRUE), bins)
+          length(tab) <- bins
+          tab[is.na(tab)] <- 0L
+        } else {
+          tab <- integer(k)
+          tab[factor_tally$codes] <- counts
+        }
       } else if (is.logical(v) && !is.object(v)) {
         n_true <- sum(v, na.rm = TRUE)
         tab <- c("FALSE" = present - n_true, "TRUE" = n_true)
@@ -1361,15 +1372,18 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         }
         tab <- table(ok)
       }
-      if (!length(tab)) return(c("", "all missing", na))
-      k   <- length(tab)
-      top <- which.max(tab)
-      lab <- names(tab)[top]
+      if (is.null(factor_tally)) {
+        if (!length(tab)) return(c("", "all missing", na))
+        k <- length(tab)
+        top <- which.max(tab)
+        lab <- names(tab)[top]
+        share <- tab[[top]]
+        if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
+      }
       if (is.na(lab)) lab <- "<NA>" else if (!nzchar(lab)) lab <- "\"\""
       lab <- ._pr_escape(lab)
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
-                      lab, 100 * tab[[top]] / present)
-      if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
+                      lab, 100 * share / present)
       return(c(spark(tab), info, na))
     }
     c("", paste0("<", ._pr_escape(class(v)[1]), ">"), na)
