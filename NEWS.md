@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` removes unused factor levels without allocating a dense level table when observations are sparse.
+
 * `stat_pval()` avoids allocating bound masks for numeric vectors, including repeated numeric inputs.
 
 * `impute_na_knn()` restores complete labelled and time predictors directly from the original columns.

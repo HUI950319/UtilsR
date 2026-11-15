@@ -437,6 +437,10 @@ plt_alluvial <- function(
     if (identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))) {
       codes <- as.integer(value)
       value_levels <- levels(value)
+      if (length(value_levels) > length(codes)) {
+        observed <- sort(unique(codes))
+        return(structure(match(codes, observed), levels = value_levels[observed], class = class(value)))
+      }
       observed <- tabulate(codes, length(value_levels)) > 0L
       new_codes <- cumsum(observed)
       return(structure(new_codes[codes], levels = value_levels[observed], class = class(value)))

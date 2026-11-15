@@ -1175,3 +1175,22 @@ test_that("alluvial strata reuse existing group indices", {
   expect_identical(out$data, expected$data)
   expect_identical(levels(out$data$.group), c("", "z", "x"))
 })
+
+test_that("sparse alluvial factors remap only observed level codes", {
+  skip_if_not_installed("ggalluvial")
+  declared <- c("x", paste0("unused", 1:25000), "y")
+  d <- data.frame(x = factor(c("y", "x", "y", "x"), levels = declared, ordered = TRUE),
+    g = factor(c("one", "two", "one", "two")))
+  reference <- d
+  reference$x <- droplevels(reference$x)
+  expected <- suppressMessages(plt_alluvial(reference, "x", "g"))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins = max(1L, bin, na.rm = TRUE)) {
+    if (nbins > nrow(d)) stop("allocated a dense alluvial factor table")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(d, "x", "g"))
+  expect_identical(result$data, expected$data)
+})
