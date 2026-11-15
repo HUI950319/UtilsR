@@ -935,3 +935,11 @@ test_that("Jaccard pruning keeps list feature elements intact", {
   dimnames(expected) <- list(names(group), names(group))
   expect_equal(PlotHeatmapJaccard(d, return_type = "data"), expected)
 })
+
+test_that("Jaccard factor selectors use their labels across different levels", {
+  d <- data.frame(cell_type = factor(rep(c("x", "y"), each = 2L)),
+                  gene = c("a", "b", "b", "c"))
+  selector <- ordered(c("y", "x"), levels = c("y", "x", "z"))
+  expected <- PlotHeatmapJaccard(d, group_levels = c("y", "x"), return_type = "data")
+  expect_identical(PlotHeatmapJaccard(d, group_levels = selector, return_type = "data"), expected)
+})

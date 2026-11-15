@@ -178,7 +178,8 @@ PlotHeatmapJaccard <- function(
   factor_groups <- identical(class(group_values), "factor") ||
     identical(class(group_values), c("ordered", "factor"))
   indexable_groups <- factor_groups || (is.character(group_values) && !is.object(group_values))
-  lookup_levels <- if (inherits(ct_names, "haven_labelled")) as.vector(ct_names) else ct_names
+  lookup_levels <- if (factor_groups && is.factor(ct_names)) as.character(ct_names) else
+    if (inherits(ct_names, "haven_labelled")) as.vector(ct_names) else ct_names
   base_groups <- !is.object(group_values) && !is.object(lookup_levels) &&
     ((is.numeric(group_values) && is.numeric(lookup_levels)) ||
      (is.logical(group_values) && is.logical(lookup_levels)))

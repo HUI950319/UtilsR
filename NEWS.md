@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` accepts factor group selections with a different declared level set from the input.
+
 * `fmt_text(legend_title = "")` clears titles supplied directly to legend guides.
 
 * `fmt_his()` groups overlay observations once and matches all panel layout indices together.
