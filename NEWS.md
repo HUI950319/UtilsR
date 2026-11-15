@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous mean and SD summaries skip missing-value and finite-value vectors for complete, well-scaled inputs.
+
 * `plt_dist()` preserves exact values when rounding would merge numeric categories of a labelled column.
 
 * `PlotDumbbell(sort_by = "none")` constructs indices only for the requested final observations.

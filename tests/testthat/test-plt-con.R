@@ -2119,3 +2119,15 @@ test_that("dot tallies coerce only the observed group rows", {
   environment(fn) <- env
   expect_identical(fn(d, c("g", "x")), .con_dot_counts(d, c("g", "x")))
 })
+
+test_that("continuous mean and SD skip masks for ordinary observations", {
+  x <- seq(-10, 15, length.out = 300L)
+  fn <- .con_mean_sd
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) { if (length(x) > 1L) stop("allocated an unnecessary observation mask"); base::is.na(x) }
+  env$is.finite <- function(x) { if (length(x) > 1L) stop("allocated an unnecessary observation mask"); base::is.finite(x) }
+  environment(fn) <- env
+  expect_identical(fn(x), .con_mean_sd(x))
+  extreme <- c(-1e308, -1e308, 1e308, NA_real_, 1e308)
+  expect_true(all(is.finite(unlist(.con_mean_sd(extreme)))))
+})

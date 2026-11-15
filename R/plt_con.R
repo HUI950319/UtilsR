@@ -1216,12 +1216,12 @@ plt_con <- function(data,
 }
 
 .con_mean_sd <- function(x, mult = 1) {
-  x <- x[!is.na(x)]
+  if (is.object(x) || anyNA(x)) x <- x[!is.na(x)]
   centre <- mean(x)
   spread <- if (length(x) > 1L) stats::sd(x) else NaN
-  if (length(x) > 1L && all(is.finite(x)) &&
-      (!is.finite(spread) || (spread == 0 && any(x != x[1L])) ||
-       (spread > 0 && spread < sqrt(.Machine$double.xmin)))) {
+  if (length(x) > 1L && (!is.finite(spread) ||
+      (spread == 0 && any(x != x[1L])) ||
+      (spread > 0 && spread < sqrt(.Machine$double.xmin))) && all(is.finite(x))) {
     midpoint <- min(x) / 2 + max(x) / 2
     shifted <- x - midpoint
     scale <- max(abs(shifted))
