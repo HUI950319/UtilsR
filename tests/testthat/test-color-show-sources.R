@@ -2907,3 +2907,19 @@ test_that("palette colour detection handles malformed byte encodings quietly", {
   expect_false(.pal_are_colors(c("red", "1")))
   expect_true(.pal_are_colors(c("red", "#22334480")))
 })
+
+test_that("finite palette positions return their colours without a missing buffer", {
+  fn <- .pal_apply_positions
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(x, NA_character_)) stop("allocated the missing-value colour buffer")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  cols <- c("#FF000080", "blue")
+  for (x in list(seq(1, 5, length.out = 150L), rep(1:3, 100L), rep(2, 10L))) {
+    map <- .pal_numeric_positions(x, reverse = TRUE)
+    expect_identical(fn(cols, map, 1), .pal_apply_positions(cols, map, 1))
+  }
+  expect_identical(pal_get(cols, x = c(1, NA, 3))[2L], NA_character_)
+})

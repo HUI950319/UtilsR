@@ -699,12 +699,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @keywords internal
 #' @noRd
 .pal_apply_positions <- function(cols, mapping, alpha, size = length(mapping$placed)) {
-  out <- rep(NA_character_, length(mapping$placed))
-  if (length(mapping$at)) {
-    colours <- .pal_ramp(cols, mapping$at, alpha, size)
-    if (!is.null(mapping$index)) colours <- colours[mapping$index]
-    out[mapping$placed] <- colours
-  }
+  n <- length(mapping$placed)
+  if (!length(mapping$at)) return(rep(NA_character_, n))
+  colours <- .pal_ramp(cols, mapping$at, alpha, size)
+  if (!is.null(mapping$index)) colours <- colours[mapping$index]
+  if (all(mapping$placed)) return(if (length(colours) == n) colours else rep_len(colours, n))
+  out <- rep(NA_character_, n)
+  out[mapping$placed] <- colours
   out
 }
 
