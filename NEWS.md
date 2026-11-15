@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly(type = "bar")` reports a grid beyond the data-frame row limit before allocating missing combinations.
+
 * `plt_upset()` maps homogeneous atomic set members to their shared universe in one pass, retaining the original universe and set order.
 
 * `plt_upset()` validates diagram and enumeration set-count limits before building member indices.

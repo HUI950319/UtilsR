@@ -1186,3 +1186,15 @@ test_that("unfilled butterfly panels decode side labels once", {
                      ggplot2::ggplot_build(expected[[i]])$data)
   }
 })
+
+test_that("butterfly grids check row limits before expansion", {
+  n <- 50000L
+  d <- data.frame(cat = paste0("category", seq_len(n)), fill = paste0("fill", seq_len(n)),
+    g = rep(c("left", "right"), length.out = n), value = 1)
+  fn <- PlotButterfly
+  env <- new.env(parent = environment(fn))
+  env$expand.grid <- function(...) stop("expanded an excessive butterfly grid")
+  environment(fn) <- env
+  expect_error(fn(d, stat.by = "cat", group.by = "g", fill.by = "fill",
+    value.by = "value", type = "bar"), "grid exceeds the R row limit")
+})
