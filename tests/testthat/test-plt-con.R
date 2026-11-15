@@ -2093,3 +2093,17 @@ test_that("continuous plot frames retain ordinary grouping factor codes", {
   expect_identical(lapply(actual[[1L]], function(p) p$data), lapply(expected[[1L]], function(p) p$data))
   expect_identical(actual[[2L]]$data, expected[[2L]]$data)
 })
+
+test_that("shared dot count limits pool layer ranges without copying counts", {
+  d <- data.frame(a = rep(1:15, 20), b = rep(1:20, 15), g = rep(c("A", "B"), each = 150))
+  plots <- suppressMessages(plt_con(d, c("a", "b"), "g", type = "dot", combine = FALSE))
+  fn <- .con_dot_scales
+  env <- new.env(parent = environment(fn))
+  env$unlist <- function(x, ...) {
+    if (any(lengths(x) > 4L)) stop("copied the complete dot count vectors")
+    base::unlist(x, ...)
+  }
+  environment(fn) <- env
+  extract <- function(ps) lapply(ps, function(p) p$scales$get_scales("size")$limits)
+  expect_identical(extract(fn(plots)), extract(.con_dot_scales(plots)))
+})

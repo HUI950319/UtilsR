@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Combined continuous dot plots pool count scale limits from per-layer ranges without copying all count vectors.
+
 * `fmt_flatten()` validates explicit layout controls before flattening its input.
 
 * Numeric palette mapping returns colours directly when all values receive a colour, avoiding a separate missing-value buffer.

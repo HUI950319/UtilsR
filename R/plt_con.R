@@ -818,13 +818,13 @@ plt_con <- function(data,
 .con_dot_scales <- function(plots) {
   info <- .to_plot_list(plots, recurse = TRUE)
   if (length(info$plots) < 2L) return(plots)
-  counts <- unlist(lapply(info$plots, function(p) {
-    at <- vapply(p$layers, function(layer) {
-      inherits(layer$geom, "GeomPoint") && is.data.frame(layer$data) && "n" %in% names(layer$data)
-    }, logical(1))
-    unlist(lapply(p$layers[at], function(layer) layer$data[["n"]]), use.names = FALSE)
-  }), use.names = FALSE)
-  limits <- range(counts)
+  endpoints <- lapply(info$plots, function(p) {
+    lapply(p$layers, function(layer) {
+      if (inherits(layer$geom, "GeomPoint") && is.data.frame(layer$data) &&
+          length(layer$data[["n"]])) range(layer$data[["n"]])
+    })
+  })
+  limits <- range(unlist(endpoints, use.names = FALSE))
   changed <- lapply(info$plots, function(p) {
     p$scales <- p$scales$clone()
     size_scale <- p$scales$get_scales("size")
