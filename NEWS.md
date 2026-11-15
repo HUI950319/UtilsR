@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` assigns the singleton rank directly for complete one-row method groups.
+
 * `plt_dist()` builds row filtering masks only when required columns contain missing values.
 
 * `fmt_strip2()` keeps inherited rich-text themes when adding top or right headers.

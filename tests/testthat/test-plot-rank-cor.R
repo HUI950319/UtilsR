@@ -1055,3 +1055,20 @@ test_that("rank correlation batches ordinary two observation aesthetic means", {
   expected <- vapply(split(d$weight, d$item), mean, numeric(1), na.rm = TRUE)
   expect_identical(p$data$weight, unname(expected[p$data$item]))
 })
+
+test_that("singleton rank groups skip ranking calls", {
+  d <- data.frame(item = rep(letters[1:4], 2L), group = rep(letters[1:4], 2L),
+    method = rep(c("m1", "m2"), each = 4L), score = c(NA, 3, 4, 5, 7, 8, Inf, 10))
+  reference <- suppressMessages(PlotRankCor(d, "item", "score", group.by = "group", method.by = "method",
+    show.label = FALSE))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$rank <- function(x, ...) {
+    if (length(x) == 1L) stop("ranked singleton scores")
+    base::rank(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "item", "score", group.by = "group", method.by = "method",
+    show.label = FALSE))
+  expect_identical(actual$data, reference$data)
+})
