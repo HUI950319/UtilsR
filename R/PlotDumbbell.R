@@ -309,7 +309,7 @@ PlotDumbbell <- function(
 
   # ---- Top N ----
   if (!is.null(top_n) && top_n > 0 && top_n < nrow(data)) {
-    ord <- utils::tail(ord %||% seq_len(nrow(data)), top_n)
+    ord <- if (is.null(ord)) seq.int(nrow(data) - top_n + 1, nrow(data)) else utils::tail(ord, top_n)
   }
   if (!is.null(ord)) data <- data[ord, , drop = FALSE]
 

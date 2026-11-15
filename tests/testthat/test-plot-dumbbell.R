@@ -892,3 +892,16 @@ test_that("empty classed dumbbell insets preserve zero-row endpoint data", {
     expect_length(levels(p$data$.group), 2L)
   }
 })
+
+test_that("unsorted dumbbell tails avoid a full row index", {
+  d <- data.frame(start = 1:200, end = 2:201, category = letters[rep(1:25, 8)])
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$seq_len <- function(length.out) {
+    if (length.out == nrow(d)) stop("allocated every dumbbell row index")
+    base::seq_len(length.out)
+  }
+  environment(fn) <- env
+  invisible(capture.output(actual <- fn(d, top_n = 3, sort_by = "none", legend_pos = "none")))
+  expect_identical(actual$data, dumbbell_plot(d, top_n = 3, sort_by = "none", legend_pos = "none")$data)
+})

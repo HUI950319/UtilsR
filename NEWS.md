@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell(sort_by = "none")` constructs indices only for the requested final observations.
+
 * Continuous dot counts convert grouped representatives to a data frame after identifying the observed combinations.
 
 * Combined continuous dot plots pool count scale limits from per-layer ranges without copying all count vectors.
