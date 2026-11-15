@@ -5170,7 +5170,8 @@ fmt_his <- function(plot,
     }
     missing_column <- is.null(data) && !is.null(con_var) &&
       is.data.frame(d) && !con_var %in% names(d)
-    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver") || missing_column) {
+    empty_parent <- is.null(data) && is.data.frame(d) && !nrow(d)
+    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver") || missing_column || empty_parent) {
       layers <- p$layers
       guides <- vapply(layers, function(layer) {
         inherits(layer$geom, c("GeomBlank", "GeomText", "GeomLabel"))
@@ -5178,11 +5179,13 @@ fmt_his <- function(plot,
       for (layer in c(layers[!guides], layers[guides])) {
         candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
         layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
-        if (!is.null(con_var) && is.data.frame(layer_data) && !con_var %in% names(layer_data)) next
+        if (is.data.frame(layer_data) &&
+            ((empty_parent && !nrow(layer_data)) ||
+             (!is.null(con_var) && !con_var %in% names(layer_data)))) next
         if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
             (!is.null(con_var) || !is.null(candidate))) {
           d <- layer_data
-          x_mapping <- x_mapping %||% candidate
+          x_mapping <- if (empty_parent && is.null(con_var)) candidate else x_mapping %||% candidate
           break
         }
       }

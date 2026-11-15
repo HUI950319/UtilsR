@@ -867,3 +867,14 @@ test_that("distribution overlays exclude SPSS user-missing samples", {
     expect_identical(observed[columns], stat(c(1, 2, 4, 5), type)[columns])
   }
 })
+
+test_that("distribution overlays use nonempty layer data after empty plot data", {
+  d <- data.frame(x = 1:6, y = 6:1, actual = 10:15)
+  p <- ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) +
+    ggplot2::geom_point(ggplot2::aes(x = actual), data = d)
+  reference <- ggplot2::ggplot(d, ggplot2::aes(actual, y)) + ggplot2::geom_point()
+  draw <- function(plot, ...) ggplot2::layer_data(fmt_his(plot, binwidth = 1, ...), 2L)
+  expect_identical(draw(p)$count, draw(reference)$count)
+  expect_identical(draw(p)$x, draw(reference)$x)
+  expect_equal(nrow(draw(p, data = d[FALSE, ], con_var = "x")), 0L)
+})
