@@ -1615,3 +1615,23 @@ test_that("noninteractive inspection does not style an undisplayed HTML table", 
   expect_false(result$visible)
   expect_true(any(grepl("Cells give n", output, fixed = TRUE)))
 })
+
+test_that("inspection factor summaries share a tally of observed levels", {
+  skip_if_not_installed("knitr")
+  values <- structure(c(1L, NA_integer_, 2L, 3L, 1L, 4L),
+    levels = c("Unknown", NA, "present", "", paste0("unused", seq_len(20000L))),
+    class = c("ordered", "factor"))
+  d <- data.frame(v = values)
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins = max(1L, bin, na.rm = TRUE)) {
+    if (nbins > length(values)) stop("allocated unused factor levels for inspection")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  tables <- capture_reports(fn(d))
+  summary <- tables[[1L]][["_data"]]
+  expect_equal(summary$n_unique, 4)
+  expect_equal(summary$n_na, 1)
+  expect_equal(summary$n_special, 3)
+})

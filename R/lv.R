@@ -383,7 +383,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .get_levels <- function(x, complete = FALSE) {
     if (is.expression(x)) x <- as.list(x)
     if (is.factor(x)) {
-      levels(x)[tabulate(as.integer(x), nlevels(x)) > 0L]
+      levels(x)[.factor_tally(x)$codes]
     } else {
       # sorted as the count listing sorts them (C locale), not as they occur
       values <- unique(if (complete) x else x[!is.na(x)])
@@ -394,17 +394,24 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # One variable's row of the variable summary.
   .lv_one <- function(data, var) {
     col_data <- data[[var]]
-    n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
-
-    unique_values <- .get_levels(col_data, complete = n_na == 0L)
+    ordinary_factor <- identical(class(col_data), "factor") ||
+      identical(class(col_data), c("ordered", "factor"))
+    tally <- if (ordinary_factor) .factor_tally(col_data) else NULL
+    if (ordinary_factor) {
+      n_na <- length(col_data) - sum(tally$counts)
+      unique_values <- levels(col_data)[tally$codes]
+    } else {
+      n_na <- .count_missing_values(col_data)
+      unique_values <- .get_levels(col_data, complete = n_na == 0L)
+    }
     n_unique <- length(unique_values)
     summary <- tibble::tibble(
       vars = var,
       class = var_class,
       n_unique = n_unique,
       n_na = n_na,
-      n_special = .count_special_values(col_data),
+      n_special = .count_special_values(col_data, tally = tally),
       unique = noquote("")
     )
     if (is.expression(col_data)) return(summary)
@@ -490,10 +497,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .lv_frequencies <- function(x, var) {
     x <- .label_na_level(x)
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
-      counts <- tabulate(x, nbins = nlevels(x))
-      used <- which(counts > 0L)
-      valid <- levels(x)[used]
-      n <- counts[used]
+      tally <- .factor_tally(x)
+      valid <- levels(x)[tally$codes]
+      n <- tally$counts
       missing_n <- length(x) - sum(n)
     } else {
       tab <- dplyr::count(tibble::tibble(value = x), .data$value)

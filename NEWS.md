@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` derives observed levels, missingness, and special-marker counts from one factor tally and avoids allocating bins for unused levels.
+
 * `lv()` builds the styled two-way HTML table only when knitting or when the session displays it.
 
 * `lv(count = ...)` skips the long percentage table when counts are displayed as a two-way table.

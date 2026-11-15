@@ -145,13 +145,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))
     if (!ordinary_factor) return(c(.count_missing_values(x), .count_special_values(x, special)))
     if (!is.null(special) && !length(special)) return(c(sum(is.na(unclass(x))), 0))
-    observed <- NULL
-    if (nlevels(x) > length(x)) {
-      codes <- as.integer(x)
-      observed <- unique(codes[!is.na(codes)])
-      n <- tabulate(match(codes, observed), nbins = length(observed))
-    } else n <- tabulate(x, nbins = nlevels(x))
-    c(length(x) - sum(n), .count_special_values(x, special, counts = n, level_codes = observed))
+    tally <- .factor_tally(x)
+    c(length(x) - sum(tally$counts), .count_special_values(x, special, tally = tally))
   })
   missing_count <- vapply(counts, `[[`, numeric(1), 1L, USE.NAMES = FALSE)
   special_count <- vapply(counts, `[[`, numeric(1), 2L, USE.NAMES = FALSE)
@@ -310,16 +305,13 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # whitespace-only values are blank. `special`, a character vector of regular
 # expressions, replaces the built-in markers. Values recognized by is.na() are
 # missing, not special.
-.count_special_values <- function(x, special = NULL, counts = NULL, level_codes = NULL) {
+.count_special_values <- function(x, special = NULL, tally = NULL) {
   if (!is.factor(x) && !is.character(x)) return(0L)
   if (!is.null(special) && length(special) == 0L) return(0)
   if (is.factor(x)) {
-    u <- levels(x)
-    if (!is.null(level_codes)) u <- u[level_codes]
-    n <- counts %||% tabulate(as.integer(x), nbins = length(u))
-    observed <- n > 0L
-    u <- u[observed]
-    n <- n[observed]
+    tally <- tally %||% .factor_tally(x)
+    u <- levels(x)[tally$codes]
+    n <- tally$counts
   } else {
     u <- unique(x)
     markers <- u[.is_special_value(u, special) & !is.na(u)]
@@ -329,6 +321,19 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   missing <- is.na(u)
   hit <- .is_special_value(u, special)
   sum(n[hit & !missing]) + 0
+}
+
+# Count observed factor codes in level order, including a coded NA level.
+.factor_tally <- function(x) {
+  k <- nlevels(x)
+  if (k > length(x)) {
+    codes <- as.integer(x)
+    observed <- sort(unique(codes), na.last = NA)
+    return(list(codes = observed, counts = tabulate(match(codes, observed), nbins = length(observed))))
+  }
+  counts <- tabulate(as.integer(x), nbins = k)
+  observed <- which(counts > 0L)
+  list(codes = observed, counts = counts[observed])
 }
 
 # Whether each distinct value is a special marker under the rules of
