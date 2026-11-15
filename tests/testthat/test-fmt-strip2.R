@@ -1194,3 +1194,22 @@ test_that("strip formatting retains inherited rich text facet labels", {
     expect_identical(q$theme$strip.text.x.top$colour, "purple")
   }
 })
+
+test_that("grid headers retain inherited rich text on both strip sides", {
+  skip_if_not_installed("ggtext")
+  skip_if_not_installed("ggh4x")
+  d <- data.frame(x = 1:4, y = 4:1, g = "A")
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::theme(strip.text.x = ggtext::element_markdown(),
+      strip.text.y = ggtext::element_markdown())
+  for (facet in list(ggplot2::facet_wrap(ggplot2::vars(g)),
+      ggh4x::facet_wrap2(ggplot2::vars(g), strip = ggh4x::strip_themed(
+        background_x = ggh4x::elem_list_rect(fill = "orange"))))) {
+    p <- base + facet
+    q <- fmt_strip2(p, top_label = "<b>Header</b>", right_label = "<i>Side</i>",
+      top_right_fill = NULL, label_color = "navy")
+    expect_length(.fmt_strip_text(q, "richtext_grob"), 2L)
+    expect_identical(q$theme$strip.text.x.top$colour, "navy")
+    expect_identical(q$theme$strip.text.y.right$colour, "navy")
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip2()` keeps inherited rich-text themes when adding top or right headers.
+
 * `fmt_strip()` preserves rich-text element classes inherited from existing strip themes.
 
 * `pr_tree()` bypasses attribute-name filtering for nodes without attributes.

@@ -2479,6 +2479,7 @@ fmt_strip2 <- function(plot,
   grid_rows <- vapply(grid$entries, function(entry) entry$row, integer(1))
   grid_cols <- vapply(grid$entries, function(entry) entry$col, integer(1))
   rightmost <- grid_cols == stats::ave(grid_cols, grid_rows, FUN = max)
+  standard_text_class <- class(ggplot2::element_text())
 
   if (!is.null(top_right_fill)) {
     top_right_fill <- rep_len(top_right_fill, 2L)
@@ -2564,9 +2565,21 @@ fmt_strip2 <- function(plot,
       luminance <- sum(c(0.2126, 0.7152, 0.0722) * linear)
       if (1.05 / (luminance + 0.05) > (luminance + 0.05) / 0.05) "white" else "black"
     }
+    rich_header <- FALSE
     header_text <- function(axis, fill) {
-      elements <- ggh4x::elem_list_text(colour = text_colour(fill), face = "bold")
+      colour <- text_colour(fill)
       inherited <- given_text[[axis]]
+      side <- if (axis == "text_x") "strip.text.x.top" else "strip.text.y.right"
+      resolved <- ggplot2::calc_element(side, base_theme + p$theme)
+      if (!length(inherited) && inherits(resolved, "element_text") &&
+          !identical(class(resolved), standard_text_class)) {
+        if (!is.null(colour)) resolved$colour <- colour
+        resolved$face <- "bold"
+        p$theme[[side]] <<- resolved
+        rich_header <<- TRUE
+        return(NULL)
+      }
+      elements <- ggh4x::elem_list_text(colour = colour, face = "bold")
       if (length(inherited) && !inherits(inherited[[1L]], "element_blank")) {
         elements <- lapply(elements, function(element) {
           ggplot2::merge_element(element, inherited[[1L]])
@@ -2576,6 +2589,8 @@ fmt_strip2 <- function(plot,
     }
     top_bg   <- if (!is.null(top_fill))   top_fill[grid_col]  else "grey85"
     right_bg <- if (!is.null(right_fill)) right_fill[grid_row] else "grey85"
+    text_x <- if (need_top) header_text("text_x", top_bg)
+    text_y <- if (need_right) header_text("text_y", right_bg)
 
     if (need_top && need_right) {
       # facet_grid2: cols -> top strip, rows -> right strip
@@ -2585,8 +2600,8 @@ fmt_strip2 <- function(plot,
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_x = header_text("text_x", top_bg),
-          text_y = header_text("text_y", right_bg)
+          text_x = text_x,
+          text_y = text_y
         )
       )
     } else if (need_top) {
@@ -2594,7 +2609,7 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.top. = !!top_label[grid_col]), strip.position = "top",
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
-          text_x = header_text("text_x", top_bg)
+          text_x = text_x
         )
       )
     } else { # need_right only
@@ -2602,11 +2617,16 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.right. = !!right_label[grid_row]), strip.position = "right",
         strip = ggh4x::strip_themed(
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_y = header_text("text_y", right_bg)
+          text_y = text_y
         )
       )
     }
-    facet <- .fmt_strip2_protect_facet(original_facet, p$facet)
+    facet <- p$facet
+    if (rich_header) {
+      strip <- .fmt_strip_rich_dimensions(facet$strip)
+      if (!identical(strip, facet$strip)) facet <- .fmt_strip_child(facet, strip = strip)
+    }
+    facet <- .fmt_strip2_protect_facet(original_facet, facet)
     facet$.fmt_strip_generated <- is.null(facet$.fmt_strip2_original_facet)
     p$facet <- if (inherits(original_facet, "AxisTileFacet")) .axis_tile_facet(facet) else facet
     plots[[i]] <- p
