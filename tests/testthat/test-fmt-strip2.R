@@ -1159,3 +1159,21 @@ test_that("strip restoration works for S3 and S7 theme elements", {
   out <- fn(p, top_label = "Title", top_right_fill = NULL)
   expect_identical(.fmt_strip_text(out)[[1L]]$label, "Title")
 })
+
+test_that("grid strip restoration writes each changed child once", {
+  skip_if_not_installed("ggh4x")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  row <- function() patchwork::wrap_plots(rep(list(p), 4L), nrow = 1L)
+  block <- function() patchwork::wrap_plots(list(row(), row()), ncol = 1L)
+  input <- patchwork::wrap_plots(list(block(), block()), nrow = 1L)
+  root_calls <- 0L
+  visit <- .map_plot_leaves
+  testthat::local_mocked_bindings(
+    .map_plot_leaves = function(plot, fun, wrapped = NULL) {
+      if (identical(plot, input)) root_calls <<- root_calls + 1L
+      visit(plot, fun, wrapped)
+    }, .package = "UtilsR")
+  out <- fmt_strip2(input, top_label = "Top", right_label = "Right", top_right_fill = NULL)
+  expect_identical(root_calls, 1L)
+  expect_equal(out$patches$layout, input$patches$layout)
+})

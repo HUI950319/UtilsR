@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip2()` restores styled leaves together, avoiding repeated writes to their shared patchwork containers.
+
 * `fmt_com(remove.bracket = TRUE)` keeps reference comparisons collapsed when the x scale reserves positions for absent groups.
 
 * `fmt_com()` reuses the resolved x, y, and group vectors for validation and layout while leaving the statistical layer mappings available to ggplot2.

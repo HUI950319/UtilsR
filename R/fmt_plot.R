@@ -2354,7 +2354,7 @@ fmt_strip2 <- function(plot,
   info  <- .to_plot_list(plot)
 
   # Each nested grid contributes its dimensions without rebuilding the container.
-  collect_grid <- function(children, lay = NULL, path = integer()) {
+  collect_grid <- function(children, lay = NULL) {
     cell_indices <- which(vapply(children, function(p) {
       # Containers ending in an inset inherit its classes, but dispatch as
       # patchworks. An inset wrapped around a patchwork dispatches as an inset.
@@ -2389,16 +2389,15 @@ fmt_strip2 <- function(plot,
     grids <- lapply(seq_len(n), function(i) {
       child_index <- cell_indices[i]
       p <- children[[child_index]]
-      child_path <- c(path, child_index)
       if (inherits(p, "patchwork")) {
         return(collect_grid(lapply(seq_along(p), function(j) p[[j]]),
-                            p$patches$layout, child_path))
+                            p$patches$layout))
       }
       if (inherits(p, "wrapped_patch")) {
         cli::cli_abort("Strip formatting cannot modify panels created by {.fn patchwork::wrap_elements}. Format the original ggplot before wrapping it.")
       }
       entries <- if (inherits(p, c("spacer", "guide_area"))) list() else
-        list(list(plot = p, path = child_path, row = 1L, col = 1L))
+        list(list(plot = p, row = 1L, col = 1L))
       list(nrow = 1L, ncol = 1L, entries = entries)
     })
     row_sizes <- rep(1L, nr)
@@ -2572,14 +2571,7 @@ fmt_strip2 <- function(plot,
     plots[[i]] <- p
   }
 
-  replace_leaf <- function(p, path, value) {
-    if (!length(path)) return(value)
-    p[[path[1]]] <- replace_leaf(p[[path[1]]], path[-1], value)
-    p
-  }
-  restored <- info$plots
-  for (i in seq_len(n)) restored <- replace_leaf(restored, grid$entries[[i]]$path, plots[[i]])
-  .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = plot, recurse = TRUE)
 }
 
 # ---- fmt_panel ----
