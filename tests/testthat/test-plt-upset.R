@@ -962,3 +962,14 @@ test_that("UpSet complete columns need no missingness mask", {
   environment(fn) <- env
   expect_identical(fn(d, c("A", "B"), levels = query, output = "data"), expected)
 })
+
+test_that("UpSet set limits precede member index construction", {
+  d <- stats::setNames(rep(list(1:4), 17L), letters[1:17])
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$unlist <- function(...) stop("allocated set membership before checking its size")
+  environment(fn) <- env
+  expect_error(fn(d, output = "data"), "at most 16")
+  expect_error(fn(d[1:8], output = "venn"), "2 to 7")
+  expect_error(fn(as.data.frame(d), letters[1:17], output = "upset"), "at most 16")
+})

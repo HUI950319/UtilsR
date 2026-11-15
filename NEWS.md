@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` validates diagram and enumeration set-count limits before building member indices.
+
 * `fmt_axisTile()` stores the baseline axis text and ticks without retaining unrelated theme elements in each guide.
 
 * `fmt_strip2()` restores styled leaves together, avoiding repeated writes to their shared patchwork containers.

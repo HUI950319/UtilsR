@@ -210,6 +210,16 @@ plt_upset <- function(data,
     cli::cli_abort("{.arg venn.alpha} must be one finite number between 0 and 1.")
   }
 
+  check_set_count <- function(n) {
+    if (n < 2L) cli::cli_abort("Select at least two sets.")
+    if (n > 7L && output == "venn") {
+      cli::cli_abort("Venn diagrams support 2 to 7 sets; use {.code output = 'upset'} for more sets.")
+    }
+    if (n > 16L) {
+      cli::cli_abort("UpSet and intersection data support at most 16 sets to bound enumeration of all combinations.")
+    }
+  }
+
   # ── Dispatch: list vs data.frame ─────────────────────────────────────────
   is_list_input <- is.list(data) && !is.data.frame(data)
   member_in <- function(values, query) {
@@ -254,7 +264,7 @@ plt_upset <- function(data,
     if (!valid_names(names(data))) {
       cli::cli_abort("When {.arg data} is a list, set names must be unique, non-missing and non-empty.")
     }
-    if (length(data) < 2L) cli::cli_abort("Select at least two sets.")
+    check_set_count(length(data))
     supported <- vapply(data, function(x) {
       is.null(x) || (is.atomic(x) && is.null(dim(x)) && (!is.object(x) || is.factor(x)))
     }, logical(1))
@@ -313,7 +323,7 @@ plt_upset <- function(data,
     if (!is.character(vars) || !is.null(dim(vars)) || !valid_names(vars)) {
       cli::cli_abort("{.arg vars} must contain unique, non-missing, non-empty column names.")
     }
-    if (length(vars) < 2L) cli::cli_abort("Select at least two sets.")
+    check_set_count(length(vars))
     missing_vars <- vars[!vars %in% names(data)]
     if (length(missing_vars) > 0) {
       cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
@@ -369,12 +379,6 @@ plt_upset <- function(data,
     cli::cli_abort("{.arg data} must be a named list or a data.frame.")
   }
 
-  if (length(set_list) > 7L && output == "venn") {
-    cli::cli_abort("Venn diagrams support 2 to 7 sets; use {.code output = 'upset'} for more sets.")
-  }
-  if (length(set_list) > 16L) {
-    cli::cli_abort("UpSet and intersection data support at most 16 sets to bound enumeration of all combinations.")
-  }
   if (output != "data" && !any(lengths(set_list) > 0L)) {
     cli::cli_abort("No set members match the selection; use {.code output = 'data'} to return the groups.")
   }
