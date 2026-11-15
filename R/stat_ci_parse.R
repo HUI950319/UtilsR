@@ -479,9 +479,12 @@ stat_ci_parse <- function(x,
   a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
   log_ratio <- function(a, b) {
     relative <- (a - b) / b
-    out <- log(a) - log(b)
     close <- is.finite(relative) & abs(relative) < 0.5
+    if (all(close)) return(log1p(relative))
+    if (!any(close)) return(log(a) - log(b))
+    out <- numeric(length(a))
     out[close] <- log1p(relative[close])
+    out[!close] <- log(a[!close]) - log(b[!close])
     out
   }
   w <- log_ratio(hi[pos], lo[pos])

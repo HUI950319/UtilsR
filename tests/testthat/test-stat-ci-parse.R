@@ -859,3 +859,17 @@ test_that("unparsed confidence intervals skip scale inference", {
   expect_identical(stat_ci_parse(c(a = NA_character_, b = ""), output = "p_star"),
     c(a = NA_character_, b = NA_character_))
 })
+
+test_that("nearby confidence interval endpoints skip redundant logarithms", {
+  estimate <- c(1.1, 1.2, 1.3)
+  lower <- estimate/1.1
+  upper <- estimate*1.1
+  unit <- matrix(.001, length(estimate), 3L)
+  entries <- list(estimate, lower, upper, unit, TRUE, rep(TRUE, length(estimate)))
+  expected <- do.call(.ci_scale, entries)
+  fn <- .ci_scale
+  env <- new.env(parent = environment(fn))
+  env$log <- function(...) stop("computed unnecessary logarithms of nearby endpoints")
+  environment(fn) <- env
+  expect_identical(do.call(fn, entries), expected)
+})
