@@ -1304,6 +1304,9 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       factor_tally <- .factor_tally(v)
       present <- sum(factor_tally$counts)
       total <- length(v)
+    } else if (is.atomic(v) && !is.object(v) && !anyNA(v)) {
+      missing <- FALSE
+      present <- total <- length(v)
     } else {
       missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
       present <- sum(!missing)

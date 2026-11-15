@@ -1959,3 +1959,15 @@ test_that("table printing converts only the displayed tibble rows", {
   environment(fn) <- env
   expect_identical(capture.output(fn(d, n = 3L)), expected)
 })
+
+test_that("complete sparkline columns do not allocate a missingness mask", {
+  d <- data.frame(x = seq(.1, 2, length.out = 400), y = rep(c("A", "B"), 200))
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (length(x) == nrow(d)) stop("allocated complete sparkline missingness flags")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` detects complete ordinary columns without allocating a missingness vector.
+
 * `stat_ci()` skips signed-zero regular expressions when the formatted values contain no negative-zero prefix.
 
 * `pr_table()` subsets ordinary tibbles to the displayed rows before converting them to a data frame.
