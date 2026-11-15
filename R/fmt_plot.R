@@ -515,6 +515,8 @@ fmt_tag <- function(plot,
   wrapped <- FALSE
   automatic <- FALSE
   clear_tags <- function(p) {
+    if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+        match("inset_patch", class(p)) < match("patchwork", class(p)))) return(p)
     if (inherits(p, "patchwork")) {
       if (length(p$patches$annotation$tag_levels)) automatic <<- TRUE
       free_settings <- attr(p, "patchwork_free_settings")

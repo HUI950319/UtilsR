@@ -524,3 +524,15 @@ test_that("tag cleanup does not replace untouched patchwork children", {
   expect_identical(out$patches$annotation$title, "Kept")
   expect_equal(vapply(seq_along(out), function(i) length(out[[i]]$layers), integer(1)), rep(2L, 3L))
 })
+
+test_that("tag cleanup preserves user inset patchworks", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  inner <- fmt_tag(patchwork::wrap_plots(p, p), labels = c("Inside1", "Inside2"))
+  inset <- patchwork::inset_element(inner, .3, .3, 1, 1)
+  input <- p + inset
+  expect_no_warning(output <- fmt_tag(input, labels = "Outer"))
+  grobs <- find_grobs(patchwork::patchworkGrob(output), "text")
+  labels <- unlist(lapply(grobs, function(g) as.character(g$label)), use.names = FALSE)
+  expect_identical(sort(labels[labels %in% c("Outer", "Inside1", "Inside2")]),
+                   c("Inside1", "Inside2", "Outer"))
+})
