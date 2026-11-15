@@ -296,7 +296,18 @@ plt_upset <- function(data,
       all_elements <- structure(unique(unlist(codes)), levels = base::levels(prototype),
                                 class = class(prototype))
     } else all_elements <- unique(prototype %||% character())
-    set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
+    homogeneous <- !any(factor_members) && all(vapply(data, function(x) {
+      !length(x) || identical(typeof(x), typeof(prototype))
+    }, logical(1)))
+    if (homogeneous) {
+      indices <- match(prototype, all_elements)
+      end <- cumsum(lengths(data))
+      start <- c(0L, end[-length(end)])
+      set_list <- Map(function(start, end) {
+        if (start == end) integer() else sort(unique(indices[seq.int(start + 1, end)]))
+      }, start, end)
+      names(set_list) <- names(data)
+    } else set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
     if (output %in% c("data", "all")) {
       df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
       names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)

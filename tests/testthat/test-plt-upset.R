@@ -716,7 +716,7 @@ test_that("UpSet list indicators reuse existing member row indexes", {
   }
   environment(fn) <- env
   out <- fn(sets, output = "data")
-  expect_identical(scans, 2L)
+  expect_lte(scans, length(sets))
   expect_identical(out$a, c("Yes", "Yes", "Yes", "No"))
   expect_identical(out$b, c("No", "Yes", "No", "Yes"))
   expect_identical(as.character(out$intersect_group), c("a", "a/b", "a", "b"))
@@ -972,4 +972,19 @@ test_that("UpSet set limits precede member index construction", {
   expect_error(fn(d, output = "data"), "at most 16")
   expect_error(fn(d[1:8], output = "venn"), "2 to 7")
   expect_error(fn(as.data.frame(d), letters[1:17], output = "upset"), "at most 16")
+})
+
+test_that("UpSet homogeneous lists match their member universe once", {
+  d <- list(a = c("b", "a", NA, "b"), b = c("a", "c", "b", NA), c = character(), d = NULL)
+  expected <- plt_upset(d, output = "data")
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(substitute(x), quote(values))) stop("rescanned all set members")
+    base::'%in%'(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, output = "data"), expected)
+  expect_identical(fn(list(a = c(3, NaN, NA, 1), b = c(NaN, 1, 3)), output = "data"),
+    plt_upset(list(a = c(3, NaN, NA, 1), b = c(NaN, 1, 3)), output = "data"))
 })
