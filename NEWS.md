@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` and `fmt_expand()` preserve position scales defined by the plot environment when ggplot2 infers its defaults.
+
 * `PlotButterfly(type = "bar")` reports a grid beyond the data-frame row limit before allocating missing combinations.
 
 * `plt_upset()` maps homogeneous atomic set members to their shared universe in one pass, retaining the original universe and set order.

@@ -561,3 +561,19 @@ test_that("infinite placeholder layers leave category scale selection to data", 
   expect_identical(as.character(x_params(titled)$get_labels()), c("A", "B", "C"))
   expect_null(p$scales$get_scales("x"))
 })
+
+test_that("axis defaults retain plot environment scale constructors", {
+  p <- local({
+    scale_x_continuous <- function() ggplot2::scale_x_continuous(name = "Custom", transform = "log10")
+    ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  })
+  base <- ggplot2::ggplot_build(p)
+  expect_equal(as.numeric(base$data[[1L]]$x), 0:2)
+  formatted <- list(fmt_scale(p, x = list(breaks = c(1, 10, 100))),
+    fmt_expand(p, axis = "x", mult = .05))
+  for (q in formatted) {
+    result <- ggplot2::ggplot_build(q)
+    expect_identical(result$data[[1L]]$x, base$data[[1L]]$x)
+    expect_identical(result$layout$panel_scales_x[[1L]]$name, "Custom")
+  }
+})

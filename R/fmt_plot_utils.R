@@ -218,16 +218,33 @@
       "hms", "difftime", "numeric", "integer", "character", "logical"
     ))) return(NULL)
     if (is.atomic(d) && is.infinite(d[[1L]]) && all(is.infinite(d))) next
-    if (is.factor(d) || is.character(d) || is.logical(d)) {
-      return(paste0("scale_", axis, "_discrete"))
+    type <- if (is.factor(d) || is.character(d) || is.logical(d)) {
+      "discrete"
     } else if (inherits(d, "Date")) {
-      return(paste0("scale_", axis, "_date"))
+      "date"
     } else if (inherits(d, c("POSIXct", "POSIXt"))) {
-      return(paste0("scale_", axis, "_datetime"))
+      "datetime"
     } else if (inherits(d, "hms")) {
-      return(paste0("scale_", axis, "_time"))
+      "time"
+    } else "continuous"
+    constructor <- paste0("scale_", axis, "_", type)
+    if (defer) {
+      # Native scale discovery checks the plot's own environment first.
+      env <- plot$plot_env
+      while (is.environment(env) && !identical(env, emptyenv())) {
+        if (exists(constructor, envir = env, inherits = FALSE)) {
+          if (bindingIsActive(constructor, env) ||
+              rlang::env_binding_are_lazy(env, constructor)[[1L]]) return(NULL)
+          candidate <- get(constructor, envir = env, inherits = FALSE)
+          if (is.function(candidate)) {
+            if (!identical(candidate, getExportedValue("ggplot2", constructor))) return(NULL)
+            break
+          }
+        }
+        env <- parent.env(env)
+      }
     }
-    return(paste0("scale_", axis, "_continuous"))
+    return(constructor)
   }
   if (defer) NULL else paste0("scale_", axis, "_continuous")
 }
