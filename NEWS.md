@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` closes its own temporary graphics device even when a user-supplied theme opens another device.
+
 * `PlotScatter3()` derives its shared automatic axis range from finite coordinates when other pairs contain infinities.
 
 * `fmt_panel(grid = "keep")` skips theme additions when no border, background, or extra theme settings are requested.

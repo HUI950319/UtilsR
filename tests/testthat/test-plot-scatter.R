@@ -1742,3 +1742,25 @@ test_that("paired scatter automatic axes ignore infinite observations", {
   expect_error(PlotScatter3(d, test_method = "none", cor_method = "none"),
     "finite coordinates")
 })
+
+test_that("paired scatter closes only its own temporary device", {
+  current <- 1L
+  closed <- integer()
+  testthat::local_mocked_bindings(
+    dev.cur = function() current,
+    pdf = function(...) current <<- 2L,
+    dev.off = function(which = current) {
+      closed <<- c(closed, which)
+      invisible(which)
+    },
+    .package = "grDevices"
+  )
+  testthat::local_mocked_bindings(ggplotGrob = function(...) grid::nullGrob(), .package = "ggplot2")
+  d <- data.frame(Control = 1:4, Treat = c(3, 2, 4, 6), group = rep(c("NS", "S"), 2L))
+  theme <- function() {
+    current <<- 3L
+    ggplot2::theme_classic()
+  }
+  PlotScatter3(d, test_method = "none", cor_method = "none", theme_use = theme)
+  expect_identical(closed, 2L)
+})

@@ -319,7 +319,8 @@ PlotScatter3 <- function(
   # ---- Main scatter plot ----
   if (grDevices::dev.cur() == 1L) {
     grDevices::pdf(NULL)
-    on.exit(grDevices::dev.off(), add = TRUE)
+    device <- grDevices::dev.cur()
+    on.exit(grDevices::dev.off(device), add = TRUE)
   }
   p1 <- ggplot2::ggplot(data, ggplot2::aes(
     x     = .data[[x]],
