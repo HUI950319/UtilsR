@@ -319,10 +319,9 @@ PlotRankCor <- function(
     agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
     group_sizes <- lengths(agg_groups$loc)
     small <- group_sizes <= 2L
-    ends <- cumsum(group_sizes)
-    rows <- unlist(agg_groups$loc, use.names = FALSE)
-    first <- rows[(ends - group_sizes + 1L)[small]]
-    last <- rows[ends[small]]
+    small_groups <- agg_groups$loc[small]
+    first <- vapply(small_groups, "[[", integer(1), 1L)
+    last <- vapply(small_groups, function(rows) rows[length(rows)], integer(1))
     agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]

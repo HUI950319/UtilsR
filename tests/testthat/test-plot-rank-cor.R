@@ -1072,3 +1072,20 @@ test_that("singleton rank groups skip ranking calls", {
     show.label = FALSE))
   expect_identical(actual$data, reference$data)
 })
+
+test_that("rank aesthetics do not flatten large group row locations", {
+  d <- expand.grid(item = letters[1:12], method = c("m1", "m2"), repeat_id = 1:5)
+  d$score <- seq_len(nrow(d))
+  d$size <- d$score/7
+  draw <- function(fn) suppressMessages(fn(d, "item", "score", method.by = "method",
+    size_by = "size", show.label = FALSE))
+  expected <- draw(PlotRankCor)
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$unlist <- function(x, ...) {
+    if (identical(substitute(x), quote(agg_groups$loc))) stop("flattened the large aesthetic groups")
+    base::unlist(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(draw(fn)$data, expected$data)
+})
