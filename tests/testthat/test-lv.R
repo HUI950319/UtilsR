@@ -1635,3 +1635,16 @@ test_that("inspection factor summaries share a tally of observed levels", {
   expect_equal(summary$n_na, 1)
   expect_equal(summary$n_special, 3)
 })
+
+test_that("inspection frequency rows skip distinct-key regrouping when labels are unique", {
+  d <- data.frame(d = as.Date("2026-11-01") + rep(c(1, 0, 2), each = 5L))
+  expected <- capture.output(suppressMessages(lv(d)))
+  native <- vctrs::vec_unique
+  testthat::local_mocked_bindings(vec_unique = function(x, ...) {
+    if (inherits(x, "Date") && length(x) == 3L &&
+        any(vapply(sys.calls(), function(call) identical(call[[1L]], quote(.distinct_labels)),
+          logical(1)))) stop("regrouped distinct inspection rows")
+    native(x, ...)
+  }, .package = "vctrs")
+  expect_identical(capture.output(suppressMessages(lv(d))), expected)
+})

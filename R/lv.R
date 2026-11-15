@@ -475,7 +475,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Values with their counts and shares of all rows, sorted as the summary
   # sorts them; beyond 15 values the rest are summed in one row, as
   # summarytools' "[k others]", and missing values come last.
-  .distinct_labels <- function(x, labels = as.character(x)) {
+  .distinct_labels <- function(x, labels = as.character(x), unique_values = FALSE) {
+    if (unique_values && !anyDuplicated(labels)) return(labels)
     if (!(is.numeric(x) || is.complex(x) ||
           inherits(x, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")))) return(labels)
     observed <- !is.na(x)
@@ -515,7 +516,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       else if (inherits(valid, c("POSIXct", "POSIXlt"))) format(valid)
       else valid
     ))
-    labels <- .distinct_labels(valid, labels)
+    labels <- .distinct_labels(valid, labels, unique_values = TRUE)
     if (length(n) > 15L) {
       labels <- c(labels[1:14], sprintf("(%s others)", .fmt_int(length(n) - 14L)))
       n <- c(n[1:14], sum(n[-(1:14)]))
