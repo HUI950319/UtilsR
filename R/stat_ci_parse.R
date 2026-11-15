@@ -454,18 +454,20 @@ stat_ci_parse <- function(x,
     ok <- pos
   }
 
-  # Compare the two half-widths before subtracting to preserve small differences.
-  span <- hi - lo
-  a_lin <- abs((hi - est) - (est - lo)) / span
-  r_lin <- (ul / 2 + uh / 2 + ue) / span
-  wide <- which(ok & is.finite(est) & is.finite(lo) & is.finite(hi) &
-                  (!is.finite(span) | !is.finite(a_lin) | !is.finite(r_lin)))
-  if (length(wide)) {
-    magnitude <- pmax(abs(est[wide]), abs(lo[wide]), abs(hi[wide]))
-    e <- est[wide] / magnitude; l <- lo[wide] / magnitude; h <- hi[wide] / magnitude
-    a_lin[wide] <- abs((h - e) - (e - l)) / (h - l)
-    r_lin[wide] <- (ul[wide] / magnitude / 2 + uh[wide] / magnitude / 2 +
-                     ue[wide] / magnitude) / (h - l)
+  if (!isTRUE(exp)) {
+    # Compare the two half-widths before subtracting to preserve small differences.
+    span <- hi - lo
+    a_lin <- abs((hi - est) - (est - lo)) / span
+    r_lin <- (ul / 2 + uh / 2 + ue) / span
+    wide <- which(ok & is.finite(est) & is.finite(lo) & is.finite(hi) &
+                    (!is.finite(span) | !is.finite(a_lin) | !is.finite(r_lin)))
+    if (length(wide)) {
+      magnitude <- pmax(abs(est[wide]), abs(lo[wide]), abs(hi[wide]))
+      e <- est[wide] / magnitude; l <- lo[wide] / magnitude; h <- hi[wide] / magnitude
+      a_lin[wide] <- abs((h - e) - (e - l)) / (h - l)
+      r_lin[wide] <- (ul[wide] / magnitude / 2 + uh[wide] / magnitude / 2 +
+                       ue[wide] / magnitude) / (h - l)
+    }
   }
   if (identical(exp, FALSE)) {
     return(list(is_exp = rep(FALSE, length(est)), invalid = invalid,
@@ -497,8 +499,8 @@ stat_ci_parse <- function(x,
     is_exp <- log_wins | (undecided & (!agree | any(log_wins)))
     ambiguous <- undecided & !agree
   } else {
-    is_exp <- ok & exp
-    ambiguous <- rep(FALSE, length(est))
+    return(list(is_exp = ok, invalid = invalid, ambiguous = rep(FALSE, length(est)),
+                asymmetric = ok & a_log - r_log > 0.2))
   }
 
   excess <- ifelse(is_exp, a_log - r_log, a_lin - r_lin)

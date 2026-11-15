@@ -832,3 +832,19 @@ test_that("CI with p-values assembles the decimal separator directly", {
   expect_match(actual[["strong"]], "p<0.001", fixed = TRUE)
   expect_match(actual[["weak"]], "p=1.000", fixed = TRUE)
 })
+
+test_that("ratio confidence checks bypass linear asymmetry", {
+  x <- c("2.00 (1.00, 4.00)", "1 (0, 2)", "9 (3, 27)", NA)
+  expected <- suppressWarnings(stat_ci_parse(x, exp = TRUE, output = "p"))
+  fn <- .ci_scale
+  env <- new.env(parent = environment(fn))
+  env$abs <- function(x) {
+    if (identical(substitute(x), quote((hi - est) - (est - lo))))
+      stop("computed additive asymmetry for a ratio interval")
+    base::abs(x)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.ci_scale = fn, .package = "UtilsR")
+  expect_warning(actual <- stat_ci_parse(x, exp = TRUE, output = "p"), "invalid")
+  expect_identical(actual, expected)
+})
