@@ -870,3 +870,16 @@ test_that("distribution labelled data retain adjacent doubles", {
   d$g <- haven::labelled(c(1, 2, 1, 2), labels = stats::setNames(c(1, 2), rep("same", 2L)))
   expect_identical(unique(as.character(dist_test_plot(d, c("x", "g"), type = "bar")$data$g)), "same")
 })
+
+test_that("complete distribution data do not allocate row masks", {
+  d <- data.frame(x = rep(1:3, each = 200L), g = rep(c("low", "high"), 300L))
+  expected <- plt_dist(d, c("x", "g"), type = "bar")$data
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, d$x) || identical(x, d$g)) stop("allocated a complete-case distribution mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, c("x", "g"), type = "bar")$data, expected)
+})

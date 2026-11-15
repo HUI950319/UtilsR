@@ -354,7 +354,7 @@ plt_dist <- function(data,
     data <- data[, required, with = FALSE]
   }
   data <- dplyr::ungroup(data)
-  keep <- rep(TRUE, nrow(data))
+  keep <- NULL
   for (v in required) {
     value <- data[[v]]
     if (!is.null(dim(value)) || (is.list(value) && !inherits(value, "POSIXlt"))) {
@@ -366,14 +366,20 @@ plt_dist <- function(data,
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(value)[1]}} columns requires package {.pkg {pkg}}.")
     }
-    keep <- keep & !is.na(value)
-    if (length(dis_vars) == 2L && type == "alluvial" && is.object(value)) {
-      ordinary_factor <- identical(class(value), "factor") ||
-        identical(class(value), c("ordered", "factor"))
-      if (!ordinary_factor || anyNA(levels(value))) keep <- keep & !is.na(as.character(value))
+    ordinary_factor <- identical(class(value), "factor") ||
+      identical(class(value), c("ordered", "factor"))
+    missing <- if (ordinary_factor) anyNA(unclass(value)) else is.object(value) || anyNA(value)
+    if (missing) {
+      valid <- !is.na(value)
+      keep <- if (is.null(keep)) valid else keep & valid
+    }
+    if (length(dis_vars) == 2L && type == "alluvial" && is.object(value) &&
+        (!ordinary_factor || anyNA(levels(value)))) {
+      valid <- !is.na(as.character(value))
+      keep <- if (is.null(keep)) valid else keep & valid
     }
   }
-  removed <- sum(!keep)
+  removed <- if (is.null(keep)) 0L else sum(!keep)
   if (removed > 0L) {
     cli::cli_inform("Removed {removed} row{?s} with missing values in required columns.")
     data <- data[keep, , drop = FALSE]

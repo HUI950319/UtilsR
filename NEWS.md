@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` builds row filtering masks only when required columns contain missing values.
+
 * `fmt_strip2()` keeps inherited rich-text themes when adding top or right headers.
 
 * `fmt_strip()` preserves rich-text element classes inherited from existing strip themes.
