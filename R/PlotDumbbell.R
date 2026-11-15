@@ -286,9 +286,14 @@ PlotDumbbell <- function(
     delta_values <- .dumbbell_integer64_difference(end_values, start_values)
   } else if (is.integer(start_values) && is.integer(end_values) &&
              !is.object(start_values) && !is.object(end_values)) {
-    delta_values <- as.double(end_values) - as.double(start_values)
-    if (all(abs(delta_values) <= .Machine$integer.max, na.rm = TRUE)) {
-      delta_values <- as.integer(delta_values)
+    bounds <- suppressWarnings(range(start_values, end_values, na.rm = TRUE))
+    if (diff(as.double(bounds)) <= .Machine$integer.max) {
+      delta_values <- end_values - start_values
+    } else {
+      delta_values <- as.double(end_values) - as.double(start_values)
+      if (all(abs(delta_values) <= .Machine$integer.max, na.rm = TRUE)) {
+        delta_values <- as.integer(delta_values)
+      }
     }
   } else {
     delta_values <- end_values - start_values

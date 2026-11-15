@@ -905,3 +905,22 @@ test_that("unsorted dumbbell tails avoid a full row index", {
   invisible(capture.output(actual <- fn(d, top_n = 3, sort_by = "none", legend_pos = "none")))
   expect_identical(actual$data, dumbbell_plot(d, top_n = 3, sort_by = "none", legend_pos = "none")$data)
 })
+
+test_that("bounded integer dumbbell deltas do not widen endpoint vectors", {
+  d <- data.frame(start = 1:120, end = 11:130, category = paste0("row", 1:120))
+  expected <- suppressMessages(dumbbell_plot(d, legend_pos = "none"))
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$as.double <- function(x, ...) {
+    if (length(x) == nrow(d)) stop("widened every integer endpoint")
+    base::as.double(x, ...)
+  }
+  environment(fn) <- env
+  invisible(capture.output(actual <- fn(d, legend_pos = "none")))
+  expect_identical(actual$data, expected$data)
+  d$start[1L] <- -.Machine$integer.max
+  d$end[1L] <- .Machine$integer.max
+  d <- d[1:2, , drop = FALSE]
+  invisible(capture.output(wide <- PlotDumbbell(d, sort_by = "none", legend_pos = "none")))
+  expect_equal(wide$data$.delta[1L], 2 * as.double(.Machine$integer.max))
+})
