@@ -494,6 +494,12 @@ plt_dist <- function(data,
     stats::setNames(ggplot2::alpha(unname(named_palette), alpha), names(named_palette))
   }
 
+  drawing_vars <- dis_vars
+  if (".data" %in% dis_vars) {
+    alias <- tail(make.unique(c(input_names, ".dist_value")), 1L)
+    drawing_vars[drawing_vars == ".data"] <- alias
+  }
+
   # --- 2 variables: stacked bar ---
   if (length(dis_vars) == 2) {
     x_var <- dis_vars[1]
@@ -533,8 +539,11 @@ plt_dist <- function(data,
       }
     }
 
+    if (".data" %in% dis_vars) plotdata[[alias]] <- plotdata[[".data"]]
+    draw_x <- drawing_vars[1L]
+    draw_fill <- drawing_vars[2L]
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
-      x = .data[[x_var]], y = .data[[prop_name]], fill = .data[[fill_var]])) +
+      x = .data[[draw_x]], y = .data[[prop_name]], fill = .data[[draw_fill]])) +
       ggplot2::geom_bar(stat = "identity", position = ggplot2::position_fill()) +
       ggplot2::scale_fill_manual(values = pal_cols) +
       ggplot2::scale_y_continuous(labels = scales::label_percent()) +
@@ -557,7 +566,7 @@ plt_dist <- function(data,
       # A fixed label fill drops the inherited fill mapping, so `group` keeps
       # the labels stacked like the bar segments.
       label_mapping <- ggplot2::aes(label = .data[[label_name]],
-                                    group = .data[[fill_var]])
+                                    group = .data[[draw_fill]])
       label_position <- ggplot2::position_fill(vjust = 0.5)
       label_size <- label_args$size %||% ((base_size - 4) / ggplot2::.pt)
       p <- p + if (label_args$box) {
@@ -609,9 +618,13 @@ plt_dist <- function(data,
   heat_legend <- legend_args$position %||%
     (if (labelled) "none" else
       if (identical(thm$legend.position, "none")) "right" else thm$legend.position)
+  if (".data" %in% dis_vars) plotdata[[alias]] <- plotdata[[".data"]]
+  draw_x <- drawing_vars[1L]
+  draw_y <- drawing_vars[2L]
+  draw_fill <- drawing_vars[3L]
   p <- ggplot2::ggplot(plotdata, ggplot2::aes(
-    x = .data[[x_var]], y = .data[[y_var]])) +
-    ggplot2::geom_tile(ggplot2::aes(fill = .data[[fill_var]]),
+    x = .data[[draw_x]], y = .data[[draw_y]])) +
+    ggplot2::geom_tile(ggplot2::aes(fill = .data[[draw_fill]]),
                        color = "black", linewidth = 0.5) +
     ggplot2::scale_fill_manual(values = pal_cols) +
     ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
@@ -629,12 +642,12 @@ plt_dist <- function(data,
   if (labelled) {
     label_size <- label_args$size %||% ((base_size - 2) / ggplot2::.pt)
     p <- p + if (label_args$box) {
-      ggplot2::geom_label(ggplot2::aes(label = .data[[fill_var]]),
+      ggplot2::geom_label(ggplot2::aes(label = .data[[draw_fill]]),
                           colour = label_args$color, fill = label_args$fill,
                           alpha = label_args$alpha, fontface = "bold",
                           size = label_size)
     } else {
-      ggplot2::geom_text(ggplot2::aes(label = .data[[fill_var]]),
+      ggplot2::geom_text(ggplot2::aes(label = .data[[draw_fill]]),
                          colour = label_args$color, alpha = label_args$alpha,
                          fontface = "bold", size = label_size)
     }

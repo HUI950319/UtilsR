@@ -833,3 +833,19 @@ test_that("distribution scalar controls diagnose shaped and oversized settings",
   expect_s3_class(dist_test_plot(d, c("a", "b"), type = "bar",
     alpha = .5, facet = "site", facet_args = list(ncol = 2)), "ggplot")
 })
+
+test_that("distribution aesthetics support literal data pronoun columns", {
+  d <- data.frame(x = c("A", "B", "A", "B"), y = c("I", "I", "II", "II"),
+                  fill = c("red", "blue", "red", "blue"))
+  for (vars in list(c("x", "fill"), names(d))) {
+    draw <- function(d, vars) ggplot2::ggplot_build(dist_test_plot(d, vars, type = "bar"))
+    expected <- draw(d, vars)$data
+    for (field in vars) {
+      input <- d
+      names(input)[names(input) == field] <- ".data"
+      out <- draw(input, replace(vars, vars == field, ".data"))
+      expect_identical(out$data, expected)
+      expect_true(".data" %in% names(out$plot$data))
+    }
+  }
+})

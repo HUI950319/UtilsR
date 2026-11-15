@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` draws bars and heatmaps for a literal `.data` input column without dropping its original name.
+
 * `fmt_bg()` repeats stripes over existing facets even when a facet uses a column named `.bg`.
 
 * `fmt_tag()` repeats in-panel labels across existing facets without creating a facet from the label itself.
