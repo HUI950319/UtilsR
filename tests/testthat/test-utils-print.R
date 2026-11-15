@@ -1900,3 +1900,16 @@ test_that("zero visible tree lines bypass root formatting", {
                          .package = "cli")
   expect_identical(lapply(objects, function(x) draw(fn, x)), expected)
 })
+
+test_that("spark histogram selection does not round clearly continuous columns", {
+  d <- data.frame(fraction = seq_len(600L) / 16, many = seq_len(600L))
+  expected <- capture.output(pr_spark(d))
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env$round <- function(x, ...) {
+    if (length(x) == nrow(d)) stop("rounded an entire sparkline column")
+    base::round(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d)), expected)
+})

@@ -1259,11 +1259,11 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
 
   # equal-width bins, or one per value for few whole numbers
   bin <- function(x) {
-    if (all(x == round(x))) {
-      probe <- min(length(x), bins + 1)
-      u <- unique(x[seq_len(probe)])
-      if (length(u) <= bins) {
-        if (probe < length(x)) u <- unique(x)
+    probe <- x[seq_len(min(length(x), bins + 1))]
+    if (all(probe == round(probe))) {
+      u <- unique(probe)
+      if (length(u) <= bins && (length(probe) == length(x) || all(x == round(x)))) {
+        if (length(probe) < length(x)) u <- unique(x)
         if (length(u) <= bins) {
           u <- sort(u)
           return(tabulate(match(x, u), nbins = length(u)))

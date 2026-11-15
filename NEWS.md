@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` rules out one-bin-per-value mode from a short prefix before scanning all observations.
+
 * `fmt_raster(method = "ragg")` diagnoses standalone grobs at the input boundary and directs them to full-image mode.
 
 * Scatter correlation helpers determine whether Pearson normalization is needed from the range endpoints.
