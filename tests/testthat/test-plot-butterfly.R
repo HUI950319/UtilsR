@@ -1215,3 +1215,23 @@ test_that("butterfly reshaping shares categories across both wings", {
   expect_identical(lapply(seq_along(actual), function(i) actual[[i]]$data),
     lapply(seq_along(reference), function(i) reference[[i]]$data))
 })
+
+test_that("butterfly completion does not generate discarded grid labels", {
+  d <- expand.grid(cat = paste0("g", 1:10), wing = c("L", "R"), fill = c("x", "y"),
+    stringsAsFactors = FALSE)
+  d$score <- seq_len(nrow(d))
+  draw <- function(fn) suppressMessages(fn(d, stat.by = "cat", value.by = "score",
+    group.by = "wing", fill.by = "fill", type = "bar"))
+  expected <- draw(PlotButterfly)
+  fn <- PlotButterfly
+  env <- new.env(parent = environment(fn))
+  env$expand.grid <- function(...) {
+    result <- base::expand.grid(...)
+    if (!is.null(attr(result, "out.attrs"))) stop("generated unused display attributes")
+    result
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(lapply(1:2, function(i) actual[[i]]$data),
+    lapply(1:2, function(i) expected[[i]]$data))
+})

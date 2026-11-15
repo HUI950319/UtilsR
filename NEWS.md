@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` omits the `expand.grid()` display attributes that are discarded during the subsequent join.
+
 * Repeated `fmt_axisTile()` edits replace a standard guide container without retaining previous guides in its prototype chain.
 
 * `plt_sankey()` shares the observed factor tally so node counts stay proportional to the data for sparse factors.

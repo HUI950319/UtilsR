@@ -326,7 +326,8 @@ PlotButterfly <- function(
     grid_values <- list(all_stats, all_fills, groups)[match(grid_keys, c(stat.by, fill.by, group.by))]
     if (prod(lengths(grid_values)) > .Machine$integer.max)
       cli::cli_abort("The butterfly grid exceeds the R row limit. Reduce the number of categories or fill levels.")
-    full_grid <- do.call(expand.grid, c(grid_values, list(stringsAsFactors = FALSE)))
+    full_grid <- do.call(expand.grid, c(grid_values,
+      list(KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)))
     colnames(full_grid) <- grid_keys
     data <- merge(full_grid, data, by = grid_keys,
                   all.x = TRUE)
