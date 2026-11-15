@@ -386,7 +386,22 @@ plt_dist <- function(data,
   # dispatch, so value labels (not codes) name the categories.
   for (v in required) {
     if (inherits(data[[v]], "haven_labelled")) {
-      data[[v]] <- labelled::to_factor(data[[v]])
+      value <- data[[v]]
+      raw <- vctrs::vec_data(value)
+      labels <- attr(value, "labels", exact = TRUE)
+      labels <- labels[!is.na(labels)]
+      unlabelled <- if (is.double(raw)) sort(setdiff(unique(raw), unname(labels))) else numeric()
+      keys <- as.character(c(labels, unlabelled))
+      display <- as.character(unlabelled)
+      collision <- tail(duplicated(keys) | duplicated(keys, fromLast = TRUE), length(unlabelled))
+      if (any(collision)) {
+        display[collision] <- sprintf("%.17g", unlabelled[collision])
+        values <- c(labels, stats::setNames(unlabelled, display))
+        values <- values[order(values)]
+        converted <- factor(match(raw, unname(values)), levels = seq_along(values), labels = names(values))
+        attr(converted, "label") <- attr(value, "label", exact = TRUE)
+        data[[v]] <- converted
+      } else data[[v]] <- labelled::to_factor(value)
     } else if ((is.integer(data[[v]]) || is.double(data[[v]])) && !is.object(data[[v]])) {
       values <- sort(unique(data[[v]]))
       value_labels <- as.character(values)

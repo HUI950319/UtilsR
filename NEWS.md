@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` preserves exact values when rounding would merge numeric categories of a labelled column.
+
 * `PlotDumbbell(sort_by = "none")` constructs indices only for the requested final observations.
 
 * Continuous dot counts convert grouped representatives to a data frame after identifying the observed combinations.

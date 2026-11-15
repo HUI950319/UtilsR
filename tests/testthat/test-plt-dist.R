@@ -849,3 +849,24 @@ test_that("distribution aesthetics support literal data pronoun columns", {
     }
   }
 })
+
+test_that("distribution labelled data retain adjacent doubles", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("ggalluvial")
+  values <- c(1, 1 + .Machine$double.eps)
+  d <- data.frame(x = rep("A", 4), cell = letters[1:4])
+  d$g <- haven::labelled(c(values, 2, 2), labels = c(Two = 2, Unused = 3), label = "Study group")
+  bar <- dist_test_plot(d, c("x", "g"), type = "bar")
+  alluvial <- dist_test_plot(d, c("x", "g"), type = "alluvial")
+  heat <- dist_test_plot(d, c("x", "cell", "g"))
+  expected <- c(sprintf("%.17g", values), "Two")
+  expect_setequal(as.character(bar$data$g[bar$data$n > 0]), expected)
+  expect_setequal(as.character(alluvial$data$.group[alluvial$data$count > 0]), expected)
+  expect_setequal(as.character(heat$data$g[heat$data$n > 0]), expected)
+  expect_equal(sort(bar$data$n[bar$data$n > 0]), c(1L, 1L, 2L))
+  d$g <- haven::labelled(c(values, 2, 2), labels = c(First = 1, Two = 2))
+  expect_setequal(as.character(dist_test_plot(d, c("x", "g"), type = "bar")$data$g),
+    c("First", sprintf("%.17g", values[2L]), "Two"))
+  d$g <- haven::labelled(c(1, 2, 1, 2), labels = stats::setNames(c(1, 2), rep("same", 2L)))
+  expect_identical(unique(as.character(dist_test_plot(d, c("x", "g"), type = "bar")$data$g)), "same")
+})
