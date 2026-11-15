@@ -1764,3 +1764,19 @@ test_that("paired scatter closes only its own temporary device", {
   PlotScatter3(d, test_method = "none", cor_method = "none", theme_use = theme)
   expect_identical(closed, 2L)
 })
+
+test_that("scatter group recoding uses factor codes and keeps row names", {
+  value <- ordered(rep(c("B", "A", NA, "C"), 250L), levels = LETTERS[1:4])
+  names(value) <- paste0("row", seq_along(value))
+  order <- c("C", "A", "absent", "B")
+  expected <- factor(value, levels = order)
+  fn <- .scatter_group_factor
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (is.factor(x) && length(x) == length(value)) stop("expanded all scatter factor labels")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(value, levels = order), expected)
+  expect_identical(fn(value), factor(value, levels = vctrs::vec_unique(value)))
+})

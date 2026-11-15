@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter plots remap ordinary factor groups at the level dictionary without converting each row to character.
+
 * `PlotHeatmapJaccard()` counts observed group pairs directly for many atomic feature sets that share each feature with at most one other group.
 
 * `check_na()` bounds tally allocation by the observations when a factor declares many unused levels.
