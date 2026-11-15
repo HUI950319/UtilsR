@@ -57,10 +57,6 @@ fct_to_group <- function(x, g_lis,
     cli::cli_abort("{.arg g_lis} must be a non-empty list of integer index vectors.")
   }
 
-  x <- .as_factor(x)
-  g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
-
-  # Auto-name unnamed elements; user names take precedence
   cur_names <- names(g_lis)
   if (is.null(cur_names)) cur_names <- rep("", length(g_lis))
   unnamed <- which(is.na(cur_names) | cur_names == "")
@@ -70,6 +66,12 @@ fct_to_group <- function(x, g_lis,
       if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
         cli::cli_abort("{.arg {arg}} must be a single non-missing string.")
     }
+  }
+  x <- .as_factor(x)
+  g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
+
+  # Auto-name unnamed elements; user names take precedence
+  if (length(unnamed)) {
     cur_names[unnamed] <- vapply(g_lis[unnamed], function(idx)
       paste0(name_prefix, paste(idx, collapse = name_sep)), character(1L))
   }

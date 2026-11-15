@@ -839,3 +839,13 @@ test_that("unchanged rowwise factor labels skip column reassignment", {
   expect_identical(fct_label(d, g, c("a", "b")), d)
   expect_identical(levels(fct_label(d, g, c("A", "B"))$g), c("A", "B"))
 })
+
+test_that("factor group naming controls validate before observation coercion", {
+  expect_error(fct_to_group(stop("observations were evaluated"), list(1L), name_prefix = NA_character_),
+    "name_prefix")
+  expect_error(fct_to_group(stop("observations were evaluated"), list(1L), name_sep = matrix("/")),
+    "name_sep")
+  x <- factor(letters[1:3])
+  expect_identical(fct_to_group(x, list(X = 1:2), name_prefix = stop("unused prefix")),
+    fct_to_group(x, list(X = 1:2)))
+})
