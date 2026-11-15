@@ -1887,3 +1887,16 @@ test_that("plain console notes skip the CLI markup parser", {
   expect_identical(capture.output(pr_note(text)), expected)
   expect_identical(calls, c("count {n}", "{{literal}}"))
 })
+
+test_that("zero visible tree lines bypass root formatting", {
+  objects <- list(1:5, list(a = list(x = 1, y = 2), b = 3))
+  draw <- function(fn, value) capture.output(fn(value, max_lines = 0L))
+  expected <- lapply(objects, function(x) draw(pr_tree, x))
+  fn <- pr_tree
+  env <- new.env(parent = environment(fn))
+  env$._obj_desc <- function(...) stop("formatted a wholly hidden tree root")
+  environment(fn) <- env
+  local_mocked_bindings(tree = function(...) stop("built a tree without visible lines"),
+                         .package = "cli")
+  expect_identical(lapply(objects, function(x) draw(fn, x)), expected)
+})

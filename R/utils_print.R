@@ -1074,29 +1074,35 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (how != "count") add(id, label, kids) else id
   }
 
-  big <- function(n) format(n, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
-  root_desc <- if (is.data.frame(x)) {
-    cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
-      ._pr_escape(class(x)[1]), big(nrow(x)), big(ncol(x))))
-  } else if (opens(x, 0)) {
-    part_count <- if (is.list(x)) length(x) else length(methods::slotNames(x))
-    cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(part_count)))
+  root_slot <- slot(FALSE)
+  tree <- character()
+  if (max_lines == 0L) {
+    node(x, "x", "", 0, root_slot)
   } else {
-    ._obj_desc(x, width - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
-               colour = TRUE)
+    big <- function(n) format(n, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
+    root_desc <- if (is.data.frame(x)) {
+      cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
+        ._pr_escape(class(x)[1]), big(nrow(x)), big(ncol(x))))
+    } else if (opens(x, 0)) {
+      part_count <- if (is.list(x)) length(x) else length(methods::slotNames(x))
+      cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(part_count)))
+    } else {
+      ._obj_desc(x, width - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
+                 colour = TRUE)
+    }
+    # the class as a chip for a classed list, a model fit or an S4 object; a
+    # plain list, a vector or a data frame names its class in the description
+    # already ("<list> <list 3>")
+    if (opens(x, 0) && is.object(x) && !is.data.frame(x)) {
+      root_desc <- paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white), root_desc)
+    }
+    root <- node(x, "x", root_desc, 0, root_slot)
+    records <- as.list(rows$records, all.names = TRUE)
+    tree <- as.character(cli::tree(data.frame(
+      id = names(records), children = I(lapply(records, `[[`, "children")),
+      label = vapply(records, `[[`, character(1), "label"), stringsAsFactors = FALSE
+    ), root = root))
   }
-  # the class as a chip for a classed list, a model fit or an S4 object; a
-  # plain list, a vector or a data frame names its class in the description
-  # already ("<list> <list 3>")
-  if (opens(x, 0) && is.object(x) && !is.data.frame(x)) {
-    root_desc <- paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white), root_desc)
-  }
-  root <- node(x, "x", root_desc, 0, slot(TRUE))
-  records <- as.list(rows$records, all.names = TRUE)
-  tree <- as.character(cli::tree(data.frame(
-    id = names(records), children = I(lapply(records, `[[`, "children")),
-    label = vapply(records, `[[`, character(1), "label"), stringsAsFactors = FALSE
-  ), root = root))
   if (rows$n > max_lines) {
     # the argument that cut them, as rlang names what shows hidden frames
     tree <- c(tree[seq_len(max_lines)], ._pr_wrap(cli::col_grey(sprintf(

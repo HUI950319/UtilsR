@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree(max_lines = 0)` counts omitted lines without generating root labels or drawing a tree.
+
 * `fmt_bg()` orders stripe boundaries by trained position, retaining named colours on reversed discrete scales.
 
 * `fmt_strip2()` calculates each row and column offset once when traversing regular plot grids.
