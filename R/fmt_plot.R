@@ -3642,12 +3642,16 @@ fmt_axisTile <- function(plot,
       } else return(p)
     }
     if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
+    baseline_fields <- c("axis.text", "axis.ticks", "axis.text.x", "axis.text.y",
+      "axis.ticks.x", "axis.ticks.y", paste0("axis.text.", c("x.top", "x.bottom", "y.left", "y.right")),
+      paste0("axis.ticks.", c("x.top", "x.bottom", "y.left", "y.right")))
+    baseline <- as.list(base_theme + p$theme + original$params$theme)[baseline_fields]
     settings <- list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
       tile_border = tile_border, tile_border_width = tile_border_width,
       text_size = text_size, text_face = text_face, text_angle = text_angle,
       text_color = text_color, show_text = show_text,
-      theme = base_theme + p$theme, axis = axis,
+      theme = baseline, axis = axis,
       # A free-scale panel may hold none of the colored values.
       check_names = !isTRUE(p$facet$params$free[[scale_axis]])
     )
@@ -3735,7 +3739,6 @@ fmt_axisTile <- function(plot,
       active <- theme
       baseline <- settings$theme
       if (!is.null(params$theme)) active <- active + params$theme
-      if (!is.null(parent$params$theme)) baseline <- baseline + parent$params$theme
       axis <- if (params$vertical) "y" else "x"
       if (settings$mode == "tile" && inherits(elements$ticks, "element_blank")) {
         tick_names <- c("axis.ticks", paste0("axis.ticks.", axis),

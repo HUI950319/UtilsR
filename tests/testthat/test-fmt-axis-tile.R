@@ -584,3 +584,16 @@ test_that("axis tiles survive adding and hiding synthetic strips", {
     expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(hidden))), 3L)
   }
 })
+
+test_that("axis tile guides omit unrelated baseline theme elements", {
+  p <- ggplot2::ggplot(data.frame(g = c("A", "B"), y = 1:2), ggplot2::aes(g, y)) +
+    ggplot2::geom_point() + ggplot2::theme(plot.title = ggplot2::element_text(colour = "navy"))
+  gt <- ggplot2::guide_axis(
+    theme = ggplot2::theme(axis.text.x = ggplot2::element_text(colour = "purple")))
+  p <- p + ggplot2::guides(x = gt)
+  q <- fmt_axisTile(p, c(A = "red", B = "blue"))
+  baseline <- q$guides$guides$x$params$axis_tile$theme
+  expect_null(baseline$plot.title)
+  expect_identical(baseline$axis.text.x$colour, "purple")
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
