@@ -1077,3 +1077,16 @@ test_that("parent legend key spacing scales with directional overrides", {
   expect_s3_class(ggplot2::ggplotGrob(out_global), "gtable")
   expect_s3_class(ggplot2::ggplotGrob(out_local), "gtable")
 })
+
+test_that("unused geometry aesthetics do not prevent guide collection", {
+  d <- data.frame(x = 1:3, y = 1:3, g = factor(letters[1:3]))
+  outside <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g)) + ggplot2::geom_point()
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, shape = g, group = 1)) +
+    ggplot2::geom_line() + ggplot2::theme(legend.position = "inside")
+  canvas <- p | outside | outside
+  expect_no_warning(formatted <- fmt_legend(canvas, collect = TRUE))
+  expect_identical(formatted$patches$layout$guides, "collect")
+  forced <- (p + ggplot2::geom_line(show.legend = TRUE)) | outside
+  expect_warning(keep <- fmt_legend(forced, collect = TRUE), "Guide collection is skipped")
+  expect_identical(keep$patches$layout$guides, "keep")
+})

@@ -1309,8 +1309,8 @@ fmt_legend <- function(plot,
     fixed <- unique(unlist(lapply(p$scales$scales, function(sc) {
       if (!is.null(sc$limits)) sc$aesthetics else character()
     })))
-    mapped <- unique(unlist(lapply(p$layers, function(layer) {
-      if (identical(layer$show.legend, FALSE)) return(character())
+    mapped <- lapply(p$layers, function(layer) {
+      if (identical(layer$show.legend, FALSE)) return(NULL)
       mapping <- layer$mapping
       if (isTRUE(layer$inherit.aes)) {
         mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
@@ -1328,15 +1328,27 @@ fmt_legend <- function(plot,
         names(layer$show.legend)[which(layer$show.legend %in% TRUE)]
       aesthetics <- union(aesthetics, intersect(forced, fixed))
       hidden <- names(layer$show.legend)[!is.na(layer$show.legend) & !layer$show.legend]
-      setdiff(aesthetics, hidden)
-    })))
-    for (aes in mapped[is_legend_aes(mapped)]) {
+      aesthetics <- setdiff(aesthetics, hidden)
+      geom_aes <- c(layer$geom$required_aes, names(layer$geom$default_aes))
+      if (isTRUE(layer$geom$rename_size) && !"linewidth" %in% aesthetics) {
+        geom_aes <- c(geom_aes, "size")
+      }
+      drawn <- if (isTRUE(layer$show.legend)) aesthetics else
+        intersect(aesthetics, c(geom_aes, forced))
+      list(mapped = aesthetics, drawn = drawn)
+    })
+    candidates <- unique(unlist(lapply(mapped, "[[", "mapped")))
+    drawn <- unique(unlist(lapply(mapped, "[[", "drawn")))
+    for (aes in candidates[is_legend_aes(candidates)]) {
       guide <- p$guides$guides[[aes]]
       if (is.null(guide) || inherits(guide, "waiver")) {
         matching <- Filter(function(sc) aes %in% sc$aesthetics, p$scales$scales)
         guide <- if (length(matching)) matching[[length(matching)]]$guide else NULL
       }
       if (identical(guide, "none") || identical(guide, FALSE) || inherits(guide, "GuideNone")) next
+      standard <- is.null(guide) || inherits(guide, "waiver") || identical(guide, "legend") ||
+        identical(class(guide), class(ggplot2::GuideLegend))
+      if (standard && !aes %in% drawn) next
       position <- if (inherits(guide, "Guide")) guide$params$position else NULL
       position <- position %||% plot_position
       if (annotation_inside || is_inside(position)) return(TRUE)
