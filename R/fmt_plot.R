@@ -4173,22 +4173,15 @@ fmt_com <- function(plot,
     base
   }
 
-  get_comparisons <- function(p, cm, group_quo = NULL) {
-    x_quo <- if (is.null(group_quo)) p$mapping$x else group_quo
-    if (is.null(x_quo)) cli::cli_abort("No x variable found in ggplot mapping.")
-    x_data <- tryCatch(
-      rlang::eval_tidy(x_quo, data = p$data),
-      error = function(e) cli::cli_abort("Cannot resolve the comparison mapping.", parent = e)
-    )
+  get_comparisons <- function(values, n, cm, compare_group) {
+    x_data <- if (compare_group) values$group else values$x
     if (is.null(x_data)) cli::cli_abort("Cannot resolve x variable from plot mapping.")
-    axis_data <- if (is.null(group_quo)) x_data else
-      rlang::eval_tidy(p$mapping$x, data = p$data)
+    axis_data <- values$x
     if (!is.factor(axis_data) && !is.character(axis_data) && !is.logical(axis_data))
       cli::cli_abort("The x comparison axis must be categorical; use factor() for numeric categories.")
-    y_data <- rlang::eval_tidy(p$mapping$y, data = p$data)
+    y_data <- values$y
     if (!is.numeric(y_data) || is.complex(y_data) || !any(is.finite(y_data)))
       cli::cli_abort("The y comparison variable must contain finite numeric observations.")
-    n <- nrow(p$data)
     if (!length(x_data) %in% c(1L, n) || !length(y_data) %in% c(1L, n))
       cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
     x_data <- rep(x_data, length.out = n)
@@ -4322,27 +4315,26 @@ fmt_com <- function(plot,
           cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
         # Preserve raw facet columns while mapping normalized statistical values.
         column <- utils::tail(make.unique(c(names(source_data), paste0(".fmt_com_", name))), 1L)
-        source_data[[column]] <- rep(value, length.out = nrow(source_data))
+        mapped_values[[name]] <- rep(value, length.out = nrow(source_data))
+        source_data[[column]] <- mapped_values[[name]]
         quo <- rlang::new_quosure(rlang::sym(column), rlang::base_env())
         if (name == "group") group_quo <- quo else source_mapping[[name]] <- quo
       }
-      keep <- !is.na(rlang::eval_tidy(source_mapping$x, data = source_data))
-      if (grouped) keep <- keep & !is.na(rlang::eval_tidy(group_quo, data = source_data))
-      if (any(!keep)) source_data <- source_data[keep, , drop = FALSE]
+      keep <- !is.na(mapped_values$x)
+      if (grouped) keep <- keep & !is.na(mapped_values$group)
+      if (any(!keep)) {
+        source_data <- source_data[keep, , drop = FALSE]
+        mapped_values <- lapply(mapped_values, function(value) value[keep])
+      }
     }
-    source <- list(data = source_data, mapping = source_mapping)
     compare_group <- grouped && !identical(dots$group.by, "legend.var")
-    comparisons <- get_comparisons(source, com_method, if (compare_group) group_quo else NULL)
-    group_labels <- NULL
-    if (grouped) {
-      values <- rlang::eval_tidy(group_quo, data = source_data)
-      group_labels <- levels(droplevels(factor(values)))
-    }
+    comparisons <- get_comparisons(mapped_values, nrow(source_data), com_method, compare_group)
+    group_labels <- if (grouped) levels(droplevels(factor(mapped_values$group))) else NULL
     if (is.numeric(ref_group)) {
       if (compare_group) {
         reference <- group_labels[ref_group]
-        outcomes <- rlang::eval_tidy(source_mapping$y, data = source_data)
-        observed <- as.character(rep(values, length.out = nrow(source_data))[
+        outcomes <- mapped_values$y
+        observed <- as.character(rep(mapped_values$group, length.out = nrow(source_data))[
           is.finite(rep(outcomes, length.out = nrow(source_data)))])
         valid_rank <- !is.na(reference) && reference %in% observed
       } else {
@@ -4361,7 +4353,7 @@ fmt_com <- function(plot,
         cli::cli_abort("ref.group rank must select an observed comparison group in at least one panel.")
     }
     comparison_order <- if (compare_group) group_labels else
-      levels(droplevels(factor(rlang::eval_tidy(source_mapping$x, data = source_data))))
+      levels(droplevels(factor(mapped_values$x)))
     if (!is.null(label.y)) {
       y_scale <- p$scales$get_scales("y")
       if (!is.null(y_scale) && any(!is.finite(suppressWarnings(y_scale$transform(label.y)))))
@@ -4376,9 +4368,9 @@ fmt_com <- function(plot,
     }
     if (vector_layout) {
       n <- nrow(source_data)
-      axis_values <- rep(rlang::eval_tidy(source_mapping$x, data = source_data), length.out = n)
-      group_values <- if (grouped) rep(rlang::eval_tidy(group_quo, data = source_data), length.out = n) else rep("", n)
-      finite <- is.finite(rep(rlang::eval_tidy(source_mapping$y, data = source_data), length.out = n))
+      axis_values <- rep(mapped_values$x, length.out = n)
+      group_values <- if (grouped) rep(mapped_values$group, length.out = n) else rep("", n)
+      finite <- is.finite(rep(mapped_values$y, length.out = n))
       axis_scale <- p$scales$get_scales("x")
       axis_scale <- if (is.null(axis_scale)) ggplot2::scale_x_discrete() else axis_scale$clone()
       axis_scale$train(axis_values)
@@ -4439,12 +4431,11 @@ fmt_com <- function(plot,
     }
     if (paired) {
       if (ref_all) cli::cli_abort("Paired tests cannot use a pooled ref.group; select two groups.")
-      comparison_values <- rep(rlang::eval_tidy(if (compare_group) group_quo else source_mapping$x,
-                                              data = source_data), length.out = nrow(source_data))
+      comparison_values <- rep(if (compare_group) mapped_values$group else mapped_values$x,
+                               length.out = nrow(source_data))
       strata <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
                        rlang::eval_tidy, data = source_data)
-      if (grouped) strata <- c(strata, list(rlang::eval_tidy(
-        if (compare_group) source_mapping$x else group_quo, data = source_data)))
+      if (grouped) strata <- c(strata, list(if (compare_group) mapped_values$x else mapped_values$group))
       strata_key <- if (length(strata)) do.call(interaction,
         c(lapply(strata, function(value) factor(vctrs::vec_group_id(rep(value, length.out = nrow(source_data))), exclude = NULL)),
           list(drop = TRUE))) else factor(rep(1L, nrow(source_data)))

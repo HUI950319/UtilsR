@@ -785,3 +785,16 @@ test_that("comparison layers can supply data for an empty plot frame", {
   expect_equal(com_stat(fmt_com(p)), com_stat(fmt_com(p, data = d)))
   expect_error(fmt_com(p, data = d[FALSE, ]), "finite")
 })
+
+test_that("comparison validation resolves each aesthetic once", {
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(x = rep(c("A", "B"), each = 5L), y = c(1:5, 8:12))
+  counts <- c(x = 0L, y = 0L)
+  xc <- function(z) { counts["x"] <<- counts["x"] + 1L; z }
+  yc <- function(z) { counts["y"] <<- counts["y"] + 1L; z }
+  p <- ggplot2::ggplot(d, ggplot2::aes(xc(x), yc(y))) + ggplot2::geom_point()
+  out <- fmt_com(p)
+  expect_identical(counts, c(x = 1L, y = 1L))
+  bare <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_equal(com_stat(out), com_stat(fmt_com(bare)))
+})

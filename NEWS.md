@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` reuses the resolved x, y, and group vectors for validation and layout while leaving the statistical layer mappings available to ggplot2.
+
 * Scatter plots remap ordinary factor groups at the level dictionary without converting each row to character.
 
 * `PlotHeatmapJaccard()` counts observed group pairs directly for many atomic feature sets that share each feature with at most one other group.
