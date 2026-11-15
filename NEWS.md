@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter correlation helpers determine whether Pearson normalization is needed from the range endpoints.
+
 * `plt_dist()` draws bars and heatmaps for a literal `.data` input column without dropping its original name.
 
 * `fmt_bg()` repeats stripes over existing facets even when a facet uses a column named `.bg`.

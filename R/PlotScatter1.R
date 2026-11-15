@@ -628,11 +628,11 @@ PlotScatter1 <- function(
   if (pearson) {
     normalize <- function(value) {
       if (!length(value) || !all(is.finite(value))) return(value)
-      center <- min(value) / 2 + max(value) / 2
-      shifted <- value - center
-      scale <- max(abs(shifted))
+      bounds <- range(value)
+      center <- bounds[1L] / 2 + bounds[2L] / 2
+      scale <- max(abs(bounds - center))
       if (scale > 0 && (scale < sqrt(.Machine$double.xmin) ||
-                        scale > sqrt(.Machine$double.xmax))) shifted / scale else value
+                        scale > sqrt(.Machine$double.xmax))) (value - center) / scale else value
     }
     x <- normalize(x)
     y <- normalize(y)

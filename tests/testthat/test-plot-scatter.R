@@ -1714,3 +1714,18 @@ test_that("paired scatter t tests display unavailable results for constant diffe
     expect_true("p = NA" %in% labels)
   }
 })
+
+test_that("ordinary scatter correlations avoid shifting whole axes", {
+  x <- seq(1, 12, length.out = 80L)
+  y <- x + sin(x)
+  expected <- .scatter_cor_test(x, y, "pearson")
+  fn <- .scatter_cor_test
+  env <- new.env(parent = environment(fn))
+  env[["-"]] <- function(a, b) {
+    if (length(a) > 2L && length(b) == 1L) stop("shifted routine Pearson coordinates")
+    base::`-`(a, b)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, y, "pearson"), expected)
+  expect_equal(.scatter_cor_test(x * 1e-180, y * 1e-180, "pearson")$estimate, expected$estimate)
+})
