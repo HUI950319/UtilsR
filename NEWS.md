@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_ref()` prepares per-axis line styles once when adding the same references across several plots.
+
 * `PlotButterfly()` omits the `expand.grid()` display attributes that are discarded during the subsequent join.
 
 * Repeated `fmt_axisTile()` edits replace a standard guide container without retaining previous guides in its prototype chain.

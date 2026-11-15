@@ -474,3 +474,25 @@ test_that("empty references avoid visiting nested plot leaves", {
   expect_error(fmt_ref(list(combined, 1)), "All elements")
   expect_error(fmt_ref(combined, xintercept = 1), "instead of")
 })
+
+test_that("reference styles recycle once per axis across leaves", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  color <- c("red", "blue")
+  plots <- rep(list(p), 4L)
+  expected <- fmt_ref(plots, x = 1:3, y = 1:2, color = color)
+  seen <- integer()
+  fn <- fmt_ref
+  env <- new.env(parent = environment(fn))
+  env$rep_len <- function(x, length.out) {
+    if (identical(x, color)) {
+      seen <<- c(seen, length.out)
+      if (length(seen) > 2L) stop("repeatedly recycled reference line colours")
+    }
+    base::rep_len(x, length.out)
+  }
+  environment(fn) <- env
+  actual <- fn(plots, x = 1:3, y = 1:2, color = color)
+  expect_equal(lapply(actual, function(q) ggplot2::ggplot_build(q)$data),
+    lapply(expected, function(q) ggplot2::ggplot_build(q)$data))
+  expect_identical(sort(seen), 2:3)
+})

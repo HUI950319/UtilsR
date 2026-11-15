@@ -1488,12 +1488,17 @@ fmt_ref <- function(plot,
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
 
-  .ref_layers <- function(values, axis, native = FALSE) {
+  line_styles <- function(values) {
+    n <- length(values)
+    if (!n) return(NULL)
+    list(colour = rep_len(color, n), linetype = rep_len(linetype, n),
+         linewidth = rep_len(linewidth, n), alpha = rep_len(alpha, n))
+  }
+  x_styles <- line_styles(x)
+  y_styles <- line_styles(y)
+
+  .ref_layers <- function(values, axis, styles, native = FALSE) {
     if (!length(values)) return(list())
-    styles <- list(colour = rep_len(color, length(values)),
-                   linetype = rep_len(linetype, length(values)),
-                   linewidth = rep_len(linewidth, length(values)),
-                   alpha = rep_len(alpha, length(values)))
     geom <- if (axis == "x") ggplot2::geom_vline else ggplot2::geom_hline
     if (!batch_dots || native) {
       return(lapply(seq_along(values), function(j) {
@@ -1529,8 +1534,8 @@ fmt_ref <- function(plot,
     }), use.names = FALSE))
     # Native layers cannot supply our helper columns as spurious facet values.
     plot_layers <- if (any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
-      c(.ref_layers(x, "x", native = TRUE), .ref_layers(y, "y", native = TRUE))
-    } else c(.ref_layers(x, "x"), .ref_layers(y, "y"))
+      c(.ref_layers(x, "x", x_styles, native = TRUE), .ref_layers(y, "y", y_styles, native = TRUE))
+    } else c(.ref_layers(x, "x", x_styles), .ref_layers(y, "y", y_styles))
     plots[[i]] <- plots[[i]] + plot_layers
   }
 
