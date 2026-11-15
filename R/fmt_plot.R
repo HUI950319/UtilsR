@@ -124,6 +124,14 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     is.null(x) || isFALSE(x) ||
       (typeof(x) %in% c("integer", "double") && !is.object(x) && !length(x))
   }
+  valid_dims <- function(x, lengths) {
+    typeof(x) %in% c("integer", "double") && !is.object(x) && is.null(dim(x)) &&
+      length(x) %in% lengths && !anyNA(x) && all(is.finite(x)) &&
+      all(x > 0 & x == floor(x) & x <= .Machine$integer.max)
+  }
+  if (!is.null(plot_dims) && !valid_dims(plot_dims, 1:2)) {
+    cli::cli_abort("{.arg plot_dims} must contain one or two finite positive integers.")
+  }
   no_axes <- is.null(plot_dims) && empty_axis(x.axis) && empty_axis(y.axis)
   info <- .to_plot_list(plot, recurse = !no_axes)
   plots <- info$plots
@@ -134,14 +142,6 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       !(inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
           match("inset_patch", class(p)) < match("patchwork", class(p))))
     }, logical(1)))
-  }
-  valid_dims <- function(x, lengths) {
-    typeof(x) %in% c("integer", "double") && !is.object(x) && is.null(dim(x)) &&
-      length(x) %in% lengths && !anyNA(x) && all(is.finite(x)) &&
-      all(x > 0 & x == floor(x) & x <= .Machine$integer.max)
-  }
-  if (!is.null(plot_dims) && !valid_dims(plot_dims, 1:2)) {
-    cli::cli_abort("{.arg plot_dims} must contain one or two finite positive integers.")
   }
   if (!is.null(plot_dims) && length(plot_dims) == 2L && prod(plot_dims) < cell_count) {
     cli::cli_abort("{.arg plot_dims} has too few cells for the plots.")

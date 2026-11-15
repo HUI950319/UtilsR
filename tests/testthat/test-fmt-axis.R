@@ -490,3 +490,10 @@ test_that("repeated axis hiding keeps matching guide prototypes", {
   expect_identical(axis_grob_labels(ggplot2::ggplotGrob(a)), axis_grob_labels(ggplot2::ggplotGrob(b)))
   expect_identical(p$scales$get_scales("x")$guide$params$theme$axis.text.x$colour, "red")
 })
+
+test_that("invalid axis layout shapes fail before plot traversal", {
+  for (bad in list(0, matrix(2), c(1, 1, 1), 2^31)) {
+    expect_error(fmt_axis(stop("traversed a plot with invalid dimensions"),
+                          x.axis = TRUE, plot_dims = bad), "plot_dims")
+  }
+})

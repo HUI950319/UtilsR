@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axis()` validates dimension storage and bounds before traversing the plot container.
+
 * `PlotHeatmapJaccard()` accepts factor group selections with a different declared level set from the input.
 
 * `fmt_text(legend_title = "")` clears titles supplied directly to legend guides.
