@@ -555,3 +555,19 @@ test_that("axis tile panels share one global theme lookup", {
   expect_identical(calls, 1L)
   expect_true(all(vapply(q, function(plot) inherits(plot$guides$guides$x, "AxisTileGuide"), logical(1L))))
 })
+
+test_that("repeated axis tile settings keep one guide prototype", {
+  p <- axis_tile_plot()
+  first <- fmt_axisTile(p, axis_tile_colors)
+  repeated <- fmt_axisTile(first, axis_tile_colors)
+  expect_true(identical(repeated$guides$guides$x, first$guides$guides$x))
+  expect_identical(repeated$facet, first$facet)
+  changed <- fmt_axisTile(repeated, rev(axis_tile_colors))
+  direct <- fmt_axisTile(p, rev(axis_tile_colors))
+  rects <- function(p) {
+    out <- axis_tile_rects(ggplot2::ggplotGrob(p))
+    rownames(out) <- NULL
+    out
+  }
+  expect_identical(rects(changed), rects(direct))
+})

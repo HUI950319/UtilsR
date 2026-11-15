@@ -3618,18 +3618,13 @@ fmt_axisTile <- function(plot,
     } else axis
     scale <- p$scales$get_scales(scale_axis)
     if (is.null(original) && !is.null(scale)) original <- scale$guide
-    if (inherits(original, "AxisTileGuide")) {
-      params <- original$params
-      params$axis_tile <- NULL
-      original <- do.call(ggplot2::ggproto, list(NULL, original$axis_tile_parent, params = params))
-    }
     if (!inherits(original, "GuideAxis")) {
       if (is.null(original) || inherits(original, "waiver") || identical(original, "axis")) {
         original <- ggplot2::guide_axis()
       } else return(p)
     }
     if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
-    guide <- .axis_tile_guide(original, list(
+    settings <- list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
       tile_border = tile_border, tile_border_width = tile_border_width,
       text_size = text_size, text_face = text_face, text_angle = text_angle,
@@ -3637,7 +3632,17 @@ fmt_axisTile <- function(plot,
       theme = base_theme + p$theme, axis = axis,
       # A free-scale panel may hold none of the colored values.
       check_names = !isTRUE(p$facet$params$free[[scale_axis]])
-    ))
+    )
+    if (inherits(original, "AxisTileGuide")) {
+      if (identical(settings, original$params$axis_tile) &&
+          (mode == "text" || inherits(p$facet, "AxisTileFacet"))) return(p)
+      parent <- original$axis_tile_parent
+      params <- original$params
+      params$axis_tile <- NULL
+      original <- if (identical(params, parent$params)) parent else
+        do.call(ggplot2::ggproto, list(NULL, parent, params = params), envir = baseenv())
+    }
+    guide <- .axis_tile_guide(original, settings)
     p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
     facet <- p$facet
     if (inherits(facet, "AxisTileFacet")) facet <- facet$axis_tile_parent
