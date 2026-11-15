@@ -705,3 +705,18 @@ test_that("panel traversal preserves one-dimensional list boundaries", {
   expect_identical(names(result), names(plots))
   expect_identical(result[[2L]]$theme$panel.background$fill, "red")
 })
+
+test_that("automatic grid contrast resolves scalar palette indices", {
+  pale <- c(2L, 3L)
+  old <- grDevices::palette(c("black", "red", "blue"))
+  withr::defer(grDevices::palette(old))
+  p <- panel_test_plot()
+  for (i in pale) {
+    native <- p + ggplot2::theme(panel.background = ggplot2::element_rect(fill = i),
+                                panel.grid.major = ggplot2::element_line(colour = i))
+    shown <- fmt_panel(native, grid = "major")
+    expect_equal(panel_test_grids(shown)$colour, rep("grey70", 2L))
+    forced <- fmt_panel(native, grid = "major", grid_color = "orange")
+    expect_equal(panel_test_grids(forced)$colour, rep("orange", 2L))
+  }
+})

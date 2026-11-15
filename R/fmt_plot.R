@@ -2850,13 +2850,15 @@ fmt_panel <- function(plot,
         if (!inherits(background, "element_rect") || is.null(background$fill)) {
           background <- ggplot2::calc_element("plot.background", styled_theme)
         }
-        if (inherits(background, "element_rect") && length(background$fill) == 1L &&
-            (is.character(background$fill) || anyNA(background$fill))) {
+        scalar_colour <- function(value) {
+          length(value) == 1L && (is.character(value) || anyNA(value) ||
+            (is.numeric(value) && !is.object(value) && is.finite(value) && value >= 0))
+        }
+        if (inherits(background, "element_rect") && scalar_colour(background$fill)) {
           background_rgba <- grDevices::col2rgb(background$fill, alpha = TRUE)
           if (background_rgba[4L] < 255L) {
             outside <- ggplot2::calc_element("plot.background", styled_theme)
-            if (inherits(outside, "element_rect") && is.character(outside$fill) &&
-                length(outside$fill) == 1L) {
+            if (inherits(outside, "element_rect") && scalar_colour(outside$fill)) {
               outside_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
               if (outside_rgba[4L] == 255L) {
                 alpha <- background_rgba[4L] / 255
@@ -2877,8 +2879,7 @@ fmt_panel <- function(plot,
                 inherits(el, "element_line") && !is.null(el$colour)
               }, logical(1)))) next
               line <- ggplot2::calc_element(nm, styled_theme)
-              if (!inherits(line, "element_line") || !is.character(line$colour) ||
-                  length(line$colour) != 1L) next
+              if (!inherits(line, "element_line") || !scalar_colour(line$colour)) next
               rgba <- grDevices::col2rgb(line$colour, alpha = TRUE)
               if (rgba[4L] == 255L && all(rgba == background_rgba)) {
                 colour <- if (all(background_rgba[1:3] == grDevices::col2rgb("grey70"))) "grey30" else "grey70"
