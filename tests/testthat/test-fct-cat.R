@@ -828,3 +828,14 @@ test_that("binary factor recoding uses validated reference positions", {
   expect_identical(fct_cat(x, ref_idx = c(2L, 1L)), expected)
   expect_error(fct_cat(x, ref_idx = c(1L, 1L)), "duplicat|non-unique")
 })
+
+test_that("unchanged rowwise factor labels skip column reassignment", {
+  d <- dplyr::rowwise(data.frame(id = 1:3, g = factor(c("a", "b", "a"))), id)
+  native <- dplyr::dplyr_col_modify
+  testthat::local_mocked_bindings(dplyr_col_modify = function(data, cols) {
+    if (identical(cols$g, data$g)) stop("reassigned an unchanged rowwise factor")
+    native(data, cols)
+  }, .package = "dplyr")
+  expect_identical(fct_label(d, g, c("a", "b")), d)
+  expect_identical(levels(fct_label(d, g, c("A", "B"))$g), c("A", "B"))
+})

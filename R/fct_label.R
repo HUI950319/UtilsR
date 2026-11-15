@@ -93,8 +93,8 @@ fct_label.data.frame <- function(x, var, labels, ...) {
   }
   original <- x[[v]]
   relabelled <- fct_cat(original, new_labels = labels)
+  if (identical(relabelled, original)) return(x)
   if (inherits(x, "data.table")) {
-    if (identical(relabelled, original)) return(x)
     if (!requireNamespace("data.table", quietly = TRUE))
       cli::cli_abort("Relabelling data.table columns requires the {.pkg data.table} package.")
     x <- data.table::copy(x)
