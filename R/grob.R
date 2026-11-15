@@ -441,6 +441,7 @@ grob_insert <- function(
 
   # Add to gtable: z-order depends on on_top
   z_val <- Inf
+  before <- integer()
   if (!on_top) {
     layout <- gt$layout
     overlaps <- layout$t <= ref_b & layout$b >= ref_t &
@@ -453,6 +454,15 @@ grob_insert <- function(
       below <- lowest - abs(lowest) * .Machine$double.eps
     }
     z_val <- max(min(0, below), backgrounds, na.rm = TRUE)
+    if (is.finite(lowest)) {
+      same_order <- which(overlaps & layout$z == lowest)
+      back <- same_order[background[same_order]]
+      front <- same_order[!background[same_order]]
+      if (length(back) && length(front) && max(back) < front[1L]) {
+        z_val <- lowest
+        before <- front[1L]
+      }
+    }
   }
 
   gt <- gtable::gtable_add_grob(
@@ -465,6 +475,11 @@ grob_insert <- function(
     clip = clip_mode,
     name = "inset"
   )
+  if (length(before)) {
+    index <- append(seq_len(nrow(layout)), nrow(gt$layout), after = before - 1L)
+    gt$layout <- gt$layout[index, , drop = FALSE]
+    gt$grobs <- gt$grobs[index]
+  }
 
   return(gt)
 }

@@ -360,3 +360,14 @@ test_that("behind insets remain below very negative finite drawing orders", {
   expect_lt(result$layout$z[result$layout$name == "inset"], -1e30)
   expect_identical(result$layout$name[order(result$layout$z)], c("inset", "panel"))
 })
+
+test_that("behind insets respect equal background and foreground draw orders", {
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, list(grid::rectGrob(gp = grid::gpar(fill = "white")),
+    grid::pointsGrob(.5, .5)), t = 1L, l = 1L, z = 0, name = c("background", "panel"))
+  inset <- grid::rectGrob(gp = grid::gpar(fill = "red"), name = "red-square")
+  out <- grob_insert(gt, inset, left = .1, bottom = .1, right = .9, top = .9,
+    on_top = FALSE, align_to = "full")
+  expect_identical(out$layout$name[order(out$layout$z)], c("background", "inset", "panel"))
+  expect_identical(out$grobs[[2L]]$children[[1L]]$name, "red-square")
+})

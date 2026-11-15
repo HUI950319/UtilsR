@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(on_top = FALSE)` keeps insets above backgrounds and below foregrounds that share the same draw order.
+
 * Continuous mean and SD summaries skip missing-value and finite-value vectors for complete, well-scaled inputs.
 
 * `plt_dist()` preserves exact values when rounding would merge numeric categories of a labelled column.
