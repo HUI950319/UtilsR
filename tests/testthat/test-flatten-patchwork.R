@@ -451,3 +451,10 @@ test_that("flattened inset hosts are validated before patchwork assembly", {
   output <- fmt_flatten(list(p, inset))
   expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(output)) == "Inset"), 1L)
 })
+
+test_that("flatten validates layout controls before reading plot children", {
+  expect_error(fmt_flatten(stop("plot was evaluated"), ncol = 0), "ncol.*positive integer")
+  expect_error(fmt_flatten(stop("plot was evaluated"), design = c("A", "B")), "design")
+  expect_error(fmt_flatten(stop("plot was evaluated"), bogus = 2), "Unknown layout control")
+  expect_error(fmt_flatten(stop("plot was evaluated"), 2), "named layout controls")
+})

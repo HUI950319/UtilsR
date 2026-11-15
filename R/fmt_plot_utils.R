@@ -442,6 +442,31 @@
 #' @export
 fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
   error_call <- environment()
+  dots <- list(...)
+  if (length(dots)) {
+    dot_names <- names(dots)
+    if (is.null(dot_names) || any(is.na(dot_names) | !nzchar(dot_names))) {
+      cli::cli_abort("All arguments in {.code ...} must be named layout controls; supply additional graphics in {.arg plots} as a list.")
+    }
+    if (anyDuplicated(dot_names)) {
+      cli::cli_abort("Layout control names in {.code ...} must be unique.")
+    }
+    allowed <- setdiff(names(formals(patchwork::wrap_plots)), "...")
+    unknown <- setdiff(dot_names, allowed)
+    if (length(unknown)) {
+      cli::cli_abort("Unknown layout control in {.code ...}: {.arg {unknown}}.")
+    }
+  }
+  for (arg in c("nrow", "ncol")) {
+    value <- dots[[arg]]
+    if (!is.null(value) && (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value) || value < 1 ||
+        value > .Machine$integer.max || value != trunc(value)))
+      cli::cli_abort("{.arg {arg}} must be NULL or a single supported positive integer.")
+  }
+  if (is.character(dots$design) && (length(dots$design) != 1L ||
+      !is.null(dim(dots$design)) || anyNA(dots$design)))
+    cli::cli_abort("A character {.arg design} must be one non-missing layout string.")
   is_inset <- function(plot) {
     inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
       match("inset_patch", class(plot)) < match("patchwork", class(plot)))
@@ -556,31 +581,6 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     layout_args <- plots$patches$layout[c("guides", "axes", "axis_titles", "tag_level")]
     layout_args <- layout_args[!vapply(layout_args, is.null, logical(1))]
   }
-  dots <- list(...)
-  if (length(dots)) {
-    dot_names <- names(dots)
-    if (is.null(dot_names) || any(is.na(dot_names) | !nzchar(dot_names))) {
-      cli::cli_abort("All arguments in {.code ...} must be named layout controls; supply additional graphics in {.arg plots} as a list.")
-    }
-    if (anyDuplicated(dot_names)) {
-      cli::cli_abort("Layout control names in {.code ...} must be unique.")
-    }
-    allowed <- setdiff(names(formals(patchwork::wrap_plots)), "...")
-    unknown <- setdiff(dot_names, allowed)
-    if (length(unknown)) {
-      cli::cli_abort("Unknown layout control in {.code ...}: {.arg {unknown}}.")
-    }
-  }
-  for (arg in c("nrow", "ncol")) {
-    value <- dots[[arg]]
-    if (!is.null(value) && (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
-        length(value) != 1L || !is.finite(value) || value < 1 ||
-        value > .Machine$integer.max || value != trunc(value)))
-      cli::cli_abort("{.arg {arg}} must be NULL or a single supported positive integer.")
-  }
-  if (is.character(dots$design) && (length(dots$design) != 1L ||
-      !is.null(dim(dots$design)) || anyNA(dots$design)))
-    cli::cli_abort("A character {.arg design} must be one non-missing layout string.")
   if (is.character(dots$design) && !is.null(names(all_subplots))) {
     area_names <- sort(setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#")))
     if (all(names(all_subplots) %in% area_names)) {

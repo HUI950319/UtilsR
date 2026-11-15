@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` validates explicit layout controls before flattening its input.
+
 * Numeric palette mapping returns colours directly when all values receive a colour, avoiding a separate missing-value buffer.
 
 * `fct_num()` rejects constant ordinary, `AsIs`, and labelled numeric inputs before allocating automatic break vectors.
