@@ -793,3 +793,16 @@ test_that("P value tokens use the applicable validation pattern", {
   expect_error(fn(c("0.01", "<bad")), "numeric strings or numeric bounds", fixed = TRUE)
   expect_error(fn(c("0.01", "=")), "numeric strings or numeric bounds", fixed = TRUE)
 })
+
+test_that("numeric P-value formatting needs no bound vector", {
+  x <- rep(c(.02, NA, .0001, .75), 400L)
+  expected <- stat_pval(x)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(x, FALSE)) stop("allocated a bound vector for numeric P-values")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), expected)
+})

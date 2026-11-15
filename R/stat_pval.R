@@ -200,8 +200,9 @@ stat_pval <- function(x,
     }
   }
 
-  bounded <- rep(FALSE, length(x))
+  bounded <- FALSE
   x_num <- if (is.character(x)) {
+    bounded <- rep(FALSE, length(x))
     if (any(!validEnc(x) | Encoding(x) == "bytes")) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
@@ -275,7 +276,6 @@ stat_pval <- function(x,
     if (length(keys) < length(x_num) / 2) {
       expand <- match(x_num, keys)
       x_num <- keys
-      bounded <- rep(FALSE, length(keys))
     }
   }
 
