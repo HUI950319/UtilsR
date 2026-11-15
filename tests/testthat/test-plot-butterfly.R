@@ -1198,3 +1198,20 @@ test_that("butterfly grids check row limits before expansion", {
   expect_error(fn(d, stat.by = "cat", group.by = "g", fill.by = "fill",
     value.by = "value", type = "bar"), "grid exceeds the R row limit")
 })
+
+test_that("butterfly reshaping shares categories across both wings", {
+  d <- data.frame(site = c("B", "A", "B", "D", "D", "D", "A", "B", "C", "C"),
+    g = rep(c("Left", "Right"), c(6L, 4L)), score = 1:10)
+  draw <- function(fn) suppressMessages(fn(d, stat.by = "site", group.by = "g", value.by = "score"))
+  reference <- draw(PlotButterfly2)
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(x), quote(categories))) stop("reindexed categories for a butterfly wing")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  actual <- draw(fn)
+  expect_identical(lapply(seq_along(actual), function(i) actual[[i]]$data),
+    lapply(seq_along(reference), function(i) reference[[i]]$data))
+})

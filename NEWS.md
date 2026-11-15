@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` shares category indices across both wings and retains per-side padding and category order.
+
 * `PlotRankCor()` assigns the singleton rank directly for complete one-row method groups.
 
 * `plt_dist()` builds row filtering masks only when required columns contain missing values.

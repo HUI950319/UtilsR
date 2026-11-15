@@ -259,18 +259,18 @@ PlotButterfly2 <- function(
     category <- as.character(data[[stat.by]])
     left <- which(group == groups[1L])
     right <- which(group == groups[2L])
-    common_ct <- intersect(category[left], category[right])
-    if (!length(common_ct)) cli::cli_abort("No common {.arg stat.by} categories.")
+    categories <- unique(category)
+    codes <- match(category, categories)
+    common <- intersect(codes[left], codes[right])
+    if (!length(common)) cli::cli_abort("No common {.arg stat.by} categories.")
     .to_wide <- function(index) {
-      categories <- category[index]
-      cts <- unique(categories)
-      rows <- split(index, match(categories, cts))
-      max_n <- max(lengths(rows))
-      mat <- lapply(rows[match(common_ct, cts)], function(idx) {
-        data[[value.by]][idx[seq_len(max_n)]]
+      rows <- split(index, codes[index])
+      padding <- seq_len(max(lengths(rows)))
+      mat <- lapply(rows[as.character(common)], function(idx) {
+        data[[value.by]][idx[padding]]
       })
       out <- as.data.frame(unname(mat))
-      names(out) <- common_ct
+      names(out) <- categories[common]
       out
     }
 
