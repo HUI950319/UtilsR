@@ -874,3 +874,13 @@ test_that("image lists validate all entries before rendering any plot", {
                           method = "image"), "one-dimensional")
   expect_error(fmt_raster(list(first = p, bad = list(NULL)), method = "image"), "elements in the list")
 })
+
+test_that("panel raster input validation precedes graphics measurement", {
+  skip_if_not_installed("ragg")
+  g <- grid::rectGrob()
+  local_mocked_bindings(.agg_capture = function(...) stop("opened a device for a non panel object"),
+                        .package = "UtilsR")
+  for (bad in list(g, 123)) {
+    expect_error(fmt_raster(bad, method = "ragg"), "requires a ggplot, patchwork, or gtable", fixed = TRUE)
+  }
+})

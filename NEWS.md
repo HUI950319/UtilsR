@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster(method = "ragg")` diagnoses standalone grobs at the input boundary and directs them to full-image mode.
+
 * Scatter correlation helpers determine whether Pearson normalization is needed from the range endpoints.
 
 * `plt_dist()` draws bars and heatmaps for a literal `.data` input column without dropping its original name.

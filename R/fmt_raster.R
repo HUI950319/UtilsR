@@ -256,7 +256,7 @@ fmt_raster <- function(
   if (!requireNamespace("ragg", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ragg} is required for {.code method = \"ragg\"}.")
   }
-  if (is.list(plot) && !inherits(plot, c("gg", "gtable"))) {
+  if (is.list(plot) && !grid::is.grob(plot) && !inherits(plot, c("gg", "gtable"))) {
     plots <- .to_plot_list(plot)$plots
     return(lapply(plots, function(p) {
       .fmt_raster_ragg(p, dpi = dpi, width = width, height = height,
@@ -264,6 +264,10 @@ fmt_raster <- function(
     }))
   }
 
+  if (!inherits(plot, c("ggplot", "patchwork", "gtable"))) {
+    cli::cli_abort(c("Panel rasterization requires a ggplot, patchwork, or gtable.",
+                    i = "Use {.code method = \"image\"} for a standalone grob."))
+  }
   original_device <- grDevices::dev.cur()
   device_size <- if (original_device == 1L) {
     unlist(grDevices::pdf.options()[c("width", "height")], use.names = FALSE)
