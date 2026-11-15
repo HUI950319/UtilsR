@@ -5421,7 +5421,10 @@ fmt_his <- function(plot,
   fields <- unique(c(if (remap_limits) "limits", unlist(lapply(arg_names, function(a) {
     if (a %in% names(arg_fields)) arg_fields[[a]] else a
   }))))
-  values <- as.list(new, all.names = TRUE)[fields]
+  values <- lapply(stats::setNames(fields, fields), function(field) {
+    value <- new[[field]]
+    if (inherits(value, "ggproto_method")) environment(value)$f else value
+  })
   if (fields_only) return(values)
   for (f in fields) scale[[f]] <- values[[f]]
   scale

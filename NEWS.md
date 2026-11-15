@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` extracts the edited fields from a candidate scale without materializing its full prototype.
+
 * `fmt_scale()` and `fmt_expand()` preserve position scales defined by the plot environment when ggplot2 infers its defaults.
 
 * `PlotButterfly(type = "bar")` reports a grid beyond the data-frame row limit before allocating missing combinations.

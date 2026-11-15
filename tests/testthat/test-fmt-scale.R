@@ -577,3 +577,22 @@ test_that("axis defaults retain plot environment scale constructors", {
     expect_identical(result$layout$panel_scales_x[[1L]]$name, "Custom")
   }
 })
+
+test_that("position scale field extraction does not enumerate the prototype", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 4:6), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::scale_x_continuous(name = "Original")
+  scale <- p$scales$get_scales("x")
+  args <- list(breaks = function(x) range(x), labels = function(x) paste0("x", x))
+  fn <- .update_position_scale
+  env <- new.env(parent = environment(fn))
+  env$as.list <- function(x, ...) {
+    if (inherits(x, "Scale")) stop("enumerated the complete candidate scale")
+    base::as.list(x, ...)
+  }
+  environment(fn) <- env
+  expected <- .update_position_scale(scale, args, "x", "scale_x_continuous", fields_only = TRUE)
+  result <- fn(scale, args, "x", "scale_x_continuous", fields_only = TRUE)
+  expect_identical(names(result), names(expected))
+  expect_identical(result$breaks(c(1, 3)), expected$breaks(c(1, 3)))
+  expect_identical(result$labels(2:3), c("x2", "x3"))
+})
