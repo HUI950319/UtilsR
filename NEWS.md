@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` can locate a non-empty layer data frame when the plot inherits a zero-row default.
+
 * `fmt_bg()` matches named stripe palettes to the labels of factor-valued scale limits.
 
 * `pr_spark()` rules out one-bin-per-value mode from a short prefix before scanning all observations.

@@ -777,3 +777,11 @@ test_that("empty displayed groups can serve as comparison references", {
   expect_equal(actual, expected)
   expect_setequal(as.numeric(actual$xmax), c(2, 3))
 })
+
+test_that("comparison layers can supply data for an empty plot frame", {
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(x = rep(letters[1:2], each = 4), y = 1:8)
+  p <- ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) + ggplot2::geom_point(data = d)
+  expect_equal(com_stat(fmt_com(p)), com_stat(fmt_com(p, data = d)))
+  expect_error(fmt_com(p, data = d[FALSE, ]), "finite")
+})

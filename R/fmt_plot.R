@@ -4215,14 +4215,17 @@ fmt_com <- function(plot,
       cli::cli_abort("Statistical data must be an explicit data.frame; data callbacks are not supported.")
     source_mapping <- if (isFALSE(dots$inherit.aes)) ggplot2::aes() else p$mapping
     source_mapping <- merge_mapping(source_mapping, dots$mapping)
-    if (is.null(source_mapping$x) || is.null(source_mapping$y) || !is.data.frame(source_data)) {
+    use_layer_data <- is.null(dots$data) && is.data.frame(source_data) && nrow(source_data) == 0L
+    if (is.null(source_mapping$x) || is.null(source_mapping$y) ||
+        !is.data.frame(source_data) || use_layer_data) {
       candidates <- list()
       for (existing in p$layers) {
         mapping <- if (isTRUE(existing$inherit.aes)) p$mapping else ggplot2::aes()
         mapping <- merge_mapping(merge_mapping(mapping, existing$mapping), dots$mapping)
         data <- if (!is.null(dots$data)) dots$data else existing$data
         if (is.null(data) || inherits(data, "waiver")) data <- p$data
-        if (!is.null(mapping$x) && !is.null(mapping$y) && is.data.frame(data)) {
+        if (!is.null(mapping$x) && !is.null(mapping$y) && is.data.frame(data) &&
+            (!use_layer_data || nrow(data) > 0L)) {
           candidates[[length(candidates) + 1L]] <- list(data = data, mapping = mapping)
         }
       }
