@@ -720,3 +720,19 @@ test_that("KNN complete predictors do not allocate a full true row mask", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("KNN prepares ordinary backend columns without a second missingness scan", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(a = c(NA_integer_, 2:27), x = 1:27, z = rep(c(TRUE, FALSE, TRUE), 9L))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(X, FUN, FUN.VALUE, ...) {
+    if (identical(substitute(X), quote(backend_data)) && identical(FUN, base::anyNA)) {
+      stop("rescanned ordinary KNN backend columns")
+    }
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})

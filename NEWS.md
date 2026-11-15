@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` reuses its missing-column selection when backend preparation keeps all rows and ordinary column values.
+
 * `impute_na_knn()` avoids allocating a row mask when a predictor is complete.
 
 * `PlotRankCor()` reads the first and last row of one- or two-observation aesthetic groups without flattening large group indices.
