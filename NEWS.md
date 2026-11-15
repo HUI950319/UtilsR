@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` uses its membership indices directly for complete unclassed columns.
+
 * `plt_na()` reads ordinary tibble columns directly for both summaries and matrices.
 
 * `PlotScatter3()` closes its own temporary graphics device even when a user-supplied theme opens another device.

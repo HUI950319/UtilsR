@@ -358,6 +358,7 @@ plt_upset <- function(data,
           time_numeric(values) %in% time_level_keys
         }
       } else member_in(values, value_levels)
+      if (is.atomic(values) && !is.object(values) && !anyNA(values)) return(which(selected))
       missing <- is.na(values)
       member <- selected & !missing
       if (missing_levels) member <- member | missing

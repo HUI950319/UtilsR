@@ -948,3 +948,17 @@ test_that("combined UpSet plots reuse observed region counts", {
   expect_identical(plt_upset(d, c("a", "b"), levels = TRUE, output = "data")$intersect_group,
     fn(d, c("a", "b"), levels = TRUE, output = "all")$data$intersect_group)
 })
+
+test_that("UpSet complete columns need no missingness mask", {
+  d <- data.frame(A = rep(c(1L, 2L), 200L), B = rep(c(3L, 1L), 200L))
+  query <- c(1L, NA_integer_)
+  expected <- plt_upset(d, c("A", "B"), levels = query, output = "data")
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.integer(x) && length(x) == nrow(d)) stop("allocated a column missingness mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, c("A", "B"), levels = query, output = "data"), expected)
+})
