@@ -597,3 +597,25 @@ test_that("axis tile guides omit unrelated baseline theme elements", {
   expect_identical(baseline$axis.text.x$colour, "purple")
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("changed axis tiles keep the guide prototype depth fixed", {
+  p <- ggplot2::ggplot(data.frame(g = c("A", "B"), y = 1:2), ggplot2::aes(g, y)) +
+    ggplot2::geom_point()
+  depth <- function(guides) {
+    n <- 1L
+    while (is.function(guides$super) && !is.null(guides$super())) {
+      guides <- guides$super()
+      n <- n + 1L
+    }
+    n
+  }
+  q <- fmt_axisTile(p, c(A = "red", B = "blue"), tile_height = .7)
+  initial_depth <- depth(q$guides)
+  for (height in c(.5, .8, .6)) {
+    out <- fmt_axisTile(q, c(A = "blue", B = "red"), tile_height = height)
+    expect_identical(depth(out$guides), initial_depth)
+    expect_identical(out$guides$guides$x$params$axis_tile$tile_height, height)
+    q <- out
+  }
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})

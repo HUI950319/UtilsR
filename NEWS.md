@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated `fmt_axisTile()` edits replace a standard guide container without retaining previous guides in its prototype chain.
+
 * `plt_sankey()` shares the observed factor tally so node counts stay proportional to the data for sparse factors.
 
 * `fct_to_combine()` skips table copies and grouped-column updates when the requested combined column already matches.

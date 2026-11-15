@@ -3728,7 +3728,8 @@ fmt_axisTile <- function(plot,
       # A free-scale panel may hold none of the colored values.
       check_names = !isTRUE(p$facet$params$free[[scale_axis]])
     )
-    if (inherits(original, "AxisTileGuide")) {
+    replacing <- inherits(original, "AxisTileGuide")
+    if (replacing) {
       if (identical(settings, original$params$axis_tile) &&
           (mode == "text" || inherits(p$facet, "AxisTileFacet"))) return(p)
       parent <- original$axis_tile_parent
@@ -3738,7 +3739,14 @@ fmt_axisTile <- function(plot,
         do.call(ggplot2::ggproto, list(NULL, parent, params = params), envir = baseenv())
     }
     guide <- .axis_tile_guide(original, settings)
-    p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
+    guides <- p$guides
+    parent <- if (replacing && is.function(guides$super)) guides$super() else NULL
+    if (!is.null(parent) && identical(class(guides), class(parent)) &&
+        identical(names(as.list(guides, inherit = FALSE, all.names = TRUE)), "guides")) {
+      configured <- guides$guides
+      configured[[axis]] <- guide
+      p$guides <- do.call(ggplot2::ggproto, list(NULL, parent, guides = configured), envir = baseenv())
+    } else p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
     facet <- p$facet
     if (inherits(facet, "AxisTileFacet")) facet <- facet$axis_tile_parent
     if (any(vapply(p$guides$guides, function(g) {
