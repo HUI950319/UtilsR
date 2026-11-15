@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_text()` reads theme elements only when text styling is requested.
+
 * `fmt_his()` uses eligible nonempty layer data when the inherited frame is empty and no source was explicitly supplied.
 
 * `fmt_strip2()` restores hidden strip elements on ggplot2 3.5 as well as newer versions.

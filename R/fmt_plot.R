@@ -3075,9 +3075,9 @@ fmt_text <- function(plot,
   styles <- styles[lengths(styles) > 0L]
   # A rich text element (e.g. ggtext::element_markdown()) cannot be merged with
   # a plain element_text(), so it is styled in place to keep its class.
-  plain_class <- class(ggplot2::element_text())
-  global_theme <- ggplot2::theme_get()
-  axis_title_sides <- intersect(
+  plain_class <- if (length(styles)) class(ggplot2::element_text())
+  global_theme <- if (length(styles)) ggplot2::theme_get()
+  axis_title_sides <- if (length(styles$axis.title)) intersect(
     c("axis.title.x", "axis.title.x.top", "axis.title.x.bottom",
       "axis.title.y", "axis.title.y.left", "axis.title.y.right"),
     names(ggplot2::get_element_tree())

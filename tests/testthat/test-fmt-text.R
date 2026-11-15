@@ -279,3 +279,14 @@ test_that("empty text formatting avoids walking plot leaves", {
   expect_error(fmt_text(layout, axis_titles = "invalid"), "axis_titles")
   expect_error(fmt_text(list(layout, 1)), "All elements")
 })
+
+test_that("label-only formatting does not inspect text themes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  local_mocked_bindings(theme_get = function() stop("inspected themes for labels alone"),
+                        get_element_tree = function() stop("inspected themes for labels alone"),
+                        .package = "ggplot2")
+  out <- fmt_text(p, title = "New title", xlab = "New axis")
+  expect_identical(out$labels$title, "New title")
+  expect_identical(out$labels$x, "New axis")
+  expect_identical(out$theme, p$theme)
+})
