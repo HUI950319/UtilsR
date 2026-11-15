@@ -1971,3 +1971,15 @@ test_that("complete sparkline columns do not allocate a missingness mask", {
   environment(fn) <- env
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("complete table numeric cells skip the final missingness mask", {
+  d <- data.frame(x = as.double(1:50) / 7)
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, d$x)) stop("allocated another complete numeric missingness mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d, n = NULL)), capture.output(pr_table(d, n = NULL)))
+})

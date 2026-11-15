@@ -703,6 +703,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       return(ifelse(is.na(txt), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"), txt))
     }
     txt <- ._pr_escape(txt)
+    if (!is.object(v) && !anyNA(v)) return(txt)
     ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
            txt)
   })
