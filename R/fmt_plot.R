@@ -1977,7 +1977,11 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         return(p + do.call(ggplot2::theme,
           stats::setNames(rep(list(blank), length(hidden_elements)), hidden_elements)))
       }
-      if (isTRUE(p$facet$.fmt_strip_generated)) return(p + ggplot2::facet_null())
+      if (isTRUE(p$facet$.fmt_strip_generated)) {
+        facet <- ggplot2::facet_null()
+        if (inherits(p$facet, "AxisTileFacet")) facet <- .axis_tile_facet(facet)
+        return(p + facet)
+      }
 
       facet <- p$facet
       old_strip <- facet$strip
@@ -2162,6 +2166,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       facet_formula <- ggplot2::vars(.strip_label. = !!label[i])
       facet <- ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
       facet$.fmt_strip_generated <- TRUE
+      if (inherits(plots[[i]]$facet, "AxisTileFacet")) facet <- .axis_tile_facet(facet)
       plots[[i]] <- plots[[i]] + facet
     }
   }
@@ -2543,8 +2548,9 @@ fmt_strip2 <- function(plot,
         )
       )
     }
-    p$facet <- .fmt_strip2_protect_facet(original_facet, p$facet)
-    p$facet$.fmt_strip_generated <- is.null(p$facet$.fmt_strip2_original_facet)
+    facet <- .fmt_strip2_protect_facet(original_facet, p$facet)
+    facet$.fmt_strip_generated <- is.null(facet$.fmt_strip2_original_facet)
+    p$facet <- if (inherits(original_facet, "AxisTileFacet")) .axis_tile_facet(facet) else facet
     plots[[i]] <- p
   }
 

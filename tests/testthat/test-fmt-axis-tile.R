@@ -571,3 +571,16 @@ test_that("repeated axis tile settings keep one guide prototype", {
   }
   expect_identical(rects(changed), rects(direct))
 })
+
+test_that("axis tiles survive adding and hiding synthetic strips", {
+  skip_if_not_installed("ggh4x")
+  p <- axis_tile_plot()
+  tiled <- fmt_axisTile(p, axis_tile_colors)
+  for (output in list(fmt_strip(tiled, label = "Header"),
+                      fmt_strip2(tiled, top_label = "Header", top_right_fill = NULL))) {
+    expect_s3_class(output$facet, "AxisTileFacet")
+    expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(output))), 3L)
+    hidden <- fmt_strip(output, strip = FALSE)
+    expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(hidden))), 3L)
+  }
+})
