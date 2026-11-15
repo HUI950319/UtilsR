@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_tag()` retains existing children without a write when they contain no generated tags.
+
 * `fmt_panel()` recognizes palette indices as colours when comparing existing grid lines and backgrounds.
 
 * `fmt_strip()` retains plotmath labels for levels whose names are absent from a partial replacement.

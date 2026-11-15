@@ -524,7 +524,10 @@ fmt_tag <- function(plot,
           isTRUE(attr(child, ".fmt_tag_generated"))
       }, logical(1))
       if (all(keep)) {
-        for (j in seq_along(p)) p[[j]] <- clear_tags(children[[j]])
+        for (j in seq_along(p)) {
+          updated <- clear_tags(children[[j]])
+          if (!identical(updated, children[[j]])) p[[j]] <- updated
+        }
         if (!is.null(free_settings)) {
           attr(p, "patchwork_free_settings") <- free_settings
           class(p) <- unique(c("free_plot", class(p)))

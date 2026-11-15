@@ -508,3 +508,19 @@ test_that("tagging rejects shaped plot lists before clearing tags", {
   expect_named(out, c("first", "second"))
   expect_s3_class(ggplot2::ggplotGrob(out[[2L]]), "gtable")
 })
+
+test_that("tag cleanup does not replace untouched patchwork children", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  pw <- patchwork::wrap_plots(p, p, p) + patchwork::plot_annotation(title = "Kept")
+  fn <- fmt_tag
+  env <- new.env(parent = environment(fn))
+  env[["[[<-"]] <- function(x, i, value) {
+    if (inherits(x, "patchwork") && identical(x[[i]], value))
+      stop("replaced a patchwork child without tags")
+    base::`[[<-`(x, i, value = value)
+  }
+  environment(fn) <- env
+  out <- fn(pw)
+  expect_identical(out$patches$annotation$title, "Kept")
+  expect_equal(vapply(seq_along(out), function(i) length(out[[i]]$layers), integer(1)), rep(2L, 3L))
+})
