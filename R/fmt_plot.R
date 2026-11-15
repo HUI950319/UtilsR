@@ -5127,9 +5127,13 @@ fmt_his <- function(plot,
               }
             }
             spec <- self$his_specs[[layer$his_id]]
-            for (panel in unique(as.integer(data$PANEL))) {
-              rows <- as.integer(data$PANEL) == panel
-              index <- match(panel, as.integer(layout$PANEL))
+            panel <- as.integer(data$PANEL)
+            panels <- unique(panel)
+            panel_rows <- split(seq_len(nrow(data)), match(panel, panels))
+            indices <- match(panels, as.integer(layout$PANEL))
+            for (i in seq_along(indices)) {
+              rows <- panel_rows[[i]]
+              index <- indices[i]
               range <- self$his_y_ranges[[index]]
               if (is.null(range)) {
                 coord <- self$his_coord

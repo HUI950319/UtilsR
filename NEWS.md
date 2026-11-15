@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` groups overlay observations once and matches all panel layout indices together.
+
 * `plt_alluvial()` constructs group factors from positions without matching repeated group labels.
 
 * `plt_alluvial()` rejects an impossible combined gap before expanding category and group counts.

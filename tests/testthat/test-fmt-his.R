@@ -878,3 +878,26 @@ test_that("distribution overlays use nonempty layer data after empty plot data",
   expect_identical(draw(p)$x, draw(reference)$x)
   expect_equal(nrow(draw(p, data = d[FALSE, ], con_var = "x")), 0L)
 })
+
+test_that("distribution overlay panel indices are read once", {
+  d <- data.frame(x = rep(1:10, 12L), y = 1:120, site = rep(letters[1:12], each = 10L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~site, scales = "free")
+  q <- fmt_his(p, binwidth = 1)
+  expected <- ggplot2::ggplot_build(q)$data[[2L]]
+  fn <- fmt_his
+  env <- new.env(parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_his <- fn
+  reads <- 0L
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(expected)) {
+      reads <<- reads + 1L
+      if (reads > 1L) stop("repeatedly decoded distribution panel indices")
+    }
+    base::as.integer(x, ...)
+  }
+  actual <- ggplot2::ggplot_build(fn(p, binwidth = 1))$data[[2L]]
+  expect_identical(reads, 1L)
+  expect_identical(actual, expected)
+})
