@@ -723,7 +723,8 @@ fmt_tag <- function(plot,
       plots[[i]] <- plots[[i]] + .fmt_tag_layer(
         npcx[i], npcy[i], labels[i], size = size[i], fontface = fontface,
         color = color[i], theme_family = family[i], label.size = label.size,
-        label.padding = label.padding, label.r = label.r, ...
+        label.padding = label.padding, label.r = label.r,
+        facet_columns = .plot_facet_columns(plots[[i]]), ...
       )
     }
   }
@@ -745,13 +746,21 @@ fmt_tag <- function(plot,
 # used unless `...` names a `family` of its own.
 .fmt_tag_layer <- function(npcx, npcy, label, size, fontface, color,
                            theme_family, label.size, label.padding, label.r,
-                           ...) {
+                           ..., facet_columns = character()) {
   list(npcx, npcy, label, size, fontface, color, theme_family, label.size,
-       label.padding, label.r, ...)
+       label.padding, label.r, facet_columns, ...)
+  tag_data <- data.frame(npcx = npcx, npcy = npcy, label = label)
+  columns <- names(tag_data)
+  collide <- columns %in% facet_columns
+  if (any(collide)) {
+    columns[collide] <- tail(make.unique(c(facet_columns, columns,
+      paste0(".fmt_tag_", columns[collide]))), sum(collide))
+    names(tag_data) <- columns
+  }
   layer <- ggpp::geom_label_npc(
-    data = data.frame(npcx = npcx, npcy = npcy, label = label),
-    mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
-                           label = .data[["label"]]),
+    data = tag_data,
+    mapping = ggplot2::aes(npcx = .data[[columns[1L]]], npcy = .data[[columns[2L]]],
+                           label = .data[[columns[3L]]]),
     inherit.aes = FALSE,
     show.legend = FALSE,
     size = size,

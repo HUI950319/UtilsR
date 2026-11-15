@@ -536,3 +536,16 @@ test_that("tag cleanup preserves user inset patchworks", {
   expect_identical(sort(labels[labels %in% c("Outer", "Inside1", "Inside2")]),
                    c("Inside1", "Inside2", "Outer"))
 })
+
+test_that("in panel tags cannot create facets from label columns", {
+  d <- data.frame(x = 1:4, y = 4:1, label = rep(c("High", "Low"), 2L),
+                  npcx = rep(c("East", "West"), 2L))
+  for (facets in list(ggplot2::vars(label), ggplot2::vars(region = .data[["npcx"]]))) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+      ggplot2::facet_wrap(facets)
+    expected <- ggplot2::ggplot_build(p)
+    built <- ggplot2::ggplot_build(fmt_tag(p, labels = "Tag"))
+    expect_identical(built$layout$layout, expected$layout$layout)
+    expect_identical(built$data[[2L]]$label, rep("Tag", 2L))
+  }
+})

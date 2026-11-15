@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_tag()` repeats in-panel labels across existing facets without creating a facet from the label itself.
+
 * `fmt_tag()` keeps layers inside user-created inset patchworks intact when updating outer plot tags.
 
 * `fmt_axis()` validates dimension storage and bounds before traversing the plot container.

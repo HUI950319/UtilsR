@@ -232,6 +232,21 @@
   if (defer) NULL else paste0("scale_", axis, "_continuous")
 }
 
+# Names referenced by standard wrap and grid facet expressions.
+.plot_facet_columns <- function(plot) {
+  params <- plot$facet$params
+  facets <- c(params$facets, params$rows, params$cols)
+  symbols <- function(expr) {
+    if (is.symbol(expr)) return(as.character(expr))
+    if (!is.call(expr)) return(character())
+    if (rlang::is_call(expr, "[[", n = 2L) && identical(expr[[2L]], quote(.data)) &&
+        is.character(expr[[3L]])) return(expr[[3L]])
+    unlist(lapply(as.list(expr)[-1L], symbols), use.names = FALSE)
+  }
+  unique(c(names(facets), unlist(lapply(facets, function(x) symbols(rlang::get_expr(x))),
+                                use.names = FALSE)))
+}
+
 .scale_inference_parent <- function(scales) {
   do.call(ggplot2::ggproto,
           c(list(NULL), as.list(scales)[c("add_defaults", "add_missing")]),
