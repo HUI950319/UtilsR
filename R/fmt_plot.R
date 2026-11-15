@@ -2801,6 +2801,7 @@ fmt_panel <- function(plot,
     if (!inherits(p, "ggplot")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
     }
+    if (grid == "keep" && !length(theme_args) && !length(extra_args)) return(p)
     plot_theme <- p$theme
     if (cache_enabled) {
       for (j in seq_along(cache_themes)) {

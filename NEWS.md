@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_panel(grid = "keep")` skips theme additions when no border, background, or extra theme settings are requested.
+
 * `fmt_com()` can locate a non-empty layer data frame when the plot inherits a zero-row default.
 
 * `fmt_bg()` matches named stripe palettes to the labels of factor-valued scale limits.

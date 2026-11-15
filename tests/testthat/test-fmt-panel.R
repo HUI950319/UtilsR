@@ -720,3 +720,9 @@ test_that("automatic grid contrast resolves scalar palette indices", {
     expect_equal(panel_test_grids(forced)$colour, rep("orange", 2L))
   }
 })
+
+test_that("panel keep requires no theme addition without styling", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  expect_identical(fmt_panel(p, grid = "keep"), p)
+  expect_identical(fmt_panel(p, grid = "keep", bg = "red")$theme$panel.background$fill, "red")
+})
