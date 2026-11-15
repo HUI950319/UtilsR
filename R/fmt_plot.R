@@ -1753,6 +1753,26 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
   ggplot2::ggproto(NULL, parent, ...)
 }
 
+# Older ggh4x reads title-grob dimension fields when measuring strip text.
+.fmt_strip_rich_dimensions <- function(strip) {
+  if (is.null(strip) || isTRUE(strip$.fmt_strip_rich_dimensions) ||
+      getNamespaceVersion("ggh4x") >= "0.3.0") return(strip)
+  draw <- environment(strip$draw_labels)$f
+  if (!is.function(draw)) return(strip)
+  env <- new.env(parent = environment(draw))
+  env$element_grob <- function(...) {
+    grob <- ggplot2::element_grob(...)
+    if (inherits(grob, "richtext_grob")) {
+      if (is.null(grob$widths)) grob$widths <- grid::grobWidth(grob)
+      if (is.null(grob$heights)) grob$heights <- grid::grobHeight(grob)
+    }
+    grob
+  }
+  environment(env$element_grob) <- baseenv()
+  environment(draw) <- env
+  .fmt_strip_child(strip, draw_labels = draw, .fmt_strip_rich_dimensions = TRUE)
+}
+
 # ggh4x themed / nested strip with its text and fills cleared.
 .fmt_strip_blank_given <- function(parent) {
   given <- parent$given_elements
@@ -2136,8 +2156,24 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       strip_theme <- list()
       lc_val <- if (is.null(label_color)) NULL else label_color[i]
       text_element <- centered_strip_text(lc_val, face = if (is.null(lc_val)) NULL else "bold")
-      for (nm in c("strip.text", "strip.text.x", "strip.text.y", hidden_elements[1:4])) {
-        strip_theme[[nm]] <- text_element
+      slots <- c("strip.text", "strip.text.x", "strip.text.y", hidden_elements[1:4])
+      if (is.null(base_theme)) base_theme <- ggplot2::theme_get()
+      rich_text <- function(element) {
+        inherits(element, "element_text") && !identical(class(element), class(text_element))
+      }
+      local_theme <- plots[[i]]$theme
+      inherit_rich <- any(vapply(slots, function(nm) {
+        rich_text(local_theme[[nm]] %||% base_theme[[nm]])
+      }, logical(1)))
+      if (inherit_rich) active <- base_theme + local_theme
+      for (nm in slots) {
+        element <- if (inherit_rich) ggplot2::calc_element(nm, active) else NULL
+        if (rich_text(element)) {
+          for (field in c("colour", "face", "hjust", "vjust", "margin")) {
+            if (!is.null(text_element[[field]])) element[[field]] <- text_element[[field]]
+          }
+          strip_theme[[nm]] <- element
+        } else strip_theme[[nm]] <- text_element
       }
       if (!is.null(label_fill)) {
         background_element <- ggplot2::element_rect(fill = label_fill[i],
@@ -2172,6 +2208,11 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
           }
           .fmt_strip_child(facet, strip = .fmt_strip_child(old_strip, given_elements = given))
         })
+      }
+      if (inherit_rich) {
+        facet <- plots[[i]]$facet
+        strip <- .fmt_strip_rich_dimensions(facet$strip)
+        if (!identical(strip, facet$strip)) plots[[i]] <- plots[[i]] + .fmt_strip_child(facet, strip = strip)
       }
 
     } else {

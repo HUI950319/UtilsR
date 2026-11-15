@@ -1177,3 +1177,20 @@ test_that("grid strip restoration writes each changed child once", {
   expect_identical(root_calls, 1L)
   expect_equal(out$patches$layout, input$patches$layout)
 })
+
+test_that("strip formatting retains inherited rich text facet labels", {
+  skip_if_not_installed("ggtext")
+  skip_if_not_installed("ggh4x")
+  d <- data.frame(x = 1:4, y = 4:1, g = "A")
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  facets <- list(ggplot2::facet_wrap(ggplot2::vars(g)),
+    ggh4x::facet_wrap2(ggplot2::vars(g), strip = ggh4x::strip_themed(
+      background_x = ggh4x::elem_list_rect(fill = "orange"))))
+  for (facet in facets) for (field in c("strip.text", "strip.text.x", "strip.text.x.top")) {
+    style <- do.call(ggplot2::theme, stats::setNames(list(ggtext::element_markdown()), field))
+    q <- fmt_strip(base + facet + style, label = "<b>Rich</b>", label_color = "purple")
+    expect_length(.fmt_strip_text(q, "richtext_grob"), 1L)
+    expect_s3_class(q$theme$strip.text.x.top, "element_markdown")
+    expect_identical(q$theme$strip.text.x.top$colour, "purple")
+  }
+})

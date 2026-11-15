@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip()` preserves rich-text element classes inherited from existing strip themes.
+
 * `pr_tree()` bypasses attribute-name filtering for nodes without attributes.
 
 * `plt_con(sort = TRUE)` avoids replacing and coercing intact sort columns while still omitting non-finite observations from medians.
