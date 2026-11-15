@@ -4805,7 +4805,7 @@ fmt_bg <- function(plot,
                                              parent = environment(fmt_bg))
 
   # Unified background layer builder for both x and y axes
-  build_bg_layer <- function(lvs, alpha, bg_axis = "x") {
+  build_bg_layer <- function(lvs, alpha, bg_axis = "x", facet_columns = character()) {
     # Keep lazy arguments from retaining the caller's plot in ggproto closures.
     force(lvs)
     force(alpha)
@@ -4817,6 +4817,9 @@ fmt_bg <- function(plot,
     } else NULL
 
     bg_data <- data.frame(.bg = TRUE)
+    if (".bg" %in% facet_columns) {
+      names(bg_data) <- tail(make.unique(c(facet_columns, ".bg")), 1L)
+    }
 
     bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
       required_aes = character(),
@@ -4926,7 +4929,8 @@ fmt_bg <- function(plot,
     }
     if (!deferred && (!length(axis_values) || all(is.na(axis_values)))) return(p)
     lvs <- if (is.factor(axis_values)) levels(droplevels(axis_values)) else levels(factor(axis_values))
-    bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis)
+    bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis,
+                              facet_columns = .plot_facet_columns(p))
     p$layers <- c(list(bg_layer), Filter(function(layer) {
       !inherits(layer$geom, "GeomBgStripes")
     }, p$layers))

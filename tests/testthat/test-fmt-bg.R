@@ -593,3 +593,13 @@ test_that("background stripes follow reordered discrete scale positions", {
   expect_true(all(as.numeric(stripe$width) > 0))
   expect_identical(toupper(stripe$gp$fill), c("#0000FF", "#00FF00", "#FF0000"))
 })
+
+test_that("background stripe placeholders cannot create new facet levels", {
+  d <- data.frame(x = rep(c("A", "B"), 2L), y = 1:4, .bg = rep(c("first", "second"), each = 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_grid(rows = ggplot2::vars(.bg))
+  base <- ggplot2::ggplot_build(p)
+  expect_no_warning(built <- ggplot2::ggplot_build(fmt_bg(p)))
+  expect_identical(built$layout$layout, base$layout$layout)
+  expect_identical(built$data[[2L]], base$data[[1L]])
+})
