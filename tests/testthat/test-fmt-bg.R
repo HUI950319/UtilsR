@@ -603,3 +603,12 @@ test_that("background stripe placeholders cannot create new facet levels", {
   expect_identical(built$layout$layout, base$layout$layout)
   expect_identical(built$data[[2L]], base$data[[1L]])
 })
+
+test_that("background stripe colours use factor limit labels", {
+  d <- data.frame(g = LETTERS[1:3], y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  cols <- c(B = "blue", C = "red", A = "green")
+  draw <- function(limits) bg_rects(suppressWarnings(ggplot2::ggplotGrob(
+    fmt_bg(p + ggplot2::scale_x_discrete(limits = limits), palcolor = cols, alpha = 1))))
+  expect_equal(draw(factor(c("C", "A"), levels = LETTERS[1:3])), draw(c("C", "A")))
+})

@@ -4833,7 +4833,7 @@ fmt_bg <- function(plot,
         if (!any(discrete)) {
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
-        trained_limits <- unlist(trained, use.names = FALSE)
+        trained_limits <- unlist(lapply(trained, as.character), use.names = FALSE)
         limits <- unique(c(lvs, trained_limits))
         limits <- limits[!is.na(limits)]
         shown <- unique(trained_limits[!is.na(trained_limits)])
