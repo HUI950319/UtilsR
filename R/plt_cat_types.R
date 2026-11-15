@@ -156,11 +156,7 @@
 
   # Area background: double rows and offset for stepped appearance
   dat_area <- plotdata[rep(seq_len(nrow(plotdata)), each = 2), , drop = FALSE]
-  dat_area[["x_num"]] <- rep(plotdata[["x_num"]], each = 2)
-  odd <- seq(1, nrow(dat_area), 2)
-  even <- seq(2, nrow(dat_area), 2)
-  dat_area[["x_num"]][odd]  <- dat_area[["x_num"]][odd] - 0.3
-  dat_area[["x_num"]][even] <- dat_area[["x_num"]][even] + 0.3
+  dat_area[["x_num"]] <- dat_area[["x_num"]] + c(-0.3, 0.3)
 
   ggplot2::ggplot(plotdata, ggplot2::aes(
     x = .data[["x_num"]], y = .data[["value"]], fill = .data[["stat_var"]]

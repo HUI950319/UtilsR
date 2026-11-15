@@ -1602,3 +1602,18 @@ test_that("categorical panel splits reuse observed factor positions", {
     expect_identical(actual[[i]]$labels$title, expected[[i]]$labels$title)
   }
 })
+
+test_that("trend areas offset existing doubled coordinates directly", {
+  d <- data.frame(group_var = factor(rep(c("a", "b", "c"), each = 2L)),
+    stat_var = factor(rep(c("A", "B"), 3L)), value = 1:6)
+  cols <- c(A = "red", B = "blue")
+  native <- .plt_cat_trend(d, cols)
+  fn <- .plt_cat_trend
+  env <- new.env(parent = environment(fn))
+  env$seq <- function(...) stop("allocated separate trend offsets")
+  environment(fn) <- env
+  actual <- fn(d, cols)
+  expect_identical(actual$layers[[1L]]$data, native$layers[[1L]]$data)
+  expect_equal(actual$layers[[1L]]$data$x_num,
+    rep(rep(1:3, each = 2L), each = 2L) + c(-.3, .3))
+})
