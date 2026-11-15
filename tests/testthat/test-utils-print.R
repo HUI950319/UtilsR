@@ -1946,3 +1946,16 @@ test_that("tree descriptions skip filtering absent attribute names", {
   environment(fn) <- env
   expect_identical(capture.output(fn(input, max_lines = 10L)), expected)
 })
+
+test_that("table printing converts only the displayed tibble rows", {
+  d <- tibble::tibble(a = 1:2000, b = rep("entry", 2000L))
+  expected <- capture.output(pr_table(d, n = 3L))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "tbl_df") && nrow(x) > 3L) stop("converted undisplayed tibble rows")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d, n = 3L)), expected)
+})

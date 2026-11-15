@@ -629,7 +629,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
   if (!ncol(data) && !isTRUE(rownames)) return(._pr_out(character()))
-  if (inherits(data, "data.table") && !is.null(n) && nrow(data) > n) {
+  if ((inherits(data, "data.table") ||
+       identical(class(data), c("tbl_df", "tbl", "data.frame"))) &&
+      !is.null(n) && nrow(data) > n) {
     n_rows <- nrow(data)
     data <- as.data.frame(data[seq_len(n), , drop = FALSE])
   } else {
