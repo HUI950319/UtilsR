@@ -266,7 +266,9 @@ PlotScatter3 <- function(
 
   # ---- Auto-calculate axis_limits and axis_breaks from data ----
   if (is.null(axis_limits)) {
-    data_range <- range(c(data[[x]], data[[y]]), na.rm = TRUE)
+    data_range <- suppressWarnings(range(data[[x]], data[[y]], finite = TRUE))
+    if (any(!is.finite(data_range)))
+      stop("Automatic axis limits require finite coordinates.", call. = FALSE)
     axis_limits <- c(floor(data_range[1]), ceiling(data_range[2]))
     # Ensure symmetric if data spans both sides of zero
     if (axis_limits[1] < 0 && axis_limits[2] > 0) {

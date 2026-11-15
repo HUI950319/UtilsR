@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` derives its shared automatic axis range from finite coordinates when other pairs contain infinities.
+
 * `fmt_panel(grid = "keep")` skips theme additions when no border, background, or extra theme settings are requested.
 
 * `fmt_com()` can locate a non-empty layer data frame when the plot inherits a zero-row default.

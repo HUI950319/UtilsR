@@ -1729,3 +1729,16 @@ test_that("ordinary scatter correlations avoid shifting whole axes", {
   expect_identical(fn(x, y, "pearson"), expected)
   expect_equal(.scatter_cor_test(x * 1e-180, y * 1e-180, "pearson")$estimate, expected$estimate)
 })
+
+test_that("paired scatter automatic axes ignore infinite observations", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(Control = c(1, 2, 3, Inf), Treat = c(2, 3, 4, -Inf),
+    group = rep(c("NS", "S"), 2L))
+  p <- suppressWarnings(PlotScatter3(d, test_method = "none", cor_method = "none",
+    theme_use = ggplot2::theme_classic))
+  expect_identical(p[[1]]$scales$get_scales("x")$limits, c(1, 4))
+  expect_identical(p[[1]]$scales$get_scales("y")$limits, c(1, 4))
+  d$Control <- d$Treat <- rep(Inf, 4L)
+  expect_error(PlotScatter3(d, test_method = "none", cor_method = "none"),
+    "finite coordinates")
+})
