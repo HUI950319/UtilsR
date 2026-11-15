@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip2()` restores hidden strip elements on ggplot2 3.5 as well as newer versions.
+
 * `fmt_tag()` retains existing children without a write when they contain no generated tags.
 
 * `fmt_panel()` recognizes palette indices as colours when comparing existing grid lines and backgrounds.

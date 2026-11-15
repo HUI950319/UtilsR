@@ -1148,3 +1148,14 @@ test_that("partially relabelled strips retain other plotmath expressions", {
   expect_identical(labels(actual), list("First", quote(beta^2)))
   expect_identical(labels(p), list(quote(alpha), quote(beta^2)))
 })
+
+test_that("strip restoration works for S3 and S7 theme elements", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point() +
+    ggplot2::theme(strip.text = ggplot2::element_blank())
+  fn <- fmt_strip2
+  env <- new.env(parent = environment(fn))
+  env[["@<-"]] <- function(...) stop("used S4 slot assignment for a strip element")
+  environment(fn) <- env
+  out <- fn(p, top_label = "Title", top_right_fill = NULL)
+  expect_identical(.fmt_strip_text(out)[[1L]]$label, "Title")
+})

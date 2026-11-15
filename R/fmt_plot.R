@@ -2495,7 +2495,7 @@ fmt_strip2 <- function(plot,
           if (inherits(element, "element_blank")) {
             element <- ggplot2::calc_element(nm, ggplot2::theme_gray())
           }
-          element@inherit.blank <- FALSE
+          element$inherit.blank <- FALSE
           p$theme[[nm]] <- element
         }
       }
