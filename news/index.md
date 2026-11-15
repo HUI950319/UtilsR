@@ -2,6 +2,406 @@
 
 ## UtilsR 0.6.23
 
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  keeps integer endpoint subtraction in integer storage when their
+  combined bounds guarantee an exact result.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) avoids
+  regrouping already distinct frequency rows when their labels are
+  unique.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  uses its prepared factor codes directly when repeating facet and
+  category values for each stratum.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  translates category and facet row indices to display order without
+  sorting the already computed permutation.
+
+- Categorical and continuous background strips reuse factor codes when a
+  displayed axis order is already known.
+
+- Categorical trend plots build the staggered area coordinates from
+  their existing doubled rows without allocating separate odd and even
+  indices.
+
+- `stat_pval(add_star_p = ...)` checks the lengths of ordinary inputs
+  before converting their displayed values to text.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  uses [`log1p()`](https://rdrr.io/r/base/Log.html) directly for nearby
+  ratio endpoints while keeping the difference of logs for widely
+  separated endpoints.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  bypasses scale inference when every input is missing or unparseable.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  prepares per-axis line styles once when adding the same references
+  across several plots.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  omits the [`expand.grid()`](https://rdrr.io/r/base/expand.grid.html)
+  display attributes that are discarded during the subsequent join.
+
+- Repeated
+  [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  edits replace a standard guide container without retaining previous
+  guides in its prototype chain.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  shares the observed factor tally so node counts stay proportional to
+  the data for sparse factors.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  skips table copies and grouped-column updates when the requested
+  combined column already matches.
+
+- [`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
+  returns data frames directly when the relabelled column is identical
+  to the original.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  removes unused factor levels without allocating a dense level table
+  when observations are sparse.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  avoids allocating bound masks for numeric vectors, including repeated
+  numeric inputs.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores complete labelled and time predictors directly from the
+  original columns.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  reuses its missing-column selection when backend preparation keeps all
+  rows and ordinary column values.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  avoids allocating a row mask when a predictor is complete.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  reads the first and last row of one- or two-observation aesthetic
+  groups without flattening large group indices.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  retains guide collection when a mapped aesthetic does not produce a
+  legend for its geometry.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  decodes repeated swatches at their distinct values while retaining
+  preview order, labels, and alpha.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  shares category indices across both wings and retains per-side padding
+  and category order.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  assigns the singleton rank directly for complete one-row method
+  groups.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  builds row filtering masks only when required columns contain missing
+  values.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  keeps inherited rich-text themes when adding top or right headers.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  preserves rich-text element classes inherited from existing strip
+  themes.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  bypasses attribute-name filtering for nodes without attributes.
+
+- `plt_con(sort = TRUE)` avoids replacing and coercing intact sort
+  columns while still omitting non-finite observations from medians.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  keeps the declared level count and zero bars while tallying only
+  observed values for sparse factors.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) derives
+  observed levels, missingness, and special-marker counts from one
+  factor tally and avoids allocating bins for unused levels.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) builds
+  the styled two-way HTML table only when knitting or when the session
+  displays it.
+
+- `lv(count = ...)` skips the long percentage table when counts are
+  displayed as a two-way table.
+
+- `grob_insert(on_top = FALSE)` keeps insets above backgrounds and below
+  foregrounds that share the same draw order.
+
+- Continuous mean and SD summaries skip missing-value and finite-value
+  vectors for complete, well-scaled inputs.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  preserves exact values when rounding would merge numeric categories of
+  a labelled column.
+
+- `PlotDumbbell(sort_by = "none")` constructs indices only for the
+  requested final observations.
+
+- Continuous dot counts convert grouped representatives to a data frame
+  after identifying the observed combinations.
+
+- Combined continuous dot plots pool count scale limits from per-layer
+  ranges without copying all count vectors.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  validates explicit layout controls before flattening its input.
+
+- Numeric palette mapping returns colours directly when all values
+  receive a colour, avoiding a separate missing-value buffer.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  rejects constant ordinary, `AsIs`, and labelled numeric inputs before
+  allocating automatic break vectors.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  extracts the edited fields from a candidate scale without
+  materializing its full prototype.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  and
+  [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  preserve position scales defined by the plot environment when ggplot2
+  infers its defaults.
+
+- `PlotButterfly(type = "bar")` reports a grid beyond the data-frame row
+  limit before allocating missing combinations.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  maps homogeneous atomic set members to their shared universe in one
+  pass, retaining the original universe and set order.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  validates diagram and enumeration set-count limits before building
+  member indices.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  stores the baseline axis text and ticks without retaining unrelated
+  theme elements in each guide.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  restores styled leaves together, avoiding repeated writes to their
+  shared patchwork containers.
+
+- `fmt_com(remove.bracket = TRUE)` keeps reference comparisons collapsed
+  when the x scale reserves positions for absent groups.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  reuses the resolved x, y, and group vectors for validation and layout
+  while leaving the statistical layer mappings available to ggplot2.
+
+- Scatter plots remap ordinary factor groups at the level dictionary
+  without converting each row to character.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  counts observed group pairs directly for many atomic feature sets that
+  share each feature with at most one other group.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  bounds tally allocation by the observations when a factor declares
+  many unused levels.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  uses its membership indices directly for complete unclassed columns.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  reads ordinary tibble columns directly for both summaries and
+  matrices.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  closes its own temporary graphics device even when a user-supplied
+  theme opens another device.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  derives its shared automatic axis range from finite coordinates when
+  other pairs contain infinities.
+
+- `fmt_panel(grid = "keep")` skips theme additions when no border,
+  background, or extra theme settings are requested.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  can locate a non-empty layer data frame when the plot inherits a
+  zero-row default.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  matches named stripe palettes to the labels of factor-valued scale
+  limits.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  rules out one-bin-per-value mode from a short prefix before scanning
+  all observations.
+
+- `fmt_raster(method = "ragg")` diagnoses standalone grobs at the input
+  boundary and directs them to full-image mode.
+
+- Scatter correlation helpers determine whether Pearson normalization is
+  needed from the range endpoints.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  draws bars and heatmaps for a literal `.data` input column without
+  dropping its original name.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  repeats stripes over existing facets even when a facet uses a column
+  named `.bg`.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  repeats in-panel labels across existing facets without creating a
+  facet from the label itself.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  keeps layers inside user-created inset patchworks intact when updating
+  outer plot tags.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  validates dimension storage and bounds before traversing the plot
+  container.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  accepts factor group selections with a different declared level set
+  from the input.
+
+- `fmt_text(legend_title = "")` clears titles supplied directly to
+  legend guides.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  groups overlay observations once and matches all panel layout indices
+  together.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  constructs group factors from positions without matching repeated
+  group labels.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  rejects an impossible combined gap before expanding category and group
+  counts.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  reads theme elements only when text styling is requested.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  uses eligible nonempty layer data when the inherited frame is empty
+  and no source was explicitly supplied.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  restores hidden strip elements on ggplot2 3.5 as well as newer
+  versions.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  retains existing children without a write when they contain no
+  generated tags.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  recognizes palette indices as colours when comparing existing grid
+  lines and backgrounds.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  retains plotmath labels for levels whose names are absent from a
+  partial replacement.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  and
+  [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  preserve axis tiles when replacing the facet behind them.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  reuses the existing guide and facet when tile formatting settings are
+  equivalent.
+
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  shares axis guide prototypes when the same formatting is applied
+  again.
+
+- `stat_ci_parse(exp = TRUE)` computes asymmetry on its requested ratio
+  scale without calculating additive half-widths.
+
+- `pr_tree(max_lines = 0)` counts omitted lines without generating root
+  labels or drawing a tree.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  orders stripe boundaries by trained position, retaining named colours
+  on reversed discrete scales.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  calculates each row and column offset once when traversing regular
+  plot grids.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  selects the complete summary matching an explicitly requested identity
+  boxplot orientation.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  maps aliases once and uses the resulting shared labels for percentage
+  and matrix plots.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  formats the total once for both the table and its caption.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  keeps compound list elements intact when pruning globally unique
+  features.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  rejects multidimensional plot lists before traversing or replacing
+  their elements.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  searches layer data for explicitly requested `.data` columns even with
+  an empty plot-level frame.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  and
+  [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  preserve inherited and dot-prefixed position settings when copying
+  their layers.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  and
+  [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  retain the category scale selected by later data layers after infinite
+  position placeholders.
+
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  wraps plain lines without first invoking the CLI interpolation parser.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  applies the bound grammar only to bound text and the exact-number
+  grammar only to other observations.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  uses existing factor codes to split panels in declared order.
+
+- `plt_cat(NA_stat = TRUE)` avoids building a shared replacement label
+  for complete data.
+
+- Grouped categorical plots reuse integer positions for both axes after
+  counting occupied cells.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  leaves complete factor predictors on their original codes, including
+  observed explicit NA levels.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  reports invalid scalar labels, transparency and facet or legend
+  dimensions before plot preparation.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  and
+  [`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+  reject non-finite terms inside compound units before converting the
+  plot.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  constructs each default stage colour ramp once, including when the
+  palette cycle repeats.
+
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) preserves
   decimal commas in measurements without emitting grouping-separator
   warnings.

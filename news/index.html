@@ -50,7 +50,112 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> preserves decimal commas in measurements without emitting grouping-separator warnings.</p></li>
+<ul><li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> keeps integer endpoint subtraction in integer storage when their combined bounds guarantee an exact result.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> avoids regrouping already distinct frequency rows when their labels are unique.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> uses its prepared factor codes directly when repeating facet and category values for each stratum.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> translates category and facet row indices to display order without sorting the already computed permutation.</p></li>
+<li><p>Categorical and continuous background strips reuse factor codes when a displayed axis order is already known.</p></li>
+<li><p>Categorical trend plots build the staggered area coordinates from their existing doubled rows without allocating separate odd and even indices.</p></li>
+<li><p><code>stat_pval(add_star_p = ...)</code> checks the lengths of ordinary inputs before converting their displayed values to text.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> uses <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p()</a></code> directly for nearby ratio endpoints while keeping the difference of logs for widely separated endpoints.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> bypasses scale inference when every input is missing or unparseable.</p></li>
+<li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> prepares per-axis line styles once when adding the same references across several plots.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> omits the <code><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid()</a></code> display attributes that are discarded during the subsequent join.</p></li>
+<li><p>Repeated <code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> edits replace a standard guide container without retaining previous guides in its prototype chain.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> shares the observed factor tally so node counts stay proportional to the data for sparse factors.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> skips table copies and grouped-column updates when the requested combined column already matches.</p></li>
+<li><p><code><a href="../reference/fct_label.html">fct_label()</a></code> returns data frames directly when the relabelled column is identical to the original.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> removes unused factor levels without allocating a dense level table when observations are sparse.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids allocating bound masks for numeric vectors, including repeated numeric inputs.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores complete labelled and time predictors directly from the original columns.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> reuses its missing-column selection when backend preparation keeps all rows and ordinary column values.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> avoids allocating a row mask when a predictor is complete.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> reads the first and last row of one- or two-observation aesthetic groups without flattening large group indices.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> retains guide collection when a mapped aesthetic does not produce a legend for its geometry.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> decodes repeated swatches at their distinct values while retaining preview order, labels, and alpha.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> shares category indices across both wings and retains per-side padding and category order.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> assigns the singleton rank directly for complete one-row method groups.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> builds row filtering masks only when required columns contain missing values.</p></li>
+<li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> keeps inherited rich-text themes when adding top or right headers.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> preserves rich-text element classes inherited from existing strip themes.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> bypasses attribute-name filtering for nodes without attributes.</p></li>
+<li><p><code>plt_con(sort = TRUE)</code> avoids replacing and coercing intact sort columns while still omitting non-finite observations from medians.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> keeps the declared level count and zero bars while tallying only observed values for sparse factors.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> derives observed levels, missingness, and special-marker counts from one factor tally and avoids allocating bins for unused levels.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> builds the styled two-way HTML table only when knitting or when the session displays it.</p></li>
+<li><p><code>lv(count = ...)</code> skips the long percentage table when counts are displayed as a two-way table.</p></li>
+<li><p><code>grob_insert(on_top = FALSE)</code> keeps insets above backgrounds and below foregrounds that share the same draw order.</p></li>
+<li><p>Continuous mean and SD summaries skip missing-value and finite-value vectors for complete, well-scaled inputs.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> preserves exact values when rounding would merge numeric categories of a labelled column.</p></li>
+<li><p><code>PlotDumbbell(sort_by = "none")</code> constructs indices only for the requested final observations.</p></li>
+<li><p>Continuous dot counts convert grouped representatives to a data frame after identifying the observed combinations.</p></li>
+<li><p>Combined continuous dot plots pool count scale limits from per-layer ranges without copying all count vectors.</p></li>
+<li><p><code><a href="../reference/fmt_flatten.html">fmt_flatten()</a></code> validates explicit layout controls before flattening its input.</p></li>
+<li><p>Numeric palette mapping returns colours directly when all values receive a colour, avoiding a separate missing-value buffer.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects constant ordinary, <code>AsIs</code>, and labelled numeric inputs before allocating automatic break vectors.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> extracts the edited fields from a candidate scale without materializing its full prototype.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> and <code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> preserve position scales defined by the plot environment when ggplot2 infers its defaults.</p></li>
+<li><p><code>PlotButterfly(type = "bar")</code> reports a grid beyond the data-frame row limit before allocating missing combinations.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> maps homogeneous atomic set members to their shared universe in one pass, retaining the original universe and set order.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> validates diagram and enumeration set-count limits before building member indices.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> stores the baseline axis text and ticks without retaining unrelated theme elements in each guide.</p></li>
+<li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> restores styled leaves together, avoiding repeated writes to their shared patchwork containers.</p></li>
+<li><p><code>fmt_com(remove.bracket = TRUE)</code> keeps reference comparisons collapsed when the x scale reserves positions for absent groups.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> reuses the resolved x, y, and group vectors for validation and layout while leaving the statistical layer mappings available to ggplot2.</p></li>
+<li><p>Scatter plots remap ordinary factor groups at the level dictionary without converting each row to character.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> counts observed group pairs directly for many atomic feature sets that share each feature with at most one other group.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> bounds tally allocation by the observations when a factor declares many unused levels.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> uses its membership indices directly for complete unclassed columns.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> reads ordinary tibble columns directly for both summaries and matrices.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> closes its own temporary graphics device even when a user-supplied theme opens another device.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> derives its shared automatic axis range from finite coordinates when other pairs contain infinities.</p></li>
+<li><p><code>fmt_panel(grid = "keep")</code> skips theme additions when no border, background, or extra theme settings are requested.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> can locate a non-empty layer data frame when the plot inherits a zero-row default.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> matches named stripe palettes to the labels of factor-valued scale limits.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> rules out one-bin-per-value mode from a short prefix before scanning all observations.</p></li>
+<li><p><code>fmt_raster(method = "ragg")</code> diagnoses standalone grobs at the input boundary and directs them to full-image mode.</p></li>
+<li><p>Scatter correlation helpers determine whether Pearson normalization is needed from the range endpoints.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> draws bars and heatmaps for a literal <code>.data</code> input column without dropping its original name.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> repeats stripes over existing facets even when a facet uses a column named <code>.bg</code>.</p></li>
+<li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> repeats in-panel labels across existing facets without creating a facet from the label itself.</p></li>
+<li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> keeps layers inside user-created inset patchworks intact when updating outer plot tags.</p></li>
+<li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> validates dimension storage and bounds before traversing the plot container.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> accepts factor group selections with a different declared level set from the input.</p></li>
+<li><p><code>fmt_text(legend_title = "")</code> clears titles supplied directly to legend guides.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> groups overlay observations once and matches all panel layout indices together.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> constructs group factors from positions without matching repeated group labels.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> rejects an impossible combined gap before expanding category and group counts.</p></li>
+<li><p><code><a href="../reference/fmt_text.html">fmt_text()</a></code> reads theme elements only when text styling is requested.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> uses eligible nonempty layer data when the inherited frame is empty and no source was explicitly supplied.</p></li>
+<li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> restores hidden strip elements on ggplot2 3.5 as well as newer versions.</p></li>
+<li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> retains existing children without a write when they contain no generated tags.</p></li>
+<li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> recognizes palette indices as colours when comparing existing grid lines and backgrounds.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> retains plotmath labels for levels whose names are absent from a partial replacement.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> and <code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> preserve axis tiles when replacing the facet behind them.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> reuses the existing guide and facet when tile formatting settings are equivalent.</p></li>
+<li><p><code><a href="../reference/fmt_axisText.html">fmt_axisText()</a></code> shares axis guide prototypes when the same formatting is applied again.</p></li>
+<li><p><code>stat_ci_parse(exp = TRUE)</code> computes asymmetry on its requested ratio scale without calculating additive half-widths.</p></li>
+<li><p><code>pr_tree(max_lines = 0)</code> counts omitted lines without generating root labels or drawing a tree.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> orders stripe boundaries by trained position, retaining named colours on reversed discrete scales.</p></li>
+<li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> calculates each row and column offset once when traversing regular plot grids.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> selects the complete summary matching an explicitly requested identity boxplot orientation.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> maps aliases once and uses the resulting shared labels for percentage and matrix plots.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> formats the total once for both the table and its caption.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> keeps compound list elements intact when pruning globally unique features.</p></li>
+<li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> rejects multidimensional plot lists before traversing or replacing their elements.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> searches layer data for explicitly requested <code>.data</code> columns even with an empty plot-level frame.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> and <code><a href="../reference/fmt_point.html">fmt_point()</a></code> preserve inherited and dot-prefixed position settings when copying their layers.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> and <code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> retain the category scale selected by later data layers after infinite position placeholders.</p></li>
+<li><p><code><a href="../reference/pr_note.html">pr_note()</a></code> wraps plain lines without first invoking the CLI interpolation parser.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> applies the bound grammar only to bound text and the exact-number grammar only to other observations.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> uses existing factor codes to split panels in declared order.</p></li>
+<li><p><code>plt_cat(NA_stat = TRUE)</code> avoids building a shared replacement label for complete data.</p></li>
+<li><p>Grouped categorical plots reuse integer positions for both axes after counting occupied cells.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> leaves complete factor predictors on their original codes, including observed explicit NA levels.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> reports invalid scalar labels, transparency and facet or legend dimensions before plot preparation.</p></li>
+<li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> and <code><a href="../reference/grob_insert.html">grob_insert()</a></code> reject non-finite terms inside compound units before converting the plot.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> constructs each default stage colour ramp once, including when the palette cycle repeats.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> preserves decimal commas in measurements without emitting grouping-separator warnings.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> reports when a coordinate system disables the requested padding with a numeric zero flag.</p></li>
 <li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> updates or clears <code>continuous.limits</code> on discrete position scales that support it.</p></li>
 <li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> applies the most recent temporal breaks, labels and minor breaks when aliases are mixed across calls.</p></li>
