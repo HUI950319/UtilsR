@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` skips signed-zero regular expressions when the formatted values contain no negative-zero prefix.
+
 * `pr_table()` subsets ordinary tibbles to the displayed rows before converting them to a data frame.
 
 * `plt_cat()` counts observed univariate categories directly while preserving their factor levels and row order.

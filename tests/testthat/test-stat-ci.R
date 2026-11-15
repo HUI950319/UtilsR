@@ -279,3 +279,13 @@ test_that("complete numeric confidence interval formatting avoids missing masks"
   expect_identical(fn(x, x / 2), stat_ci(x, x / 2))
   expect_identical(fn(x[1:2], x[1:2] / 2, digits = 7900), stat_ci(x[1:2], x[1:2] / 2, digits = 7900))
 })
+
+test_that("interval formatting skips signed zero regex for positive values", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$gsub <- function(...) stop("scanned positive interval text for signed zeros")
+  environment(fn) <- env
+  x <- seq(1, 2, length.out = 200L)
+  expect_identical(fn(x, x/2, x*2), stat_ci(x, x/2, x*2))
+  expect_identical(stat_ci(-.001, -.002, .001, digits = 2), "0.00 (0.00\u20130.00)")
+})
