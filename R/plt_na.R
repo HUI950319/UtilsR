@@ -102,7 +102,8 @@ plt_na <- function(
     cli::cli_abort("{.arg data} must be a data.frame, tibble, or Task object.")
   }
 
-  if (!inherits(df, "data.table")) df <- as.data.frame(df)
+  if (!inherits(df, "data.table") && !identical(class(df), c("tbl_df", "tbl", "data.frame")))
+    df <- as.data.frame(df)
   if (nrow(df) == 0L) {
     cli::cli_abort("{.arg data} must contain at least one observation.")
   }

@@ -517,3 +517,17 @@ test_that("missingness aliases are mapped only for unique plotted variables", {
   expect_identical(out$data, expected$data)
   expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
 })
+
+test_that("missingness plots inspect tibble columns without coercing the frame", {
+  d <- tibble::tibble(a = c(1, NA, 3, NA), b = c("a", NA, "c", "d"))
+  expected <- lapply(c("matrix", "percentage"), function(output) plt_na(d, output = output)$data)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (identical(x, d)) stop("copied the input tibble")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  actual <- lapply(c("matrix", "percentage"), function(output) fn(d, output = output)$data)
+  expect_identical(actual, expected)
+})
