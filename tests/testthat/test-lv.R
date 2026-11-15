@@ -1589,3 +1589,17 @@ test_that("inspection tolerates decimal commas in console reports", {
   expect_true(any(grepl("0,125 to 150", result$output, fixed = TRUE)))
   expect_identical(result$value$value, data)
 })
+
+test_that("wide inspection counts skip long percentage construction", {
+  d <- expand.grid(a = paste0("a", 1:8), b = paste0("b", 1:10), stringsAsFactors = FALSE)
+  expected <- capture_reports(lv(d, count = c(a, b)))[[1L]][["_data"]]
+  native <- dplyr::mutate
+  testthat::local_mocked_bindings(
+    mutate = function(.data, ...) {
+      expr <- vapply(as.list(substitute(list(...)))[-1L],
+        function(x) paste(deparse(x), collapse = " "), character(1))
+      if (any(grepl(".fmt_pct", expr, fixed = TRUE))) stop("constructed long count percentages")
+      native(.data, ...)
+    }, .package = "dplyr")
+  expect_identical(capture_reports(lv(d, count = c(a, b)))[[1L]][["_data"]], expected)
+})

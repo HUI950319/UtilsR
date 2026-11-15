@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv(count = ...)` skips the long percentage table when counts are displayed as a two-way table.
+
 * `grob_insert(on_top = FALSE)` keeps insets above backgrounds and below foregrounds that share the same draw order.
 
 * Continuous mean and SD summaries skip missing-value and finite-value vectors for complete, well-scaled inputs.

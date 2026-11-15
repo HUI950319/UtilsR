@@ -923,12 +923,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       }
     }
 
-    cross_count <- count_base %>%
-      dplyr::mutate(
-        "{pct_name}" := .fmt_pct(.data[[n_name]] / sum(.data[[n_name]]) * 100)
-      )
-    cross_count[count_vars] <- lapply(cross_count[count_vars], .label_blank)
-
     # A two-way table gets one column per category of the second variable and
     # one row per category of the first; beyond 100 it is unreadable and
     # slow (5,000 columns took 18 s), so only the long list is shown.
@@ -946,6 +940,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
 
     if (!two_way) {
+      cross_count <- count_base %>%
+        dplyr::mutate(
+          "{pct_name}" := .fmt_pct(.data[[n_name]] / sum(.data[[n_name]]) * 100)
+        )
+      cross_count[count_vars] <- lapply(cross_count[count_vars], .label_blank)
       if (knitting) {
         .lv_print_report(gt::fmt_integer(gt::gt(cross_count),
                                          columns = dplyr::all_of(n_name)))
