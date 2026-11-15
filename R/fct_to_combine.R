@@ -159,6 +159,7 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
   }
   combined <- do.call(fct_to_combine.default,
                       c(lapply(vars, function(nm) x[[nm]]), list(sep = sep)))
+  if (identical(x[[new_var]], combined)) return(x)
   if (inherits(x, "data.table")) {
     if (!requireNamespace("data.table", quietly = TRUE)) {
       cli::cli_abort("Combining data.table columns requires the {.pkg data.table} package.")

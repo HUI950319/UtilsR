@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` skips table copies and grouped-column updates when the requested combined column already matches.
+
 * `fct_label()` returns data frames directly when the relabelled column is identical to the original.
 
 * `plt_alluvial()` removes unused factor levels without allocating a dense level table when observations are sparse.

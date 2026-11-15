@@ -525,3 +525,15 @@ test_that("one factor combines without a row dictionary", {
   attr(x, "levels") <- c("unused", "", NA_character_, "NA")
   expect_error(fn(x), "Distinct combinations")
 })
+
+test_that("identical combined columns do not copy a data table", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(a = factor(c("A", "B", "A")), b = c("x", "y", "x"))
+  d <- fct_to_combine(d, c("a", "b"))
+  native <- data.table::copy
+  testthat::local_mocked_bindings(copy = function(x, ...) {
+    if (identical(x, d)) stop("copied a complete combined data table")
+    native(x, ...)
+  }, .package = "data.table")
+  expect_identical(fct_to_combine(d, c("a", "b")), d)
+})
