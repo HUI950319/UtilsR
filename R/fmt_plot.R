@@ -4654,6 +4654,7 @@ fmt_com <- function(plot,
           # Native brackets use dense positions; restore retained scale holes.
           left <- if (compare_group) result$.fmt_com_x else as.numeric(result$group1)
           right <- if (compare_group) result$.fmt_com_x else as.numeric(result$group2)
+          if (!is.null(ref_id) && !ref_all && isTRUE(args$remove.bracket)) left <- right
           left_shift <- left - match(left, positions)
           right_shift <- right - match(right, positions)
           n <- nrow(result) / 3L

@@ -798,3 +798,19 @@ test_that("comparison validation resolves each aesthetic once", {
   bare <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
   expect_equal(com_stat(out), com_stat(fmt_com(bare)))
 })
+
+test_that("suppressed reference brackets stay collapsed with unused positions", {
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(x = rep(c("A", "C"), each = 5L), y = c(1:5, 12, 14, 15, 16, 19))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  stat <- function(p) {
+    built <- ggplot2::ggplot_build(fmt_com(p, ref.group = "A", remove.bracket = TRUE))
+    built$data[[length(built$data)]]
+  }
+  dense <- stat(p)
+  sparse <- suppressWarnings(stat(p + ggplot2::scale_x_discrete(limits = c("A", "B", "C"))))
+  for (field in c("x", "xend", "xmin", "xmax")) {
+    expect_equal(as.numeric(sparse[[field]]), as.numeric(dense[[field]]) + 1)
+  }
+  expect_identical(sparse$p, dense$p)
+})
