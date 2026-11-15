@@ -307,3 +307,15 @@ test_that("unbounded equal-width data receive a finite endpoint diagnostic", {
     expect_identical(as.integer(fct_num(x, breaks = 0)), ifelse(x > 0, 2L, 1L))
   }
 })
+
+test_that("constant classed quantile inputs do not allocate probabilities", {
+  skip_if_not_installed("haven")
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  env$seq <- function(...) stop("allocated probabilities for a constant classed input")
+  environment(fn) <- env
+  for (input in list(I(c(NA, 2, 2)), haven::labelled(c(3, 3, NA), c(High = 3)),
+                     I(rep(.Machine$double.xmin / 8, 3)))) {
+    expect_error(fn(input, nbins = 10000L), "Cannot split constant")
+  }
+})

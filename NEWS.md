@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` rejects constant ordinary, `AsIs`, and labelled numeric inputs before allocating automatic break vectors.
+
 * `fmt_scale()` extracts the edited fields from a candidate scale without materializing its full prototype.
 
 * `fmt_scale()` and `fmt_expand()` preserve position scales defined by the plot environment when ggplot2 infers its defaults.
