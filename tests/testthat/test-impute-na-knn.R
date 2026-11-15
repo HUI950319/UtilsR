@@ -706,3 +706,17 @@ test_that("complete explicit NA factor predictors need no KNN recoding", {
   expect_identical(actual$category, f)
   expect_false(anyNA(actual$x))
 })
+
+test_that("KNN complete predictors do not allocate a full true row mask", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(value = c(NA_integer_, 2:30), predictor = 1:30)
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, times, ...) {
+    if (identical(x, TRUE) && identical(times, nrow(d))) stop("allocated all KNN row flags")
+    base::rep(x, times, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})

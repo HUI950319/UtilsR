@@ -264,7 +264,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   complete_columns <- setdiff(names(data_for_impute), vars_with_missing)
   observed_rows <- if (length(complete_columns) &&
                        !anyNA(data_for_impute[[complete_columns[[1L]]]])) {
-    rep(TRUE, nrow(data_for_impute))
+    TRUE
   } else {
     observed <- rep(FALSE, nrow(data_for_impute))
     for (column in data_for_impute) {

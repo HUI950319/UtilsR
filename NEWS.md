@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` avoids allocating a row mask when a predictor is complete.
+
 * `PlotRankCor()` reads the first and last row of one- or two-observation aesthetic groups without flattening large group indices.
 
 * `fmt_legend()` retains guide collection when a mapped aesthetic does not produce a legend for its geometry.
