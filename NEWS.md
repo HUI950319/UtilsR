@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unique rank-correlation pivot rows avoid full logical row copies before aggregation.
+
 * Rank-correlation pivot ordering uses compact lexical codes for ordinary factor keys.
 
 * Stable rank-correlation centering avoids repeatedly slicing complete centered vectors.

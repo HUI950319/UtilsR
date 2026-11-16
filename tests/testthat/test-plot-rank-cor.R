@@ -1119,3 +1119,17 @@ test_that("rank correlation pivot ordering formats only factor levels", {
     method.by = "method", show.label = FALSE)))
   expect_identical(result$data, expected$data)
 })
+
+test_that("unique rank correlation pivot rows avoid complete row copies", {
+  d <- rank_cor_data()
+  expected <- quiet_rank_cor(d)
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && is.data.frame(x) && identical(substitute(x), quote(pivot_data)) &&
+        is.logical(i) && length(i) == nrow(x) && all(i)) stop("complete pivot row copy")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  invisible(utils::capture.output(result <- fn(d, stat.by = "item", value.by = "score",
+    method.by = "method", show.label = FALSE)))
+  expect_identical(result$data, expected$data)
+})
