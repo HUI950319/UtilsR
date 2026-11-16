@@ -4605,7 +4605,17 @@ fmt_com <- function(plot,
           length(unique(n[n > 0L])) > 1L
         }, logical(1))
         if (any(unequal)) cli::cli_abort("Paired groups have unequal original sizes; supply method.args$id.")
-        ids <- stats::ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
+        comparison_codes <- as.integer(factor(comparison_values))
+        stratum_codes <- as.integer(strata_key)
+        ids <- if (anyNA(comparison_codes) || anyNA(stratum_codes)) {
+          stats::ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
+        } else {
+          locations <- vctrs::vec_group_loc(vctrs::new_data_frame(list(
+            comparison = comparison_codes, stratum = stratum_codes)))$loc
+          result <- integer(nrow(source_data))
+          result[unlist(locations, use.names = FALSE)] <- sequence(lengths(locations))
+          result
+        }
       } else {
         if (!pair_id %in% names(source_data)) cli::cli_abort("method.args$id column is absent from statistical data.")
         ids <- source_data[[pair_id]]

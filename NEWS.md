@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Automatic paired comparison IDs use observed group locations while retaining native handling of missing codes.
+
 * Paired comparison size validation avoids allocating a global group-by-facet count matrix.
 
 * Reference line formatting reuses batch data and mappings while constructing an independent layer for every plot.

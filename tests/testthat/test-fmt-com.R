@@ -848,3 +848,22 @@ test_that("paired size checks count only groups observed within each facet", {
   result <- do.call(fn, args)
   expect_identical(result$layers[[2L]]$data, expected$layers[[2L]]$data)
 })
+
+test_that("automatic paired IDs reuse observed tuple row locations", {
+  d <- data.frame(x = rep(c("a", "b"), each = 3), y = c(1, 3, 5, 2, 6, 7))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expected <- fmt_com(p, method.args = list(paired = TRUE))
+  original <- stats::ave
+  allow <- FALSE
+  local_mocked_bindings(ave = function(...) {
+    if (!allow) stop("automatic paired ave")
+    original(...)
+  }, .package = "stats")
+  result <- fmt_com(p, method.args = list(paired = TRUE))
+  expect_identical(result$layers[[2L]]$data, expected$layers[[2L]]$data)
+  allow <- TRUE
+  d$x <- factor(c("a", NA, "b", NA, "a", "b"), levels = c("a", "b", NA), exclude = NULL)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  fallback <- fmt_com(p, method.args = list(paired = TRUE))
+  expect_identical(fallback$layers[[2L]]$data[[".fmt_com_pair_id"]], c(1, 2, 1, 4, 2, 2))
+})
