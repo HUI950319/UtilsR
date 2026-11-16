@@ -1000,3 +1000,15 @@ test_that("UpSet membership matches only observed sparse factor labels", {
   }), parent = environment(fn))
   expect_identical(fn(d, vars = c("a", "b"), levels = "Yes", output = "data"), expected)
 })
+
+test_that("complete logical UpSet membership skips missingness rescans", {
+  d <- data.frame(a = rep(c(TRUE, FALSE), 4), b = rep(c(FALSE, TRUE, TRUE, FALSE), 2))
+  expected <- plt_upset(d, vars = c("a", "b"), levels = "TRUE", output = "data")
+  fn <- plt_upset
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (is.logical(x) && length(x) == nrow(d) && !anyNA(x))
+      stop("complete logical membership rescan")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, vars = c("a", "b"), levels = "TRUE", output = "data"), expected)
+})

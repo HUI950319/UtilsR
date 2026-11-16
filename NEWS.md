@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Logical UpSet membership checks avoid missingness masks for complete columns and all-inclusive selections.
+
 * Paired comparison helper columns avoid names referenced by facet expressions, including literal `get()` lookups.
 
 * Explicit paired ID validation uses vectorized row-duplicate detection after the existing data-frame conversion.
