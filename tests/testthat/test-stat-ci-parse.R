@@ -873,3 +873,23 @@ test_that("nearby confidence interval endpoints skip redundant logarithms", {
   environment(fn) <- env
   expect_identical(do.call(fn, entries), expected)
 })
+
+test_that("repeated confidence intervals share tuple scale diagnostics", {
+  at <- rep(1:4, 600)
+  est <- c(2, 0, 3, NA_real_)[at]
+  lo <- c(1, -1, 1, NA_real_)[at]
+  hi <- c(4, 1, 5, NA_real_)[at]
+  unit <- matrix(rep(c(0.1, 0.01, 0.1)[rep(1:3, each = length(at))], 1), ncol = 3)
+  valid <- !is.na(est)
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(log = function(x, ...) {
+    if (length(x) > 8L) stop("repeated interval logarithms")
+    base::log(x, ...)
+  }, log1p = function(x) {
+    if (length(x) > 8L) stop("repeated interval logarithms")
+    base::log1p(x)
+  }), parent = environment(fn))
+  for (exponentiate in list("auto", TRUE, FALSE))
+    expect_identical(fn(est, lo, hi, unit, exponentiate, valid),
+      .ci_scale(est, lo, hi, unit, exponentiate, valid))
+})
