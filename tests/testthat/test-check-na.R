@@ -794,3 +794,16 @@ test_that("data quality tallies only observed sparse factor levels", {
     expect_identical(actual, expected)
   }
 })
+
+test_that("entirely special columns skip rescanning their marker membership", {
+  x <- rep(c("Unknown", "", "Not Available"), 200L)
+  fn <- .count_special_values
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (length(x) == 600L) stop("rescanned entirely special values")
+    base::'%in%'(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), as.double(length(x)))
+  expect_identical(fn(c("known", "Unknown", NA_character_)), 1)
+})
