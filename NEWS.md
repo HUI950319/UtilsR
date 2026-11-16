@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired comparison helper columns avoid names referenced by facet expressions, including literal `get()` lookups.
+
 * Explicit paired ID validation uses vectorized row-duplicate detection after the existing data-frame conversion.
 
 * Automatic paired comparison IDs use observed group locations while retaining native handling of missing codes.

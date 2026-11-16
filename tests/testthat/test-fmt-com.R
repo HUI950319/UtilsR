@@ -891,3 +891,15 @@ test_that("paired ID validation checks row tuples without base row serialization
   actual <- ggplot2::ggplot_build(negative_groups)$data[[2L]]
   expect_equal(unique(actual$p), 0.0742)
 })
+
+test_that("private paired IDs do not shadow literal facet lookups", {
+  d <- data.frame(x = rep(c("a", "b"), each = 3), y = c(1, 3, 5, 2, 6, 7))
+  .fmt_com_pair_id <- rep("one", 6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(get(".fmt_com_pair_id")))
+  expected <- ggplot2::ggplot_build(p)$layout$layout
+  result <- fmt_com(p, method.args = list(paired = TRUE))
+  actual <- ggplot2::ggplot_build(result)$layout$layout
+  expect_equal(nrow(actual), 1L)
+  expect_identical(actual[["get(\".fmt_com_pair_id\")"]], expected[["get(\".fmt_com_pair_id\")"]])
+})

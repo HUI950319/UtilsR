@@ -4626,7 +4626,7 @@ fmt_com <- function(plot,
         if (missing_id || vctrs::vec_duplicate_any(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
           cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
       }
-      id_column <- utils::tail(make.unique(c(names(source_data), ".fmt_com_pair_id")), 1L)
+      id_column <- utils::tail(make.unique(c(names(source_data), .plot_facet_columns(p), ".fmt_com_pair_id")), 1L)
       source_data[[id_column]] <- as.numeric(ids)
       source_mapping$.fmt_com_id <- rlang::new_quosure(rlang::sym(id_column), rlang::base_env())
     }
