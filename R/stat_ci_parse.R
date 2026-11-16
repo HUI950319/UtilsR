@@ -218,13 +218,16 @@ stat_ci_parse <- function(x,
     # the null, so that p < 0.05 exactly when the interval excludes the null
     se_of <- function(l, h) {
       full <- (h - l) / (2 * z95)
-      half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
       wide <- is.finite(l) & is.finite(h) & !is.finite(full)
-      full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
-      wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
-      half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
-                           h[wide] / z95 - e_s[wide] / z95)
-      out <- ifelse(asym, half, full)
+      if (any(wide)) full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
+      out <- full
+      if (any(asym)) {
+        half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
+        wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
+        if (any(wide)) half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
+                                           h[wide] / z95 - e_s[wide] / z95)
+        out <- ifelse(asym, half, full)
+      }
       out[tight] <- tight_se
       out
     }

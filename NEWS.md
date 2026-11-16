@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Symmetric confidence intervals avoid calculating unused asymmetric standard-error widths.
+
 * Palette previews avoid copying opaque RGB channels through empty alpha-compositing assignments.
 
 * Deferred scale inference reads only its two required methods and leaves unrelated bindings untouched.

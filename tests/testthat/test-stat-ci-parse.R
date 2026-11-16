@@ -893,3 +893,14 @@ test_that("repeated confidence intervals share tuple scale diagnostics", {
     expect_identical(fn(est, lo, hi, unit, exponentiate, valid),
       .ci_scale(est, lo, hi, unit, exponentiate, valid))
 })
+
+test_that("symmetric intervals skip unused asymmetric half widths", {
+  x <- c("1.00 (0.00, 2.00)", "3.00 (1.00, 5.00)")
+  expected <- stat_ci_parse(x, exp = FALSE, output = "p")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(e_s > 0))) stop("unused asymmetric half width")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = FALSE, output = "p"), expected)
+})
