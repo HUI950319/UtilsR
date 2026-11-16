@@ -772,3 +772,19 @@ test_that("KNN infinity checks avoid finite and missing masks on ordinary column
   d$y[2L] <- Inf
   expect_error(fn(d, k = 1L, verbose = FALSE), "infinite values")
 })
+
+test_that("complete labelled KNN lookups skip their missingness vector", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(x = c(NA, 2:30), y = haven::labelled(rep(c(1, 1 + .Machine$double.eps, 2), 10L)))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(substitute(x), quote(original)) && inherits(x, "haven_labelled"))
+      stop("allocated a complete labelled lookup mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})

@@ -192,8 +192,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     categories <- data_for_impute[[var_name]]
     codes <- as.integer(categories)
     if (is.double(raw)) {
-      missing <- is.na(original)
-      values <- unique(raw[!missing])
+      missing <- if (var_name %in% vars_with_missing) is.na(original) else FALSE
+      values <- unique(if (any(missing)) raw[!missing] else raw)
       level_ids <- codes[match(values, raw)]
       if (anyDuplicated(level_ids)) {
         values <- values[order(level_ids)]
