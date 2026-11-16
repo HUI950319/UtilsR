@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` uses direct bin codes for ordinary `AsIs` numeric input while preserving cut labels.
+
 * `PlotRank(clean_names = TRUE)` removes its ordered pathway prefixes in one pass while preserving repeated-prefix behavior.
 
 * `grob_insert(on_top = FALSE)` uses stable equal-order placement when a smaller finite drawing order cannot be represented.

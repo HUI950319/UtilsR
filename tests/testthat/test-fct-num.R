@@ -319,3 +319,14 @@ test_that("constant classed quantile inputs do not allocate probabilities", {
     expect_error(fn(input, nbins = 10000L), "Cannot split constant")
   }
 })
+
+test_that("AsIs numeric cuts use bin codes without factor rematching", {
+  values <- I(c(-1, 0, 1, 2, NA, Inf))
+  expected <- fct_num(values, breaks = c(0, 1))
+  fn <- .fct_num_cut
+  env <- new.env(parent = environment(fn))
+  env$cut <- function(...) stop("rematched AsIs cut codes through factor construction")
+  environment(fn) <- env
+  local_mocked_bindings(.fct_num_cut = fn)
+  expect_identical(fct_num(values, breaks = c(0, 1)), expected)
+})

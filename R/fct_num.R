@@ -245,7 +245,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 
 # ---- Internal: avoid rematching already computed integer bin codes ----
 .fct_num_cut <- function(x, breaks, labels) {
-  if (!is.object(x) && !is.complex(x) && !is.object(breaks) &&
+  if ((!is.object(x) || identical(class(x), "AsIs")) && !is.complex(x) && !is.object(breaks) &&
       is.character(labels) && !is.object(labels) &&
       !anyNA(labels) && !anyDuplicated(labels) &&
       length(breaks) > 1L && !anyNA(breaks) &&
