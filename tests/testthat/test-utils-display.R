@@ -1354,3 +1354,16 @@ test_that("table highlighting skips unused sparse factor labels", {
   expect_identical(result[["_styles"]], expected[["_styles"]])
   expect_identical(result[["_data"]], expected[["_data"]])
 })
+
+test_that("console swatches validate distinct colour spellings only once", {
+  colors <- rep(c("red", "blue", NA_character_, "transparent"), 300)
+  fn <- show_color
+  environment(fn) <- list2env(list(as.numeric = function(x, ...) {
+    if (length(x) > 4L) stop("repeated colour numeric validation")
+    base::as.numeric(x, ...)
+  }), parent = environment(fn))
+  expected <- capture_display(show_color(colors))
+  result <- capture_display(returned <- fn(colors))
+  expect_identical(result, expected)
+  expect_identical(returned, colors)
+})

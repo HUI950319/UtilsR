@@ -767,18 +767,22 @@ show_color <- function(x, rev = FALSE) {
   if (!is.character(x) || is.object(x) || !is.null(dim(x))) {
     cli::cli_abort("{.arg x} must be a character vector without a class or dimensions.")
   }
-  bad_encoding <- !validEnc(x) | Encoding(x) == "bytes"
-  numeric_index <- rep(FALSE, length(x))
-  numeric_index[!bad_encoding] <- !is.na(suppressWarnings(as.numeric(x[!bad_encoding])))
-  # Parse labels together, retaining alpha; inspect values only after failure.
   lookup <- NULL
+  colours <- x
+  if (length(x) > 1024L && .pal_use_unique(x)) {
+    colours <- unique(x)
+    lookup <- match(x, colours)
+  }
+  bad_encoding <- !validEnc(colours) | Encoding(colours) == "bytes"
+  numeric_index <- rep(FALSE, length(colours))
+  numeric_index[!bad_encoding] <- !is.na(suppressWarnings(as.numeric(colours[!bad_encoding])))
+  if (!is.null(lookup)) {
+    bad_encoding <- bad_encoding[lookup]
+    numeric_index <- numeric_index[lookup]
+  }
+  # Parse labels together, retaining alpha; inspect values only after failure.
   hex <- if (any(numeric_index | bad_encoding)) NULL else {
     tryCatch({
-      colours <- x
-      if (length(x) > 1024L && .pal_use_unique(x)) {
-        colours <- unique(x)
-        lookup <- match(x, colours)
-      }
       rgba <- grDevices::col2rgb(colours, alpha = TRUE)
       codes <- .pal_hex(colours, rgba)
       if (is.null(lookup)) codes else codes[lookup]
