@@ -1647,3 +1647,18 @@ test_that("univariate sparse categories count without dense empty bins", {
   actual <- lapply(c("count", "percent"), function(stat) fn(d, "s", NULL, stat))
   expect_identical(actual, expected)
 })
+
+test_that("categorical safety checks avoid dense unused factor bins", {
+  d <- data.frame(s = factor(c("a", "b", "a", "b"),
+    levels = c("a", "b", paste0("unused", seq_len(25000L)))))
+  expected <- cat_test_plot(d, "s", label = FALSE)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins) {
+    if (nbins > nrow(d)) stop("allocated unused levels for a cardinality check")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "s", label = FALSE))
+  expect_identical(actual$data, expected$data)
+})

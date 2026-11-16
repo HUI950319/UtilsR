@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` checks sparse factor cardinality using its observed level tally.
+
 * `fct_num()` uses direct bin codes for ordinary `AsIs` numeric input while preserving cut labels.
 
 * `PlotRank(clean_names = TRUE)` removes its ordered pathway prefixes in one pass while preserving repeated-prefix behavior.
