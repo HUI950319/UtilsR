@@ -865,3 +865,19 @@ test_that("sparse factor recoding does not tabulate every declared level", {
   local_mocked_bindings(.recode_factor = fn)
   expect_identical(do.call(fct_cat, c(list(x), args)), expected)
 })
+
+test_that("sparse factor recodes avoid mapping the full levels dictionary", {
+  x <- structure(c(5L, 3L, 2L, NA_integer_, 5L), names = letters[1:5],
+    levels = c("a", "b", NA_character_, "d", "e", paste0("unused", 1:5000)),
+    class = c("ordered", "factor"))
+  groups <- list("e" = c(2L, 6L), "third" = 3L, "empty" = 7L)
+  expected <- .recode_factor(x, groups)
+  fn <- .recode_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) > 1000L) stop("full recode dictionary")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, groups), expected)
+  expect_identical(levels(expected), c("e", "third"))
+  expect_identical(as.integer(expected), c(1L, 2L, 1L, NA_integer_, 1L))
+})
