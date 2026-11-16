@@ -857,9 +857,14 @@ plt_cat <- function(data,
   }
   if (!keep_empty && !is.null(group.by) &&
       !anyNA(levels(data[[stat.by]])) && !anyNA(levels(data[[group.by]])) &&
-      !anyNA(data[[stat.by]]) && !anyNA(data[[group.by]])) {
+      (!NA_stat || (!anyNA(data[[stat.by]]) && !anyNA(data[[group.by]])))) {
     stat_code <- as.integer(data[[stat.by]])
     group_code <- as.integer(data[[group.by]])
+    if (anyNA(stat_code) || anyNA(group_code)) {
+      keep <- !is.na(stat_code) & !is.na(group_code)
+      stat_code <- stat_code[keep]
+      group_code <- group_code[keep]
+    }
     ids <- vctrs::vec_group_id(data.frame(stat_code, group_code))
     first <- !duplicated(ids)
     order_at <- order(group_code[first], stat_code[first])

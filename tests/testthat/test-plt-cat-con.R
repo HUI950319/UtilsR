@@ -1762,3 +1762,16 @@ test_that("complete ordinary set members skip missingness masks", {
   missing <- c("A", NA_character_, "B")
   expect_identical(fn(missing, "A"), c(TRUE, FALSE, FALSE))
 })
+
+test_that("sparse grouped tallies exclude missing rows without a full grid", {
+  unused <- paste0("unused", seq_len(48000L))
+  d <- data.frame(s = factor(c("a", "a", "b", NA, "b"), levels = c("a", "b", unused)),
+    g = factor(c("x", "x", "y", "x", NA), levels = c("x", "y", unused)))
+  out <- .prepare_cat_data(d, "s", "g", "count", NA_stat = FALSE, keep_empty = FALSE)
+  expect_identical(out$n, c(2L, 1L))
+  expect_identical(rownames(out), c("1", "48004"))
+  expect_identical(as.character(out$stat_var), c("a", "b"))
+  expect_identical(as.character(out$group_var), c("x", "y"))
+  pct <- .prepare_cat_data(d, "s", "g", "percent", NA_stat = FALSE, keep_empty = FALSE)
+  expect_equal(pct$value, c(100, 100))
+})

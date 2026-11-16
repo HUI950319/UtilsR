@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse categorical tallies skip missing rows without materializing a full grid when missing values are excluded.
+
 * KNN restores complete predictors directly after numeric distance normalization.
 
 * KNN donor counts subtract missing counts directly from column lengths.
