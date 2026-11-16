@@ -549,3 +549,16 @@ test_that("in panel tags cannot create facets from label columns", {
     expect_identical(built$data[[2L]]$label, rep("Tag", 2L))
   }
 })
+
+test_that("tag and background data preserve literal get facet expressions", {
+  d <- data.frame(x = rep(c("A", "B"), 2L), y = 1:4, label = rep(c("first", "second"), each = 2L),
+    .bg = rep(c("left", "right"), each = 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  tagged <- p + ggplot2::facet_wrap(ggplot2::vars(get("label")))
+  bg <- p + ggplot2::facet_wrap(ggplot2::vars(base::get(".bg")))
+  for (pair in list(list(original = tagged, result = fmt_tag(tagged, "Tag")),
+                    list(original = bg, result = fmt_bg(bg)))) {
+    expect_identical(ggplot2::ggplot_build(pair$result)$layout$layout,
+      ggplot2::ggplot_build(pair$original)$layout$layout)
+  }
+})

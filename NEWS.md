@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot tags and background stripes protect literal facet columns retrieved with `get()`.
+
 * `plt_con()` retains complete single-feature plot frames without an additional all-row subset.
 
 * `plt_cat()` converts only the selected columns of ordinary data frames and tibbles during data preparation.

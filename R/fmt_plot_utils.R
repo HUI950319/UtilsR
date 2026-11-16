@@ -256,6 +256,8 @@
   symbols <- function(expr) {
     if (is.symbol(expr)) return(as.character(expr))
     if (!is.call(expr)) return(character())
+    if (identical(rlang::call_name(expr), "get") && length(expr) > 1L &&
+        rlang::is_string(expr[[2L]])) return(expr[[2L]])
     if (rlang::is_call(expr, "[[", n = 2L) && identical(expr[[2L]], quote(.data)) &&
         is.character(expr[[3L]])) return(expr[[3L]])
     unlist(lapply(as.list(expr)[-1L], symbols), use.names = FALSE)
