@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Compound time category keys format repeated component tuples once and reuse the result.
+
 * `fmt_point()` avoids per-group sampling callbacks for unused factor levels.
 
 * `fmt_legend()` preserves relative guide key dimensions when legend size changes again.

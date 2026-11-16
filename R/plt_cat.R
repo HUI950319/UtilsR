@@ -988,8 +988,25 @@ plt_cat <- function(data,
   } else {
     return(NULL)
   }
+  # Repeated compound values need formatting only once per component tuple.
+  lookup <- NULL
+  n <- length(parts[[1L]])
+  if (length(parts) > 1L && n > 1024L) {
+    names(parts) <- paste0("p", seq_along(parts))
+    sample <- seq.int(1L, n, length.out = 128L)
+    if (vctrs::vec_unique_count(vctrs::new_data_frame(lapply(parts, "[", sample))) < 64L) {
+      groups <- vctrs::vec_group_id(vctrs::new_data_frame(parts))
+      count <- attr(groups, "n")
+      if (count < n / 2L) {
+        at <- match(seq_len(count), groups)
+        parts <- lapply(parts, "[", at)
+        lookup <- as.integer(groups)
+      }
+    }
+  }
   # Positive and negative zero represent the same time value.
-  do.call(paste, c(lapply(parts, function(value) sprintf("%.17g", value + 0)), sep = "/"))
+  keys <- do.call(paste, c(lapply(parts, function(value) sprintf("%.17g", value + 0)), sep = "/"))
+  if (is.null(lookup)) keys else keys[lookup]
 }
 
 

@@ -1707,3 +1707,18 @@ test_that("categorical numeric positions reuse ordinary factor codes", {
   actual <- lapply(list(clone(.plt_cat_trend), clone(.plt_cat_area)), function(fn) fn(d, cols)$data)
   expect_identical(actual, original)
 })
+
+test_that("compound time keys format only distinct repeated tuples", {
+  x <- lubridate::period(month = rep(c(1, 2, 4, NA_real_), 600))
+  expected <- .cat_time_key(x)
+  fn <- .cat_time_key
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    if (any(lengths(list(...)) > 8L)) stop("repeated time formatting")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), expected)
+  start <- as.POSIXct("2020-01-01", tz = "UTC") + rep(0:3, 600)
+  interval <- lubridate::interval(start, start + rep(c(10, 20, 30, 40), 600))
+  expect_identical(fn(interval), .cat_time_key(interval))
+  expect_identical(fn(x[1:4]), expected[1:4])
+})
