@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` reuses complete transformed overlay frames before its native statistic.
+
 * `show_color()` shares encoding and numeric-index validation for repeated colour spellings.
 
 * Console escaping reuses transformed text for repeated ASCII labels containing layout controls.

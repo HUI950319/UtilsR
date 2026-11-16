@@ -901,3 +901,17 @@ test_that("distribution overlay panel indices are read once", {
   expect_identical(reads, 1L)
   expect_identical(actual, expected)
 })
+
+test_that("complete histogram overlay inputs avoid all row copies", {
+  p <- his_test_plot()
+  expected <- his_test_build(p, con_var = "x", binwidth = 1)$data
+  fn <- fmt_his
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && is.data.frame(x) && identical(substitute(x), quote(data)) &&
+        "x" %in% names(x) && is.logical(i) && length(i) == nrow(x) && all(i))
+      stop("complete histogram frame copy")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  local_mocked_bindings(fmt_his = fn)
+  expect_identical(his_test_build(p, con_var = "x", binwidth = 1)$data, expected)
+})
