@@ -1340,3 +1340,17 @@ test_that("ordinary table colour domains avoid finite row slices", {
   expect_no_warning(fn(data.frame(value = c(NA_real_, Inf)),
     numeric_columns = "value", theme = "none"))
 })
+
+test_that("table highlighting skips unused sparse factor labels", {
+  d <- data.frame(group = factor(rep(c("flag", "other", NA), 10),
+    levels = c("flag", "other", paste0("unused", 1:5000))))
+  expected <- .cat_tb(d, highlight_pattern = "flag", theme = "none")
+  fn <- .cat_tb
+  environment(fn) <- list2env(list(grepl = function(pattern, x, ...) {
+    if (length(x) > nrow(d)) stop("unused highlight labels")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(fn))
+  result <- fn(d, highlight_pattern = "flag", theme = "none")
+  expect_identical(result[["_styles"]], expected[["_styles"]])
+  expect_identical(result[["_data"]], expected[["_data"]])
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` avoids scanning unused factor labels when highlighting sparse tables.
+
 * `fmt_text()` reuses style themes for adjacent plots sharing the same theme.
 
 * `PlotCircleLollipop()` avoids rescanning ordinary numeric scores for conversion failures.

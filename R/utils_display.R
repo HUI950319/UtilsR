@@ -556,8 +556,15 @@ console_width <- function() {
       if (!is.character(values) && !is.factor(values)) next
       if (!is.null(dim(values))) values <- values[seq_len(nrow(df))]
       rows <- if (is.factor(values)) {
-        hit <- grepl(pattern, levels(values), ignore.case = TRUE)
-        which(hit[as.integer(values)])
+        codes <- as.integer(values)
+        if (nlevels(values) > length(values)) {
+          observed <- sort(unique(codes), na.last = NA)
+          hit <- grepl(pattern, levels(values)[observed], ignore.case = TRUE)
+          which(hit[match(codes, observed)])
+        } else {
+          hit <- grepl(pattern, levels(values), ignore.case = TRUE)
+          which(hit[codes])
+        }
       } else {
         n <- length(values)
         keys <- NULL
