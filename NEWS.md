@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` reuses complete ordinary grouping vectors while inferring its two group levels.
+
 * Distribution category collision checks format distinct time representatives instead of repeated observations.
 
 * Named distribution palettes check observed factor levels without allocating unused-level counts.

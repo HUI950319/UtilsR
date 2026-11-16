@@ -1823,3 +1823,15 @@ test_that("numeric scatter categories format a compact label dictionary", {
   names(x) <- paste0("row", seq_along(x))
   expect_identical(fn(x, levels), .scatter_group_factor(x, levels))
 })
+
+test_that("scatter group inference reuses complete ordinary values", {
+  d <- data.frame(x = 1:8, y = c(3, 5, 2, 8, 6, 4, 1, 7), group = rep(c("A", "B"), each = 4))
+  fn <- PlotScatter3
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, d$group)) stop("complete scatter group missingness rescan")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expected <- PlotScatter3(d, x = "x", y = "y", group = "group", test_method = "none", cor_method = "none")
+  result <- fn(d, x = "x", y = "y", group = "group", test_method = "none", cor_method = "none")
+  expect_identical(result$data, expected$data)
+})
