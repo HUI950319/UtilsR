@@ -532,14 +532,15 @@ plt_cat <- function(data,
   if (!NA_stat) {
     cols_check <- unique(c(stat.by, group.by, split.by))
     n_before <- nrow(data)
-    keep <- rep(TRUE, n_before)
+    keep <- NULL
     for (col in cols_check) {
       x <- data[[col]]
       ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+      if (ordinary_factor && !anyNA(levels(x)) && !anyNA(unclass(x))) next
       missing <- if (ordinary_factor && !anyNA(levels(x))) is.na(x) else is.na(as.character(x))
-      keep <- keep & !missing
+      keep <- if (is.null(keep)) !missing else keep & !missing
     }
-    n_after <- sum(keep)
+    n_after <- if (is.null(keep)) n_before else sum(keep)
     if (n_after < n_before) data <- data[keep, , drop = FALSE]
     if (n_after < n_before) {
       cli::cli_inform(

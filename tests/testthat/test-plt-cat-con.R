@@ -1676,3 +1676,16 @@ test_that("categorical plots convert only their required tibble columns", {
   actual <- suppressMessages(fn(d, "s", label = FALSE))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("complete categorical factors avoid missingness row masks", {
+  d <- data.frame(s = factor(rep(c("a", "b"), 200L)), g = factor(rep(c("x", "y"), each = 200L)))
+  expected <- cat_test_plot(d, "s", "g", label = FALSE)$data
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("allocated categorical factor row masks")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(fn(d, "s", "g", label = FALSE))$data, expected)
+})
