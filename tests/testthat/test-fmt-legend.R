@@ -1107,3 +1107,22 @@ test_that("legend collection does not force deferred identity bindings", {
     expect_s3_class(result, "patchwork")
   }
 })
+
+test_that("guide local key ratios continue to inherit resized parents", {
+  p <- legend_test_plot()
+  th <- ggplot2::theme(legend.key.size = grid::unit(10, "mm"),
+    legend.key.width = ggplot2::rel(2), legend.key.height = ggplot2::rel(2))
+  local <- p + ggplot2::guides(colour = ggplot2::guide_legend(theme = th))
+  global <- p + th
+  resize <- function(p) fmt_legend(fmt_legend(p, scale_width = 2, scale_height = 3),
+    legend_theme = ggplot2::theme(legend.key.size = grid::unit(20, "mm")))
+  sizes <- function(z) {
+    g <- ggplot2::ggplotGrob(z)
+    b <- g$grobs[[match("guide-box-right", g$layout$name)]]
+    guide <- b$grobs[[match("guides", b$layout$name)]]
+    c(grid::convertWidth(guide$widths[2], "mm", TRUE),
+      grid::convertHeight(guide$heights[3], "mm", TRUE))
+  }
+  expect_equal(sizes(resize(local)), sizes(resize(global)))
+  expect_equal(sizes(resize(local)), c(80, 120))
+})

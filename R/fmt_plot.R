@@ -1138,14 +1138,20 @@ fmt_legend <- function(plot,
           for (nm in c("legend.key.size", "legend.key.width", "legend.key.height",
                        "legend.key.spacing", "legend.key.spacing.x", "legend.key.spacing.y",
                        "legend.margin")) {
+            if (nm %in% c("legend.key.width", "legend.key.height") &&
+                inherits(local[[nm]], "rel")) next
             if (!is.null(local[[nm]])) args[[nm]] <- get_unit(effective, nm) * factor
           }
         }
         if (!is.null(scale_width) && !is.null(local$legend.key.width)) {
-          args$legend.key.width <- get_unit(effective, "legend.key.width") * factor * scale_width
+          args$legend.key.width <- if (inherits(local$legend.key.width, "rel")) {
+            local$legend.key.width * scale_width
+          } else get_unit(effective, "legend.key.width") * factor * scale_width
         }
         if (!is.null(scale_height) && !is.null(local$legend.key.height)) {
-          args$legend.key.height <- get_unit(effective, "legend.key.height") * factor * scale_height
+          args$legend.key.height <- if (inherits(local$legend.key.height, "rel")) {
+            local$legend.key.height * scale_height
+          } else get_unit(effective, "legend.key.height") * factor * scale_height
         }
         if (length(args)) params$theme <- local + do.call(ggplot2::theme, args)
       }
