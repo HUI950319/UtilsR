@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_tag()` reuses one private device while validating compound label padding and corner units.
+
 * Categorical trend and area plots derive positions from existing factor codes while dropping unused axis levels.
 
 * Stacked continuous plots retain complete feature vectors without building their full row-index lists.

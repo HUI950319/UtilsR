@@ -562,3 +562,18 @@ test_that("tag and background data preserve literal get facet expressions", {
       ggplot2::ggplot_build(pair$original)$layout$layout)
   }
 })
+
+test_that("compound tag units reuse one private validation device", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  value <- sum(grid::unit.c(grid::unit(0.2, "lines"), grid::unit(1, "mm")))
+  opens <- 0L
+  original <- grDevices::pdf
+  local_mocked_bindings(pdf = function(...) { opens <<- opens + 1L; original(...) }, .package = "grDevices")
+  before <- grDevices::dev.cur()
+  result <- fmt_tag(p, label.padding = value, label.r = value)
+  expect_equal(opens, 1L)
+  expect_identical(grDevices::dev.cur(), before)
+  expect_s3_class(result, "ggplot")
+  expect_error(fmt_tag(p, label.padding = -value, label.r = value), "label.padding")
+  expect_identical(grDevices::dev.cur(), before)
+})

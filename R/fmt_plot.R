@@ -625,15 +625,20 @@ fmt_tag <- function(plot,
          (is.numeric(fontface) && fontface %in% 1:5)))) {
     cli::cli_abort("{.arg fontface} must be one valid font face name or number from 1 to 5.")
   }
+  unit_device <- NULL
+  previous_device <- grDevices::dev.cur()
+  on.exit({
+    if (!is.null(unit_device) && unit_device %in% grDevices::dev.list()) {
+      grDevices::dev.off(unit_device)
+      if (previous_device %in% grDevices::dev.list()) grDevices::dev.set(previous_device)
+    }
+  }, add = TRUE)
   unit_values <- function(value) {
     if (inherits(value, "simpleUnit")) return(as.numeric(value))
-    previous <- grDevices::dev.cur()
-    grDevices::pdf(NULL, width = 7, height = 7)
-    device <- grDevices::dev.cur()
-    on.exit({
-      grDevices::dev.off(device)
-      if (previous > 1L) grDevices::dev.set(previous)
-    })
+    if (is.null(unit_device)) {
+      grDevices::pdf(NULL, width = 7, height = 7)
+      unit_device <<- grDevices::dev.cur()
+    }
     unlist(lapply(unique(size), function(font_size) {
       grid::pushViewport(grid::viewport(gp = grid::gpar(fontsize = font_size)))
       on.exit(grid::popViewport())
