@@ -3187,7 +3187,9 @@ fmt_text <- function(plot,
       "axis.title.y", "axis.title.y.left", "axis.title.y.right"),
     names(ggplot2::get_element_tree())
   )
+  last_text_theme <- last_text_style <- NULL
   style_theme_for <- function(p) {
+    if (!is.null(last_text_style) && identical(p$theme, last_text_theme)) return(last_text_style)
     theme <- global_theme + p$theme
     args <- lapply(names(styles), function(name) {
       element <- theme[[name]]
@@ -3213,7 +3215,9 @@ fmt_text <- function(plot,
       }
       args[[side]] <- element
     }
-    do.call(ggplot2::theme, args)
+    last_text_theme <<- p$theme
+    last_text_style <<- do.call(ggplot2::theme, args)
+    last_text_style
   }
 
   # ---- Extra labs via ... ----

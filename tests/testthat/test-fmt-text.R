@@ -301,3 +301,15 @@ test_that("clearing legend text removes guide local titles", {
   expect_equal(text_test_count(out, "Hidden title"), 0L)
   expect_equal(text_test_count(p, "Hidden title"), 1L)
 })
+
+test_that("text formatting reuses equal adjacent theme styles", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expected <- fmt_text(p, title_size = 20, axis_title_color = "red")
+  calls <- 0L
+  original <- ggplot2::theme
+  local_mocked_bindings(theme = function(...) { calls <<- calls + 1L; original(...) },
+    .package = "ggplot2")
+  result <- fmt_text(rep(list(p), 16), title_size = 20, axis_title_color = "red")
+  expect_equal(calls, 1L)
+  expect_true(all(vapply(result, function(x) identical(x$theme, expected$theme), logical(1))))
+})
