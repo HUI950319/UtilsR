@@ -2004,3 +2004,15 @@ test_that("console escaping processes distinct repeated ASCII control labels", {
   }), parent = environment(fn))
   expect_identical(fn(text), expected)
 })
+
+test_that("console trimming measures distinct repeated ASCII labels", {
+  text <- stats::setNames(rep(c("a very long repeated label", "short", NA_character_), 500),
+    paste0("r", 1:1500))
+  expected <- ._pr_trim(text, 12)
+  original <- cli::ansi_nchar
+  local_mocked_bindings(ansi_nchar = function(x, ...) {
+    if (length(x) > 4L) stop("repeated console width measurement")
+    original(x, ...)
+  }, .package = "cli")
+  expect_identical(._pr_trim(text, 12), expected)
+})

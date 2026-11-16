@@ -101,8 +101,21 @@
 }
 
 ._pr_trim <- function(text, width) {
-  over <- which(cli::ansi_nchar(text, type = "width") > width)
-  if (length(over)) text[over] <- cli::ansi_strtrim(text[over], width)
+  lookup <- NULL
+  working <- text
+  if (is.character(text) && !is.object(text) && is.null(dim(text)) && length(text) > 1024L &&
+      length(width) == 1L && all(Encoding(text) == "unknown") &&
+      length(unique(text[seq.int(1L, length(text), length.out = 128L)])) < 64L) {
+    keys <- unique(text)
+    if (length(keys) < length(text) / 2L) {
+      working <- keys
+      lookup <- match(text, keys)
+    }
+  }
+  over <- which(cli::ansi_nchar(working, type = "width") > width)
+  if (length(over)) working[over] <- cli::ansi_strtrim(working[over], width)
+  if (is.null(lookup)) return(working)
+  text[] <- working[lookup]
   text
 }
 

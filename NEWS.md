@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console trimming reuses width measurements and trimming for repeated ASCII labels.
+
 * Unparsed confidence interval counting avoids a full row subset for normally encoded text.
 
 * Confidence interval parsing avoids repeated capture-vector subsets when every matched bound is finite.
