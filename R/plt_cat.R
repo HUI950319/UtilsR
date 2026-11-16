@@ -1141,7 +1141,12 @@ plt_cat <- function(data,
     found <- levels(values) %in% selected
     return(!is.na(values) & found[as.integer(values)])
   }
-  !is.na(values) & as.character(values) %in% selected
+  found <- as.character(values) %in% selected
+  if (!is.object(values) && !anyNA(values)) {
+    names(found) <- names(values)
+    return(found)
+  }
+  !is.na(values) & found
 }
 
 .GeomBg <- ggplot2::ggproto(NULL, ggplot2::GeomRect,

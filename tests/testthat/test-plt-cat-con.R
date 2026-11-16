@@ -1749,3 +1749,16 @@ test_that("sparse factor set membership scans only observed labels", {
   x <- addNA(x)
   expect_identical(fn(x, c("A", NA)), .cat_set_members(x, c("A", NA)))
 })
+
+test_that("complete ordinary set members skip missingness masks", {
+  x <- stats::setNames(rep(c("A", "B"), 30), paste0("r", 1:60))
+  fn <- .cat_set_members
+  environment(fn) <- list2env(list(is.na = function(value) {
+    if (identical(value, x)) stop("complete membership missingness rescan")
+    base::is.na(value)
+  }), parent = environment(fn))
+  expected <- x == "A"
+  expect_identical(fn(x, "A"), expected)
+  missing <- c("A", NA_character_, "B")
+  expect_identical(fn(missing, "A"), c(TRUE, FALSE, FALSE))
+})

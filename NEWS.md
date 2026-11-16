@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical set membership avoids a row-length missingness mask for complete ordinary values.
+
 * Numeric palette mapping scales repeated values once and restores the existing position lookup.
 
 * `stat_pval(mode = 'plain')` reuses formatting of repeated nonzero numeric values while preserving signed zero output.
