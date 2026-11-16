@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scale cloning preserves active and lazy fields while flattening inherited settings.
+
 * Position cloning preserves active and lazy bindings without evaluating them during formatting.
 
 * UpSet membership checks avoid unused factor-level dictionaries for sparse ordinary factors.

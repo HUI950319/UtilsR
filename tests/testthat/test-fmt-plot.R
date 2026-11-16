@@ -163,3 +163,20 @@ test_that("scale inference snapshots do not inspect unrelated bindings", {
     expect_identical(environment(copy)[["f"]], environment(original)[["f"]])
   }
 })
+
+test_that("scale clones preserve deferred labels without evaluation", {
+  for (active in c(TRUE, FALSE)) {
+    reads <- 0L
+    scale <- ggplot2::scale_x_continuous()
+    rm("labels", envir = scale)
+    if (active) makeActiveBinding("labels", function() { reads <<- reads + 1L; ggplot2::waiver() }, scale) else
+      delayedAssign("labels", { reads <<- reads + 1L; ggplot2::waiver() }, assign.env = scale, eval.env = new.env(parent = environment()))
+    p <- plot_fixture() + scale
+    copy <- .clone_plot_scales(p$scales)$scales[[1L]]
+    expect_equal(reads, 0L)
+    if (active) expect_true(bindingIsActive("labels", copy)) else
+      expect_true(rlang::env_binding_are_lazy(copy, "labels")[[1L]])
+    expect_s3_class(copy$labels, "waiver")
+    expect_equal(reads, 1L)
+  }
+})

@@ -295,24 +295,15 @@
       if (!identical(class(candidate), class(original))) break
       parent <- candidate
     }
-    fields <- list()
+    # Copy bindings by value without forcing deferred settings.
+    result <- do.call(ggplot2::ggproto, list(NULL, parent), envir = baseenv())
     object <- copy
-    # Inherited as.list() does not propagate all.names to parent objects.
-    repeat {
-      own <- as.list(object, inherit = FALSE, all.names = TRUE)
-      missing <- setdiff(names(own), names(fields))
-      fields[missing] <- own[missing]
+    while (!identical(object, parent)) {
+      rlang::env_coalesce(result, object)
       if (!is.function(object$super)) break
       object <- object$super()
       if (is.null(object)) break
     }
-    inherited <- as.list(parent, all.names = TRUE)
-    fields <- fields[!vapply(names(fields), function(name) {
-      is.function(fields[[name]]) && identical(fields[[name]], inherited[[name]])
-    }, logical(1))]
-    # Avoid evaluating stored calls or capturing this formatter's frame.
-    result <- do.call(ggplot2::ggproto, c(list(NULL, parent), fields),
-                      quote = TRUE, envir = baseenv())
     attributes(result) <- attributes(copy)
     result
   }
