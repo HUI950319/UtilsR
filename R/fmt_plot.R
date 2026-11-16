@@ -2202,9 +2202,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         inherits(element, "element_text") && !identical(class(element), class(text_element))
       }
       local_theme <- plots[[i]]$theme
+      given_text <- plots[[i]]$facet$strip$given_elements
       inherit_rich <- any(vapply(slots, function(nm) {
         rich_text(local_theme[[nm]] %||% base_theme[[nm]])
-      }, logical(1)))
+      }, logical(1))) || any(vapply(c(given_text$text_x, given_text$text_y), rich_text, logical(1)))
       if (inherit_rich) active <- base_theme + local_theme
       for (nm in slots) {
         element <- if (inherit_rich) ggplot2::calc_element(nm, active) else NULL
@@ -2233,7 +2234,11 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
           for (nm in c("text_x", "text_y")) {
             if (!is.null(given[[nm]])) {
               given[[nm]] <- lapply(given[[nm]], function(el) {
-                ggplot2::merge_element(text_element, el)
+                if (!rich_text(el)) return(ggplot2::merge_element(text_element, el))
+                for (field in c("colour", "face", "hjust", "vjust", "margin")) {
+                  if (!is.null(text_element[[field]])) el[[field]] <- text_element[[field]]
+                }
+                el
               })
             }
           }

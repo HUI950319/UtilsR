@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip()` retains rich text elements supplied directly by themed facets on the minimum supported ggplot2 version.
+
 * `fmt_raster()` retains physical point and line dimensions inside resized panel viewports.
 
 * `fmt_com()` keeps bracket coordinates finite when the visible finite y range overflows during subtraction.

@@ -1213,3 +1213,16 @@ test_that("grid headers retain inherited rich text on both strip sides", {
     expect_identical(q$theme$strip.text.y.right$colour, "navy")
   }
 })
+
+test_that("themed facet strips retain rich text while recolouring", {
+  d <- data.frame(x = 1:4, y = 1:4, g = rep(c("**A**", "**B**"), each = 2))
+  strip <- ggh4x::strip_themed(text_x = list(ggplot2::element_text()))
+  strip$given_elements$text_x <- list(ggtext::element_markdown(colour = "blue"))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggh4x::facet_wrap2(ggplot2::vars(g), strip = strip)
+  result <- fmt_strip(p, label_color = "red")
+  element <- result$facet$strip$given_elements$text_x[[1L]]
+  expect_s3_class(element, "element_markdown")
+  expect_identical(element$colour, "red")
+  expect_no_error(ggplot2::ggplotGrob(result))
+})
