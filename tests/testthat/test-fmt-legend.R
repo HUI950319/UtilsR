@@ -1090,3 +1090,20 @@ test_that("unused geometry aesthetics do not prevent guide collection", {
   expect_warning(keep <- fmt_legend(forced, collect = TRUE), "Guide collection is skipped")
   expect_identical(keep$patches$layout$guides, "keep")
 })
+
+test_that("legend collection does not force deferred identity bindings", {
+  p <- legend_test_plot()
+  for (active in c(TRUE, FALSE)) {
+    hits <- 0L
+    e <- new.env(parent = globalenv())
+    if (active) makeActiveBinding("I", function() { hits <<- hits + 1L; base::I }, e) else
+      delayedAssign("I", { hits <<- hits + 1L; base::I }, assign.env = e)
+    mapping <- ggplot2::aes(colour = I(group))
+    mapping[["colour"]] <- rlang::quo_set_env(mapping[["colour"]], e)
+    inside <- ggplot2::ggplot(p$data, ggplot2::aes(x, y)) +
+      ggplot2::geom_point(mapping) + ggplot2::theme(legend.position = "inside")
+    result <- suppressWarnings(fmt_legend(inside | p, collect = TRUE))
+    expect_equal(hits, 0L)
+    expect_s3_class(result, "patchwork")
+  }
+})

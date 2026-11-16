@@ -1325,8 +1325,19 @@ fmt_legend <- function(plot,
       asis <- vapply(mapping, function(value) {
         expr <- rlang::get_expr(value)
         if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)
-        rlang::is_call(expr, "I", ns = "") &&
-          identical(get("I", envir = rlang::get_env(value), mode = "function"), base::I)
+        if (!rlang::is_call(expr, "I", ns = "")) return(FALSE)
+        env <- rlang::get_env(value)
+        while (!identical(env, emptyenv())) {
+          if (exists("I", envir = env, inherits = FALSE)) {
+            if (bindingIsActive("I", env) || rlang::env_binding_are_lazy(env, "I")[[1L]]) {
+              return(FALSE)
+            }
+            binding <- get("I", envir = env, inherits = FALSE)
+            if (is.function(binding)) return(identical(binding, base::I))
+          }
+          env <- parent.env(env)
+        }
+        FALSE
       }, logical(1))
       aesthetics <- names(mapping)[!asis | names(mapping) %in% fixed]
       forced <- if (isTRUE(layer$show.legend)) names(layer$geom$default_aes) else

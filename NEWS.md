@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_legend()` leaves active and lazy `I` bindings unevaluated during legend collection checks.
+
 * `fmt_tag()` reuses one private device while validating compound label padding and corner units.
 
 * Categorical trend and area plots derive positions from existing factor codes while dropping unused axis levels.
