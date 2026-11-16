@@ -819,3 +819,16 @@ test_that("external significance lengths validate before coercing values", {
   expect_error(fn(x, add_star_p = 0.01), "same length")
   expect_identical(fn(c("entry", NA), add_star_p = c(0.012, .5)), c("entry*", NA_character_))
 })
+
+test_that("plain numeric formatting reuses repeated nonzero values", {
+  x <- rep(c(0.25, 1.5, -3.2, NA_real_, Inf), 500)
+  expected <- stat_pval(x, mode = "plain", digits = 3)
+  fn <- stat_pval
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    if (any(lengths(list(...)) > 8L)) stop("repeated plain numeric formatting")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, mode = "plain", digits = 3), expected)
+  signed <- rep(c(0, -0, 0.1), 500)
+  expect_identical(stat_pval(signed, mode = "plain"), sprintf("%.2f", signed))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval(mode = 'plain')` reuses formatting of repeated nonzero numeric values while preserving signed zero output.
+
 * Scatter category factors format distinct numeric keys rather than every observation.
 
 * Categorical set membership matches only observed labels for sparse ordinary factors.
