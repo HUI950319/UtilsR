@@ -2177,3 +2177,17 @@ test_that("stacked complete continuous features skip all-row index construction"
   actual <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", stack = TRUE))$data
   expect_identical(actual, expected)
 })
+
+test_that("continuous comparisons count only observed sparse group levels", {
+  g <- factor(rep(c("A", "B"), each = 4), levels = c("A", "B", paste0("unused", 1:5000)))
+  y <- c(1, 2, 3, 4, 3, 4, 6, 8)
+  fn <- .con_comparisons
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (nbins > length(g)) stop("unused group tally")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  result <- fn(list(c("A", "B")), g, "feature", y, "t.test")
+  cache <- attr(result, ".con_test_cache")
+  expect_equal(cache[[1L]]$p.value, stats::t.test(y[1:4], y[5:8])$p.value)
+  expect_identical(unname(result[[1L]]), c("A", "B"))
+})

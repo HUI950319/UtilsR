@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous comparison preparation counts observed sparse factor groups without allocating unused-level tables.
+
 * Categorical Sankey stages drop unused ordinary factor levels without reformatting every observation.
 
 * `fmt_strip()` retains rich text elements supplied directly by themed facets on the minimum supported ggplot2 version.

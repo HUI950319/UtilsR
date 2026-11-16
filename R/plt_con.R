@@ -904,7 +904,7 @@ plt_con <- function(data,
     identical(class(groups), c("ordered", "factor"))
   group_levels <- levels(groups)
   available <- if (ordinary_factor) {
-    group_levels[tabulate(groups, nbins = length(group_levels)) > 0L]
+    group_levels[.factor_tally(groups)$codes]
   } else unique(as.character(groups[!is.na(groups)]))
   keep <- vapply(comparisons, function(pair) {
     if (is.numeric(pair)) pair <- levels(groups)[pair]
