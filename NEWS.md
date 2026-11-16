@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unparsed confidence interval counting avoids a full row subset for normally encoded text.
+
 * Confidence interval parsing avoids repeated capture-vector subsets when every matched bound is finite.
 
 * Numeric palette coercion avoids missingness restoration for complete ordinary AsIs vectors.

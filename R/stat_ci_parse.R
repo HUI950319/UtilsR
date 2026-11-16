@@ -359,6 +359,7 @@ stat_ci_parse <- function(x,
 #' @noRd
 .ci_unparsed_count <- function(text) {
   bad <- !validEnc(text) | Encoding(text) == "bytes"
+  if (!any(bad)) return(sum(grepl("[^\\h\\v]", text, perl = TRUE)))
   sum(bad) + sum(grepl("[^\\h\\v]", text[!bad], perl = TRUE))
 }
 

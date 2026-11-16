@@ -942,3 +942,13 @@ test_that("finite confidence interval captures avoid complete validity slices", 
   partly <- c(x, "1 (0, 1e9999)")
   expect_identical(fn(partly), .ci_extract(partly))
 })
+
+test_that("unparsed interval counts reuse normally encoded strings", {
+  text <- c("unparsed", "", " \t ", NA_character_, "another")
+  fn <- .ci_unparsed_count
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(x, text) && is.logical(i) && all(i)) stop("complete encoding row slice")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_equal(fn(text), 2)
+})
