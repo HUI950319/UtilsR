@@ -4618,6 +4618,16 @@ fmt_com <- function(plot,
       parameters = function(extra = FALSE) native_stat$parameters(extra),
       compute_panel = function(data, scales, ...) {
         args <- list(...)
+        layout_factor <- 1
+        y_range <- scales$y$range$range
+        if (length(y_range) == 2L && all(is.finite(y_range)) && !is.finite(diff(y_range))) {
+          layout_factor <- max(abs(y_range))
+          original_y <- scales$y
+          normal_y <- original_y$clone()
+          normal_y$range$range <- y_range / layout_factor
+          normal_y$transform <- function(x) original_y$transform(x) / layout_factor
+          scales$y <- normal_y
+        }
         if (!is.null(args$y.position)) {
           args$y.position <- scales$y$transform(args$y.position)
         } else if (!is.null(label.y.prop)) {
@@ -4758,6 +4768,10 @@ fmt_com <- function(plot,
             result$y <- y - y_range * tips$left * rep(c(TRUE, FALSE, FALSE), each = n)
             result$yend <- y - y_range * tips$right * rep(c(FALSE, FALSE, TRUE), each = n)
             result$.fmt_com_layout <- NULL
+          }
+          if (layout_factor != 1) {
+            result$y <- result$y * layout_factor
+            result$yend <- result$yend * layout_factor
           }
           # Native brackets use dense positions; restore retained scale holes.
           left <- if (compare_group) result$.fmt_com_x else as.numeric(result$group1)

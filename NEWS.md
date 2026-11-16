@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` keeps bracket coordinates finite when the visible finite y range overflows during subtraction.
+
 * `.cat_tb()` avoids scanning unused factor labels when highlighting sparse tables.
 
 * `fmt_text()` reuses style themes for adjacent plots sharing the same theme.

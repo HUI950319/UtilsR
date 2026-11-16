@@ -814,3 +814,19 @@ test_that("suppressed reference brackets stay collapsed with unused positions", 
   }
   expect_identical(sparse$p, dense$p)
 })
+
+test_that("extreme finite comparison ranges retain bracket positions", {
+  d <- data.frame(g = rep(c("A", "B"), each = 5),
+    y = c(seq(-1e308, -0.6e308, length.out = 5), seq(0.6e308, 1e308, length.out = 5)))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point() +
+    ggplot2::scale_y_continuous(expand = c(0, 0))
+  zero <- ggplot2::ggplot_build(fmt_com(p, label.y = 0, tip.length = 0,
+    step.increase = 0, bracket.nudge.y = 0))$data[[2L]]
+  expect_true(all(is.finite(zero$y) & is.finite(zero$yend)))
+  expect_equal(zero$y, rep(0, nrow(zero)))
+  expect_equal(unique(zero$p), 0.00794)
+  middle <- ggplot2::ggplot_build(fmt_com(p, label.y.prop = 0.5, tip.length = c(0.01, 0.02),
+    step.increase = 0))$data[[2L]]
+  expect_true(all(is.finite(middle$y) & is.finite(middle$yend)))
+  expect_equal(sort(unique(c(middle$y, middle$yend))), c(-4e306, -2e306, 0))
+})
