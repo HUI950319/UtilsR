@@ -756,3 +756,19 @@ test_that("rank panels index default Date and integer64 grouping values once", {
     }
   }
 })
+
+test_that("complete labelled rank scores skip empty missing assignments", {
+  skip_if_not_installed("haven")
+  d <- data.frame(cell_type = rep(c("a", "b"), each = 3L), gene = letters[1:6],
+    importance = haven::labelled(c(3, 1, 2, 2, 1, 3), c(High = 3)))
+  expected <- .pr_parse(d, "cell_type", "gene", "importance", NULL)
+  fn <- .pr_parse
+  env <- new.env(parent = environment(fn))
+  env[["[<-"]] <- function(x, i, value) {
+    if (inherits(x, "haven_labelled") && is.logical(i) && !any(i))
+      stop("reassigned complete labelled scores")
+    base::'[<-'(x, i, value = value)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, "cell_type", "gene", "importance", NULL), expected)
+})

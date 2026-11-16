@@ -362,7 +362,7 @@ PlotRank <- function(
       if (!requireNamespace("haven", quietly = TRUE)) {
         stop("Interpreting labelled scores requires package 'haven'.", call. = FALSE)
       }
-      x[is.na(x)] <- NA
+      if (anyNA(x)) x[is.na(x)] <- NA
     }
     x
   }
