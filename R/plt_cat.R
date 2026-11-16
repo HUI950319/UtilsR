@@ -317,7 +317,6 @@ plt_cat <- function(data,
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.cls {class(data)}}.")
   }
-  if (!inherits(data, "data.table")) data <- as.data.frame(data)
   if (!nrow(data)) cli::cli_abort("{.arg data} must contain at least one observation.")
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
     cli::cli_abort("{.arg data} must have unique, non-empty column names.")
@@ -416,7 +415,7 @@ plt_cat <- function(data,
   data <- if (inherits(data, "data.table")) {
     vctrs::new_data_frame(stats::setNames(lapply(selected, function(nm) data[[nm]]), selected),
                           n = nrow(data))
-  } else data[, selected, drop = FALSE]
+  } else as.data.frame(data[, selected, drop = FALSE])
   for (col in selected) {
     x <- data[[col]]
     if (!is.null(dim(x)) || (is.list(x) && !inherits(x, "POSIXlt"))) {

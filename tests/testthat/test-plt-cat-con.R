@@ -1662,3 +1662,17 @@ test_that("categorical safety checks avoid dense unused factor bins", {
   actual <- suppressMessages(fn(d, "s", label = FALSE))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("categorical plots convert only their required tibble columns", {
+  d <- tibble::tibble(s = c("a", "b", "a", "c"), unused = letters[1:4])
+  expected <- cat_test_plot(d, "s", label = FALSE)
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if ("unused" %in% names(x)) stop("converted unrelated categorical columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "s", label = FALSE))
+  expect_identical(actual$data, expected$data)
+})
