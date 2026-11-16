@@ -165,7 +165,9 @@ PlotHeatmapJaccard <- function(
 
   # ---- 2. Build per-group feature sets ----
   group_values <- data[[group_col]]
-  non_missing <- !is.na(group_values) & !is.na(data[[name_col]])
+  complete <- !is.object(group_values) && !is.object(data[[name_col]]) &&
+    !anyNA(group_values) && !anyNA(data[[name_col]])
+  non_missing <- if (complete) TRUE else !is.na(group_values) & !is.na(data[[name_col]])
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)
   # Cache equality proxies without repeatedly restoring S4 time span objects.
@@ -194,8 +196,8 @@ PlotHeatmapJaccard <- function(
        !is.complex(group_values))
   group_rows <- if (base_groups || time_groups || scalar_time_groups || integer64_groups ||
                     (indexable_groups && is.character(lookup_levels) && !is.object(lookup_levels))) {
-    rows <- which(non_missing)
-    keys <- group_values[rows]
+    rows <- if (complete) seq_len(nrow(data)) else which(non_missing)
+    keys <- if (complete) group_values else group_values[rows]
     labels <- lookup_levels
     if (time_groups) {
       keys <- vctrs::vec_proxy_equal(keys)

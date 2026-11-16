@@ -967,3 +967,14 @@ test_that("frequently shared Jaccard features retain pairwise ratios", {
   result <- PlotHeatmapJaccard(d, return_type = "data")
   expect_equal(unname(result[row(result) != col(result)]), rep(1/3, 380L))
 })
+
+test_that("complete Jaccard inputs avoid missingness row masks", {
+  d <- data.frame(group = rep(c("A", "B"), each = 3), name = letters[c(1, 2, 3, 2, 3, 4)])
+  expected <- PlotHeatmapJaccard(d, group_col = "group", name_col = "name", return_type = "data")
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, d$name)) stop("complete Jaccard missingness rescan")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, group_col = "group", name_col = "name", return_type = "data"), expected)
+})
