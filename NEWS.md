@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared continuous plot ranges reuse complete transformed vectors without copying all retained rows.
+
 * Categorical set membership avoids a row-length missingness mask for complete ordinary values.
 
 * Numeric palette mapping scales repeated values once and restores the existing position lookup.

@@ -2191,3 +2191,17 @@ test_that("continuous comparisons count only observed sparse group levels", {
   expect_equal(cache[[1L]]$p.value, stats::t.test(y[1:4], y[5:8])$p.value)
   expect_identical(unname(result[[1L]]), c("A", "B"))
 })
+
+test_that("shared continuous ranges reuse complete transformed values", {
+  values <- c(1, 2, 4, 8)
+  fn <- .con_shared_range
+  environment(fn) <- list2env(list("[" = function(x, ...) {
+    if (identical(x, values) && is.logical(list(...)[[1L]])) stop("complete transformed slice")
+    base::"["(x, ...)
+  }), parent = environment(fn))
+  shared <- fn(values, NULL, 0L, FALSE)
+  scale <- ggplot2::scale_y_continuous()
+  expect_identical(shared(scale), list(data = c(1, 8), limits = c(1, 8)))
+  missing <- .con_shared_range(c(1, NA_real_, 4), NULL, 0L, FALSE)
+  expect_identical(missing(scale), list(data = c(1, 4), limits = c(1, 4)))
+})
