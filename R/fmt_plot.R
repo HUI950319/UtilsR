@@ -810,6 +810,20 @@ fmt_tag <- function(plot,
 # Title every legend of one plot through labs(), scale names and explicit
 # guides, keeping guide types and their other settings. Only mapped legend
 # aesthetics are labelled, so ggplot2 reports no unknown labels.
+# Stat defaults contribute scales only through calculated or staged mappings.
+.stat_calculated_aes <- function(stat) {
+  calculated <- function(value) {
+    expr <- rlang::get_expr(value)
+    if (rlang::is_missing(expr)) return(FALSE)
+    if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
+    if (!is.call(expr)) return(FALSE)
+    if (any(rlang::call_name(expr) %in% c("after_stat", "stat", "stage"))) return(TRUE)
+    any(vapply(as.list(expr)[-1L], calculated, logical(1)))
+  }
+  defaults <- stat$default_aes
+  defaults[vapply(defaults, calculated, logical(1))]
+}
+
 .set_legend_title <- function(p, label) {
   rename_guide <- function(guide) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
@@ -819,7 +833,10 @@ fmt_tag <- function(plot,
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
   mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
-    names(layer$mapping)
+    defaults <- names(.stat_calculated_aes(layer$stat))
+    overridden <- c(names(layer$mapping), names(layer$aes_params),
+                    if (isTRUE(layer$inherit.aes)) names(p$mapping))
+    union(names(layer$mapping), setdiff(defaults, overridden))
   }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
     sc$aesthetics
   }), use.names = FALSE)))
@@ -1327,16 +1344,7 @@ fmt_legend <- function(plot,
       if (isTRUE(layer$inherit.aes)) {
         mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
       }
-      calculated <- function(value) {
-        expr <- rlang::get_expr(value)
-        if (rlang::is_missing(expr)) return(FALSE)
-        if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
-        if (!is.call(expr)) return(FALSE)
-        if (any(rlang::call_name(expr) %in% c("after_stat", "stat", "stage"))) return(TRUE)
-        any(vapply(as.list(expr)[-1L], calculated, logical(1)))
-      }
-      defaults <- layer$stat$default_aes
-      defaults <- defaults[vapply(defaults, calculated, logical(1))]
+      defaults <- .stat_calculated_aes(layer$stat)
       mapping <- c(mapping, defaults[setdiff(names(defaults), names(mapping))])
       mapping <- mapping[setdiff(names(mapping), names(layer$aes_params))]
       mapping <- mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]

@@ -1149,3 +1149,14 @@ test_that("late only mappings do not block outside legend collection", {
     expect_identical(result$patches$layout$guides, "collect")
   }
 })
+
+test_that("legend title formatting covers calculated stat defaults", {
+  d <- data.frame(x = c(1, 1, 2, 2, 3), y = c(1, 2, 1, 2, 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_bin_2d(bins = 2)
+  for (result in list(fmt_text(p, legend_title = "Samples"), fmt_legend(p, title = "Samples"))) {
+    expect_identical(result$labels[["fill"]], "Samples")
+    expect_true("Samples" %in% legend_test_labels(ggplot2::ggplotGrob(result)))
+  }
+  density <- ggplot2::ggplot(d, ggplot2::aes(x)) + ggplot2::geom_density()
+  expect_identical(fmt_legend(density, title = "Samples")$labels[["fill"]], density$labels[["fill"]])
+})
