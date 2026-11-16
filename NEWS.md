@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_legend()` detects inside legends introduced by default statistic aesthetics such as binned counts.
+
 * Shared continuous plot ranges reuse complete transformed vectors without copying all retained rows.
 
 * Categorical set membership avoids a row-length missingness mask for complete ordinary values.

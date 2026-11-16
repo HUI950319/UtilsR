@@ -1327,6 +1327,17 @@ fmt_legend <- function(plot,
       if (isTRUE(layer$inherit.aes)) {
         mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
       }
+      calculated <- function(value) {
+        expr <- rlang::get_expr(value)
+        if (rlang::is_missing(expr)) return(FALSE)
+        if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
+        if (!is.call(expr)) return(FALSE)
+        if (any(rlang::call_name(expr) %in% c("after_stat", "stat", "stage"))) return(TRUE)
+        any(vapply(as.list(expr)[-1L], calculated, logical(1)))
+      }
+      defaults <- layer$stat$default_aes
+      defaults <- defaults[vapply(defaults, calculated, logical(1))]
+      mapping <- c(mapping, defaults[setdiff(names(defaults), names(mapping))])
       mapping <- mapping[setdiff(names(mapping), names(layer$aes_params))]
       mapping <- mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
       asis <- vapply(mapping, function(value) {

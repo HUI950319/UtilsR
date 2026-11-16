@@ -1126,3 +1126,15 @@ test_that("guide local key ratios continue to inherit resized parents", {
   expect_equal(sizes(resize(local)), sizes(resize(global)))
   expect_equal(sizes(resize(local)), c(80, 120))
 })
+
+test_that("inside legend collection includes default stat aesthetics", {
+  d <- data.frame(x = c(1, 1, 2, 2, 3), y = c(1, 2, 1, 2, 3))
+  inside <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_bin_2d(bins = 2) +
+    ggplot2::theme(legend.position = "inside")
+  expect_warning(result <- fmt_legend(inside | legend_test_plot(), collect = TRUE), "inside")
+  expect_identical(result$patches$layout$guides, "keep")
+  density <- ggplot2::ggplot(d, ggplot2::aes(x)) + ggplot2::geom_density() +
+    ggplot2::theme(legend.position = "inside")
+  expect_no_warning(result <- fmt_legend(density | legend_test_plot(), collect = TRUE))
+  expect_identical(result$patches$layout$guides, "collect")
+})
