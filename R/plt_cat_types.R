@@ -27,6 +27,17 @@
   if (is.character(plotdata[["group_var"]])) "stat_var" else "group_var"
 }
 
+# Drop unused ordinary axis levels without converting each observation to text.
+.cat_axis_factor <- function(value) {
+  if ((identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))) &&
+      !anyNA(levels(value))) {
+    observed <- .factor_tally(value)$codes
+    return(structure(match(as.integer(value), observed),
+      levels = levels(value)[observed], class = class(value)))
+  }
+  factor(value)
+}
+
 # ---------- 1. Bar ----------
 #' @noRd
 .plt_cat_bar <- function(plotdata, cols, alpha = 0.8, position = "stack",
@@ -150,7 +161,7 @@
   }
 
   # Convert x to numeric for consistent geom_area + geom_col rendering
-  x_factor <- factor(plotdata[[x_var]])
+  x_factor <- .cat_axis_factor(plotdata[[x_var]])
   x_levels <- levels(x_factor)
   plotdata[["x_num"]] <- as.numeric(x_factor)
 
@@ -184,7 +195,7 @@
 .plt_cat_area <- function(plotdata, cols, alpha = 0.8, position = "stack",
                           keep_empty = FALSE, ...) {
   x_var <- .cat_x_var(plotdata)
-  group_factor <- factor(plotdata[[x_var]])
+  group_factor <- .cat_axis_factor(plotdata[[x_var]])
   group_levels <- levels(group_factor)
   if (x_var != "group_var" || length(group_levels) < 2L) {
     cli::cli_abort("{.arg group.by} must provide at least two displayed levels for {.code type = \"area\"}.")

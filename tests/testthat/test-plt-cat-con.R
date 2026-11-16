@@ -1497,7 +1497,7 @@ test_that("background group checks use row-aligned assignments", {
   expect_null(result)
 })
 
-test_that("categorical continuous renderers encode x once", {
+test_that("categorical continuous renderers encode x at most once", {
   d <- data.frame(category = rep(c("", "present"), 3L),
     group = ordered(rep(c("late", "early", NA), each = 2L),
                     levels = c("late", "unused", "early")))
@@ -1518,7 +1518,7 @@ test_that("categorical continuous renderers encode x once", {
     do.call(local_mocked_bindings, c(stats::setNames(list(fn), name),
       list(.package = "UtilsR", .env = environment())))
     actual <- draw()
-    expect_identical(calls, 1L)
+    expect_lte(calls, 1L)
     expect_identical(actual$data, expected$data)
     expect_identical(ggplot2::ggplot_build(actual)$data, ggplot2::ggplot_build(expected)$data)
   }
@@ -1688,4 +1688,22 @@ test_that("complete categorical factors avoid missingness row masks", {
   }
   environment(fn) <- env
   expect_identical(suppressMessages(fn(d, "s", "g", label = FALSE))$data, expected)
+})
+
+test_that("categorical numeric positions reuse ordinary factor codes", {
+  d <- data.frame(group_var = ordered(rep(c("C", "A"), each = 2L), levels = c("unused", "A", "B", "C")),
+    stat_var = factor(rep(c("one", "two"), 2L)), value = 1:4)
+  cols <- c(one = "red", two = "blue")
+  original <- lapply(list(.plt_cat_trend, .plt_cat_area), function(fn) fn(d, cols)$data)
+  clone <- function(fn) {
+    env <- new.env(parent = environment(fn))
+    env$factor <- function(x, ...) {
+      if (is.factor(x) && identical(x, d$group_var)) stop("rebuilt categorical axis labels")
+      base::factor(x, ...)
+    }
+    environment(fn) <- env
+    fn
+  }
+  actual <- lapply(list(clone(.plt_cat_trend), clone(.plt_cat_area)), function(fn) fn(d, cols)$data)
+  expect_identical(actual, original)
 })

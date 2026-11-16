@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical trend and area plots derive positions from existing factor codes while dropping unused axis levels.
+
 * Stacked continuous plots retain complete feature vectors without building their full row-index lists.
 
 * `plt_cat(NA_stat = FALSE)` avoids row-mask accumulation for complete ordinary factors.
