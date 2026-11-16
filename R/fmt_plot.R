@@ -306,7 +306,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     updated <- params$theme + axis_theme
     if (identical(updated, params$theme)) return(guide)
     params$theme <- updated
-    ggplot2::ggproto(NULL, guide, params = params)
+    do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
   for (i in which(hide_x | hide_y)) {
     axis_theme <- if (hide_x[i] && hide_y[i]) hide_both_theme else
@@ -329,7 +329,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       guides[selected] <- lapply(guides[selected], hide_guide_theme, axis_theme = axis_theme)
       if (!identical(guides, p$guides$guides)) {
         # Supply the prototype by value before replacing the plot's container.
-        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides), envir = baseenv())
       }
     }
     scales <- lapply(p$scales$scales, function(scale) {
@@ -345,12 +345,13 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       }
       if (!is.null(secondary) && !identical(secondary_guide, secondary$guide)) {
         secondary <- do.call(ggplot2::ggproto,
-                             list(NULL, secondary, guide = secondary_guide))
+                             list(NULL, secondary, guide = secondary_guide), envir = baseenv())
       }
-      ggplot2::ggproto(NULL, scale, guide = guide, secondary.axis = secondary)
+      do.call(ggplot2::ggproto, list(NULL, scale, guide = guide, secondary.axis = secondary),
+              envir = baseenv())
     })
     if (!identical(scales, p$scales$scales)) {
-      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales), envir = baseenv())
     }
     plots[[i]] <- p
   }

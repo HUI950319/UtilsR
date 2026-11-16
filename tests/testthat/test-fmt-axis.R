@@ -497,3 +497,16 @@ test_that("invalid axis layout shapes fail before plot traversal", {
                           x.axis = TRUE, plot_dims = bad), "plot_dims")
   }
 })
+
+test_that("hidden axis clones exclude unrelated sibling data", {
+  make <- function(i, n = 3L) ggplot2::ggplot(data.frame(x = seq_len(n), y = seq_len(n) + i),
+    ggplot2::aes(x, y)) + ggplot2::geom_point()
+  environment(make) <- new.env(parent = asNamespace("ggplot2"))
+  p <- make(1) + ggplot2::scale_x_continuous(guide = ggplot2::guide_axis(
+    theme = ggplot2::theme(axis.text.x = ggplot2::element_text(colour = "red"))))
+  single <- fmt_axis(p, x.axis = TRUE)
+  listed <- fmt_axis(list(p, make(2, 100000L)), x.axis = TRUE)[[1L]]
+  expect_lt(length(serialize(listed, NULL)), length(serialize(single, NULL)) + 20000L)
+  expect_identical(ggplot2::ggplot_build(single)$data, ggplot2::ggplot_build(listed)$data)
+  expect_identical(p$scales$scales[[1L]]$guide$params$theme$axis.text.x$colour, "red")
+})

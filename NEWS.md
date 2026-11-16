@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axis()` clones guides and scales without retaining unrelated sibling plot data.
+
 * `fmt_legend()` leaves active and lazy `I` bindings unevaluated during legend collection checks.
 
 * `fmt_tag()` reuses one private device while validating compound label padding and corner units.
