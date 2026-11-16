@@ -150,3 +150,16 @@ test_that("recursive plot inspection walks patchwork leaves only once", {
   expect_identical(fn(pw, recurse = TRUE), expected)
   expect_length(expected$plots, 3L)
 })
+
+test_that("scale inference snapshots do not inspect unrelated bindings", {
+  scales <- plot_fixture()$scales
+  reads <- 0L
+  makeActiveBinding("unused", function() { reads <<- reads + 1L; 1 }, scales)
+  result <- .scale_inference_parent(scales)
+  expect_equal(reads, 0L)
+  for (name in c("add_defaults", "add_missing")) {
+    original <- scales[[name]]
+    copy <- result[[name]]
+    expect_identical(environment(copy)[["f"]], environment(original)[["f"]])
+  }
+})

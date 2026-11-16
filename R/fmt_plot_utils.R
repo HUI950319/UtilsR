@@ -267,9 +267,12 @@
 }
 
 .scale_inference_parent <- function(scales) {
-  do.call(ggplot2::ggproto,
-          c(list(NULL), as.list(scales)[c("add_defaults", "add_missing")]),
-          quote = TRUE, envir = baseenv())
+  methods <- lapply(c("add_defaults", "add_missing"), function(name) {
+    method <- scales[[name]]
+    if (inherits(method, "ggproto_method")) environment(method)[["f"]] else method
+  })
+  names(methods) <- c("add_defaults", "add_missing")
+  do.call(ggplot2::ggproto, c(list(NULL), methods), quote = TRUE, envir = baseenv())
 }
 
 .clone_plot_position <- function(position) {
