@@ -2941,3 +2941,16 @@ test_that("console colour swatches decode a repeated palette once", {
   expect_identical(actual, expected)
   expect_identical(result, value)
 })
+
+test_that("complete discrete palette keys avoid missingness slicing", {
+  value <- rep(c("b", "a", "c"), 1000L)
+  fn <- .pal_discrete_levels
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) == length(value)) stop("allocated a complete category missingness mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(value), .pal_discrete_levels(value))
+  expect_identical(fn(c(value, NA_character_)), c("b", "a", "c"))
+})

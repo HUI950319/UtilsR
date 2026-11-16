@@ -781,7 +781,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 }
 
 .pal_discrete_levels <- function(x) {
-  values <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
+  values <- if (is.factor(x)) levels(x) else
+    unique(if (!is.object(x) && !anyNA(x)) x else x[!is.na(x)])
   labels <- as.character(values[!is.na(values)])
   if (anyDuplicated(labels)) {
     cli::cli_abort(c(

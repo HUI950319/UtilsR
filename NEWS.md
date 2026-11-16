@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete palette mapping keeps complete ordinary category vectors while finding their distinct labels.
+
 * Plot tags and background stripes protect literal facet columns retrieved with `get()`.
 
 * `plt_con()` retains complete single-feature plot frames without an additional all-row subset.
