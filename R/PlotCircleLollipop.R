@@ -164,6 +164,17 @@ PlotCircleLollipop <- function(
       stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
   }
 
+  if (!is.null(top_n)) {
+    if (length(top_n) != 1L || !is.numeric(top_n) || is.object(top_n) ||
+        !is.null(dim(top_n)) || is.complex(top_n) ||
+        !is.finite(top_n) || top_n < 0 || top_n > .Machine$integer.max ||
+        top_n != floor(top_n)) {
+      stop("'top_n' must be NULL or a single non-negative integer no greater than .Machine$integer.max.",
+           call. = FALSE)
+    }
+    top_n <- as.integer(top_n)
+  }
+
   # ---- Check dependencies ----
   for (arg in c("track_height", "gap_after", "gap_between", "start_degree", "point_cex",
                 "line_lwd", "sector_cex", if (show_links) c("link_lwd", "link_h"),
@@ -247,14 +258,6 @@ PlotCircleLollipop <- function(
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
-    if (length(top_n) != 1L || !is.numeric(top_n) || is.object(top_n) ||
-        !is.null(dim(top_n)) || is.complex(top_n) ||
-        !is.finite(top_n) || top_n < 0 || top_n > .Machine$integer.max ||
-        top_n != floor(top_n)) {
-      stop("'top_n' must be NULL or a single non-negative integer no greater than .Machine$integer.max.",
-           call. = FALSE)
-    }
-    top_n <- as.integer(top_n)
     ranking <- tibble::tibble(
       group = group_input,
       score = if (integer64_scores) data[[value_col]] else numeric_values,

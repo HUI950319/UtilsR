@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` validates its top-row count before parsing scores or grouping observations.
+
 * Special-value summaries reuse the input length when every distinct character value is a recognized marker.
 
 * `PlotScatter3()` tolerates a callback closing its temporary device during plot construction.

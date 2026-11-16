@@ -1328,3 +1328,9 @@ test_that("circular sector scaling computes both bounds together", {
       show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE))
   }
 })
+
+test_that("circular top row counts validate before reading observations", {
+  for (bad in list(NA, -1, .5, matrix(1), 2^31)) {
+    expect_error(PlotCircleLollipop(stop("observations evaluated"), top_n = bad), "top_n")
+  }
+})
