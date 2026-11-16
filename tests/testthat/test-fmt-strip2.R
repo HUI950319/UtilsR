@@ -1226,3 +1226,20 @@ test_that("themed facet strips retain rich text while recolouring", {
   expect_identical(element$colour, "red")
   expect_no_error(ggplot2::ggplotGrob(result))
 })
+
+test_that("rectangular strip grids reuse equal HCL mother ramps", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  args <- list(plot = rep(list(p), 6), top_label = letters[1:3], right_label = LETTERS[1:2],
+    ncol = 3, top_right_fill = "Blues 3")
+  expected <- do.call(fmt_strip2, args)
+  calls <- 0L
+  original <- colorspace::sequential_hcl
+  local_mocked_bindings(sequential_hcl = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "colorspace")
+  result <- do.call(fmt_strip2, args)
+  expect_equal(calls, 1L)
+  for (i in seq_along(result)) expect_identical(result[[i]]$facet$strip$given_elements,
+    expected[[i]]$facet$strip$given_elements)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rectangular strip grids reuse a shared HCL mother ramp without changing side-specific slices or interpolation.
+
 * Background stripe midpoint calculation avoids overflow for extreme finite discrete positions.
 
 * `lv()` reuses complete ordinary measurement vectors when preparing console distributions.

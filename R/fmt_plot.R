@@ -2561,12 +2561,16 @@ fmt_strip2 <- function(plot,
 
   if (!is.null(top_right_fill)) {
     top_right_fill <- rep_len(top_right_fill, 2L)
+    last_strip_palette <- last_strip_ramp <- NULL
     make_hcl_fill <- function(palette, n) {
-      ramp <- tryCatch(colorspace::sequential_hcl(n = 100L, palette = palette),
+      ramp <- if (identical(palette, last_strip_palette)) last_strip_ramp else
+        tryCatch(colorspace::sequential_hcl(n = 100L, palette = palette),
         error = function(e) {
           cli::cli_abort("Invalid palette {.val {palette}} in {.arg top_right_fill}.", parent = e)
         }
       )
+      last_strip_palette <<- palette
+      last_strip_ramp <<- ramp
       start_idx <- if (n == 2L) 40L else 30L
       rev(grDevices::colorRampPalette(ramp[start_idx:80])(n))
     }
