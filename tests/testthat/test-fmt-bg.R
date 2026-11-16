@@ -612,3 +612,17 @@ test_that("background stripe colours use factor limit labels", {
     fmt_bg(p + ggplot2::scale_x_discrete(limits = limits), palcolor = cols, alpha = 1))))
   expect_equal(draw(factor(c("C", "A"), levels = LETTERS[1:3])), draw(c("C", "A")))
 })
+
+test_that("background stripe midpoints preserve extreme finite discrete positions", {
+  if ("continuous.limits" %in% names(formals(ggplot2::scale_x_discrete))) {
+    d <- data.frame(x = factor(c("a", "b", "c")), y = 1:3)
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+      ggplot2::scale_x_discrete(palette = function(n) c(5e307, 1.2e308, 1.7e308),
+        continuous.limits = c(0, 1.7e308), expand = ggplot2::expansion(0, 0))
+    result <- fmt_bg(p, palcolor = c(a = "red", b = "green", c = "blue"))
+    widths <- bg_rects(ggplot2::ggplotGrob(result))$width
+    expect_equal(widths, c(0.5, 0.352941176470588, 0.147058823529412))
+  } else {
+    expect_length(bg_fills(fmt_bg(bg_plot(), palcolor = bg_colors)), 3L)
+  }
+})

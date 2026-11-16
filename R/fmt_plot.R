@@ -5012,6 +5012,11 @@ fmt_bg <- function(plot,
           fills <- unname(colors[match(values, names(colors))])
           fills[is.na(values)] <- "grey80"
           edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
+          unstable <- which(!is.finite(edges))
+          if (length(unstable)) {
+            edges[unstable] <- head(positions, -1L)[unstable] / 2 +
+              tail(positions, -1L)[unstable] / 2
+          }
           list(fill = fills, edges = edges)
         }, scales[discrete], trained)
         params$bg_panels <- geometry[match(scale_ids, distinct)]

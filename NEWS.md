@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Background stripe midpoint calculation avoids overflow for extreme finite discrete positions.
+
 * `lv()` reuses complete ordinary measurement vectors when preparing console distributions.
 
 * Console trimming reuses width measurements and trimming for repeated ASCII labels.
