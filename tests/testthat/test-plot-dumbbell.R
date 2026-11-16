@@ -935,3 +935,17 @@ test_that("integer64 differences recycle scalar endpoints during precision recov
   expect_identical(.dumbbell_integer64_difference(extreme, extreme[1L]), expected)
   expect_identical(.dumbbell_integer64_difference(extreme[1L], extreme), -expected)
 })
+
+test_that("integer64 mean counts avoid negating the missingness vector", {
+  skip_if_not_installed("bit64")
+  values <- bit64::as.integer64(c("9007199254740993", "-9007199254740992", "2"))
+  fn <- .mean_plot_values
+  env <- new.env(parent = environment(fn))
+  env[["!"]] <- function(x) {
+    if (length(x) == length(values)) stop("negated the whole integer64 missingness vector")
+    base::'!'(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(values), .mean_plot_values(values))
+  expect_equal(fn(c(values, bit64::NA_integer64_)), 1)
+})

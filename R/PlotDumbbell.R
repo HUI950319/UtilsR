@@ -574,7 +574,7 @@ PlotDumbbell <- function(
   step <- bit64::as.integer64("4294967296")
   high <- sum(as.double(value %/% step), na.rm = TRUE)
   low <- sum(as.double(value %% step), na.rm = TRUE)
-  (high * 2^32 + low) / sum(!is.na(value))
+  (high * 2^32 + low) / (length(value) - sum(is.na(value)))
 }
 
 # Retain native integer64 differences whenever the full result fits.

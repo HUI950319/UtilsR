@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Integer64 mean summaries count present observations without allocating a negated missing-value vector.
+
 * `impute_na_knn()` builds exact labelled predictor lookups without masking complete columns.
 
 * `impute_na_knn()` checks ordinary numeric infinities without constructing separate finite and missing masks.
