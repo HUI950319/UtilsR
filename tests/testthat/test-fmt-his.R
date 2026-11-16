@@ -915,3 +915,17 @@ test_that("complete histogram overlay inputs avoid all row copies", {
   local_mocked_bindings(fmt_his = fn)
   expect_identical(his_test_build(p, con_var = "x", binwidth = 1)$data, expected)
 })
+
+test_that("histogram overlay peaks reuse complete count vectors", {
+  p <- his_test_plot()
+  expected <- his_test_build(p, con_var = "x", binwidth = 1)$data
+  fn <- fmt_his
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && is.numeric(x) && identical(substitute(x), quote(values)) &&
+        is.logical(i) && length(i) == length(x) && all(i))
+      stop("complete histogram peak slice")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  local_mocked_bindings(fmt_his = fn)
+  expect_identical(his_test_build(p, con_var = "x", binwidth = 1)$data, expected)
+})

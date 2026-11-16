@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Histogram overlay rescaling computes its finite mask once and avoids slicing complete count vectors.
+
 * `fmt_his()` reuses complete transformed overlay frames before its native statistic.
 
 * `show_color()` shares encoding and numeric-index validation for repeated colour spellings.
