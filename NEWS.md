@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` checks ordinary numeric infinities without constructing separate finite and missing masks.
+
 * `PlotRank()` retains complete labelled score vectors during input preparation.
 
 * `PlotCircleLollipop()` validates its top-row count before parsing scores or grouping observations.

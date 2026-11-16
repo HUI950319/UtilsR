@@ -757,3 +757,18 @@ test_that("complete labelled and time predictors need no restoration masks", {
   expect_identical(actual, expected)
   expect_identical(actual[c("time", "label")], d[c("time", "label")])
 })
+
+test_that("KNN infinity checks avoid finite and missing masks on ordinary columns", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(1, NA, 3:30), y = as.double(1:30))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$is.finite <- function(x) {
+    if (length(x) == nrow(d)) stop("allocated a full KNN finite-value vector")
+    base::is.finite(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+  d$y[2L] <- Inf
+  expect_error(fn(d, k = 1L, verbose = FALSE), "infinite values")
+})
