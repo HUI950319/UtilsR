@@ -1132,6 +1132,12 @@ plt_cat <- function(data,
 .cat_set_members <- function(values, selected) {
   if (identical(class(values), "factor") ||
       identical(class(values), c("ordered", "factor"))) {
+    if (nlevels(values) > length(values)) {
+      codes <- as.integer(values)
+      observed <- unique(codes)
+      found <- levels(values)[observed] %in% selected
+      return(!is.na(values) & found[match(codes, observed)])
+    }
     found <- levels(values) %in% selected
     return(!is.na(values) & found[as.integer(values)])
   }

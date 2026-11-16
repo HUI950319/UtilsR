@@ -1737,3 +1737,15 @@ test_that("categorical Sankey stages reuse numeric factor codes", {
   expect_identical(result$data, expected$data)
   expect_identical(ggplot2::ggplot_build(result)$data, ggplot2::ggplot_build(expected)$data)
 })
+
+test_that("sparse factor set membership scans only observed labels", {
+  x <- factor(c("A", "B", NA, "A"), levels = c("A", "B", paste0("unused", 1:5000)))
+  fn <- .cat_set_members
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (length(x) > 4L) stop("unused membership dictionary")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  expect_identical(fn(x, "A"), c(TRUE, FALSE, FALSE, TRUE))
+  x <- addNA(x)
+  expect_identical(fn(x, c("A", NA)), .cat_set_members(x, c("A", NA)))
+})
