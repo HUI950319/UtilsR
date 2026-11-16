@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN restores complete predictors directly after numeric distance normalization.
+
 * KNN donor counts subtract missing counts directly from column lengths.
 
 * `PlotCircleLollipop()` limits top-ranked tibble conversion to columns it uses.

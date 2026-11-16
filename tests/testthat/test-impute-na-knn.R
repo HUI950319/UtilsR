@@ -801,3 +801,15 @@ test_that("KNN donor counts use direct missing totals", {
   expect_identical(fn(d, k = 1, verbose = FALSE), expected)
   expect_error(fn(d, k = 4, verbose = FALSE), "Insufficient donors")
 })
+
+test_that("scaled complete KNN predictors skip observation restoration masks", {
+  d <- data.frame(x = c(1, NA, 3, 4), y = 1e15 + c(1, 2, 3, 4))
+  expected <- impute_na_knn(d, k = 1, verbose = FALSE)
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(original)) && identical(x, d$y))
+      stop("complete predictor missingness rescanned")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1, verbose = FALSE), expected)
+})
