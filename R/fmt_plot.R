@@ -4595,14 +4595,15 @@ fmt_com <- function(plot,
         c(lapply(strata, function(value) factor(vctrs::vec_group_id(rep(value, length.out = nrow(source_data))), exclude = NULL)),
           list(drop = TRUE))) else factor(rep(1L, nrow(source_data)))
       if (is.null(pair_id)) {
-        counts <- table(as.character(comparison_values), strata_key)
-        unequal <- apply(counts, 2L, function(n) {
+        counts <- split(as.character(comparison_values), strata_key)
+        unequal <- vapply(counts, function(values) {
+          n <- table(values)
           if (is.list(comparisons)) return(any(vapply(comparisons, function(pair) {
             sizes <- n[match(pair, names(n))]
             all(!is.na(sizes) & sizes > 0L) && sizes[1L] != sizes[2L]
           }, logical(1))))
           length(unique(n[n > 0L])) > 1L
-        })
+        }, logical(1))
         if (any(unequal)) cli::cli_abort("Paired groups have unequal original sizes; supply method.args$id.")
         ids <- stats::ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
       } else {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired comparison size validation avoids allocating a global group-by-facet count matrix.
+
 * Reference line formatting reuses batch data and mappings while constructing an independent layer for every plot.
 
 * Rectangular strip grids reuse a shared HCL mother ramp without changing side-specific slices or interpolation.

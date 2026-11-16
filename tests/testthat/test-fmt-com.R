@@ -830,3 +830,21 @@ test_that("extreme finite comparison ranges retain bracket positions", {
   expect_true(all(is.finite(middle$y) & is.finite(middle$yend)))
   expect_equal(sort(unique(c(middle$y, middle$yend))), c(-4e306, -2e306, 0))
 })
+
+test_that("paired size checks count only groups observed within each facet", {
+  d <- data.frame(x = rep(sprintf("g%03d", 1:50), each = 2),
+    f = rep(1:25, each = 4), y = seq_len(100))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(f))
+  args <- list(plot = p, com_method = list(c("g001", "g002")), method.args = list(paired = TRUE))
+  expected <- do.call(fmt_com, args)
+  fn <- fmt_com
+  environment(fn) <- list2env(list(table = function(...) {
+    values <- list(...)
+    if (length(values) > 1L && length(unique(values[[1L]])) * nlevels(values[[2L]]) > 1000L)
+      stop("global paired count matrix")
+    do.call(base::table, values)
+  }), parent = environment(fn))
+  result <- do.call(fn, args)
+  expect_identical(result$layers[[2L]]$data, expected$layers[[2L]]$data)
+})
