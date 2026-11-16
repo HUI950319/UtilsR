@@ -1347,3 +1347,16 @@ test_that("ordinary circle scores skip conversion failure masks", {
     .package = "circlize")
   expect_error(fn(d, show_labels = FALSE), "drawing reached")
 })
+
+test_that("circle top rankings convert only selected tibble columns", {
+  d <- tibble::tibble(group = rep(c("A", "B"), each = 3), name = letters[1:6],
+    value = c(1L, 3L, 2L, 8L, 5L, 4L), unrelated = letters[7:12])
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(as.data.frame = function(x, ...) {
+    if (inherits(x, "tbl_df") && "unrelated" %in% names(x))
+      stop("irrelevant circle columns converted")
+    base::as.data.frame(x, ...)
+  }), parent = environment(fn))
+  local_mocked_bindings(circos.initialize = function(...) stop("drawing reached"), .package = "circlize")
+  expect_error(fn(d, top_n = 2, show_labels = FALSE), "drawing reached")
+})

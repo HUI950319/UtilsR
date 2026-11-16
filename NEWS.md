@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` limits top-ranked tibble conversion to columns it uses.
+
 * `PlotRank()` uses its prepared group frames directly to scale ordinary ranked scores.
 
 * `PlotHeatmapJaccard()` splits group rows with existing integer codes instead of rematching a factor.

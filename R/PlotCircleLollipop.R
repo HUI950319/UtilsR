@@ -272,6 +272,8 @@ PlotCircleLollipop <- function(
     if (inherits(data, "data.table")) {
       data <- vctrs::new_data_frame(stats::setNames(lapply(columns, function(nm) data[[nm]][selected]),
                                                    columns), n = length(selected))
+    } else if (inherits(data, "tbl_df")) {
+      data <- as.data.frame(data[columns])[selected, , drop = FALSE]
     } else {
       data <- as.data.frame(data)[selected, columns, drop = FALSE]
     }
