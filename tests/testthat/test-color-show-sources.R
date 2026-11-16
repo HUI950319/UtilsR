@@ -2967,3 +2967,15 @@ test_that("palette positions scale distinct repeated numeric keys", {
   expect_identical(fn(x, TRUE), expected)
   expect_identical(fn(rep(5, 2400), FALSE), .pal_numeric_positions(rep(5, 2400), FALSE))
 })
+
+test_that("opaque palette previews skip empty alpha channel assignments", {
+  colors <- c("red", "blue", "green")
+  expected <- .pal_show_colors(colors, output = "gg", max_colors = 3)$data
+  fn <- .pal_show_colors
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.numeric(x) && length(x) == 3L && is.logical(i) && !any(i))
+      stop("empty preview compositing")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(colors, output = "gg", max_colors = 3)$data, expected)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews avoid copying opaque RGB channels through empty alpha-compositing assignments.
+
 * Deferred scale inference reads only its two required methods and leaves unrelated bindings untouched.
 
 * Rank-correlation scaling avoids copying complete vectors through empty missing-value assignments.

@@ -1951,7 +1951,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   channel <- function(first, last) {
     v <- strtoi(substr(hex, first, last), 16L) / 255
     # Preview tiles are drawn on white; contrast uses the composited colour.
-    v[translucent] <- v[translucent] * alpha + 1 - alpha
+    if (length(alpha)) v[translucent] <- v[translucent] * alpha + 1 - alpha
     ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
   }
   luminance <- 0.2126 * channel(2L, 3L) + 0.7152 * channel(4L, 5L) + 0.0722 * channel(6L, 7L)
