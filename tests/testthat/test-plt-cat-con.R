@@ -1775,3 +1775,15 @@ test_that("sparse grouped tallies exclude missing rows without a full grid", {
   pct <- .prepare_cat_data(d, "s", "g", "percent", NA_stat = FALSE, keep_empty = FALSE)
   expect_equal(pct$value, c(100, 100))
 })
+
+test_that("numeric categorical labels format only distinct observations", {
+  d <- data.frame(s = rep(c(1, 1 + 2^-50, 2, NA_real_), 320), g = rep(c("B", "A"), 640))
+  expected <- suppressMessages(plt_cat(d, "s", group.by = "g", NA_stat = TRUE, stat = "count"))
+  fn <- plt_cat
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.double(x) && length(x) > 1000L) stop("expanded numeric category text")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  actual <- suppressMessages(fn(d, "s", group.by = "g", NA_stat = TRUE, stat = "count"))
+  expect_identical(actual$data, expected$data)
+})

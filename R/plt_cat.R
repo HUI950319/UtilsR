@@ -486,6 +486,21 @@ plt_cat <- function(data,
       if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
         cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
       }
+      if (!is.object(x) && (is.numeric(x) || is.complex(x)) &&
+          length(x) > 1024L && .pal_use_unique(x)) {
+        distinct <- unique(x)
+        distinct <- distinct[!is.na(distinct)]
+        labels <- as.character(distinct)
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- if (is.complex(distinct)) {
+            sprintf("%.17g%+.17gi", Re(distinct[collision]), Im(distinct[collision]))
+          } else sprintf("%.17g", distinct[collision])
+        }
+        data[[col]] <- factor(match(x, distinct), levels = seq_along(distinct), labels = labels)
+        if (track_identity) numeric_labels[[col]] <- list(values = distinct, labels = labels)
+        next
+      }
       missing <- is.na(x)
       values <- as.character(x)
       time_key <- .cat_time_key(x)

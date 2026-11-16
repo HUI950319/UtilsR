@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` builds ordinary numeric category labels from distinct keys and matches original row codes.
+
 * Sparse categorical tallies skip missing rows without materializing a full grid when missing values are excluded.
 
 * KNN restores complete predictors directly after numeric distance normalization.
