@@ -1133,3 +1133,20 @@ test_that("unique rank correlation pivot rows avoid complete row copies", {
     method.by = "method", show.label = FALSE)))
   expect_identical(result$data, expected$data)
 })
+
+test_that("complete rank correlation scaling skips empty missing assignments", {
+  d <- rank_cor_data()
+  d$score[is.na(d$score)] <- 1
+  expected <- quiet_rank_cor(d, use_rank = FALSE, scale_x = "minmax")
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.numeric(x) && length(x) > 2L && identical(value, NA_real_) &&
+        is.logical(i) && length(i) == length(x) && !any(i))
+      stop("empty rank missing assignment")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  invisible(utils::capture.output(result <- fn(d, stat.by = "item", value.by = "score",
+    method.by = "method", show.label = FALSE, use_rank = FALSE, scale_x = "minmax")))
+  expect_identical(result$data, expected$data)
+  expect_identical(attr(result, "cor_results"), attr(expected, "cor_results"))
+})

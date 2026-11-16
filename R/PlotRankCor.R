@@ -427,7 +427,8 @@ PlotRankCor <- function(
   }
 
   .scale_vec <- function(x, method) {
-    x[!is.finite(x)] <- NA_real_
+    finite <- is.finite(x)
+    if (!all(finite)) x[!finite] <- NA_real_
     if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x)
     switch(method,
       "none"   = x,
