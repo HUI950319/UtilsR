@@ -380,8 +380,10 @@ PlotButterfly2 <- function(
 
   gradient_limits <- NULL
   if (is_beeswarm && color_by == "logFC") {
-    finite_values <- data[[value.by]][is.finite(data[[value.by]])]
-    if (length(finite_values)) gradient_limits <- range(finite_values)
+    gradient_values <- data[[value.by]]
+    finite <- is.finite(gradient_values)
+    if (!all(finite)) gradient_values <- gradient_values[finite]
+    if (length(gradient_values)) gradient_limits <- range(gradient_values)
   }
 
   # ---- Per-variable y-axis label colours ----

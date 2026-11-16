@@ -1268,3 +1268,19 @@ test_that("sparse butterfly gradient shapes count only observed levels", {
       expected[[i]]$scales$get_scales("shape")$palette(2))
   }
 })
+
+test_that("butterfly gradient limits reuse complete finite score vectors", {
+  d <- data.frame(cat = rep(c("A", "B"), 6L), group = rep(c("left", "right"), each = 6L),
+    score = seq_len(12L), fill = rep(c("first", "second"), 6L))
+  args <- list(data = d, stat.by = "cat", value.by = "score", group.by = "group",
+    fill.by = "fill", type = "beeswarm", color_by = "logFC")
+  expected <- suppressMessages(do.call(PlotButterfly2, args))
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(x, d$score) && is.logical(i) &&
+        length(i) == length(x) && all(i)) stop("complete butterfly score slice")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  result <- suppressMessages(do.call(fn, args))
+  for (i in seq_along(result)) expect_identical(result[[i]]$data, expected[[i]]$data)
+})

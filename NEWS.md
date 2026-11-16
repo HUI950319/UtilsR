@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly gradient limits avoid copying complete finite measurement vectors.
+
 * Gradient butterfly shape selection counts observed factor levels without unused-level tables.
 
 * Point sampling avoids prematurely forcing active or lazy constructors and skips ordinary non-function bindings during function lookup.
