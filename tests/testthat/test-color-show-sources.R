@@ -2954,3 +2954,16 @@ test_that("complete discrete palette keys avoid missingness slicing", {
   expect_identical(fn(value), .pal_discrete_levels(value))
   expect_identical(fn(c(value, NA_character_)), c("b", "a", "c"))
 })
+
+test_that("palette positions scale distinct repeated numeric keys", {
+  x <- rep(c(-1e308, 0, 1e308, NA_real_), 600)
+  expected <- .pal_numeric_positions(x, reverse = TRUE)
+  fn <- .pal_numeric_positions
+  environment(fn) <- list2env(list("-" = function(e1, e2) {
+    if (length(e1) > 8L || (!missing(e2) && length(e2) > 8L))
+      stop("repeated palette arithmetic")
+    if (missing(e2)) base::"-"(e1) else base::"-"(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(x, TRUE), expected)
+  expect_identical(fn(rep(5, 2400), FALSE), .pal_numeric_positions(rep(5, 2400), FALSE))
+})

@@ -680,6 +680,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     # A single midpoint colour recycles across the finite positions.
     return(list(placed = placed, at = 0.5, index = NULL))
   }
+  lookup <- NULL
+  if (.pal_use_unique(values)) {
+    keys <- unique(values)
+    lookup <- match(values, keys)
+    values <- keys
+  }
   at <- if (!is.finite(ends[[2L]] - ends[[1L]])) {
     # Halving finite endpoints keeps their span representable.
     (values / 2 - ends[[1L]] / 2) / (ends[[2L]] / 2 - ends[[1L]] / 2)
@@ -688,9 +694,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (reverse) at <- 1 - at
   index <- NULL
-  if (.pal_use_unique(at)) {
+  if (!is.null(lookup) || .pal_use_unique(at)) {
     unique_at <- unique(at)
     index <- match(at, unique_at)
+    if (!is.null(lookup)) index <- index[lookup]
     at <- unique_at
   }
   list(placed = placed, at = at, index = index)
