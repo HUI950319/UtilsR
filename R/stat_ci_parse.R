@@ -424,11 +424,14 @@ stat_ci_parse <- function(x,
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
   ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
     Reduce(`&`, lapply(values, is.finite))
-  hit <- hit[ok]
-  g <- lapply(g, `[`, ok)
+  if (!all(ok)) {
+    hit <- hit[ok]
+    g <- lapply(g, "[", ok)
+    values <- lapply(values, "[", ok)
+  }
 
-  est[hit] <- values[[1]][ok]; lo[hit] <- values[[2]][ok]
-  hi[hit] <- values[[3]][ok]
+  est[hit] <- values[[1]]; lo[hit] <- values[[2]]
+  hi[hit] <- values[[3]]
   open[hit] <- g[[2]]; close[hit] <- g[[6]]
   sep[hit] <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
                 "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]

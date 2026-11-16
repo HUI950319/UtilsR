@@ -928,3 +928,17 @@ test_that("ordinary intervals skip absent tight interval restoration", {
   }), parent = environment(fn))
   expect_identical(fn(x, exp = FALSE, output = "p"), expected)
 })
+
+test_that("finite confidence interval captures avoid complete validity slices", {
+  x <- c("1.0 (0.0, 2.0)", "3.0 (1.0, 5.0)")
+  expected <- .ci_extract(x)
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(hit)) && is.logical(i) &&
+        length(i) && all(i)) stop("complete capture validity slice")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), expected)
+  partly <- c(x, "1 (0, 1e9999)")
+  expect_identical(fn(partly), .ci_extract(partly))
+})

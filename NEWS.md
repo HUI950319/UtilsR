@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval parsing avoids repeated capture-vector subsets when every matched bound is finite.
+
 * Numeric palette coercion avoids missingness restoration for complete ordinary AsIs vectors.
 
 * Butterfly gradient limits avoid copying complete finite measurement vectors.
