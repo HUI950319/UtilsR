@@ -606,9 +606,12 @@ console_width <- function() {
     if (!is.null(cols)) {
       for (col in intersect(cols, names(df))) {
         v <- df[[col]]
-        finite <- if (is.numeric(v) && is.null(dim(v))) is.finite(v) else FALSE
+        ordinary <- is.numeric(v) && !is.object(v) && !is.complex(v) && is.null(dim(v))
+        domain <- if (ordinary) suppressWarnings(range(v, finite = TRUE)) else NULL
+        finite <- if (ordinary) all(is.finite(domain)) else
+          if (is.numeric(v) && is.null(dim(v))) is.finite(v) else FALSE
         if (any(finite)) {
-          domain <- range(v[finite])
+          if (!ordinary) domain <- range(v[finite])
           encoded <- inherits(v, "integer64")
           origin <- NULL
           if (encoded) {

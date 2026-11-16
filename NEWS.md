@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` computes plain numeric colour domains without allocating a row-length finite subset.
+
 * `stat_ci_parse()` reuses scale diagnostics for repeated interval and rounding-unit tuples.
 
 * Compound time category keys format repeated component tuples once and reuse the result.

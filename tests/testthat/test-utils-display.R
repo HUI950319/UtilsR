@@ -1324,3 +1324,19 @@ test_that("model notices classify sparse factor outcomes with observed tallies",
   expect_identical(actual, expected)
   expect_match(actual, "CRR model")
 })
+
+test_that("ordinary table colour domains avoid finite row slices", {
+  values <- c(-2, 0, 5, NA_real_, Inf, -Inf)
+  d <- data.frame(value = values)
+  expected <- .cat_tb(d, numeric_columns = "value", theme = "none")
+  fn <- .cat_tb
+  environment(fn) <- list2env(list("[" = function(x, ...) {
+    if (identical(x, values) && length(list(...)) &&
+        is.logical(list(...)[[1L]])) stop("finite row slice")
+    base::"["(x, ...)
+  }), parent = environment(fn))
+  result <- fn(d, numeric_columns = "value", theme = "none")
+  expect_identical(result[["_styles"]], expected[["_styles"]])
+  expect_no_warning(fn(data.frame(value = c(NA_real_, Inf)),
+    numeric_columns = "value", theme = "none"))
+})
