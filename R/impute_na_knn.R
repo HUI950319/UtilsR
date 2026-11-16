@@ -141,7 +141,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   donor_counts <- vapply(
     data_for_impute[vars_with_missing],
-    function(x) sum(!is.na(x)),
+    function(x) length(x) - sum(is.na(x)),
     integer(1)
   )
   insufficient <- donor_counts < k

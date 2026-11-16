@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN donor counts subtract missing counts directly from column lengths.
+
 * `PlotCircleLollipop()` limits top-ranked tibble conversion to columns it uses.
 
 * `PlotRank()` uses its prepared group frames directly to scale ordinary ranked scores.

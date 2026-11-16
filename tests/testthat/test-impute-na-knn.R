@@ -788,3 +788,16 @@ test_that("complete labelled KNN lookups skip their missingness vector", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("KNN donor counts use direct missing totals", {
+  d <- data.frame(x = c(1, NA, 3, 4), y = 4:1)
+  expected <- impute_na_knn(d, k = 1, verbose = FALSE)
+  fn <- impute_na_knn
+  guard <- function(x) {
+    if (identical(substitute(x), quote(is.na(x)))) stop("inverted KNN donor mask")
+    base::`!`(x)
+  }
+  environment(fn) <- list2env(stats::setNames(list(guard), "!"), parent = environment(fn))
+  expect_identical(fn(d, k = 1, verbose = FALSE), expected)
+  expect_error(fn(d, k = 4, verbose = FALSE), "Insufficient donors")
+})
