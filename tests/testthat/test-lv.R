@@ -1648,3 +1648,20 @@ test_that("inspection frequency rows skip distinct-key regrouping when labels ar
   }, .package = "vctrs")
   expect_identical(capture.output(suppressMessages(lv(d))), expected)
 })
+
+test_that("complete measurement listings avoid observed and finite row copies", {
+  d <- data.frame(x = as.double(1:100))
+  expected <- capture_lv(lv.data.frame(d))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    in_listing <- any(vapply(sys.calls(), function(call) identical(call[[1L]], quote(.lv_listing)), logical(1)))
+    if (in_listing && !missing(i) && identical(x, d$x) &&
+        is.logical(i) && length(i) == length(x) && all(i)) stop("complete measurement row copy")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  result <- capture_lv(fn(d))
+  listing <- function(out) grep("^  (Distribution|Range|Median|Mean)", cli::ansi_strip(out), value = TRUE)
+  expect_length(listing(result$output), 4L)
+  expect_identical(listing(result$output), listing(expected$output))
+  expect_identical(result$tables, expected$tables)
+})

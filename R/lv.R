@@ -556,9 +556,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # A measurement, not a code: its distribution, as skimr gives it, rather
       # than counts of its first values (ages 0, 1, 2, ...). Classed numbers
       # (integer64, labelled) as plain doubles.
-      observed <- col_data[!is.na(col_data)]
+      observed <- if (!is.object(col_data) && !anyNA(col_data)) col_data else col_data[!is.na(col_data)]
       values <- suppressWarnings(as.numeric(observed))
-      x <- values[is.finite(values)]
+      finite <- is.finite(values)
+      x <- if (all(finite)) values else values[finite]
       shape <- x
       if (inherits(col_data, "integer64")) {
         shape <- .spread_values(observed, values)
