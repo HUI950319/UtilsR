@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank-correlation pivot ordering uses compact lexical codes for ordinary factor keys.
+
 * Stable rank-correlation centering avoids repeatedly slicing complete centered vectors.
 
 * `fmt_tag()` skips theme font inheritance for inside labels with an explicit font family.

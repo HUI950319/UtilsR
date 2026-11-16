@@ -378,7 +378,13 @@ PlotRankCor <- function(
       mean(values[idx], na.rm = TRUE)
     }, numeric(1L))
   }
-  key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
+  key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], function(x) {
+    if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
+      labels <- levels(x)
+      return(match(labels, sort(labels, na.last = TRUE))[as.integer(x)])
+    }
+    as.character(x)
+  })))
   pivot_data <- pivot_data[key_order, , drop = FALSE]
 
   # Pivot to wide: one column per method

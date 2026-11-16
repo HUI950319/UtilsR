@@ -1105,3 +1105,17 @@ test_that("stable rank correlation centers reuse complete observed vectors", {
   expect_identical(result$data, expected$data)
   expect_identical(attr(result, "cor_results"), attr(expected, "cor_results"))
 })
+
+test_that("rank correlation pivot ordering formats only factor levels", {
+  d <- rank_cor_data()
+  d$item <- factor(d$item, levels = c("d", "b", "a", "c", "unused"))
+  expected <- quiet_rank_cor(d)
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.factor(x) && length(x) > nlevels(x)) stop("rank key text expansion")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  invisible(utils::capture.output(result <- fn(d, stat.by = "item", value.by = "score",
+    method.by = "method", show.label = FALSE)))
+  expect_identical(result$data, expected$data)
+})
