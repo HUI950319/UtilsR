@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet membership checks avoid unused factor-level dictionaries for sparse ordinary factors.
+
 * Symmetric confidence intervals avoid calculating unused asymmetric standard-error widths.
 
 * Palette previews avoid copying opaque RGB channels through empty alpha-compositing assignments.

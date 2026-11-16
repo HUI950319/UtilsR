@@ -988,3 +988,15 @@ test_that("UpSet homogeneous lists match their member universe once", {
   expect_identical(fn(list(a = c(3, NaN, NA, 1), b = c(NaN, 1, 3)), output = "data"),
     plt_upset(list(a = c(3, NaN, NA, 1), b = c(NaN, 1, 3)), output = "data"))
 })
+
+test_that("UpSet membership matches only observed sparse factor labels", {
+  d <- data.frame(a = factor(c("Yes", "No", "Yes", "No"), levels = c("No", "Yes", paste0("unused", 1:5000))),
+    b = c("No", "Yes", "Yes", "No"))
+  expected <- plt_upset(d, vars = c("a", "b"), levels = "Yes", output = "data")
+  fn <- plt_upset
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (is.character(x) && length(x) > nrow(d)) stop("unused UpSet factor dictionary")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  expect_identical(fn(d, vars = c("a", "b"), levels = "Yes", output = "data"), expected)
+})

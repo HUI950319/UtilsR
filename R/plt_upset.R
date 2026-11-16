@@ -247,7 +247,11 @@ plt_upset <- function(data,
     }
     if (is.character(query) && !is.object(query) &&
         (identical(class(values), "factor") || identical(class(values), c("ordered", "factor")))) {
-      selected <- (base::levels(values) %in% query)[as.integer(values)]
+      codes <- as.integer(values)
+      selected <- if (nlevels(values) > length(values)) {
+        observed <- unique(codes)
+        (base::levels(values)[observed] %in% query)[match(codes, observed)]
+      } else (base::levels(values) %in% query)[codes]
       if (anyNA(selected)) selected[is.na(selected)] <- NA_character_ %in% query
       return(selected)
     }
