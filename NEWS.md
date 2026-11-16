@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric palette coercion avoids missingness restoration for complete ordinary AsIs vectors.
+
 * Butterfly gradient limits avoid copying complete finite measurement vectors.
 
 * Gradient butterfly shape selection counts observed factor levels without unused-level tables.

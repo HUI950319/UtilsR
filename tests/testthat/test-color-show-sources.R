@@ -2979,3 +2979,14 @@ test_that("opaque palette previews skip empty alpha channel assignments", {
   }), parent = environment(fn))
   expect_identical(fn(colors, output = "gg", max_colors = 3)$data, expected)
 })
+
+test_that("complete AsIs palette values skip redundant missingness restoration", {
+  x <- I(as.double(1:40))
+  fn <- .pal_numeric_values
+  environment(fn) <- list2env(list(is.na = function(value) {
+    if (identical(value, x)) stop("complete AsIs missingness rescan")
+    base::is.na(value)
+  }), parent = environment(fn))
+  expect_identical(fn(x), as.numeric(x))
+  expect_identical(fn(I(c(1, NaN, NA))), c(1, NA_real_, NA_real_))
+})
