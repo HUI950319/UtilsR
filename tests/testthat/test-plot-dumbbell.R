@@ -924,3 +924,14 @@ test_that("bounded integer dumbbell deltas do not widen endpoint vectors", {
   invisible(capture.output(wide <- PlotDumbbell(d, sort_by = "none", legend_pos = "none")))
   expect_equal(wide$data$.delta[1L], 2 * as.double(.Machine$integer.max))
 })
+
+test_that("integer64 differences recycle scalar endpoints during precision recovery", {
+  skip_if_not_installed("bit64")
+  values <- bit64::as.integer64(c("9007199254740993", "9007199254740995"))
+  expected <- .dumbbell_integer64_difference(values, rep(.5, 2L))
+  expect_identical(.dumbbell_integer64_difference(values, .5), expected)
+  extreme <- bit64::as.integer64(c("-9223372036854775807", "9223372036854775807"))
+  expected <- .dumbbell_integer64_difference(extreme, rep(extreme[1L], 2L))
+  expect_identical(.dumbbell_integer64_difference(extreme, extreme[1L]), expected)
+  expect_identical(.dumbbell_integer64_difference(extreme[1L], extreme), -expected)
+})

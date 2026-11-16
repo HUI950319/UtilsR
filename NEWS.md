@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Integer64 difference helpers retain every observation when one endpoint is scalar and subtraction needs overflow or fractional recovery.
+
 * Scatter correlation helpers retain complete coordinate vectors and subset only observations with missing values.
 
 * `fct_cat()` uses observed factor codes when recoding factors with many unused levels.

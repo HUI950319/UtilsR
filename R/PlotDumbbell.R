@@ -580,6 +580,11 @@ PlotDumbbell <- function(
 # Retain native integer64 differences whenever the full result fits.
 .dumbbell_integer64_difference <- function(x, y) {
   if (!inherits(x, "integer64")) return(-.dumbbell_integer64_difference(y, x))
+  if (length(x) && length(y) && min(length(x), length(y)) == 1L) {
+    n <- max(length(x), length(y))
+    if (length(x) == 1L) x <- rep_len(x, n)
+    if (length(y) == 1L) y <- rep_len(y, n)
+  }
   if (!inherits(y, "integer64")) {
     if (all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))) {
       y <- bit64::as.integer64(y)
