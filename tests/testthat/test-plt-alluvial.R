@@ -1228,3 +1228,17 @@ test_that("alluvial strata reuse prepared facet and category codes", {
   actual <- suppressMessages(fn(d, "x", "g", facet = "f"))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("complete alluvial columns skip missingness masks", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = rep(letters[1:3], 100L), g = rep(1:2, 150L))
+  expected <- suppressMessages(plt_alluvial(d, "x", "g"))$data
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, d$x) || identical(x, d$g)) stop("allocated missingness flags for complete alluvial observations")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(fn(d, "x", "g"))$data, expected)
+})

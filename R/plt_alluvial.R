@@ -411,18 +411,23 @@ plt_alluvial <- function(
   }
 
   y_type <- match.arg(y_type)
-  keep <- rep(TRUE, nrow(data))
+  keep <- NULL
   for (column in required) {
     value <- data[[column]]
     .register_integer64(value)
-    keep <- keep & !is.na(value)
     ordinary_factor <- identical(class(value), "factor") ||
       identical(class(value), c("ordered", "factor"))
+    incomplete <- if (ordinary_factor) anyNA(unclass(value)) else is.object(value) || anyNA(value)
+    if (incomplete) {
+      valid <- !is.na(value)
+      keep <- if (is.null(keep)) valid else keep & valid
+    }
     if (is.object(value) && (!ordinary_factor || anyNA(levels(value)))) {
-      keep <- keep & !is.na(as.character(value))
+      valid <- !is.na(as.character(value))
+      keep <- if (is.null(keep)) valid else keep & valid
     }
   }
-  removed <- sum(!keep)
+  removed <- if (is.null(keep)) 0L else sum(!keep)
   if (removed > 0L) {
     cli::cli_inform(c(
       "i" = "Removed {removed} row{?s} with missing values in required columns."
