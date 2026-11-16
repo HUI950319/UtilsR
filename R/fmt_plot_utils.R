@@ -276,17 +276,15 @@
 }
 
 .clone_plot_position <- function(position) {
-  fields <- list()
+  copy <- do.call(ggplot2::ggproto, list(NULL, position), envir = baseenv())
   current <- position
   repeat {
-    local <- as.list(current, inherit = FALSE, all.names = TRUE)
-    missing <- setdiff(names(local), names(fields))
-    fields[missing] <- local[missing]
+    rlang::env_coalesce(copy, current)
     if (!is.function(current$super)) break
     current <- current$super()
     if (is.null(current)) break
   }
-  rlang::exec(ggplot2::ggproto, NULL, position, !!!fields)
+  copy
 }
 
 .clone_plot_scales <- function(scales) {

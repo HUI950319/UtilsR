@@ -1006,3 +1006,22 @@ test_that("point sampling visits only observed factor strata", {
   expect_identical(fn(d, mapping, sample_n = 3L, seed = 12L),
     .fmt_point_sample(d, mapping, sample_n = 3L, seed = 12L))
 })
+
+test_that("position clones preserve deferred field bindings", {
+  for (active in c(TRUE, FALSE)) {
+    reads <- 0L
+    position <- ggplot2::position_jitter(width = 0.1, height = 0, seed = 42)
+    rm("width", envir = position)
+    if (active) makeActiveBinding("width", function() { reads <<- reads + 1L; 0.1 }, position) else
+      delayedAssign("width", { reads <<- reads + 1L; 0.1 }, assign.env = position, eval.env = new.env(parent = environment()))
+    position$.hidden <- 12
+    copy <- .clone_plot_position(position)
+    expect_equal(reads, 0L)
+    if (active) expect_true(bindingIsActive("width", copy)) else
+      expect_true(rlang::env_binding_are_lazy(copy, "width")[[1L]])
+    expect_identical(copy$width, 0.1)
+    expect_equal(reads, 1L)
+    position$.hidden <- 99
+    expect_identical(copy$.hidden, 12)
+  }
+})
