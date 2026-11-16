@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` retains complete single-feature plot frames without an additional all-row subset.
+
 * `plt_cat()` converts only the selected columns of ordinary data frames and tibbles during data preparation.
 
 * `plt_cat()` checks sparse factor cardinality using its observed level tally.

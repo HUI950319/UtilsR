@@ -2146,3 +2146,19 @@ test_that("median group sorting retains complete integer columns", {
   expect_identical(levels(actual$data$group.by), levels(expected$data$group.by))
   expect_identical(levels(actual$data$group.by), c("H", "L"))
 })
+
+test_that("complete continuous plot frames skip the finite row subset", {
+  d <- data.frame(x = rep(1:10, 30), g = rep(c("A", "B"), 150L))
+  expected <- suppressMessages(plt_con(d, "x", "g", type = "box"))$data
+  fn <- .plt_con_single
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && identical(names(x)[1L], "value") &&
+        !missing(i) && is.logical(i) && length(i) == nrow(d) && all(i)) stop("copied every finite continuous row")
+    eval(as.call(c(list(quote(base::'[')), as.list(sys.call())[-1L])), parent.frame())
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_con_single = fn)
+  actual <- suppressMessages(plt_con(d, "x", "g", type = "box"))$data
+  expect_identical(actual, expected)
+})
