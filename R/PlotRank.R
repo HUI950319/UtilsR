@@ -259,15 +259,12 @@ PlotRank <- function(
         scale_scores(s, orig_ranges[[match(as.character(g), names(orig_ranges))]])
       }, plot_df$Score, as.character(plot_df$Group))
     } else {
-      scaled <- numeric(nrow(plot_df))
-      indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
-      for (i in seq_along(indices)) {
-        idx <- indices[[i]]
-        bounds <- orig_ranges[[match(names(indices)[i], names(orig_ranges))]]
-        scaled[idx] <- scale_scores(plot_df$Score[idx], bounds)
-      }
-      plot_df$Score <- scaled
+      values <- Map(function(part, bounds) scale_scores(part$Score, bounds), all_df, orig_ranges)
+      plot_df$Score <- as.double(unlist(values, use.names = FALSE))
     }
+  } else if (value_scale == "top_n" && !is.object(plot_df$Score)) {
+    values <- lapply(all_df, function(part) scale_scores(part$Score, range(part$Score, na.rm = TRUE)))
+    plot_df$Score <- unlist(values, use.names = FALSE)
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
     indices <- split(seq_len(nrow(plot_df)), plot_df$Group)

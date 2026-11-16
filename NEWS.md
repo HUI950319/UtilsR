@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` uses its prepared group frames directly to scale ordinary ranked scores.
+
 * `PlotHeatmapJaccard()` splits group rows with existing integer codes instead of rematching a factor.
 
 * Factor combinations, categorical axes, and Sankey nodes reuse row codes already decoded by the tally helper.

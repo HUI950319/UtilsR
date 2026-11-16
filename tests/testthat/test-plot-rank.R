@@ -789,3 +789,17 @@ test_that("rank label cleaning removes ordered prefixes in one pass", {
   expect_identical(fn(x, return_type = "data"), expected)
   expect_true("cell cycle" %in% expected$Label)
 })
+
+test_that("ranked group scaling uses the already partitioned frames", {
+  x <- data.frame(group = rep(c("B", "A"), each = 4), name = rep(letters[1:4], 2),
+    value = c(7L, 3L, 3L, 1L, 6L, 5L, 4L, 2L))
+  args <- list(data = x, group_col = "group", name_col = "name", value_col = "value",
+    max_show = 3, return_type = "data")
+  fn <- PlotRank
+  environment(fn) <- list2env(list(split = function(...) stop("ranked rows were grouped again")),
+    parent = environment(fn))
+  for (mode in c("group", "top_n")) {
+    args$value_scale <- mode
+    expect_identical(do.call(fn, args), do.call(PlotRank, args))
+  }
+})
