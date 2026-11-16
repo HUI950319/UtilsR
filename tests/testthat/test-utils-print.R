@@ -1983,3 +1983,12 @@ test_that("complete table numeric cells skip the final missingness mask", {
   environment(fn) <- env
   expect_identical(capture.output(fn(d, n = NULL)), capture.output(pr_table(d, n = NULL)))
 })
+
+test_that("ordinary print inputs skip optional class restoration checks", {
+  fn <- ._pr_restore
+  env <- new.env(parent = environment(fn))
+  env$inherits <- function(...) stop("checked optional classes on ordinary values")
+  environment(fn) <- env
+  for (x in list(1:1000, letters, list(a = 1), c(a = 2), NULL))
+    expect_identical(fn(x), x)
+})

@@ -61,6 +61,7 @@
 # Restore the methods for supported classed storage read from an RDS file.
 # In particular, integer64 is a double bit pattern, not a double value.
 ._pr_restore <- function(v) {
+  if (!is.object(v) && !isS4(v)) return(v)
   # inherits() can attach the class package while resolving an unloaded S4 class.
   pkg <- if (isS4(v) && any(class(v) %in% c("Duration", "Period", "Interval"))) "lubridate" else
     if (inherits(v, "integer64")) "bit64" else

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Print helpers bypass optional class-method checks for ordinary unclassed values.
+
 * Model notices count observed factor outcomes without allocating bins for unused levels.
 
 * `theme_my()` checks the values inside compound panel-spacing units.
