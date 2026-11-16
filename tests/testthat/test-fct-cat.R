@@ -448,7 +448,7 @@ test_that("serialized integer64 factor arguments work in fresh R processes", {
   functions <- c("fct_cat", "fct_to_group", "fct_num", ".as_factor",
                  ".check_integer_index", ".recode_factor", ".do_binary",
                  ".relevel_factor", ".factor_attributes", ".register_integer64",
-                 ".fct_num_cut", ".make_default_bin_labels", ".make_break_labels")
+                 ".fct_num_cut", ".make_default_bin_labels", ".make_break_labels", ".factor_tally")
   ns <- environment(fct_cat)
   isolated <- new.env(parent = baseenv())
   for (name in functions[vapply(functions, exists, logical(1L), envir = ns)]) {
@@ -848,4 +848,20 @@ test_that("factor group naming controls validate before observation coercion", {
   x <- factor(letters[1:3])
   expect_identical(fct_to_group(x, list(X = 1:2), name_prefix = stop("unused prefix")),
     fct_to_group(x, list(X = 1:2)))
+})
+
+test_that("sparse factor recoding does not tabulate every declared level", {
+  x <- structure(c(1L, 3L, 2L, 1L, NA_integer_), levels =
+    c("a", NA, "c", paste0("unused", seq_len(20000))), class = c("ordered", "factor"))
+  args <- list(groups = list(first = 1L, second = 2:3))
+  expected <- do.call(fct_cat, c(list(x), args))
+  fn <- .recode_factor
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins) {
+    if (nbins > length(x)) stop("tabulated every unused factor level")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.recode_factor = fn)
+  expect_identical(do.call(fct_cat, c(list(x), args)), expected)
 })

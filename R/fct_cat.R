@@ -264,7 +264,7 @@ fct_cat <- function(x, ...,
   new_levels <- unique(c(mapped, unname(lvls[!seen])))
   target_id <- match(target, new_levels)
   used <- logical(length(new_levels))
-  used[target_id[tabulate(x, nbins = length(lvls)) > 0L]] <- TRUE
+  used[target_id[.factor_tally(x)$codes]] <- TRUE
   out <- cumsum(used)[target_id][x]
   new_levels <- new_levels[used]
   attributes(out) <- .factor_attributes(x, new_levels,

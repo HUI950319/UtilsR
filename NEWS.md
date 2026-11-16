@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_cat()` uses observed factor codes when recoding factors with many unused levels.
+
 * `pr_table()` reuses formatted numeric cells when the source vector is complete.
 
 * `pr_spark()` detects complete ordinary columns without allocating a missingness vector.
