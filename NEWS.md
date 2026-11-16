@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_my()` checks the values inside compound panel-spacing units.
+
 * Discrete palette mapping keeps complete ordinary category vectors while finding their distinct labels.
 
 * Plot tags and background stripes protect literal facet columns retrieved with `get()`.

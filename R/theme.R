@@ -118,7 +118,8 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
   if (!is.null(panel.spacing)) {
     spacing_value <- if (grid::is.unit(panel.spacing)) as.numeric(panel.spacing) else panel.spacing
     if (!is.numeric(spacing_value) || is.object(spacing_value) ||
-        !is.null(dim(spacing_value)) || !length(spacing_value) || any(!is.finite(spacing_value)))
+        !is.null(dim(spacing_value)) || !length(spacing_value) ||
+        (if (grid::is.unit(panel.spacing)) !.grob_finite_unit(panel.spacing) else any(!is.finite(spacing_value))))
       stop("'panel.spacing' must contain finite numeric values or grid units.", call. = FALSE)
   }
   if (is.null(panel.spacing)) {

@@ -174,3 +174,12 @@ test_that(".resolve_theme draws legacy plot backgrounds from objects and factori
   expect_identical(legacy$plot.background, rect)
   expect_identical(current$plot.background, rect)
 })
+
+test_that("theme panel spacing rejects nonfinite compound unit children", {
+  for (bad in list(sum(grid::unit.c(grid::unit(1, "mm"), grid::unit(Inf, "npc"))),
+                   max(grid::unit.c(grid::unit(NA_real_, "lines"), grid::unit(1, "mm"))))) {
+    expect_error(theme_my(panel.spacing = bad), "panel.spacing")
+  }
+  good <- sum(grid::unit.c(grid::unit(1, "mm"), grid::unit(.5, "lines")))
+  expect_s3_class(theme_my(panel.spacing = good), "theme")
+})
