@@ -832,3 +832,14 @@ test_that("plain numeric formatting reuses repeated nonzero values", {
   signed <- rep(c(0, -0, 0.1), 500)
   expect_identical(stat_pval(signed, mode = "plain"), sprintf("%.2f", signed))
 })
+
+test_that("complete decimal tokens skip unneeded NaN recovery scans", {
+  text <- c("0.25", "2", "1e308", "Inf")
+  fn <- .parse_decimal_tokens
+  environment(fn) <- list2env(list(is.nan = function(x) {
+    if (!anyNA(x)) stop("unneeded decimal NaN scan")
+    base::is.nan(x)
+  }), parent = environment(fn))
+  expect_identical(fn(text), as.numeric(text))
+  expect_identical(fn(c("0.25", NA_character_)), c(0.25, NA_real_))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Decimal token parsing returns complete numeric conversions before allocating NaN-recovery masks.
+
 * Logical UpSet membership checks avoid missingness masks for complete columns and all-inclusive selections.
 
 * Paired comparison helper columns avoid names referenced by facet expressions, including literal `get()` lookups.

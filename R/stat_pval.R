@@ -332,6 +332,7 @@ stat_pval <- function(x,
 #' @noRd
 .parse_decimal_tokens <- function(text) {
   value <- as.numeric(text)
+  if (!anyNA(value)) return(value)
   at <- which(is.nan(value) & !is.na(text))
   if (!length(at)) return(value)
   endpoint <- text[at]
