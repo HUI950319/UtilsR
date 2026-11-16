@@ -577,3 +577,15 @@ test_that("compound tag units reuse one private validation device", {
   expect_error(fmt_tag(p, label.padding = -value, label.r = value), "label.padding")
   expect_identical(grDevices::dev.cur(), before)
 })
+
+test_that("explicit inside tag families skip unused theme inheritance", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expected <- ggplot2::ggplot_build(fmt_tag(p, family = "mono"))$data
+  original <- ggplot2::calc_element
+  local_mocked_bindings(calc_element = function(element, ...) {
+    if (identical(element, "plot.tag")) stop("unused tag inheritance")
+    original(element, ...)
+  }, .package = "ggplot2")
+  result <- fmt_tag(p, family = "mono")
+  expect_identical(ggplot2::ggplot_build(result)$data, expected)
+})
