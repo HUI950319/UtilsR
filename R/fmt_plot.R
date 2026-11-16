@@ -1145,7 +1145,9 @@ fmt_legend <- function(plot,
             if (inherits(el, "element_text") && !is.null(el$size)) {
               styled <- local[[nm]]
               if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
-              styled$size <- el$size * factor
+              source_size <- effective[[nm]]$size
+              styled$size <- if (is.null(source_size)) ggplot2::rel(factor) else
+                if (inherits(source_size, "rel")) source_size * factor else el$size * factor
               if (!is.null(styled$margin) || any(as.numeric(el$margin) != 0, na.rm = TRUE)) {
                 styled$margin <- el$margin * factor
               }
@@ -1206,7 +1208,9 @@ fmt_legend <- function(plot,
         if (inherits(el, "element_text") && !is.null(el$size)) {
           styled <- th[[element]]
           if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
-          styled$size <- el$size * factor
+          source_size <- th[[element]]$size
+          styled$size <- if (is.null(source_size)) ggplot2::rel(factor) else
+            if (inherits(source_size, "rel")) source_size * factor else el$size * factor
           if (!is.null(styled$margin) || any(as.numeric(el$margin) != 0, na.rm = TRUE)) {
             styled$margin <- el$margin * factor
           }

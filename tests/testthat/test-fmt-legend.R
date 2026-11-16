@@ -1160,3 +1160,18 @@ test_that("legend title formatting covers calculated stat defaults", {
   density <- ggplot2::ggplot(d, ggplot2::aes(x)) + ggplot2::geom_density()
   expect_identical(fmt_legend(density, title = "Samples")$labels[["fill"]], density$labels[["fill"]])
 })
+
+test_that("relative legend fonts continue to inherit later parent sizes", {
+  th <- ggplot2::theme(legend.text = ggplot2::element_text(size = ggplot2::rel(0.8)),
+    legend.title = ggplot2::element_text(size = ggplot2::rel(1.2)))
+  p <- legend_test_plot()
+  plots <- list(p + th, p + ggplot2::guides(colour = ggplot2::guide_legend(theme = th)))
+  for (original in plots) {
+    result <- fmt_legend(original, scale = 2) + ggplot2::theme(text = ggplot2::element_text(size = 20))
+    effective <- ggplot2::theme_get() + result$theme
+    local <- result$guides$guides$colour$params$theme
+    if (!is.null(local)) effective <- effective + local
+    expect_equal(ggplot2::calc_element("legend.text", effective)$size, 32)
+    expect_equal(ggplot2::calc_element("legend.title", effective)$size, 48)
+  }
+})
