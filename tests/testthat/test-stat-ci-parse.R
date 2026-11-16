@@ -904,3 +904,15 @@ test_that("symmetric intervals skip unused asymmetric half widths", {
   }), parent = environment(fn))
   expect_identical(fn(x, exp = FALSE, output = "p"), expected)
 })
+
+test_that("difference intervals skip empty log scale assignments", {
+  x <- c("1.00 (0.00, 2.00)", "3.00 (1.00, 5.00)")
+  expected <- stat_ci_parse(x, exp = FALSE, output = "p")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(x, c(1, 3)) && is.logical(i) && !any(i))
+      stop("empty difference log assignment")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = FALSE, output = "p"), expected)
+})

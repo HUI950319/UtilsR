@@ -205,9 +205,11 @@ stat_ci_parse <- function(x,
     # --- Compute SE and p-value on the working scale ---
     z95 <- qnorm(0.975)
     e_s <- est; l_s <- lo; h_s <- hi
-    e_s[is_exp] <- log(est[is_exp])
-    l_s[is_exp] <- log(lo[is_exp])
-    h_s[is_exp] <- log(hi[is_exp])
+    if (any(is_exp)) {
+      e_s[is_exp] <- log(est[is_exp])
+      l_s[is_exp] <- log(lo[is_exp])
+      h_s[is_exp] <- log(hi[is_exp])
+    }
     tight <- which(is_exp & pmax(abs(l_s - e_s), abs(h_s - e_s)) <
                      sqrt(.Machine$double.eps) * pmax(1, abs(e_s)))
     tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])

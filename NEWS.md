@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Difference-scale confidence interval calculations avoid empty log-scale assignments.
+
 * Scale cloning preserves active and lazy fields while flattening inherited settings.
 
 * Position cloning preserves active and lazy bindings without evaluating them during formatting.
