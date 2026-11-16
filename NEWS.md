@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Named distribution palettes check observed factor levels without allocating unused-level counts.
+
 * Inside legend detection ignores aesthetics evaluated only after scales or supplied only by the theme.
 
 * Jaccard similarities reuse intersection sizes when two prepared feature sets are identical.

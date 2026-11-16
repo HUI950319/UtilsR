@@ -883,3 +883,16 @@ test_that("complete distribution data do not allocate row masks", {
   environment(fn) <- env
   expect_identical(fn(d, c("x", "g"), type = "bar")$data, expected)
 })
+
+test_that("distribution palettes check only observed sparse fill levels", {
+  d <- data.frame(a = factor(rep(c("A", "B"), 4)),
+    b = factor(rep(c("C", "D"), each = 4), levels = c("C", "D", paste0("unused", 1:5000))))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (nbins > nrow(d)) stop("unused distribution tally")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  expected <- plt_dist(d, c("a", "b"), type = "bar", color = c(C = "red", D = "blue"))
+  result <- fn(d, c("a", "b"), type = "bar", color = c(C = "red", D = "blue"))
+  expect_identical(result$data, expected$data)
+})
