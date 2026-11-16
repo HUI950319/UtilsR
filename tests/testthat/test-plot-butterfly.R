@@ -1248,3 +1248,23 @@ test_that("time collision labels format distinct representatives only", {
   y <- structure(rep(c(1, 2), 1000), units = "secs", class = "difftime")
   expect_identical(fn(y), .butterfly_category_labels(y))
 })
+
+test_that("sparse butterfly gradient shapes count only observed levels", {
+  d <- data.frame(cat = rep(c("A", "B"), 6L), group = rep(c("left", "right"), each = 6L),
+    score = seq_len(12L), fill = factor(rep(c("first", "second"), 6L),
+      levels = c("first", "second", paste0("unused", 1:2000))))
+  args <- list(data = d, stat.by = "cat", value.by = "score", group.by = "group",
+    fill.by = "fill", type = "beeswarm", color_by = "logFC")
+  expected <- suppressMessages(do.call(PlotButterfly2, args))
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (nbins > nrow(d)) stop("unused butterfly shape tally")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  result <- suppressMessages(do.call(fn, args))
+  for (i in seq_along(result)) {
+    expect_identical(result[[i]]$data, expected[[i]]$data)
+    expect_identical(result[[i]]$scales$get_scales("shape")$palette(2),
+      expected[[i]]$scales$get_scales("shape")$palette(2))
+  }
+})

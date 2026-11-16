@@ -368,11 +368,11 @@ PlotButterfly2 <- function(
   if (has_fill && is_beeswarm && color_by == "logFC") {
     values <- data[[fill.by]]
     shape_levels <- levels(values)
-    observed <- if (identical(class(values), "factor") ||
-                    identical(class(values), c("ordered", "factor"))) {
-      tabulate(values, nbins = length(shape_levels)) > 0L
-    } else shape_levels %in% as.character(values)
-    shape_levels <- shape_levels[!is.na(shape_levels) & observed]
+    shape_levels <- if (identical(class(values), "factor") ||
+                        identical(class(values), c("ordered", "factor"))) {
+      shape_levels[.factor_tally(values)$codes]
+    } else shape_levels[shape_levels %in% as.character(values)]
+    shape_levels <- shape_levels[!is.na(shape_levels)]
     if (length(shape_levels) > 4L)
       cli::cli_abort("Gradient-coloured beeswarm plots support at most 4 observed {.arg fill.by} categories.")
     shape_values <- stats::setNames(c(16, 17, 15, 18)[seq_along(shape_levels)], shape_levels)

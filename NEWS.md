@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Gradient butterfly shape selection counts observed factor levels without unused-level tables.
+
 * Point sampling avoids prematurely forcing active or lazy constructors and skips ordinary non-function bindings during function lookup.
 
 * `fmt_tag()` reuses inherited tag font families for adjacent plots with equal themes.
