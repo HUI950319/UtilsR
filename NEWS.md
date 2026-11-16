@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console escaping reuses transformed text for repeated ASCII labels containing layout controls.
+
 * `check_size()` checks large explicit name selections against one environment inventory.
 
 * `PlotScatter3()` reuses complete ordinary grouping vectors while inferring its two group levels.

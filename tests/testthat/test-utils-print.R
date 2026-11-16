@@ -1992,3 +1992,15 @@ test_that("ordinary print inputs skip optional class restoration checks", {
   for (x in list(1:1000, letters, list(a = 1), c(a = 2), NULL))
     expect_identical(fn(x), x)
 })
+
+test_that("console escaping processes distinct repeated ASCII control labels", {
+  text <- rep(c("first\nsecond", "tab\tvalue", "plain"), 800)
+  names(text) <- paste0("r", seq_along(text))
+  expected <- ._pr_escape(text)
+  fn <- ._pr_escape
+  environment(fn) <- list2env(list(gsub = function(pattern, replacement, x, ...) {
+    if (length(x) > 4L) stop("repeated control escaping")
+    base::gsub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(text), expected)
+})

@@ -82,8 +82,17 @@
     if (!length(affected)) return(text)
     if (is.vector(text)) {
       values <- text[affected]
+      lookup <- NULL
+      if (length(values) > 1024L && all(Encoding(values) == "unknown") &&
+          length(unique(values[seq.int(1L, length(values), length.out = 128L)])) < 64L) {
+        keys <- unique(values)
+        if (length(keys) < length(values) / 2L) {
+          lookup <- match(values, keys)
+          values <- keys
+        }
+      }
       for (i in seq_along(from)) values <- gsub(from[i], to[i], values, fixed = TRUE)
-      text[affected] <- values
+      text[affected] <- if (is.null(lookup)) values else values[lookup]
       return(text)
     }
   }
