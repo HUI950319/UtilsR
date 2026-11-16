@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_tag()` reuses inherited tag font families for adjacent plots with equal themes.
+
 * Legend text scaling preserves relative font sizes when parent text sizes change later.
 
 * Confidence interval standard-error calculation avoids empty restoration assignments when no tight log interval is present.

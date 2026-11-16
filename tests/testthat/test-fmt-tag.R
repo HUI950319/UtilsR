@@ -589,3 +589,17 @@ test_that("explicit inside tag families skip unused theme inheritance", {
   result <- fmt_tag(p, family = "mono")
   expect_identical(ggplot2::ggplot_build(result)$data, expected)
 })
+
+test_that("tag family inheritance reuses adjacent equal plot themes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expected <- ggplot2::ggplot_build(fmt_tag(p))$data
+  calls <- 0L
+  original <- ggplot2::calc_element
+  local_mocked_bindings(calc_element = function(element, ...) {
+    if (identical(element, "plot.tag")) calls <<- calls + 1L
+    original(element, ...)
+  }, .package = "ggplot2")
+  result <- fmt_tag(rep(list(p), 16))
+  expect_equal(calls, 1L)
+  expect_identical(ggplot2::ggplot_build(result[[1L]])$data, expected)
+})

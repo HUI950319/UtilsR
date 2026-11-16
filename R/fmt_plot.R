@@ -672,9 +672,13 @@ fmt_tag <- function(plot,
   color <- rep_len(color, n)
   # ggpp labels and plain grobs need the inherited plot theme family.
   base_theme <- ggplot2::theme_get()
+  last_tag_theme <- last_tag_family <- NULL
   family <- if (!outside && "family" %in% ...names()) rep("", n) else vapply(plots, function(p) {
+    if (!is.null(last_tag_family) && identical(p$theme, last_tag_theme)) return(last_tag_family)
     value <- ggplot2::calc_element("plot.tag", base_theme + p$theme)$family
-    if (is.character(value) && length(value) == 1L && !is.na(value)) value else ""
+    last_tag_theme <<- p$theme
+    last_tag_family <<- if (is.character(value) && length(value) == 1L && !is.na(value)) value else ""
+    last_tag_family
   }, character(1))
 
   for (i in seq_len(n)) {
