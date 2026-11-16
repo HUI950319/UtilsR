@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked continuous plots retain complete feature vectors without building their full row-index lists.
+
 * `plt_cat(NA_stat = FALSE)` avoids row-mask accumulation for complete ordinary factors.
 
 * `plt_alluvial()` allocates row filters only for columns that can contain missing observations.

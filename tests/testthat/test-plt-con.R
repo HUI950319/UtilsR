@@ -2162,3 +2162,18 @@ test_that("complete continuous plot frames skip the finite row subset", {
   actual <- suppressMessages(plt_con(d, "x", "g", type = "box"))$data
   expect_identical(actual, expected)
 })
+
+test_that("stacked complete continuous features skip all-row index construction", {
+  d <- data.frame(x = 1:120, z = seq(1, 3, length.out = 120), g = rep(c("A", "B"), 60L))
+  expected <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", stack = TRUE))$data
+  fn <- .plt_con_stacked
+  env <- new.env(parent = environment(fn))
+  env$which <- function(x, ...) {
+    if (is.logical(x) && length(x) == nrow(d) && all(x)) stop("allocated every finite stacked row")
+    base::which(x, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_con_stacked = fn)
+  actual <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", stack = TRUE))$data
+  expect_identical(actual, expected)
+})

@@ -1546,8 +1546,12 @@ plt_con <- function(data,
 
   # Reshape only the rows used by the continuous layers.
   n <- nrow(data)
-  rows <- lapply(data[stat.by], function(value) which(is.finite(value)))
+  rows <- lapply(data[stat.by], function(value) {
+    finite <- is.finite(value)
+    if (all(finite)) NULL else which(finite)
+  })
   selected <- lengths(rows)
+  selected[vapply(rows, is.null, logical(1))] <- n
   dat_long <- do.call(rbind, lapply(seq_along(stat.by), function(i) {
     value <- data[[stat.by[i]]]
     group <- data[[group.by]]
@@ -1560,7 +1564,9 @@ plt_con <- function(data,
                stringsAsFactors = FALSE)
   }))
   if (any(selected < n)) {
-    rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) (i - 1L) * n + rows[[i]]))
+    rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) {
+      (i - 1L) * n + (rows[[i]] %||% seq_len(n))
+    }))
   }
   group_levels <- levels(data[[group.by]])
   group_attrs <- names(attributes(dat_long[["group.by"]]))
