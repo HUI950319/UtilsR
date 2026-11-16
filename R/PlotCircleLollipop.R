@@ -220,7 +220,8 @@ PlotCircleLollipop <- function(
     if (inherits(values, "haven_labelled_spss")) values <- .scatter_axis_values(values)
     if (is.factor(values)) values <- as.character(values)
     numeric_values <- suppressWarnings(as.numeric(values))
-    if (any(!is.na(values) & is.na(numeric_values))) {
+    if ((!is.numeric(values) || is.object(values)) &&
+        any(!is.na(values) & is.na(numeric_values))) {
       stop(sprintf("Column '%s' must contain numeric scores or missing values.", value_col),
            call. = FALSE)
     }

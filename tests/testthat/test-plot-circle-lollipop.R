@@ -1334,3 +1334,16 @@ test_that("circular top row counts validate before reading observations", {
     expect_error(PlotCircleLollipop(stop("observations evaluated"), top_n = bad), "top_n")
   }
 })
+
+test_that("ordinary circle scores skip conversion failure masks", {
+  values <- c(1, 2, NA_real_, 4)
+  d <- data.frame(group = rep(c("A", "B"), each = 2), name = letters[1:4], value = values)
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, values)) stop("numeric score missing rescan")
+    base::is.na(x)
+  }), parent = environment(fn))
+  local_mocked_bindings(circos.initialize = function(...) stop("drawing reached"),
+    .package = "circlize")
+  expect_error(fn(d, show_labels = FALSE), "drawing reached")
+})
