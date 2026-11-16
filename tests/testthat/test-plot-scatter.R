@@ -1795,3 +1795,17 @@ test_that("complete scatter correlations avoid copying pair coordinates", {
   x[3L] <- NA_real_
   expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
 })
+
+test_that("paired scatter cleanup accepts a previously closed owned device", {
+  current <- 1L
+  testthat::local_mocked_bindings(
+    dev.cur = function() current,
+    pdf = function(...) current <<- 2L,
+    dev.list = function() NULL,
+    dev.off = function(...) stop("closed an already closed temporary device"),
+    .package = "grDevices")
+  testthat::local_mocked_bindings(ggplotGrob = function(...) grid::nullGrob(), .package = "ggplot2")
+  d <- data.frame(Control = 1:4, Treat = c(2, 4, 3, 7), group = rep(c("NS", "S"), 2))
+  expect_no_error(PlotScatter3(d, test_method = "none", cor_method = "none",
+    theme_use = ggplot2::theme_classic))
+})

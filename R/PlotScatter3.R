@@ -320,7 +320,9 @@ PlotScatter3 <- function(
   if (grDevices::dev.cur() == 1L) {
     grDevices::pdf(NULL)
     device <- grDevices::dev.cur()
-    on.exit(grDevices::dev.off(device), add = TRUE)
+    on.exit({
+      if (device %in% grDevices::dev.list()) grDevices::dev.off(device)
+    }, add = TRUE)
   }
   p1 <- ggplot2::ggplot(data, ggplot2::aes(
     x     = .data[[x]],
