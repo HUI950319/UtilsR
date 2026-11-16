@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank(clean_names = TRUE)` removes its ordered pathway prefixes in one pass while preserving repeated-prefix behavior.
+
 * `grob_insert(on_top = FALSE)` uses stable equal-order placement when a smaller finite drawing order cannot be represented.
 
 * Integer64 mean summaries count present observations without allocating a negated missing-value vector.

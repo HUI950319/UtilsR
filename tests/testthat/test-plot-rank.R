@@ -772,3 +772,20 @@ test_that("complete labelled rank scores skip empty missing assignments", {
   environment(fn) <- env
   expect_identical(fn(d, "cell_type", "gene", "importance", NULL), expected)
 })
+
+test_that("rank label cleaning removes ordered prefixes in one pass", {
+  names <- c("HALLMARK_KEGG_REACTOME_GOBP_PROGENY_WP_PID_BIOCARTA_cell_cycle",
+    "KEGG_HALLMARK_A", "HALLMARK_HALLMARK_A", "WP_PID_A(-)", "plain(+)")
+  x <- stats::setNames(5:1, names)
+  expected <- PlotRank(x, return_type = "data")
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, ...) {
+    if (pattern %in% paste0("^", c("HALLMARK", "KEGG", "REACTOME", "GOBP",
+        "PROGENY", "WP", "PID", "BIOCARTA"), "_")) stop("rescanned every pathway prefix")
+    base::sub(pattern, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, return_type = "data"), expected)
+  expect_true("cell cycle" %in% expected$Label)
+})

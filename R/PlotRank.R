@@ -207,14 +207,8 @@ PlotRank <- function(
     nm <- sub("\\(\\-\\)$", "", nm)
     nm <- sub("\\(\\d+g\\)$", "", nm)
     nm <- trimws(nm)
-    nm <- sub("^HALLMARK_", "", nm)
-    nm <- sub("^KEGG_",     "", nm)
-    nm <- sub("^REACTOME_", "", nm)
-    nm <- sub("^GOBP_",     "", nm)
-    nm <- sub("^PROGENY_",  "", nm)
-    nm <- sub("^WP_",       "", nm)
-    nm <- sub("^PID_",      "", nm)
-    nm <- sub("^BIOCARTA_", "", nm)
+    nm <- sub("^(?:HALLMARK_)?(?:KEGG_)?(?:REACTOME_)?(?:GOBP_)?(?:PROGENY_)?(?:WP_)?(?:PID_)?(?:BIOCARTA_)?",
+              "", nm, perl = TRUE)
     gsub("_", " ", nm)
   }
 
