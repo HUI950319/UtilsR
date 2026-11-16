@@ -1722,3 +1722,18 @@ test_that("compound time keys format only distinct repeated tuples", {
   expect_identical(fn(interval), .cat_time_key(interval))
   expect_identical(fn(x[1:4]), expected[1:4])
 })
+
+test_that("categorical Sankey stages reuse numeric factor codes", {
+  d <- data.frame(a = factor(c("A", "B", "A"), levels = c("A", "B", "unused")),
+    b = ordered(c("B", "A", "B"), levels = c("A", "B", "unused")))
+  cols <- c(A = "red", B = "blue")
+  expected <- .plt_cat_sankey(d, c("a", "b"), cols)
+  fn <- .plt_cat_sankey
+  environment(fn) <- list2env(list(factor = function(x, ...) {
+    if (is.factor(x)) stop("factor stage text expansion")
+    base::factor(x, ...)
+  }), parent = environment(fn))
+  result <- fn(d, c("a", "b"), cols)
+  expect_identical(result$data, expected$data)
+  expect_identical(ggplot2::ggplot_build(result)$data, ggplot2::ggplot_build(expected)$data)
+})

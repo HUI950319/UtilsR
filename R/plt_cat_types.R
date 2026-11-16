@@ -256,7 +256,7 @@
   # Reconstruct plain factors (strip subclasses that cause tidyr issues)
   for (s in stat.by) {
     if (is.factor(data[[s]])) {
-      data[[s]] <- factor(data[[s]])
+      data[[s]] <- .cat_axis_factor(data[[s]])
     }
   }
   # Keep backend-reserved names separate from the displayed stage names.
