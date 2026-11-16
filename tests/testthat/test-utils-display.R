@@ -1308,3 +1308,19 @@ test_that("ANSI palette previews reuse the original colour bytes", {
     })
   }
 })
+
+test_that("model notices classify sparse factor outcomes with observed tallies", {
+  d <- data.frame(time = 1:6, status = factor(rep(c("0", "1", "2"), 2L),
+    levels = c("0", "1", "2", paste0("unused", seq_len(25000L)))))
+  fn <- .cat_formula
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins) {
+    if (nbins > nrow(d)) stop("allocated unused model-outcome levels")
+    base::tabulate(bin, nbins)
+  }
+  environment(fn) <- env
+  actual <- testthat::capture_messages(fn(d, "x", time = "time", outcome = "status"))
+  expected <- testthat::capture_messages(.cat_formula(d, "x", time = "time", outcome = "status"))
+  expect_identical(actual, expected)
+  expect_match(actual, "CRR model")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Model notices count observed factor outcomes without allocating bins for unused levels.
+
 * `theme_my()` checks the values inside compound panel-spacing units.
 
 * Discrete palette mapping keeps complete ordinary category vectors while finding their distinct labels.

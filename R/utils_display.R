@@ -448,7 +448,7 @@ console_width <- function() {
     ordinary_factor <- identical(class(values), "factor") ||
       identical(class(values), c("ordered", "factor"))
     observed <- if (ordinary_factor && !anyNA(levels(values))) {
-      sum(tabulate(values, nbins = nlevels(values)) > 0L)
+      length(.factor_tally(values)$codes)
     } else dplyr::n_distinct(values, na.rm = TRUE)
     model <- if (observed == 3L) "CRR" else "Cox"
     formula <- sprintf("Surv(%s, %s) ~ %s", quote_names(time),
