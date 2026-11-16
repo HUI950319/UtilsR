@@ -230,7 +230,7 @@ stat_ci_parse <- function(x,
                                            h[wide] / z95 - e_s[wide] / z95)
         out <- ifelse(asym, half, full)
       }
-      out[tight] <- tight_se
+      if (length(tight)) out[tight] <- tight_se
       out
     }
     se <- se_of(l_s, h_s)

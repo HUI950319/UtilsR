@@ -916,3 +916,15 @@ test_that("difference intervals skip empty log scale assignments", {
   }), parent = environment(fn))
   expect_identical(fn(x, exp = FALSE, output = "p"), expected)
 })
+
+test_that("ordinary intervals skip absent tight interval restoration", {
+  x <- c("1.00 (0.00, 2.00)", "3.00 (1.00, 5.00)")
+  expected <- stat_ci_parse(x, exp = FALSE, output = "p")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(substitute(i), quote(tight)) && !length(i))
+      stop("empty tight interval restoration")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = FALSE, output = "p"), expected)
+})

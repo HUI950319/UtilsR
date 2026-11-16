@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval standard-error calculation avoids empty restoration assignments when no tight log interval is present.
+
 * Difference-scale confidence interval calculations avoid empty log-scale assignments.
 
 * Scale cloning preserves active and lazy fields while flattening inherited settings.
