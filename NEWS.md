@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter correlation helpers retain complete coordinate vectors and subset only observations with missing values.
+
 * `fct_cat()` uses observed factor codes when recoding factors with many unused levels.
 
 * `pr_table()` reuses formatted numeric cells when the source vector is complete.

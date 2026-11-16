@@ -1780,3 +1780,18 @@ test_that("scatter group recoding uses factor codes and keeps row names", {
   expect_identical(fn(value, levels = order), expected)
   expect_identical(fn(value), factor(value, levels = vctrs::vec_unique(value)))
 })
+
+test_that("complete scatter correlations avoid copying pair coordinates", {
+  x <- as.double(1:80)
+  y <- sqrt(x)
+  fn <- .scatter_cor_test
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (length(x) == 80L && is.logical(i) && all(i)) stop("copied complete paired coordinates")
+    base::'['(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
+  x[3L] <- NA_real_
+  expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
+})
