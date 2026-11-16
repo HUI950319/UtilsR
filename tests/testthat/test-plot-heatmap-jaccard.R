@@ -989,3 +989,15 @@ test_that("identical Jaccard feature sets skip repeated membership matching", {
   expected <- matrix(1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
   expect_identical(fn(d, group_col = "group", name_col = "name", return_type = "data"), expected)
 })
+
+test_that("Jaccard row splits reuse resolved integer group codes", {
+  d <- data.frame(g = c("b", "a", "b", NA, "out"), item = c("X", "Y", "Y", "X", "X"))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(factor = function(x, ...) {
+    if (is.integer(x)) stop("already resolved Jaccard group codes")
+    base::factor(x, ...)
+  }), parent = environment(fn))
+  actual <- fn(d, "g", "item", group_levels = c("a", "b", "empty"), return_type = "data")
+  expect_identical(actual, matrix(c(1, .5, 0, .5, 1, 0, 0, 0, 0), 3,
+    dimnames = list(c("a", "b", "empty"), c("a", "b", "empty"))))
+})

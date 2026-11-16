@@ -226,7 +226,7 @@ PlotHeatmapJaccard <- function(
     } else {
       match(keys, labels)
     }
-    split(rows, factor(ids, levels = seq_along(ct_names)))
+    split(rows, structure(ids, levels = as.character(seq_len(n_ct)), class = "factor"))
   } else NULL
   if (is.null(group_rows)) {
     ct_keys <- if (inherits(ct_names, time_classes)) {

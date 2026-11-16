@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` splits group rows with existing integer codes instead of rematching a factor.
+
 * Factor combinations, categorical axes, and Sankey nodes reuse row codes already decoded by the tally helper.
 
 * Factor recoding uses compact target dictionaries when most declared levels are unused.
