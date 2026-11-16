@@ -371,3 +371,12 @@ test_that("behind insets respect equal background and foreground draw orders", {
   expect_identical(out$layout$name[order(out$layout$z)], c("background", "inset", "panel"))
   expect_identical(out$grobs[[2L]]$children[[1L]]$name, "red-square")
 })
+
+test_that("behind insets precede the smallest representable finite drawing order", {
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), 1L, 1L,
+    z = -.Machine$double.xmax, name = "panel")
+  q <- grob_insert(gt, grid::circleGrob(), on_top = FALSE, align_to = "full")
+  expect_identical(q$layout$name[order(q$layout$z)], c("inset", "panel"))
+  expect_true(all(is.finite(q$layout$z)))
+})

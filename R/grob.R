@@ -458,7 +458,8 @@ grob_insert <- function(
       same_order <- which(overlaps & layout$z == lowest)
       back <- same_order[background[same_order]]
       front <- same_order[!background[same_order]]
-      if (length(back) && length(front) && max(back) < front[1L]) {
+      if (length(front) && (!is.finite(below) ||
+          (length(back) && max(back) < front[1L]))) {
         z_val <- lowest
         before <- front[1L]
       }
