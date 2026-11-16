@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution category collision checks format distinct time representatives instead of repeated observations.
+
 * Named distribution palettes check observed factor levels without allocating unused-level counts.
 
 * Inside legend detection ignores aesthetics evaluated only after scales or supplied only by the theme.

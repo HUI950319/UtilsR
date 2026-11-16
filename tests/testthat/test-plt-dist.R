@@ -896,3 +896,16 @@ test_that("distribution palettes check only observed sparse fill levels", {
   result <- fn(d, c("a", "b"), type = "bar", color = c(C = "red", D = "blue"))
   expect_identical(result$data, expected$data)
 })
+
+test_that("distribution time labels format representatives before collision checks", {
+  d <- data.frame(a = lubridate::period(month = rep(c(1, 2), 20)),
+    b = rep(c("C", "D"), 20))
+  expected <- plt_dist(d, c("a", "b"), type = "bar")
+  fn <- plt_dist
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (inherits(x, "Period") && length(x) > 2L) stop("repeated distribution label expansion")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  result <- fn(d, c("a", "b"), type = "bar")
+  expect_identical(result$data, expected$data)
+})

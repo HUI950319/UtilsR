@@ -426,7 +426,11 @@ plt_dist <- function(data,
       }
       if (!is.null(key)) {
         distinct <- unique(key)
-        labels <- as.character(value)[match(distinct, key)]
+        at <- match(distinct, key)
+        native_labels <- !is.object(value) ||
+          class(value)[1L] %in% c("AsIs", "Date", "POSIXct", "POSIXlt", "difftime",
+                                 "Duration", "Period", "Interval")
+        labels <- if (native_labels) as.character(value[at]) else as.character(value)[at]
         collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
         if (any(collision)) {
           labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
