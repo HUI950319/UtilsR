@@ -1553,6 +1553,7 @@ fmt_ref <- function(plot,
   x_styles <- line_styles(x)
   y_styles <- line_styles(y)
 
+  reference_args <- list()
   .ref_layers <- function(values, axis, styles, native = FALSE) {
     if (!length(values)) return(list())
     geom <- if (axis == "x") ggplot2::geom_vline else ggplot2::geom_hline
@@ -1562,6 +1563,9 @@ fmt_ref <- function(plot,
                   lapply(styles, function(style) style[j]), dots)
         do.call(geom, args, envir = baseenv())
       }))
+    }
+    if (!is.object(values) && !is.null(reference_args[[axis]])) {
+      return(list(do.call(geom, reference_args[[axis]], envir = baseenv())))
     }
     data <- data.frame(.fmt_ref_intercept = values,
                        .fmt_ref_group = seq_along(values))
@@ -1579,6 +1583,7 @@ fmt_ref <- function(plot,
       mapping[[aesthetic]] <- rlang::quo_set_env(mapping[[aesthetic]], rlang::base_env())
     }
     args <- c(list(data = data, mapping = mapping, show.legend = FALSE), dots)
+    if (!is.object(values)) reference_args[[axis]] <<- args
     list(do.call(geom, args, envir = baseenv()))
   }
 

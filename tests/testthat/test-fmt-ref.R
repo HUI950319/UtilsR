@@ -496,3 +496,32 @@ test_that("reference styles recycle once per axis across leaves", {
     lapply(expected, function(q) ggplot2::ggplot_build(q)$data))
   expect_identical(sort(seen), 2:3)
 })
+
+test_that("reference line leaves reuse inputs without sharing stateful layers", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expected <- ggplot2::ggplot_build(fmt_ref(p, x = 1:4))$data
+  calls <- 0L
+  original <- ggplot2::aes
+  local_mocked_bindings(aes = function(...) { calls <<- calls + 1L; original(...) },
+    .package = "ggplot2")
+  result <- fmt_ref(rep(list(p), 16), x = 1:4)
+  expect_equal(calls, 1L)
+  expect_false(identical(result[[1L]]$layers[[2L]], result[[2L]]$layers[[2L]]))
+  expect_identical(ggplot2::ggplot_build(result[[1L]])$data, expected)
+  class_calls <- 0L
+  key <- "as.data.frame.UtilsRRefProbe"
+  registry <- get(".__S3MethodsTable__.", envir = baseenv())
+  previous <- get0(key, envir = registry, inherits = FALSE)
+  withr::defer({
+    if (is.null(previous)) rm(list = key, envir = registry)
+    else assign(key, previous, envir = registry)
+  }, envir = environment())
+  registerS3method("as.data.frame", "UtilsRRefProbe", function(x, ...) {
+    class_calls <<- class_calls + 1L
+    as.data.frame(unclass(x) + class_calls, ...)
+  }, envir = baseenv())
+  classed <- fmt_ref(list(p, p), x = structure(c(1, 2), class = "UtilsRRefProbe"))
+  expect_identical(class_calls, 2L)
+  expect_identical(classed[[1L]]$layers[[2L]]$data[[".fmt_ref_intercept"]], c(2, 3))
+  expect_identical(classed[[2L]]$layers[[2L]]$data[[".fmt_ref_intercept"]], c(3, 4))
+})
