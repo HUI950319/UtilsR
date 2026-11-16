@@ -552,3 +552,14 @@ test_that("object size captions reuse the displayed total", {
   expect_identical(sizes, 3L)
   expect_identical(actual[["_data"]], check_size(envir = target)[["_data"]])
 })
+
+test_that("large size selections share one binding inventory", {
+  keys <- sprintf("object%04d", 1:1100)
+  e <- list2env(stats::setNames(rep(list(1), length(keys)), keys), parent = emptyenv())
+  fn <- check_size
+  environment(fn) <- list2env(list(exists = function(...) stop("per name existence lookup")),
+    parent = environment(fn))
+  result <- fn(keys, envir = e)
+  expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", keys))
+  expect_equal(result[["_data"]][["Size"]][1L], sum(result[["_data"]][["Size"]][-1L]))
+})

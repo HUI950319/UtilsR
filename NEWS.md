@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` checks large explicit name selections against one environment inventory.
+
 * `PlotScatter3()` reuses complete ordinary grouping vectors while inferring its two group levels.
 
 * Distribution category collision checks format distinct time representatives instead of repeated observations.

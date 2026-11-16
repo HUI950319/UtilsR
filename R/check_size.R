@@ -153,6 +153,9 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
 
   # Sort once so equally sized objects keep alphabetical order for every selector.
   objects <- sort(unique(objects))
+  if (is.null(all_objects) && length(objects) > 1024L) {
+    all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
+  }
   found <- if (is.null(all_objects)) {
     vapply(objects, exists, logical(1), envir = envir, inherits = FALSE)
   } else objects %in% all_objects
