@@ -1235,3 +1235,16 @@ test_that("butterfly completion does not generate discarded grid labels", {
   expect_identical(lapply(1:2, function(i) actual[[i]]$data),
     lapply(1:2, function(i) expected[[i]]$data))
 })
+
+test_that("time collision labels format distinct representatives only", {
+  x <- lubridate::period(month = rep(c(1, 2, 3), 800))
+  expected <- .butterfly_category_labels(x)
+  fn <- .butterfly_category_labels
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (inherits(x, "Period") && length(x) > 3L) stop("repeated time label expansion")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), expected)
+  y <- structure(rep(c(1, 2), 1000), units = "secs", class = "difftime")
+  expect_identical(fn(y), .butterfly_category_labels(y))
+})

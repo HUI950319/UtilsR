@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Time category collision detection formats distinct time values instead of the full observation vector.
+
 * Continuous comparison preparation counts observed sparse factor groups without allocating unused-level tables.
 
 * Categorical Sankey stages drop unused ordinary factor levels without reformatting every observation.
