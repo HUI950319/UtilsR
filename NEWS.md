@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations, categorical axes, and Sankey nodes reuse row codes already decoded by the tally helper.
+
 * Factor recoding uses compact target dictionaries when most declared levels are unused.
 
 * Decimal token parsing returns complete numeric conversions before allocating NaN-recovery masks.

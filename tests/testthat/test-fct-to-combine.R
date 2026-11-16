@@ -550,3 +550,16 @@ test_that("single sparse factors combine from observed code tallies", {
   expect_identical(fct_to_combine(factor(character(), levels = letters)),
     structure(integer(), levels = character(), class = "factor"))
 })
+
+test_that("factor combination reuses the row codes from its tally", {
+  x <- structure(c(2L, 1L, NA_integer_, 2L), levels = c("B", "A", "unused"),
+    class = c("ordered", "factor"))
+  expected <- fct_to_combine(x)
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list(as.integer = function(x, ...) {
+    if (is.factor(x)) stop("factor row codes decoded again")
+    base::as.integer(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), expected)
+  expect_identical(.factor_tally(x)$row_codes, as.integer(x))
+})

@@ -31,8 +31,9 @@
 .cat_axis_factor <- function(value) {
   if ((identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))) &&
       !anyNA(levels(value))) {
-    observed <- .factor_tally(value)$codes
-    return(structure(match(as.integer(value), observed),
+    tally <- .factor_tally(value)
+    observed <- tally$codes
+    return(structure(match(tally$row_codes, observed),
       levels = levels(value)[observed], class = class(value)))
   }
   factor(value)

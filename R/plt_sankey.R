@@ -277,8 +277,8 @@ plt_sankey <- function(data,
   label_style <- if (show_text == "none") "all" else show_text
   for (i in seq_along(vars)) {
     value <- data[[vars[i]]]
-    codes <- as.integer(value)
     tally <- .factor_tally(value)
+    codes <- tally$row_codes
     observed <- tally$codes
     counts <- tally$counts
     if (reverse_levels) {

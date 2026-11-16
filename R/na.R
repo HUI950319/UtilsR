@@ -327,14 +327,15 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # Count observed factor codes in level order, including a coded NA level.
 .factor_tally <- function(x) {
   k <- nlevels(x)
+  row_codes <- as.integer(x)
   if (k > length(x)) {
-    codes <- as.integer(x)
-    observed <- sort(unique(codes), na.last = NA)
-    return(list(codes = observed, counts = tabulate(match(codes, observed), nbins = length(observed))))
+    observed <- sort(unique(row_codes), na.last = NA)
+    return(list(codes = observed, counts = tabulate(match(row_codes, observed), nbins = length(observed)),
+                row_codes = row_codes))
   }
-  counts <- tabulate(as.integer(x), nbins = k)
+  counts <- tabulate(row_codes, nbins = k)
   observed <- which(counts > 0L)
-  list(codes = observed, counts = counts[observed])
+  list(codes = observed, counts = counts[observed], row_codes = row_codes)
 }
 
 # Whether each distinct value is a special marker under the rules of

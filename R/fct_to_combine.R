@@ -227,7 +227,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
     x <- args[[1L]]
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
       if (!n) return(structure(integer(), levels = character(), class = "factor"))
-      observed <- .factor_tally(x)$codes
+      tally <- .factor_tally(x)
+      observed <- tally$codes
       lvls <- levels(x)[observed]
       lvls[is.na(lvls)] <- "NA"
       if (anyDuplicated(lvls)) {
@@ -236,7 +237,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
           "i" = "Choose a different {.arg sep} or relabel the inputs."
         ))
       }
-      codes <- match(as.integer(x), observed)
+      codes <- match(tally$row_codes, observed)
       return(structure(codes, levels = lvls, class = "factor"))
     }
   }
