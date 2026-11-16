@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard similarities reuse intersection sizes when two prepared feature sets are identical.
+
 * `PlotHeatmapJaccard()` avoids missingness masks and complete-row slices for ordinary complete data.
 
 * `fmt_legend()` detects inside legends introduced by default statistic aesthetics such as binned counts.

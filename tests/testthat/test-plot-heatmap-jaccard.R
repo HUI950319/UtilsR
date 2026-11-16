@@ -978,3 +978,14 @@ test_that("complete Jaccard inputs avoid missingness row masks", {
   }), parent = environment(fn))
   expect_identical(fn(d, group_col = "group", name_col = "name", return_type = "data"), expected)
 })
+
+test_that("identical Jaccard feature sets skip repeated membership matching", {
+  d <- data.frame(group = rep(c("A", "B", "C"), each = 12), name = rep(letters[1:12], 3))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (length(x) > 8L && identical(x, table)) stop("identical set membership")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  expected <- matrix(1, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
+  expect_identical(fn(d, group_col = "group", name_col = "name", return_type = "data"), expected)
+})
