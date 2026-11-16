@@ -1138,3 +1138,14 @@ test_that("inside legend collection includes default stat aesthetics", {
   expect_no_warning(result <- fmt_legend(density | legend_test_plot(), collect = TRUE))
   expect_identical(result$patches$layout$guides, "collect")
 })
+
+test_that("late only mappings do not block outside legend collection", {
+  for (mapping in list(ggplot2::aes(colour = after_scale("red")),
+    ggplot2::aes(colour = stage(after_scale = "red")),
+    ggplot2::aes(colour = from_theme(accent)))) {
+    inside <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+      ggplot2::geom_point(mapping) + ggplot2::theme(legend.position = "inside")
+    expect_no_warning(result <- fmt_legend(inside | legend_test_plot(), collect = TRUE))
+    expect_identical(result$patches$layout$guides, "collect")
+  }
+})

@@ -1342,6 +1342,12 @@ fmt_legend <- function(plot,
       mapping <- mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
       asis <- vapply(mapping, function(value) {
         expr <- rlang::get_expr(value)
+        stage_name <- if (is.call(expr)) rlang::call_name(expr) else NULL
+        if (any(stage_name %in% c("after_scale", "from_theme"))) return(TRUE)
+        if (identical(stage_name, "stage")) {
+          stages <- as.list(match.call(ggplot2::stage, expr))[-1L]
+          if (is.null(stages$start) && is.null(stages$after_stat)) return(TRUE)
+        }
         if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)
         if (!rlang::is_call(expr, "I", ns = "")) return(FALSE)
         env <- rlang::get_env(value)
