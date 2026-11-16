@@ -1025,3 +1025,34 @@ test_that("position clones preserve deferred field bindings", {
     expect_identical(copy$.hidden, 12)
   }
 })
+
+test_that("sampling constructor lookup preserves native deferred function semantics", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("A", "B"), each = 2))
+  reads <- 0L
+  e <- new.env(parent = globalenv())
+  makeActiveBinding("factor", function() {
+    reads <<- reads + 1L
+    if (reads == 1L) base::factor else function(x, ...) base::factor(rep("A", length(x)))
+  }, e)
+  mapping <- ggplot2::aes(x, y, group = factor(g))
+  mapping[["group"]] <- rlang::quo_set_env(mapping[["group"]], e)
+  sampled <- .fmt_point_sample(d, mapping, sample_n = 1L, seed = 42L)
+  expect_equal(reads, 1L)
+  expect_equal(nrow(sampled), 2L)
+  e <- list2env(list(factor = 1, lev = c("A", "B", "C", "D")), parent = globalenv())
+  mapping <- ggplot2::aes(x, y, group = factor(g, levels = lev))
+  mapping[["group"]] <- rlang::quo_set_env(mapping[["group"]], e)
+  expect_equal(nrow(.fmt_point_sample(d, mapping, sample_n = 1L, seed = 42L)), 2L)
+  forced_during_inspection <- FALSE
+  e <- new.env(parent = globalenv())
+  delayedAssign("ordered", {
+    forced_during_inspection <<- any(vapply(sys.calls(), function(call) {
+      identical(call[[1L]], quote(external_vector))
+    }, logical(1)))
+    base::ordered
+  }, assign.env = e, eval.env = new.env(parent = environment()))
+  mapping <- ggplot2::aes(x, y, group = ordered(g))
+  mapping[["group"]] <- rlang::quo_set_env(mapping[["group"]], e)
+  expect_equal(nrow(.fmt_point_sample(d, mapping, sample_n = 1L, seed = 42L)), 2L)
+  expect_false(forced_during_inspection)
+})

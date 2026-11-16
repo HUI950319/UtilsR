@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling avoids prematurely forcing active or lazy constructors and skips ordinary non-function bindings during function lookup.
+
 * `fmt_tag()` reuses inherited tag font families for adjacent plots with equal themes.
 
 * Legend text scaling preserves relative font sizes when parent text sizes change later.

@@ -419,7 +419,25 @@ fmt_point <- function(plot,
       if (is.null(value)) {
         args <- as.list(expr)[-1L]
         if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered", "cut"))) {
-          fun <- eval(expr[[1L]], env)
+          head <- expr[[1L]]
+          fun <- NULL
+          if (is.symbol(head)) {
+            name <- as.character(head)
+            scope <- env
+            while (!identical(scope, emptyenv())) {
+              if (exists(name, envir = scope, inherits = FALSE)) {
+                base_binding <- identical(scope, baseenv()) || identical(scope, asNamespace("base"))
+                if (bindingIsActive(name, scope) ||
+                    (!base_binding && rlang::env_binding_are_lazy(scope, name)[[1L]])) break
+                candidate <- get(name, envir = scope, inherits = FALSE)
+                if (is.function(candidate)) {
+                  fun <- candidate
+                  break
+                }
+              }
+              scope <- parent.env(scope)
+            }
+          } else fun <- eval(head, env)
           if (identical(fun, base::factor) || identical(fun, base::ordered) ||
               identical(fun, base::cut))
             args <- as.list(match.call(fun, expr))["x"]
