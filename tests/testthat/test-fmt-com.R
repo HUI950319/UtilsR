@@ -867,3 +867,27 @@ test_that("automatic paired IDs reuse observed tuple row locations", {
   fallback <- fmt_com(p, method.args = list(paired = TRUE))
   expect_identical(fallback$layers[[2L]]$data[[".fmt_com_pair_id"]], c(1, 2, 1, 4, 2, 2))
 })
+
+test_that("paired ID validation checks row tuples without base row serialization", {
+  d <- data.frame(x = rep(c("a", "b"), each = 3), y = c(1, 3, 5, 2, 6, 7), subject = rep(1:3, 2))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expected <- fmt_com(p, method.args = list(paired = TRUE, id = "subject"))
+  fn <- fmt_com
+  environment(fn) <- list2env(list(anyDuplicated = function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c("stratum", "comparison", "id")))
+      stop("paired row serialization")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(fn))
+  result <- fn(p, method.args = list(paired = TRUE, id = "subject"))
+  expect_identical(result$layers[[2L]]$data, expected$layers[[2L]]$data)
+  d$subject[2] <- d$subject[1]
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_error(fn(p, method.args = list(paired = TRUE, id = "subject")), "unique")
+  d <- data.frame(x = factor(rep("A", 6)), y = c(1, 3, 5, 2, 6, 7),
+    subject = rep(1:3, 2))
+  d$g <- bit64::as.integer64(rep(c("-1", "-2"), each = 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g)) + ggplot2::geom_point()
+  negative_groups <- fmt_com(p, group.by = "x.var", method = "t_test", method.args = list(paired = TRUE, id = "subject"))
+  actual <- ggplot2::ggplot_build(negative_groups)$data[[2L]]
+  expect_equal(unique(actual$p), 0.0742)
+})
