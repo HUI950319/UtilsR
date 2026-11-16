@@ -884,3 +884,28 @@ test_that("panel raster input validation precedes graphics measurement", {
     expect_error(fmt_raster(bad, method = "ragg"), "requires a ggplot, patchwork, or gtable", fixed = TRUE)
   }
 })
+
+test_that("panel raster viewports retain physical geometry sizes", {
+  capture <- .agg_capture(width = 1, height = 1, units = "in", res = 100, background = "white")
+  device <- grDevices::dev.cur()
+  on.exit(if (device %in% grDevices::dev.list()) grDevices::dev.off(device), add = TRUE)
+  red_size <- function(pixels) {
+    selected <- bitwAnd(pixels, 255L) > 240L &
+      bitwAnd(bitwShiftR(pixels, 8L), 255L) < 10L
+    dim(selected) <- dim(pixels)
+    c(sum(colSums(selected) > 0), sum(rowSums(selected) > 0))
+  }
+  for (size in list(c(0.5, 1), c(0.3, 0.7))) {
+    panel <- grid::grobTree(grid::rectGrob(width = grid::unit(0.2, "in"),
+      height = grid::unit(0.2, "in"), gp = grid::gpar(fill = "red", col = NA)),
+      vp = grid::viewport(width = size[1], height = size[2]))
+    grid::grid.newpage()
+    grid::grid.draw(panel)
+    expected <- red_size(capture(native = TRUE))
+    raster <- .rasterize_panel_grob(panel, 1, 1, dpi = 100, units = "in", bg = "transparent")
+    grid::grid.newpage()
+    grid::grid.draw(raster)
+    expect_equal(red_size(capture(native = TRUE)), expected)
+    expect_equal(expected, c(20, 20))
+  }
+})

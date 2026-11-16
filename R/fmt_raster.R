@@ -584,6 +584,18 @@ fmt_raster <- function(
   output <- vector("list", length(ordered) + background)
   used <- as.integer(background)
   if (background) output[[1L]] <- grid::rectGrob(gp = grid::gpar(fill = bg, col = NA))
+  if (inherits(g$vp, "viewport")) {
+    local_size <- local({
+      grid::pushViewport(grid::viewport(width = grid::unit(w, units), height = grid::unit(h, units)))
+      on.exit(grid::popViewport())
+      grid::pushViewport(g$vp)
+      on.exit(grid::popViewport(), add = TRUE)
+      c(grid::convertWidth(grid::unit(1, "npc"), units, valueOnly = TRUE),
+        grid::convertHeight(grid::unit(1, "npc"), units, valueOnly = TRUE))
+    })
+    w <- local_size[1L]
+    h <- local_size[2L]
+  }
   capture_run <- function(indices) {
     inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
     .check_raster_pixels(c(w, h) * inches * dpi, "Panel")

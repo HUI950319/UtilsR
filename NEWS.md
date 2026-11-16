@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster()` retains physical point and line dimensions inside resized panel viewports.
+
 * `fmt_com()` keeps bracket coordinates finite when the visible finite y range overflows during subtraction.
 
 * `.cat_tb()` avoids scanning unused factor labels when highlighting sparse tables.
