@@ -1089,3 +1089,19 @@ test_that("rank aesthetics do not flatten large group row locations", {
   environment(fn) <- env
   expect_identical(draw(fn)$data, expected$data)
 })
+
+test_that("stable rank correlation centers reuse complete observed vectors", {
+  d <- rank_cor_data()
+  d$score <- c(4, 3, 2, 1, 3, 1, 2, 4)
+  expected <- quiet_rank_cor(d, use_rank = FALSE, scale_x = "minmax", scale_y = "zscore")
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(centered)) && length(i) == length(x))
+      stop("complete centered vector slice")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  invisible(utils::capture.output(result <- fn(d, stat.by = "item", value.by = "score",
+    method.by = "method", show.label = FALSE, use_rank = FALSE, scale_x = "minmax", scale_y = "zscore")))
+  expect_identical(result$data, expected$data)
+  expect_identical(attr(result, "cor_results"), attr(expected, "cor_results"))
+})

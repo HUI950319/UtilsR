@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stable rank-correlation centering avoids repeatedly slicing complete centered vectors.
+
 * `fmt_tag()` skips theme font inheritance for inside labels with an explicit font family.
 
 * Histogram overlay rescaling computes its finite mask once and avoids slicing complete count vectors.
