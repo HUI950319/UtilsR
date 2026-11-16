@@ -1809,3 +1809,17 @@ test_that("paired scatter cleanup accepts a previously closed owned device", {
   expect_no_error(PlotScatter3(d, test_method = "none", cor_method = "none",
     theme_use = ggplot2::theme_classic))
 })
+
+test_that("numeric scatter categories format a compact label dictionary", {
+  x <- rep(c(1, 1 + 2^-50, 2, NA_real_, NaN), 400)
+  levels <- c(2, 1 + 2^-50, 1, NA_real_, NaN)
+  expected <- .scatter_group_factor(x, levels)
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.numeric(x) && length(x) > 20L) stop("numeric scatter label expansion")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, levels), expected)
+  names(x) <- paste0("row", seq_along(x))
+  expect_identical(fn(x, levels), .scatter_group_factor(x, levels))
+})

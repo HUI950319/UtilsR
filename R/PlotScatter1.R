@@ -560,6 +560,21 @@ PlotScatter1 <- function(
       identical(typeof(value), typeof(levels))) {
     return(factor(value, levels = levels))
   }
+  if (!is.object(value) && !is.object(levels) && is.numeric(value) && is.numeric(levels) &&
+      !is.complex(value) && !is.complex(levels)) {
+    observed <- unique(value)
+    combined <- c(observed, levels)
+    labels <- as.character(.butterfly_category_labels(combined))
+    missing <- is.na(combined)
+    if (any(missing)) labels[missing] <- as.character(combined[missing])
+    level_labels <- labels[length(observed) + seq_along(levels)]
+    if (!anyDuplicated(level_labels)) {
+      codes <- match(value, levels)
+      names(codes) <- names(value)
+      kept <- !is.na(level_labels)
+      return(factor(codes, levels = seq_along(levels)[kept], labels = level_labels[kept]))
+    }
+  }
   if (inherits(value, "haven_labelled_spss")) value <- .scatter_axis_values(value)
   if (inherits(levels, "haven_labelled_spss")) levels <- .scatter_axis_values(levels)
   if (inherits(value, "integer64") && is.numeric(levels) && !is.object(levels) && !is.complex(levels)) {

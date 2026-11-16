@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter category factors format distinct numeric keys rather than every observation.
+
 * Categorical set membership matches only observed labels for sparse ordinary factors.
 
 * Time category collision detection formats distinct time values instead of the full observation vector.
