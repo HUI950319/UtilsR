@@ -508,6 +508,7 @@ fmt_point <- function(plot,
       groups <- strata[[1L]]
       if (nlevels(groups) > nrow(data)) groups <- droplevels(groups, exclude = NULL)
       rows <- split(seq_len(nrow(data)), groups)
+      rows <- rows[lengths(rows) > 0L]
     } else {
       codes <- lapply(strata, as.integer)
       names(codes) <- paste0("s", seq_along(codes))

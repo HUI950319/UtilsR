@@ -988,3 +988,21 @@ test_that("zero point sampling does not draw random indices", {
   expect_error(fn(d, ggplot2::aes(x, y), sample_n = 0L, seed = 2L,
                   fixed = list(size = 1:12)), "scalar fixed aesthetics")
 })
+
+test_that("point sampling visits only observed factor strata", {
+  d <- data.frame(x = 1:40, y = 41:80, group = factor(rep("a", 40),
+    levels = c("a", paste0("unused", 1:30))))
+  mapping <- ggplot2::aes(x, y, group = group)
+  expected <- .fmt_point_sample(d, mapping, sample_n = 3L, seed = 12L)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (length(X) > 1L && all(vapply(X, is.integer, logical(1))) && any(lengths(X) == 0L))
+      stop("empty stratum callback")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, mapping, sample_n = 3L, seed = 12L), expected)
+  d$group <- addNA(d$group)
+  d$group[1L] <- NA
+  expect_identical(fn(d, mapping, sample_n = 3L, seed = 12L),
+    .fmt_point_sample(d, mapping, sample_n = 3L, seed = 12L))
+})
