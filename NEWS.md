@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN range checks use double endpoints to avoid overflow when subtracting ordinary integer extremes.
+
 * Palette lists use their shared discrete keys without a preliminary factor conversion.
 
 * `PlotHeatmapJaccard()` reuses its sparse membership index when features occur in three or more groups.

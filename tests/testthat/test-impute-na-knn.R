@@ -813,3 +813,9 @@ test_that("scaled complete KNN predictors skip observation restoration masks", {
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1, verbose = FALSE), expected)
 })
+
+test_that("KNN integer extremes retain integer storage without overflow warnings", {
+  d <- data.frame(x = c(-2147483647L, NA_integer_, 2147483647L, 0L), y = c(0, 1, 100, 200))
+  expect_no_warning(out <- impute_na_knn(d, k = 1, verbose = FALSE))
+  expect_identical(out$x, c(-2147483647L, -2147483647L, 2147483647L, 0L))
+})
