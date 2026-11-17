@@ -881,3 +881,17 @@ test_that("sparse factor recodes avoid mapping the full levels dictionary", {
   expect_identical(levels(expected), c("e", "third"))
   expect_identical(as.integer(expected), c(1L, 2L, 1L, NA_integer_, 1L))
 })
+
+test_that("sparse binary factors only enumerate observed nonreference levels", {
+  x <- ordered(c("b", "a", "c", NA), levels = c("a", "b", "c", paste0("unused", 1:2000)))
+  fn <- .do_binary
+  env <- new.env(parent = environment(fn))
+  env$seq_len <- function(n) {
+    if (n == nlevels(x)) stop("enumerated all binary levels")
+    base::seq_len(n)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, 1L), .do_binary(x, 1L))
+  levels(x)[1L] <- "Oth"
+  expect_error(fn(x, 1L), "reference label conflicts")
+})

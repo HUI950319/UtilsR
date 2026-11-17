@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse factor binarization only assigns observed nonreference codes to `Oth`.
+
 * `pr_badge()` returns zero badges for empty key and value vectors at every color depth.
 
 * `show_color()` writes each preview row without splitting the complete styled vector.

@@ -295,10 +295,11 @@ fct_cat <- function(x, ...,
   lvls <- levels(x)
 
   ref_name <- paste(lvls[ref_idx], collapse = "_")
-  other <- setdiff(seq_len(n_lvl), ref_idx)
-  if (identical(ref_name, "Oth") && length(other) > 0L) {
+  if (identical(ref_name, "Oth") && length(unique(ref_idx)) < n_lvl) {
     cli::cli_abort("The reference label conflicts with {.val Oth}, the label for other levels.")
   }
+  candidate_codes <- if (n_lvl > length(x)) .factor_tally(x)$codes else seq_len(n_lvl)
+  other <- setdiff(candidate_codes, ref_idx)
   g <- stats::setNames(
     list(ref_idx, other),
     c(ref_name, "Oth")
