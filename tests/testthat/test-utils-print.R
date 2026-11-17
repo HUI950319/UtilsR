@@ -2095,3 +2095,18 @@ test_that("empty badge vectors stay empty with and without color", {
     expect_identical(pr_badge(character(), integer()), character())
   }
 })
+
+test_that("console integral precision reuses complete finite values", {
+  d <- data.frame(x = as.double(seq_len(100L) - 50L))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(x, d$x) && !missing(i) && is.logical(i) && all(i))
+      stop("copied a complete finite console column")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  withr::local_options(cli.num_colors = 1L)
+  expect_identical(capture.output(fn(d, n = NULL, width = 38)),
+    capture.output(pr_table(d, n = NULL, width = 38)))
+})

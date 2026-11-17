@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` reuses complete finite columns when choosing display precision.
+
 * Custom quality markers match the first pattern on the supplied values and narrow subsequent searches.
 
 * Integer64 endpoint subtraction returns an already complete result before allocating overflow masks.

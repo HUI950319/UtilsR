@@ -698,12 +698,15 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     }
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
       finite <- is.finite(v)
-      fin <- v[finite]
-      d    <- if (all(fin == round(fin))) 0L else digits
-      # 0.0003 would print as 0.00: give the column two significant digits
-      tiny <- abs(fin[fin != 0])
-      if (d > 0L && length(tiny) && min(tiny) < 0.5 * 10^-d) {
-        d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
+      fin <- if (all(finite)) v else v[finite]
+      d <- if (all(fin == round(fin))) 0L else digits
+      # 0.0003 would print as 0.00: give the column two significant digits.
+      if (d > 0L) {
+        tiny <- abs(fin[fin != 0])
+        if (length(tiny)) {
+          smallest <- min(tiny)
+          if (smallest < 0.5 * 10^-d) d <- min(6L, as.integer(ceiling(-log10(smallest))) + 1L)
+        }
       }
       # Sign-bit differences at zero can affect fixed-point output.
       distinct <- if (.pal_use_unique(v) && !any(fin == 0)) unique(v) else v
