@@ -833,3 +833,23 @@ test_that("ordinary integer KNN columns require no infinity scan", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("sparse nominal KNN factors compact coded missing levels", {
+  skip_if_not_installed("VIM")
+  x <- structure(c(81L, 2L, 12L, 12L, NA_integer_), levels = c(
+    "a", "b", paste0("unused", seq_len(78L)), NA_character_), class = "factor")
+  d <- data.frame(group = x, predictor = c(1, 10, 20, 21, 1.01))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$paste0 <- function(...) {
+    args <- list(...)
+    if (length(args) == 2L && identical(args[[1L]], ".knn_level_") && length(args[[2L]]) > 5L)
+      stop("sent unused nominal KNN levels to the backend")
+    base::paste0(...)
+  }
+  environment(fn) <- env
+  actual <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(actual, expected)
+  expect_identical(as.integer(actual$group[5L]), 81L)
+})

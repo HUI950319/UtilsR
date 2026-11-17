@@ -255,9 +255,17 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     is.factor(x) && anyNA(levels(x))
   }, logical(1))
   factor_na_original <- data_for_impute[factor_na]
+  factor_na_codes <- list()
   for (var_name in names(factor_na_original)) {
     x <- factor_na_original[[var_name]]
-    attr(x, "levels") <- paste0(".knn_level_", seq_len(nlevels(x)))
+    if (identical(class(x), "factor") && nlevels(x) > length(x)) {
+      tally <- .factor_tally(x)
+      factor_na_codes[[var_name]] <- tally$codes
+      x <- structure(match(tally$row_codes, tally$codes),
+        levels = paste0(".knn_level_", tally$codes), class = "factor")
+    } else {
+      attr(x, "levels") <- paste0(".knn_level_", seq_len(nlevels(x)))
+    }
     data_for_impute[[var_name]] <- x
   }
 
@@ -335,6 +343,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     if (anyNA(unclass(original))) {
       missing <- is.na(original)
       codes <- match(as.character(result[[var_name]][missing]), levels(data_for_impute[[var_name]]))
+      if (!is.null(factor_na_codes[[var_name]])) codes <- factor_na_codes[[var_name]][codes]
       restored <- as.integer(original)
       restored[missing] <- codes
       attributes(restored) <- attributes(original)
