@@ -311,3 +311,18 @@ test_that("compound grid units expose nonfinite component coefficients before pl
   expect_s3_class(grob_insert(p, rect, left = valid), "gtable")
   expect_s3_class(grob_add(p, rect, space = grid::grobHeight(rect)), "gtable")
 })
+
+test_that("grob side additions draw every sibling in their shared cell", {
+  skip_if_not_installed("ragg")
+  main <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  main <- gtable::gtable_add_grob(main, grid::rectGrob(), 1L, 1L, name = "panel")
+  item <- function(x, fill) grid::rectGrob(x = x, width = .5, gp = grid::gpar(fill = fill, col = NA))
+  out <- grob_add(main, list(item(.25, "red"), item(.75, "blue")),
+    position = "top", space = grid::unit(1, "in"))
+  capture <- ragg::agg_capture(width = 1, height = 2, units = "in", res = 40,
+    background = "white")
+  on.exit(grDevices::dev.off())
+  grid::grid.draw(out)
+  expect_identical(unname(grDevices::col2rgb(capture()[20L, c(10L, 30L)])),
+    unname(grDevices::col2rgb(c("red", "blue"))))
+})

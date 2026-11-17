@@ -205,6 +205,10 @@ grob_add <- function(
 
   # Keep the measured children together in one layout cell.
   if (inherits(grob, "gList")) grob <- grob_as(grob)
+  label <- paste0("grob_add_", position)
+  if (!grid::is.grob(grob) && length(grob) > 1L) {
+    label <- make.unique(rep.int(label, length(grob)))
+  }
 
   bounds <- .grob_panel_bounds(gt$layout)
   panel_rows <- unname(bounds[c("t", "b")])
@@ -220,7 +224,7 @@ grob_add <- function(
       l = panel_cols[1],
       r = panel_cols[2],
       clip = clip,
-      name = "grob_add_top"
+      name = label
     )
   }
   if (position == "bottom") {
@@ -232,7 +236,7 @@ grob_add <- function(
       l = panel_cols[1],
       r = panel_cols[2],
       clip = clip,
-      name = "grob_add_bottom"
+      name = label
     )
   }
   if (position == "left") {
@@ -244,7 +248,7 @@ grob_add <- function(
       l = 1,
       r = cells,
       clip = clip,
-      name = "grob_add_left"
+      name = label
     )
   }
   if (position == "right") {
@@ -256,7 +260,7 @@ grob_add <- function(
       l = ncol(gt) - cells + 1L,
       r = ncol(gt),
       clip = clip,
-      name = "grob_add_right"
+      name = label
     )
   }
   if (is.matrix(gt$respect)) {
