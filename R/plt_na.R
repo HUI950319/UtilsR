@@ -156,14 +156,17 @@ plt_na <- function(
   }
 
   counts <- missing_counts[sort(missing_vars, method = "radix")]
+  n_rows <- nrow(df)
+  numbers <- as.vector(rbind(n_rows - counts, counts))
+  included <- which(numbers > 0)
+  numbers <- numbers[included]
   missing_summary <- tibble::tibble(
-    name = rep(names(counts), each = 2L),
-    isna = rep(c(FALSE, TRUE), length(counts)),
-    num = as.vector(rbind(nrow(df) - counts, counts)),
-    total = nrow(df),
-    pct = .data[["num"]] / .data[["total"]] * 100
-  ) |>
-    dplyr::filter(.data[["num"]] > 0)
+    name = names(counts)[(included + 1) %/% 2],
+    isna = included %% 2L == 0L,
+    num = numbers,
+    total = n_rows,
+    pct = numbers / n_rows * 100
+  )
 
   missing_pct <- counts / nrow(df) * 100
   ordered_names <- names(counts)[order(missing_pct, decreasing = sort == "desc")]

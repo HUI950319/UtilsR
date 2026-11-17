@@ -531,3 +531,17 @@ test_that("missingness plots inspect tibble columns without coercing the frame",
   actual <- lapply(c("matrix", "percentage"), function(output) fn(d, output = output)$data)
   expect_identical(actual, expected)
 })
+
+test_that("missingness retains only positive cells before making its summary", {
+  local_mocked_bindings(.plt_na_plot = function(...) list(...))
+  d <- data.frame(a = c(NA, 1, 2), b = c(2, NA, 1), c = c(NA, NA, NA))
+  expected <- plt_na(d)
+  original <- dplyr::filter
+  local_mocked_bindings(filter = function(.data, ...) {
+    if (all(c("isna", "num", "total") %in% names(.data))) {
+      stop("filtered completed missingness summary")
+    }
+    original(.data, ...)
+  }, .package = "dplyr")
+  expect_identical(plt_na(d), expected)
+})

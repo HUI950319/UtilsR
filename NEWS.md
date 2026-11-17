@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` builds its percentage summary directly from nonzero counts.
+
 * `fmt_point()` looks up ordinary whole-number shape codes directly.
 
 * `fmt_strip()` avoids deduplicating facet values for scalar or named labels.
