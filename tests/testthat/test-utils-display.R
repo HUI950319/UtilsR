@@ -1379,3 +1379,17 @@ test_that("console swatches use decoded channels for contrast", {
     expect_identical(capture.output(fn(x, rev = TRUE)), capture.output(show_color(x, rev = TRUE)))
   }
 })
+
+test_that("console swatches print rows without splitting the styled vector", {
+  withr::local_options(cli.num_colors = 1L, width = 49L)
+  x <- rep(c("black", "red", "white", "#00000080", "blue"), 210L)
+  fn <- show_color
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, f, ...) {
+    if (is.character(x) && length(x) > 1024L) stop("prebuilt all console swatch rows")
+    base::split(x, f, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
+  expect_identical(capture.output(fn(character())), capture.output(show_color(character())))
+})

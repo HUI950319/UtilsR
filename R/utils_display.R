@@ -944,9 +944,14 @@ show_color <- function(x, rev = FALSE) {
   }
 
   per_line <- max(1L, (width + 1) %/% (label_width + padding + 1L))
-  rows <- split(styled, ceiling(seq_along(styled) / per_line))
-  if (!length(rows)) rows <- list(character())
-  for (row in rows) cat(paste(row, collapse = " "), "\n", sep = "")
+  if (!length(styled)) {
+    cat("\n")
+  } else {
+    for (first in seq.int(1L, length(styled), by = per_line)) {
+      last <- min(first + per_line - 1L, length(styled))
+      cat(paste(styled[first:last], collapse = " "), "\n", sep = "")
+    }
+  }
   dput(x, control = c("keepNA", "keepInteger", "niceNames", "showAttributes", "digits17"))
   invisible(x)
 }
