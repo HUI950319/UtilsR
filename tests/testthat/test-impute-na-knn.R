@@ -904,3 +904,17 @@ test_that("KNN integer64 preflight reads extrema while enforcing both precision 
     expect_error(fn(d, k = 1L, verbose = FALSE), "exact double precision")
   }
 })
+
+test_that("complete ordinary KNN predictors avoid a second missingness probe", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(1, 3, NA, 4), helper = 1:4)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$anyNA <- function(x, ...) {
+    if (identical(substitute(x), quote(data_for_impute[[complete_columns[[1L]]]])))
+      stop("rechecked a complete ordinary KNN predictor")
+    base::anyNA(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})

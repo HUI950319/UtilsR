@@ -272,8 +272,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   backend_names <- paste0(".knn_", seq_along(data_for_impute))
   complete_columns <- setdiff(names(data_for_impute), vars_with_missing)
-  observed_rows <- if (length(complete_columns) &&
-                       !anyNA(data_for_impute[[complete_columns[[1L]]]])) {
+  stable_columns <- names(data_for_impute)[!(labelled_cols | time_cols)]
+  observed_rows <- if (any(complete_columns %in% stable_columns) ||
+                       (length(complete_columns) && !anyNA(data_for_impute[[complete_columns[[1L]]]]))) {
     TRUE
   } else {
     observed <- rep(FALSE, nrow(data_for_impute))

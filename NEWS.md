@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` shares its preflight completeness result for predictor columns that keep their missingness during normalization.
+
 * `plt_dist()` detects multiple fill categories per heatmap cell through the existing typed row grouping library.
 
 * Continuous dot layouts only clone scales that need a change to their shared size limits.
