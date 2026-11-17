@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(on_top = FALSE)` layers an inset between its background and foreground when those layers share positive infinite z-order.
+
 * `plt_na()` resolves the fallback label indices once and retains complete label maps directly.
 
 * `plt_na(output = "matrix")` assembles missingness directly from the logical column masks.

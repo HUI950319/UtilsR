@@ -405,3 +405,16 @@ test_that("two insets in one cell both draw", {
   expect_identical(unname(grDevices::col2rgb(capture()[20L, c(10L, 30L)])),
     unname(grDevices::col2rgb(c("red", "blue"))))
 })
+
+test_that("behind insets preserve positive infinite draw order", {
+  rect <- function(fill) grid::rectGrob(gp = grid::gpar(fill = fill, col = NA))
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, list(rect("white"), grid::pointsGrob(.5, .5)),
+    t = 1L, l = 1L, name = c("background", "panel"))
+  for (z in list(c(Inf, Inf), c(0, Inf))) {
+    gt$layout$z <- z
+    inset <- grob_insert(gt, rect("red"), on_top = FALSE, align_to = "full")
+    expect_identical(inset$layout$name[order(inset$layout$z)], c("background", "inset", "panel"))
+    expect_identical(inset$layout$z[match(gt$layout$name, inset$layout$name)], z)
+  }
+})
