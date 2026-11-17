@@ -574,8 +574,10 @@ fmt_point <- function(plot,
             "1" = 21, "16" = 21, "19" = 21, "20" = 21,
             "2" = 24, "17" = 24,
             "5" = 23, "18" = 23, "6" = 25)
-  key <- as.character(x)
-  converted <- unname(dict[key])
+  whole <- !is.object(x) && (is.integer(x) ||
+    (is.double(x) && all(is.na(x) | x == trunc(x))))
+  index <- if (whole) match(x, as.integer(names(dict))) else as.character(x)
+  converted <- unname(dict[index])
   if (all(!is.na(converted))) return(converted)
   x[!is.na(converted)] <- converted[!is.na(converted)]
   x

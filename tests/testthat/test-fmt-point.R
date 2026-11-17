@@ -1056,3 +1056,18 @@ test_that("sampling constructor lookup preserves native deferred function semant
   expect_equal(nrow(.fmt_point_sample(d, mapping, sample_n = 1L, seed = 42L)), 2L)
   expect_false(forced_during_inspection)
 })
+
+test_that("ordinary whole point shapes use numeric code lookup", {
+  fn <- .shape_convert
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.numeric(x) && length(x) > 100L) stop("decoded all numeric shapes")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  for (shapes in list(rep(c(0L, 19L, 21L, 8L, NA_integer_), 40L),
+                      rep(c(0, 19, 21, 8, NA_real_), 40L))) {
+    names(shapes) <- seq_along(shapes)
+    expect_identical(fn(shapes), .shape_convert(shapes))
+  }
+})
