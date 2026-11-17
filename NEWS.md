@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization reuses established child order and retains name lookup for reordered grobs.
+
 * Sankey expansion marks only terminal successor positions instead of building a logical mask over every path row.
 
 * Continuous dot plot ordering derives first-observation group ranks in one pass over ordinary numeric and character columns.

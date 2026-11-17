@@ -986,3 +986,24 @@ test_that("flat raster layouts need no cumulative decoration offsets", {
   expect_s3_class(out, "patchwork")
   expect_identical(attr(out, "size")$width, 1)
 })
+
+test_that("raster panel children already in order skip name lookup", {
+  skip_if_not_installed("ragg")
+  g <- grid::grobTree(grid::rectGrob(name = "shape"), grid::textGrob("label", name = "text"))
+  fn <- .rasterize_panel_grob
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(x, table)) stop("rematched child names already in draw order")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, g) f(g, 1, 1, 32, "in", "transparent")
+  reordered <- g
+  reordered$childrenOrder <- rev(g$childrenOrder)
+  for (panel in list(g, reordered)) {
+    actual <- draw(fn, panel)
+    expected <- draw(.rasterize_panel_grob, panel)
+    expect_identical(unname(lapply(actual$children, class)),
+      unname(lapply(expected$children, class)))
+  }
+})

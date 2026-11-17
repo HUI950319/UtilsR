@@ -585,7 +585,10 @@ fmt_raster <- function(
     if (!background && .is_text_grob(g, g$name)) return(g)
     g <- grid::grobTree(g)
   }
-  ordered <- match(g$childrenOrder, names(g$children))
+  child_names <- names(g$children)
+  ordered <- if (identical(g$childrenOrder, child_names) && !anyDuplicated(child_names)) {
+    seq_along(child_names)
+  } else match(g$childrenOrder, child_names)
   # Empty grobs draw nothing: they neither become nor split a raster run.
   ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),
                              c("zeroGrob", "null"))]
