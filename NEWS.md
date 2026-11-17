@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor recoding checks bounds directly for ordinary indices and collects invalid positions only on failure.
+
 * `fct_num()` reports when interpolating opposite infinities produces undefined quantile cut points.
 
 * Complete discrete palette previews retain all colours and names without an index slice.

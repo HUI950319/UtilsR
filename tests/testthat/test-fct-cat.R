@@ -923,3 +923,16 @@ test_that("factor construction matches ordinary integers and logicals directly",
     expect_identical(fn(x), factor(x))
   }
 })
+
+test_that("valid ordinary factor indices skip the rejection mask", {
+  fn <- .check_integer_index
+  env <- new.env(parent = environment(fn))
+  env[["|"]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(x < 1)) && !any(e1) && !any(e2))
+      stop("created a rejection mask for valid factor indices")
+    base::"|"(e1, e2)
+  }
+  environment(fn) <- env
+  expect_identical(fn(1:1024, "index", 1024L), 1:1024)
+  expect_error(fn(c(0L, 1025L), "index", 1024L), "between")
+})

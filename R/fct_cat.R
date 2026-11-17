@@ -376,6 +376,11 @@ fct_cat <- function(x, ...,
        (any(!is.finite(x)) || any(x != trunc(x))))) {
     cli::cli_abort("{.arg {arg_name}} must contain finite integer values, got: {.val {x}}.")
   }
+  if (!length(x)) return(integer())
+  if (!is.object(x)) {
+    bounds <- range(x)
+    if (bounds[1L] >= 1 && bounds[2L] <= n_levels) return(as.integer(x))
+  }
   oob <- x < 1 | x > n_levels
   if (any(oob)) {
     cli::cli_abort("{.arg {arg_name}} must be between 1 and {n_levels}, got: {.val {x[oob]}}.")
