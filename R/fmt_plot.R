@@ -4538,9 +4538,12 @@ fmt_com <- function(plot,
     }
     if (vector_layout) {
       n <- nrow(source_data)
-      axis_values <- rep(mapped_values$x, length.out = n)
-      group_values <- if (grouped) rep(mapped_values$group, length.out = n) else rep("", n)
-      finite <- is.finite(rep(mapped_values$y, length.out = n))
+      full_length <- function(value) {
+        if (length(value) == n && is.null(attributes(value))) value else rep(value, length.out = n)
+      }
+      axis_values <- full_length(mapped_values$x)
+      group_values <- if (grouped) full_length(mapped_values$group) else rep("", n)
+      finite <- is.finite(full_length(mapped_values$y))
       axis_scale <- p$scales$get_scales("x")
       axis_scale <- if (is.null(axis_scale)) ggplot2::scale_x_discrete() else axis_scale$clone()
       axis_scale$train(axis_values)

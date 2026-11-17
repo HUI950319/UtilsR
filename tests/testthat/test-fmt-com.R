@@ -903,3 +903,20 @@ test_that("private paired IDs do not shadow literal facet lookups", {
   expect_equal(nrow(actual), 1L)
   expect_identical(actual[["get(\".fmt_com_pair_id\")"]], expected[["get(\".fmt_com_pair_id\")"]])
 })
+
+test_that("comparison bracket layouts reuse full mapped observations", {
+  d <- transform(iris, species = as.character(Species))
+  p <- ggplot2::ggplot(d, ggplot2::aes(species, Sepal.Length)) + ggplot2::geom_boxplot()
+  fn <- fmt_com
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(substitute(x), quote(mapped_values$x)) ||
+        identical(substitute(x), quote(mapped_values$y)) ||
+        identical(substitute(x), quote(mapped_values$group))) stop("recycled full statistical layout vectors")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  env$fmt_com <- fn
+  draw <- function(f) ggplot2::ggplot_build(f(p, com_method = "all", label.y = c(8, 9, 10)))$data
+  expect_identical(draw(fn), draw(fmt_com))
+})
