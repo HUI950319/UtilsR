@@ -1967,3 +1967,20 @@ test_that("dodged rose label radii reuse complete group observations", {
   p <- .plt_cat_rose(d, colours, position = "dodge")
   expect_identical(unique(p$layers[[2L]]$data$y), 24 * 1.15)
 })
+
+test_that("category background bands keep their resolved level positions", {
+  d <- data.frame(group = factor(c("b", "a", NA, "b", "a", NA)), bg = rep(c("X", "Y", "Z"), 2L))
+  fn <- .build_bg_layer
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(group_levels))) stop("rematched background band labels")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  limits <- c("b", "unused", NA, "a")
+  args <- list(d, "group", "bg", .4, c("red", "blue", "grey"), axis_levels = limits)
+  actual <- do.call(fn, args)$data
+  expect_identical(actual, do.call(.build_bg_layer, args)$data)
+  expect_identical(as.integer(actual$x), c(1L, 3L, 4L))
+  expect_identical(levels(actual$x), limits)
+})

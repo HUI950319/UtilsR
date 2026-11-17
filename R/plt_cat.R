@@ -1278,7 +1278,7 @@ plt_cat <- function(data,
 
   bg_data <- data.frame(
     group = group_levels,
-    x = factor(group_levels, levels = axis_levels, exclude = NULL),
+    x = structure(group_ids, levels = as.character(axis_levels), class = "factor"),
     bg = bg_map,
     stringsAsFactors = FALSE
   )

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical background bands use prepared level positions to retain axis order and coded missing labels.
+
 * Dodged rose plots find the outer label radius from complete group observations without a grouped maximum table.
 
 * `plt_upset()` counts distinct nonempty intersections from compact row codes.
