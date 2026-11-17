@@ -3114,3 +3114,14 @@ test_that("all-translucent palette previews skip empty opaque replacement", {
   expect_identical(fn(cols), cols)
   expect_identical(fn(c(cols, "red")), c(cols, "#FF0000"))
 })
+
+test_that("portable catalogue previews extract hex colours without copying CSS prefixes", {
+  x <- c("<span style='background:#00AAFF'> </span><i style='background:#11223355'></i>",
+    "<span color='#12'>no swatch</span>", "background:#12EF", "")
+  fn <- .pal_preview_formats$default
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(...) stop("removed each redundant background prefix")
+  environment(fn) <- env
+  expect_identical(fn(x), c("#00AAFF #11223355", "", "#12EF", ""))
+  expect_identical(fn(x), .pal_preview_formats$default(x))
+})

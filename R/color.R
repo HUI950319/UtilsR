@@ -952,9 +952,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 # Keep the callbacks outside the table's environment for serialization.
 .pal_preview_formats <- local({
   hex <- function(x) {
-    vapply(regmatches(x, gregexpr("background:#[A-Fa-f0-9]+", x)), function(cols) {
-      paste(sub("background:", "", cols, fixed = TRUE), collapse = " ")
-    }, character(1), USE.NAMES = FALSE)
+    colours <- regmatches(x, gregexpr("(?<=background:)#[A-Fa-f0-9]+", x, perl = TRUE))
+    vapply(colours, paste, character(1), collapse = " ", USE.NAMES = FALSE)
   }
   list(html = identity,
        latex = function(x) gsub("#", "\\#", hex(x), fixed = TRUE),
