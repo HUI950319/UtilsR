@@ -2990,3 +2990,14 @@ test_that("complete AsIs palette values skip redundant missingness restoration",
   expect_identical(fn(x), as.numeric(x))
   expect_identical(fn(I(c(1, NaN, NA))), c(1, NA_real_, NA_real_))
 })
+
+test_that("palette lists avoid factoring ordinary discrete dictionary inputs", {
+  palettes <- list(one = c("red", "blue", "gold"), two = "#22334480")
+  fn <- pal_get
+  environment(fn) <- list2env(list(factor = function(...) stop("palette categories refactored")),
+    parent = environment(fn))
+  for (x in list(c("B", "", NA, "A", "B"), c(TRUE, NA, FALSE, TRUE), character())) {
+    expect_identical(fn(palettes, x = x, reverse = TRUE, alpha = .7),
+      pal_get(palettes, x = x, reverse = TRUE, alpha = .7))
+  }
+})

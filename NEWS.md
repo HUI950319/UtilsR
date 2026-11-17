@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette lists use their shared discrete keys without a preliminary factor conversion.
+
 * `PlotHeatmapJaccard()` reuses its sparse membership index when features occur in three or more groups.
 
 * `plt_cat(NA_stat = TRUE)` adds the shared missing label directly to ordinary factor codes.

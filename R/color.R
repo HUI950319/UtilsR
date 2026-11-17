@@ -554,10 +554,6 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         cli::cli_abort("Palette {.val {label}} contains invalid colour{?s}: {.val {bad}}.")
       }
     }
-    if (!is.object(x) && (is.character(x) || is.logical(x))) {
-      lvs <- unique(x[!is.na(x)])
-      x <- factor(lvs, levels = lvs)
-    }
     if (!is.object(x) && is.numeric(x)) {
       if (.pal_use_unique(x)) {
         unique_x <- unique(x)
