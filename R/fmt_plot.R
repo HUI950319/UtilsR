@@ -3959,10 +3959,16 @@ fmt_axisTile <- function(plot,
       high <- pmin(1, pmax(key$.fmt_lower, key$.fmt_upper))
       keep <- is.finite(low) & is.finite(high) & high > low
       if (!any(keep)) return(grid::nullGrob())
-      fill <- unname(settings$colors[as.character(key$.value[keep])])
+      values <- key$.value
+      if (!all(keep)) {
+        low <- low[keep]
+        high <- high[keep]
+        values <- values[keep]
+      }
+      fill <- unname(settings$colors[as.character(values)])
       fill[is.na(fill)] <- "grey70"
-      position <- (low[keep] + high[keep]) / 2
-      width <- high[keep] - low[keep]
+      position <- (low + high) / 2
+      width <- high - low
       tile <- grid::rectGrob(
         x = if (params$vertical) 0.5 else position,
         y = if (params$vertical) position else 0.5,

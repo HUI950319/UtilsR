@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis tiles reuse fully visible bounds and filter partially clipped tile vectors once.
+
 * `fmt_point()` reuses its explicit grouping decision without inspecting mapped aesthetics for automatic dodge.
 
 * The palette catalogue builds swatch group codes directly from each palette's size.

@@ -619,3 +619,27 @@ test_that("changed axis tiles keep the guide prototype depth fixed", {
   }
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("complete axis tiles reuse their unfiltered bounds and labels", {
+  fn <- .axis_tile_guide
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.atomic(x) && !missing(i) && is.logical(i) &&
+        length(x) == 200L && length(i) == 200L && all(i)) stop("copied complete axis tile bounds")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  settings <- list(mode = "tile", colors = c(A = "red", B = "blue"),
+    tile_border = "white", tile_border_width = .2, tile_width = .05, tile_height = .05)
+  parent <- ggplot2::ggproto(NULL, ggplot2::GuideAxis)
+  key <- data.frame(.fmt_lower = seq(0, .995, by = .005),
+    .fmt_upper = seq(.005, 1, by = .005), .value = rep(c("A", "B"), 100L))
+  draw <- function(guide, key) guide$build_ticks(key, list(), list(vertical = FALSE, position = "bottom"))
+  for (k in list(key, transform(key, .fmt_upper = replace(.fmt_upper, 1L, 0)))) {
+    actual <- draw(fn(parent, settings), k)
+    expected <- draw(.axis_tile_guide(parent, settings), k)
+    expect_identical(actual$x, expected$x)
+    expect_identical(actual$width, expected$width)
+    expect_identical(actual$gp, expected$gp)
+  }
+})
