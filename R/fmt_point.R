@@ -512,7 +512,13 @@ fmt_point <- function(plot,
         x[missing] <- NA
       }
       if (is.factor(x) && anyNA(levels(x))) {
-        x <- structure(as.integer(x), levels = as.character(seq_along(levels(x))), class = "factor")
+        if (length(group_values) == 1L && nlevels(x) > nrow(data)) {
+          tally <- .factor_tally(x)
+          x <- structure(match(tally$row_codes, tally$codes),
+                         levels = as.character(tally$codes), class = "factor")
+        } else {
+          x <- structure(as.integer(x), levels = as.character(seq_along(levels(x))), class = "factor")
+        }
       }
       if (is.numeric(x)) {
         # Keep exact values in legacy factor order, including NaN and NA.

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling skips unused keys in a single sparse factor stratum with a coded NA.
+
 * Sankey successor stages reuse a single integer pattern across rows.
 
 * `plt_sankey()` encodes distinct caption text once and expands its integer positions over flow rows.

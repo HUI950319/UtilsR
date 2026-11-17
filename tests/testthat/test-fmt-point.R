@@ -1093,3 +1093,19 @@ test_that("filled point panels reuse all or no foreground rows", {
   data$shape <- 21L
   expect_s3_class(fn(data, params, coord), "points")
 })
+
+test_that("sampling sparse coded missing point strata uses observed levels only", {
+  levels <- c(paste0("unused", seq_len(2000L)), NA_character_)
+  d <- data.frame(g = structure(rep(c(3L, 2001L, NA_integer_, 30L), 14L),
+    levels = levels, class = "factor"), x = seq_len(56L))
+  mapping <- ggplot2::aes(group = g)
+  expected <- .fmt_point_sample(d, mapping, sample_n = 3L, seed = 17L)
+  fn <- .fmt_point_sample
+  env <- new.env(parent = environment(fn))
+  env$seq_along <- function(x) {
+    if (identical(x, levels)) stop("formatted unused coded sampling strata")
+    base::seq_along(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, mapping, sample_n = 3L, seed = 17L), expected)
+})
