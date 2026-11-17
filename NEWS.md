@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Set plots reuse the distinct observed values when selecting a fallback positive category.
+
 * Viridis previews select the required RGB samples directly from the upstream channel columns.
 
 * Palette placement reuses its existing lookup when normalization leaves repeated coordinate keys distinct.

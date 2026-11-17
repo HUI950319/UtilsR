@@ -1938,3 +1938,20 @@ test_that("scalar time keys format only repeated distinct values", {
     expect_identical(fn(x), .cat_time_key(x))
   }
 })
+
+test_that("set defaults reuse observed labels before sorting the fallback", {
+  d <- data.frame(set = rep(c("z", "a", NA_character_), 200L))
+  fn <- .resolve_stat_level
+  env <- new.env(parent = environment(fn))
+  scanned <- 0L
+  env$unique <- function(x, ...) {
+    if (identical(x, d$set)) {
+      scanned <<- scanned + 1L
+      if (scanned > 1L) stop("collected observed labels again")
+    }
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(fn(d, "set", NULL)), list(set = "a"))
+  expect_identical(scanned, 1L)
+})

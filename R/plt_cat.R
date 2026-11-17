@@ -1129,7 +1129,7 @@ plt_cat <- function(data,
       if (length(hits) > 0) {
         as.character(hits)
       } else {
-        lv <- if (is.factor(data[[s]])) levels(data[[s]])[1] else sort(unique(data[[s]]))[1]
+        lv <- if (is.factor(data[[s]])) levels(data[[s]])[1] else sort(vals)[1]
         cli::cli_inform(
           "Column {.val {s}}: using {.val {lv}} as positive level."
         )
