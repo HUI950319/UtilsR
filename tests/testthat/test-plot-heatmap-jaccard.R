@@ -1069,3 +1069,21 @@ test_that("Jaccard text layers format repeated scores only once", {
   p <- PlotHeatmapJaccard(d, show_diag = FALSE, text_size = 2)
   expect_identical(ggplot2::ggplot_build(p)$data[[2L]]$label, expected)
 })
+
+test_that("sparse Jaccard pair keys directly recover matrix indices", {
+  d <- data.frame(cell_type = rep(LETTERS[1:24], each = 3L),
+    gene = c(rbind(paste0("triple", rep(1:8, each = 3L)),
+      paste0("pair", rep(1:12, each = 2L)), paste0("local", 1:24))))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(x), quote(pairs))) stop("looked up the first observation of each encoded pair")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  out <- fn(d, return_type = "data")
+  expect_identical(out, PlotHeatmapJaccard(d, return_type = "data"))
+  expect_equal(out["A", "B"], .5)
+  expect_equal(out["A", "C"], .2)
+  expect_equal(out["A", "D"], 0)
+})

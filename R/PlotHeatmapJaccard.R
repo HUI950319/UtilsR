@@ -294,9 +294,8 @@ PlotHeatmapJaccard <- function(
       keys <- i + (j - 1) * n_ct
       pairs <- unique(keys)
       counts <- tabulate(match(keys, pairs), nbins = length(pairs))
-      first_pair <- match(pairs, keys)
-      i <- i[first_pair]
-      j <- j[first_pair]
+      i <- (pairs - 1) %% n_ct + 1
+      j <- (pairs - 1) %/% n_ct + 1
       values <- counts / (set_sizes[i] + set_sizes[j] - counts)
       jmat[cbind(i, j)] <- jmat[cbind(j, i)] <- values
     }

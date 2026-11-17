@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` extracts row and column indices directly from sparse intersection keys.
+
 * `plt_alluvial()` creates alternating real and gap group levels directly and keeps the same stratum order.
 
 * `plt_alluvial()` retains existing ordinal codes for complete observed factor levels.
