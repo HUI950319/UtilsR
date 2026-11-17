@@ -679,8 +679,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   lookup <- NULL
   if (.pal_use_unique(values)) {
     keys <- unique(values)
-    lookup <- match(values, keys)
-    values <- keys
+    if (length(keys) < length(values) / 2) {
+      lookup <- match(values, keys)
+      values <- keys
+    }
   }
   at <- if (!is.finite(ends[[2L]] - ends[[1L]])) {
     # Halving finite endpoints keeps their span representable.
@@ -692,9 +694,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   index <- NULL
   if (!is.null(lookup) || .pal_use_unique(at)) {
     unique_at <- unique(at)
-    index <- match(at, unique_at)
-    if (!is.null(lookup)) index <- index[lookup]
-    at <- unique_at
+    if (!is.null(lookup) || length(unique_at) < length(at) / 2) {
+      index <- match(at, unique_at)
+      if (!is.null(lookup)) index <- index[lookup]
+      at <- unique_at
+    }
   }
   list(placed = placed, at = at, index = index)
 }

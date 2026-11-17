@@ -3012,3 +3012,19 @@ test_that("palette preview contrast reuses decoded RGBA", {
   result <- fn(colors, max_colors = Inf)$data
   expect_identical(result[, c("hex", "fg")], expected[, c("hex", "fg")])
 })
+
+test_that("palette numeric positions verify repetition beyond the sample", {
+  x <- as.double(seq_len(12000L))
+  x[round(seq.int(1, length(x), length.out = 1024L))] <- 0
+  expected <- 1 - (x - min(x)) / (max(x) - min(x))
+  fn <- .pal_numeric_positions
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(table) > 6000L) stop("matched a mostly unique palette vector")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  observed <- fn(x, reverse = TRUE)
+  expect_identical(observed$at, expected)
+  expect_null(observed$index)
+})
