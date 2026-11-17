@@ -1259,3 +1259,19 @@ test_that("unlabelled alluvial plots skip selecting label rows", {
   expect_identical(actual$data, expected$data)
   expect_length(actual$layers, length(expected$layers))
 })
+
+test_that("alluvial labels reuse highly repeated counts and shares", {
+  skip_if_not_installed("ggalluvial")
+  local_mocked_bindings(.save_sized = function(p, ...) p)
+  d <- data.frame(cat = rep(sprintf("category%04d", 1:560), each = 2L),
+    group = rep(c("left", "right"), 560L))
+  args <- list(data = d, cat_var = "cat", group = "group",
+    label_args = list(style = "count_percent"))
+  reference <- suppressMessages(do.call(plt_alluvial, args))
+  original <- scales::percent
+  local_mocked_bindings(percent = function(x, ...) {
+    if (length(x) > 1000L) stop("formatted repeated alluvial shares in bulk")
+    original(x, ...)
+  }, .package = "scales")
+  expect_identical(suppressMessages(do.call(plt_alluvial, args))$data$.label, reference$data$.label)
+})

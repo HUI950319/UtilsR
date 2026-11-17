@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` formats distinct repeated counts and percentages before expanding them to labels.
+
 * `check_na()` formats its displayed columns without augmenting and selecting the full numeric summary.
 
 * `plt_na()` selects percentage-label rows directly at plot build time.

@@ -525,13 +525,20 @@ plt_alluvial <- function(
   if (length(show_label)) {
     style <- label_args$style
     group_name <- as.character(stat$.group[show_label])
+    format_labels <- function(values, formatter, accuracy) {
+      if (length(values) > 1024L && .pal_use_unique(values)) {
+        distinct <- unique(values)
+        if (length(distinct) < length(values) / 2) {
+          return(formatter(distinct, accuracy = accuracy)[match(values, distinct)])
+        }
+      }
+      formatter(values, accuracy = accuracy)
+    }
     if (style %in% c("count_percent", "count_percent_wrap", "count")) {
-      count_text <- scales::comma(stat$count[show_label], accuracy = 1)
+      count_text <- format_labels(stat$count[show_label], scales::comma, 1)
     }
     if (style %in% c("count_percent", "count_percent_wrap", "percent")) {
-      pct_text <- scales::percent(
-        stat$percent[show_label], accuracy = label_args$pct_accuracy
-      )
+      pct_text <- format_labels(stat$percent[show_label], scales::percent, label_args$pct_accuracy)
     }
     stat$.label[show_label] <- switch(
       style,
