@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip()` uses recycled labels directly when the facet keys occur once and retains the lookup for repeated keys.
+
 * `plt_con()` checks global test panel variation without building a vector of distinct outcomes.
 
 * `plt_con()` uses a single conversion of numeric group pairs for both validation and statistical prechecks.

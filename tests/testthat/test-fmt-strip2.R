@@ -1243,3 +1243,19 @@ test_that("rectangular strip grids reuse equal HCL mother ramps", {
   for (i in seq_along(result)) expect_identical(result[[i]]$facet$strip$given_elements,
     expected[[i]]$facet$strip$given_elements)
 })
+
+test_that("unique facet keys use their positional strip labels directly", {
+  fn <- .fmt_strip_labeller
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(x, table)) stop("matched facet keys already in position")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  labels <- c("Third", "First", "Second")
+  labeller <- fn(ggplot2::label_value, "f", labels)
+  vals <- data.frame(f = c("c", "a", "b"))
+  expect_identical(unname(labeller(vals)[[1L]]), labels)
+  expect_identical(unname(labeller(vals[c(1, 2, 2, 3), , drop = FALSE])[[1L]]),
+    labels[c(1L, 2L, 2L, 3L)])
+})

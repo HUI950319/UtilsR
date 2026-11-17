@@ -1888,7 +1888,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
           i = "Give one label, one per level, or name the labels by level."
         ))
       }
-      mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
+      mapped <- rep_len(replacement, length(levels))
+      if (length(levels) != length(values[[variable]])) mapped <- mapped[match(values[[variable]], levels)]
     } else {
       keys <- as.character(values[[variable]])
       unmatched <- setdiff(names(replacement), keys)
