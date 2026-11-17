@@ -242,10 +242,17 @@ PlotCircleLollipop <- function(
   group_input <- data[[group_col]]
   if (inherits(group_input, "haven_labelled_spss")) group_input <- .scatter_axis_values(group_input)
   duration_groups <- inherits(group_input, "Duration")
-  group_values <- vctrs::vec_unique(group_input)
-  group_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_values) else group_values
-  if (duration_groups) group_input <- vctrs::vec_proxy_equal(group_input)
-  group_ids <- vctrs::vec_match(group_input, group_keys)
+  if (!is.object(group_input) && is.null(dim(group_input)) &&
+      (is.character(group_input) || is.numeric(group_input) || is.logical(group_input))) {
+    group_ids <- as.integer(vctrs::vec_group_id(group_input))
+    group_values <- group_input[!duplicated(group_ids)]
+    group_keys <- group_values
+  } else {
+    group_values <- vctrs::vec_unique(group_input)
+    group_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_values) else group_values
+    if (duration_groups) group_input <- vctrs::vec_proxy_equal(group_input)
+    group_ids <- vctrs::vec_match(group_input, group_keys)
+  }
   group_labels <- as.character(group_values)
   collision <- duplicated(group_labels) | duplicated(group_labels, fromLast = TRUE)
   if (any(collision)) {

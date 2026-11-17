@@ -1424,3 +1424,18 @@ test_that("complete circular scores do not build an all-missing mask", {
   fn(d, value_scale = "group", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(seen, c(1, .5, 0, 1, .25, 0))
 })
+
+test_that("ordinary circular groups use one sector encoding", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("right", "left"), 12L), name = letters[1:24],
+    value = seq(.1, .9, length.out = 24L))
+  original <- vctrs::vec_match
+  local_mocked_bindings(vec_match = function(needles, haystack, ...) {
+    if (identical(needles, d$group)) stop("looked up the plain circular group codes twice")
+    original(needles, haystack, ...)
+  }, .package = "vctrs")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  expect_no_error(PlotCircleLollipop(d, value_scale = "group",
+    show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+})

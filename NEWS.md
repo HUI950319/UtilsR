@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` derives plain group keys from existing sector codes and preserves typed time-group handling.
+
 * `PlotRankCor()` assigns method values to prepared row positions without rematching complete output sequences.
 
 * Categorical area labels use one range calculation for left and right alignment.
