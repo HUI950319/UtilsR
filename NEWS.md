@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console wrapping measures the returned lines together and splits only lines that exceed the display width.
+
 * Continuous bar ranges split complete factor groups directly and only retain occupied partitions.
 
 * `fct_num()` skips an additional finiteness pass for integer cut points after ruling out missing values.

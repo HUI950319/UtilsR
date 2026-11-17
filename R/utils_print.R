@@ -129,8 +129,11 @@
     if (nzchar(plain) && !grepl("[[:cntrl:]]", plain)) return(text)
   }
   lines <- as.character(cli::ansi_strwrap(text, width = width, exdent = exdent))
-  unlist(lapply(lines, function(s) {
-    if (cli::ansi_nchar(s, type = "width") <= width) return(s)
+  if (!length(lines)) return(NULL)
+  over <- which(cli::ansi_nchar(lines, type = "width") > width)
+  if (!length(over)) return(lines)
+  pieces <- as.list(lines)
+  pieces[over] <- lapply(lines[over], function(s) {
     # Printable ASCII has one console column per character.
     if (!grepl("[^ -~]", s)) {
       first <- seq.int(1L, nchar(s), by = width)
@@ -154,7 +157,8 @@
       s <- cli::ansi_substr(s, n + 1L, cli::ansi_nchar(s, type = "chars"))
     }
     if (nzchar(cli::ansi_strip(s)) || !length(out)) c(out, s) else out
-  }), use.names = FALSE)
+  })
+  unlist(pieces, use.names = FALSE)
 }
 
 ._pr_count <- function(value, arg, lower = 0L, null = FALSE, infinite = FALSE) {

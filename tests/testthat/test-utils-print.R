@@ -2137,3 +2137,17 @@ test_that("nonnumeric console P-value cells skip decimal parsing", {
   x <- c(" unknown ", "test omitted", NA_character_, "invalid p", "\t")
   expect_identical(fn(x), ._p_cells(x))
 })
+
+test_that("short wrapped console lines skip per-line expansion", {
+  fn <- ._pr_wrap
+  env <- new.env(parent = environment(fn))
+  env$lapply <- function(X, FUN, ...) {
+    if (identical(substitute(X), quote(lines))) stop("expanded already fitting console lines individually")
+    base::lapply(X, FUN, ...)
+  }
+  environment(fn) <- env
+  for (value in list(c("x y z", "b c", "null text"), c("abc", strrep("a", 17L)),
+                     c("simple", strrep("\u4e2d", 17L)), character())) {
+    expect_identical(fn(value, 8), ._pr_wrap(value, 8))
+  }
+})
