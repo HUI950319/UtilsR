@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(NA_stat = TRUE)` adds the shared missing label directly to ordinary factor codes.
+
 * Ordinary categorical plots retain only observed factor levels without decoding every row as text.
 
 * `plt_cat()` builds ordinary numeric category labels from distinct keys and matches original row codes.

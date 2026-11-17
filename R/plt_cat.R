@@ -570,18 +570,32 @@ plt_cat <- function(data,
       ordinary_factor <- identical(class(column), "factor") ||
         identical(class(column), c("ordered", "factor"))
       if (ordinary_factor && !anyNA(levels(column)) && !anyNA(column)) next
-      values <- as.character(column)
-      if (anyNA(values)) {
+      if (ordinary_factor) {
+        codes <- as.integer(column)
+        missing <- is.na(codes)
+        na_codes <- which(is.na(levels(column)))
+        if (length(na_codes)) missing <- missing | codes %in% na_codes
+      } else {
+        values <- as.character(column)
+        missing <- is.na(values)
+      }
+      if (any(missing)) {
         if (is.null(missing_level)) {
           used_levels <- unique(unlist(lapply(na_cols, function(k) levels(data[[k]]))))
           used_levels <- used_levels[!is.na(used_levels)]
           missing_level <- tail(make.unique(c(used_levels,
             if ("NA" %in% used_levels) "<NA>" else "NA")), 1L)
         }
-        lvls <- levels(data[[col]])
-        lvls <- lvls[!is.na(lvls)]
-        values[is.na(values)] <- missing_level
-        data[[col]] <- factor(values, levels = c(lvls, missing_level))
+        lvls <- levels(column)
+        present <- !is.na(lvls)
+        if (ordinary_factor) {
+          if (!all(present)) codes <- cumsum(present)[codes]
+          codes[missing] <- sum(present) + 1L
+          data[[col]] <- structure(codes, levels = c(lvls[present], missing_level), class = "factor")
+        } else {
+          values[missing] <- missing_level
+          data[[col]] <- factor(values, levels = c(lvls[present], missing_level))
+        }
         na_levels[col] <- missing_level
       }
     }

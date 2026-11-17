@@ -1812,3 +1812,15 @@ test_that("categorical level drops honor factor subclass methods", {
   expect_identical(seen, 1L)
   expect_identical(levels(p$data$stat_var), c("a", "b"))
 })
+
+test_that("missing categories use integer codes in ordinary factors", {
+  d <- data.frame(s = structure(c(1L, 2L, 3L, NA_integer_, 2L), levels = c("NA", NA, "c"),
+    class = c("ordered", "factor")), g = factor(c("A", "B", "A", "B", "A")))
+  expected <- plt_cat(d, "s", group.by = "g", NA_stat = TRUE, stat = "count")
+  fn <- plt_cat
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.factor(x) && anyNA(levels(x))) stop("decoded missing categorical factor rows")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, "s", group.by = "g", NA_stat = TRUE, stat = "count")$data, expected$data)
+})
