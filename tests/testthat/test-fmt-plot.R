@@ -192,3 +192,19 @@ test_that("facet strip scalar and named labels need no level discovery", {
     expect_identical(fn(ggplot2::label_value, "g", replacement)(values), expected)
   }
 })
+
+test_that("background stripes reuse the categorical axis observation check", {
+  d <- data.frame(g = rep(c("B", NA, "A"), 300L), y = seq_len(900L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  expected <- ggplot2::ggplot_build(fmt_bg(p))$data[[1L]]
+  fn <- fmt_bg
+  env <- new.env(parent = environment(fn))
+  checks <- 0L
+  env$is.na <- function(x) {
+    if (identical(x, d$g)) checks <<- checks + 1L
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(ggplot2::ggplot_build(fn(p))$data[[1L]], expected)
+  expect_identical(checks, 1L)
+})

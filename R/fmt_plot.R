@@ -5075,6 +5075,7 @@ fmt_bg <- function(plot,
     mapping_var <- p$mapping[[bg_axis]]
     axis_values <- NULL
     has_layer_mapping <- FALSE
+    has_observations <- FALSE
     deferred <- FALSE
     layers <- p$layers
     if (!length(layers)) layers <- list(list(mapping = p$mapping, data = p$data, inherit.aes = FALSE))
@@ -5095,7 +5096,8 @@ fmt_bg <- function(plot,
       values <- if (is.symbol(expression)) layer_data[[as.character(expression)]] else expression
       if (is.factor(values) || is.character(values) || is.logical(values)) {
         axis_values <- values
-        if (length(values) && any(!is.na(values))) break
+        has_observations <- length(values) > 0L && any(!is.na(values))
+        if (has_observations) break
       }
     }
     axis_scale <- p$scales$get_scales(bg_axis)
@@ -5109,7 +5111,7 @@ fmt_bg <- function(plot,
       cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
       return(p)
     }
-    if (!deferred && (!length(axis_values) || all(is.na(axis_values)))) return(p)
+    if (!deferred && !has_observations) return(p)
     lvs <- if (is.factor(axis_values)) levels(droplevels(axis_values)) else levels(factor(axis_values))
     bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis,
                               facet_columns = .plot_facet_columns(p))

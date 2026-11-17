@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_bg()` checks each candidate categorical axis for observations once.
+
 * `grob_add()` draws every child of a plain grob list placed in a shared side cell.
 
 * `grob_insert(on_top = FALSE)` draws an inset before an overlapping foreground with z equal to negative infinity.
