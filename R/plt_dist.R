@@ -418,12 +418,7 @@ plt_dist <- function(data,
         data[[v]] <- converted
       } else data[[v]] <- labelled::to_factor(value)
     } else if ((is.integer(data[[v]]) || is.double(data[[v]])) && !is.object(data[[v]])) {
-      values <- sort(unique(data[[v]]))
-      value_labels <- as.character(values)
-      if (anyDuplicated(value_labels)) value_labels <- sprintf("%.17g", values)
-      # Match the original numeric values before applying display labels.
-      data[[v]] <- structure(match(data[[v]], values), levels = value_labels,
-                             class = "factor")
+      data[[v]] <- .as_factor(data[[v]])
     } else {
       value <- data[[v]]
       key <- .cat_time_key(value)

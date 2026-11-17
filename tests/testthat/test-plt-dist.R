@@ -974,3 +974,18 @@ test_that("stacked distribution labels use complete visible count vectors", {
     label_args = list(style = "count_percent"), save = NULL))$data
   expect_identical(draw(fn), draw(plt_dist))
 })
+
+test_that("distribution numeric groups reuse the shared exact factor conversion", {
+  d <- data.frame(x = rep(c(1, 1 + .Machine$double.eps, 2), 6L), fill = rep(c("I", "II"), 9L))
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$.as_factor <- function(x) {
+    calls <<- calls + 1L
+    .as_factor(x)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(d, c("x", "fill"), type = "bar", save = NULL))
+  expect_identical(draw(fn)$data, draw(plt_dist)$data)
+  expect_true(calls > 0L, info = "did not reuse exact distribution factor conversion")
+})

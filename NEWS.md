@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` uses the shared exact numeric factor conversion for ordinary numeric axes.
+
 * `stat_pval()` isolates decimal threshold tie checks to the rows that need exact comparison.
 
 * `lv()` counts TRUE and FALSE directly in ordinary logical frequency lists and retains missing rows.
