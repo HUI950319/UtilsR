@@ -3055,3 +3055,20 @@ test_that("palette catalogues reuse palette positions without repeating names", 
   environment(fn) <- env
   expect_identical(fn(palettes)$data, .pal_show_gg(palettes)$data)
 })
+
+test_that("repeated palette keys keep their lookup when scaling stays distinct", {
+  x <- rep(c(-1e308, 0, 1e308), 600L)
+  fn <- .pal_numeric_positions
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(x, c(1, .5, 0))) stop("matched normalized palette keys again")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expected <- list(placed = rep(TRUE, length(x)), at = c(1, .5, 0),
+    index = rep(1:3, 600L))
+  expect_identical(fn(x, TRUE), expected)
+  tied <- rep(c(1e-100, 2e-100, 1e100), 600L)
+  map <- fn(tied, TRUE)
+  expect_identical(map$at[map$index], rep(c(1, 1, 0), 600L))
+})

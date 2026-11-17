@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette placement reuses its existing lookup when normalization leaves repeated coordinate keys distinct.
+
 * `fmt_his()` reuses contiguous panel codes when partitioning histogram rows in build order.
 
 * `fmt_bg()` skips row copies when all displayed background stripe positions are finite.
