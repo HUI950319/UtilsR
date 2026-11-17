@@ -1401,3 +1401,26 @@ test_that("circular links keep complete feature codes without slicing", {
   environment(fn) <- env
   expect_error(fn(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE), NA)
 })
+
+test_that("complete circular scores do not build an all-missing mask", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 3L), name = letters[1:6],
+    value = c(4, 2, 0, 6, 3, 2))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env$all <- function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...)), quote(list(is.na(x))))) stop("scanned all scores for missingness")
+    base::all(..., na.rm = na.rm)
+  }
+  environment(fn) <- env
+  seen <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    seen <<- c(seen, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  fn(d, value_scale = "group", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(seen, c(1, .5, 0, 1, .25, 0))
+})

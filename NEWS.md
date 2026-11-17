@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` finds min-max bounds directly for complete ordinary scores.
+
 * `PlotRankCor()` uses centered score extrema to determine scaling magnitudes.
 
 * `plt_sankey()` preserves its complete label-layer data when every caption meets the selection threshold.
