@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Viridis previews select the required RGB samples directly from the upstream channel columns.
+
 * Palette placement reuses its existing lookup when normalization leaves repeated coordinate keys distinct.
 
 * `fmt_his()` reuses contiguous panel codes when partitioning histogram rows in build order.

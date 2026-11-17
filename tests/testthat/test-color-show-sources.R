@@ -3072,3 +3072,18 @@ test_that("repeated palette keys keep their lookup when scaling stays distinct",
   map <- fn(tied, TRUE)
   expect_identical(map$at[map$index], rep(c(1, 1, 0), 600L))
 })
+
+test_that("viridis previews select RGB knots without copying map rows", {
+  fn <- .pal_viridis_preview
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x)) stop("copied viridis map rows")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  index <- c(1L, 3L, 17L, 99L)
+  for (pal in c("magma", "mako", "cividis", "turbo")) {
+    actual <- fn(99L, pal, index, .6, .2, .9, -1)
+    expect_identical(actual, .pal_viridis_preview(99L, pal, index, .6, .2, .9, -1))
+  }
+})

@@ -908,9 +908,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   option_codes <- c(magma = "A", inferno = "B", plasma = "C", viridis = "D",
                cividis = "E", rocket = "F", mako = "G", turbo = "H")
   map <- viridisLite::viridis.map
-  map <- map[map$opt == option_codes[[palette]], ]
-  ramp <- grDevices::colorRamp(grDevices::rgb(map$R, map$G, map$B),
-                               space = "Lab", interpolate = "spline")
+  rows <- which(map$opt == option_codes[[palette]])
+  knots <- grDevices::rgb(map$R[rows], map$G[rows], map$B[rows])
+  ramp <- grDevices::colorRamp(knots, space = "Lab", interpolate = "spline")
   from <- if (direction == 1) begin else end
   to <- if (direction == 1) end else begin
   at <- from + (index - 1) * ((to - from) / (n - 1))
