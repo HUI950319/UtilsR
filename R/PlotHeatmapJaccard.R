@@ -315,12 +315,14 @@ PlotHeatmapJaccard <- function(
         unlist(top_sets, use.names = FALSE)
       duplicated(membership) | duplicated(membership, fromLast = TRUE)
     }
-    if (!all(shared)) {
+    if (!is.null(first_at) || !all(shared)) {
       end <- cumsum(set_sizes)
       for (i in occupied) {
         rows <- seq.int(end[i] - set_sizes[i] + 1, end[i])
-        top_sets[[i]] <- if (typed_features) vctrs::vec_slice(top_sets[[i]], which(shared[rows])) else
-          top_sets[[i]][shared[rows]]
+        included <- shared[rows]
+        top_sets[[i]] <- if (!is.null(first_at)) first_at[rows[included]] else
+          if (typed_features) vctrs::vec_slice(top_sets[[i]], which(included)) else
+            top_sets[[i]][included]
       }
       occupied <- if (typed_features) which(vapply(top_sets, vctrs::vec_size, integer(1)) > 0L) else
         which(lengths(top_sets) > 0L)

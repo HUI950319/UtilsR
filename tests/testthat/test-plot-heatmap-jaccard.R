@@ -1034,3 +1034,21 @@ test_that("Jaccard sparse triple memberships avoid all group comparisons", {
   environment(fn) <- env
   expect_identical(fn(d, return_type = "data"), expected)
 })
+
+test_that("Jaccard fallback matches shared feature codes instead of labels", {
+  n <- 20L
+  groups <- paste0("g", seq_len(n))
+  d <- data.frame(cell_type = rep(groups, each = 4L),
+    gene = c(rbind("shared-primary", rep(c("shared-even", "shared-odd"), n / 2L),
+      "shared-third", paste0("local", seq_len(n)))))
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_equal(unname(expected[1L, 2:3]), c(1 / 3, 3 / 5))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(substitute(x), quote(gi)) && is.character(x)) stop("compared shared Jaccard labels again")
+    base::"%in%"(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, return_type = "data"), expected)
+})

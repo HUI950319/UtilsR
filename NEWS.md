@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dense Jaccard overlap comparisons reuse integer feature IDs from the sparse-membership preflight.
+
 * `PlotHeatmapJaccard()` tallies sparse features appearing in up to three groups without comparing all groups.
 
 * Raster panel sizing sums shared multi-cell spans once.
