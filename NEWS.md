@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` counts TRUE and FALSE directly in ordinary logical frequency lists and retains missing rows.
+
 * Sparse factor recoding uses the observation codes already captured by the tally.
 
 * Console P-value styling finds bound operators only on valid numeric tokens that have an operator.

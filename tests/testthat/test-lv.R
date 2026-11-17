@@ -1749,3 +1749,18 @@ test_that("inspection table inputs normalize mixed columns with one pass", {
   extract <- function(tables) lapply(tables, function(x) if (inherits(x, "gt_tbl")) x[["_data"]] else x$table_body)
   expect_identical(extract(capture_reports(fn(d))), extract(capture_reports(lv(d))))
 })
+
+test_that("logical frequency listings count boolean values without matching observations", {
+  d <- data.frame(flag = rep(c(TRUE, FALSE, NA, FALSE), 40L),
+    one = rep(c(TRUE, NA), 80L), absent = rep(NA, 160L))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (is.logical(x) && identical(substitute(table), quote(valid)))
+      stop("matched each logical observation to its displayed value")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

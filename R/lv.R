@@ -505,8 +505,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       valid <- levels(x)[tally$codes]
       n <- tally$counts
       missing_n <- length(x) - sum(n)
+    } else if (is.logical(x) && !is.object(x) && is.null(dim(x))) {
+      missing_n <- if (anyNA(x)) sum(is.na(x)) else 0L
+      true <- sum(x, na.rm = TRUE)
+      counts <- c(length(x) - missing_n - true, true)
+      valid <- c(FALSE, TRUE)[counts > 0L]
+      n <- counts[counts > 0L]
     } else if (!is.object(x) && is.null(dim(x)) &&
-               typeof(x) %in% c("character", "logical", "integer", "double") &&
+               typeof(x) %in% c("character", "integer", "double") &&
                !isTRUE(getOption("dplyr.legacy_locale"))) {
       valid <- .get_levels(x, complete = !anyNA(x))
       n <- tabulate(match(x, valid), length(valid))
