@@ -265,3 +265,22 @@ test_that("histogram positions share one unbinned restore index", {
   p$layers[[index]]$geom <- ggplot2::ggproto(NULL, geom, use_defaults = method)
   expect_identical(ggplot2::ggplot_build(p)$data, expected)
 })
+
+test_that("background palettes build fallback levels only for unmatched training", {
+  d <- data.frame(g = rep(letters[1:10], 8L), y = seq_len(80L),
+    panel = rep(seq_len(8L), each = 10L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(panel), scales = "free_x")
+  p <- fmt_bg(p, palcolor = stats::setNames(rep(c("red", "blue"), 5L), letters[1:10]))
+  expected <- ggplot2::ggplotGrob(p)
+  geom <- p$layers[[1L]]$geom
+  draw <- environment(geom$draw_layer)$f
+  env <- new.env(parent = environment(draw))
+  env$unique <- function(x, ...) {
+    if (is.character(x) && length(x) > nrow(d)) stop("combined unnecessary fallback levels")
+    base::unique(x, ...)
+  }
+  environment(draw) <- env
+  p$layers[[1L]]$geom <- ggplot2::ggproto(NULL, geom, draw_layer = draw)
+  expect_identical(ggplot2::ggplotGrob(p)$layout, expected$layout)
+})

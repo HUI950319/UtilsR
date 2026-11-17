@@ -5014,12 +5014,14 @@ fmt_bg <- function(plot,
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
         trained_limits <- unlist(lapply(trained, as.character), use.names = FALSE)
-        limits <- unique(c(lvs, trained_limits))
-        limits <- limits[!is.na(limits)]
         shown <- unique(trained_limits[!is.na(trained_limits)])
         colors <- if (!is.null(names(palcolor)) && all(shown %in% names(palcolor))) {
           palcolor[shown]
-        } else if (!is.null(bg_color) && all(limits %in% lvs)) bg_color else resolve_bg_colors(limits)
+        } else if (!is.null(bg_color) && all(shown %in% lvs)) {
+          bg_color
+        } else {
+          resolve_bg_colors(unique(c(lvs[!is.na(lvs)], shown)))
+        }
         geometry <- vector("list", length(scales))
         geometry[discrete] <- Map(function(scale, values) {
           if (!length(shown) || !length(values)) return(NULL)
