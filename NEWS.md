@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` uses the original feature and sector codes to find shared labels on complete input.
+
 * `PlotCircleLollipop()` splits original group scores by the existing integer positions.
 
 * `plt_cat(type = "upset")` retains its data directly when every row belongs to an intersection.

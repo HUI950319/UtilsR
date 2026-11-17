@@ -425,11 +425,12 @@ PlotCircleLollipop <- function(
   if (!custom_colors || show_links) {
     features <- unique(df$name)
     feature_ids <- match(df$name, features)
-    observed <- !is.na(df$name)
-    pairs <- vctrs::vec_unique(data.frame(
-      feature = feature_ids[observed], sector = as.integer(df$group[observed])
-    ))
-    shared <- observed & tabulate(pairs$feature, length(features))[feature_ids] > 1L
+    sectors <- as.integer(df$group)
+    missing <- is.na(df$name)
+    pairs <- data.frame(feature = feature_ids, sector = sectors)
+    if (any(missing)) pairs <- pairs[!missing, , drop = FALSE]
+    pairs <- vctrs::vec_unique(pairs)
+    shared <- !missing & tabulate(pairs$feature, length(features))[feature_ids] > 1L
   }
 
   if (custom_colors) {

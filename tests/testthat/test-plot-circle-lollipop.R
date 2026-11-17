@@ -1383,3 +1383,21 @@ test_that("circular group scaling avoids expanding original labels", {
     show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(observed, c(1, .25, 1, .2))
 })
+
+test_that("circular links keep complete feature codes without slicing", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("B", "A"), each = 3L),
+    name = rep(c("one", "two", "three"), 2L), value = rep(c(1, .6, .4), 2L))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.atomic(x) && !missing(i) && is.logical(i) &&
+        length(x) == nrow(d) && length(i) == nrow(d) && all(i)) {
+      stop("copied complete feature codes")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_error(fn(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE), NA)
+})
