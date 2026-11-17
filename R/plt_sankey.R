@@ -374,7 +374,7 @@ plt_sankey <- function(data,
     label_data$y <- (label_data$ymin + label_data$ymax) / 2
     proportion <- unname(node_pct[positions])
     keep <- !is.na(label_data$label) & !is.na(proportion) & proportion >= label_args$min_pct
-    label_data <- label_data[keep, , drop = FALSE]
+    if (!all(keep)) label_data <- label_data[keep, , drop = FALSE]
     if (nrow(label_data)) {
       label_geom <- if (label_args$box) ggplot2::geom_label else ggplot2::geom_text
       label_params <- list(

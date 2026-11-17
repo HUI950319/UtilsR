@@ -961,3 +961,22 @@ test_that("Sankey successor stages repeat one compact template", {
   expect_identical(fn(d[0L, ], names(d)), .sankey_path_rows(d[0L, ], names(d)))
   expect_identical(fn(d["a"], "a"), .sankey_path_rows(d["a"], "a"))
 })
+
+test_that("visible Sankey labels keep the complete layout rows", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = c("I", "II", "I"), b = c("III", "I", "I"))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && "label" %in% names(x) &&
+        identical(substitute(i), quote(keep)) && all(i)) stop("copied complete Sankey label rows")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, threshold) suppressMessages(f(d, c("a", "b"), show_text = "name",
+    label_args = list(min_pct = threshold), theme_use = ggplot2::theme_void()))
+  for (threshold in c(0, .5)) {
+    expect_identical(draw(fn, threshold)$layers[[3L]]$data,
+      draw(plt_sankey, threshold)$layers[[3L]]$data)
+  }
+})
