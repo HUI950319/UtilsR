@@ -650,12 +650,15 @@ PlotScatter1 <- function(
   }
   x <- rank_axis(x)
   y <- rank_axis(y)
-  complete <- stats::complete.cases(x, y)
-  n_complete <- sum(complete)
+  complete <- if (is.object(x) || is.object(y) || !is.null(dim(x)) || !is.null(dim(y)) ||
+                  length(x) != length(y) || anyNA(x) || anyNA(y)) {
+    stats::complete.cases(x, y)
+  }
+  n_complete <- if (is.null(complete)) length(x) else sum(complete)
   if (n_complete < if (pearson) 3L else 2L) {
     return(list(estimate = NA_real_, p.value = NA_real_))
   }
-  if (n_complete < length(complete)) {
+  if (!is.null(complete) && n_complete < length(complete)) {
     x <- x[complete]
     y <- y[complete]
   }

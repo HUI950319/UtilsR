@@ -1854,3 +1854,23 @@ test_that("scatter group matching constructs factors from existing positions", {
     expect_identical(fn(input$x, input$levels), .scatter_group_factor(input$x, input$levels))
   }
 })
+
+test_that("complete ordinary scatter pairs need no case mask", {
+  x <- seq(1, 50)
+  y <- x + sin(x)
+  expected <- .scatter_cor_test(x, y, "pearson")
+  original <- stats::complete.cases
+  local_mocked_bindings(complete.cases = function(...) {
+    args <- list(...)
+    if (identical(sys.function(sys.parent()), .scatter_cor_test) &&
+        length(args) == 2L && all(lengths(args) == 50L) && !anyNA(args, recursive = TRUE))
+      stop("allocated a complete scatter mask")
+    original(...)
+  }, .package = "stats")
+  actual <- .scatter_cor_test(x, y, "pearson")
+  expect_identical(actual$estimate, expected$estimate)
+  expect_identical(actual$p.value, expected$p.value)
+  y[3L] <- NA_real_
+  expect_equal(unname(.scatter_cor_test(x, y, "pearson")$estimate),
+    stats::cor(x, y, use = "complete.obs"))
+})
