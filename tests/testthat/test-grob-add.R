@@ -326,3 +326,22 @@ test_that("grob side additions draw every sibling in their shared cell", {
   expect_identical(unname(grDevices::col2rgb(capture()[20L, c(10L, 30L)])),
     unname(grDevices::col2rgb(c("red", "blue"))))
 })
+
+test_that("gtable bounds keep a compact set of panel positions", {
+  names <- paste0("layer", 1:400)
+  names[c(31L, 156L, 279L)] <- c("panel-1-1", "panel-1-2", "panel-area")
+  d <- data.frame(t = seq_len(400), b = seq_len(400) + 2L,
+    l = seq_len(400) %% 12L, r = seq_len(400) %% 12L + 1L, name = names)
+  fn <- .grob_panel_bounds
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(index)) && is.logical(i))
+      stop("reused a full-table panel mask for layout coordinates")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d), .grob_panel_bounds(d))
+  d$name[31L] <- "custom-panel"
+  d$name[c(156L, 279L)] <- "none"
+  expect_identical(fn(d), .grob_panel_bounds(d))
+})

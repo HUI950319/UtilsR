@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Gtable panel bounds use one compact position vector across row and column extent calculations.
+
 * Console text conversion reuses its missing-row positions and leaves complete classed labels intact.
 
 * `impute_na_knn()` shares its preflight completeness result for predictor columns that keep their missingness during normalization.

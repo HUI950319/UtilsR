@@ -565,9 +565,9 @@ grob_to_gg <- function(grob, ...) {
 }
 
 .grob_panel_bounds <- function(layout) {
-  index <- grepl("^panel(-[0-9]+)*$", layout$name) | layout$name %in% "panel-area"
-  if (!any(index)) index <- grepl("panel", layout$name)
-  if (!any(index)) stop("Cannot find the panel area in 'plot'.", call. = FALSE)
+  index <- which(grepl("^panel(-[0-9]+)*$", layout$name) | layout$name %in% "panel-area")
+  if (!length(index)) index <- grep("panel", layout$name)
+  if (!length(index)) stop("Cannot find the panel area in 'plot'.", call. = FALSE)
   c(t = min(layout$t[index]), b = max(layout$b[index]),
     l = min(layout$l[index]), r = max(layout$r[index]))
 }
