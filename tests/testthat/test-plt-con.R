@@ -2239,3 +2239,17 @@ test_that("continuous unique dot bins do not count or decode row keys again", {
   d2 <- rbind(d[1:3, ], d[2:4, ])
   expect_identical(fn(d2, names(d2)), .con_dot_counts(d2, names(d2)))
 })
+
+test_that("ungrouped continuous ranges need no finite row mask", {
+  x <- c(-Inf, NA, 2, 4, 6, Inf)
+  scale <- ggplot2::scale_y_continuous()
+  expected <- .con_shared_range(x, NULL, 0L, FALSE)(scale)
+  fn <- .con_shared_range
+  env <- new.env(parent = environment(fn))
+  env$is.finite <- function(value) {
+    if (identical(value, x)) stop("created an ungrouped finite row mask")
+    base::is.finite(value)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, NULL, 0L, FALSE)(scale), expected)
+})

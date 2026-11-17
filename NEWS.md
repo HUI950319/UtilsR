@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Ungrouped shared continuous limits avoid an intermediate transformed-value mask.
+
 * `show_color()` checks the distinct color count before retaining a row lookup.
 
 * `pal_get()` avoids rebuilding mostly unique numeric inputs as lookups for palette lists.

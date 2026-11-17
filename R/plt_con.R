@@ -1189,11 +1189,15 @@ plt_con <- function(data,
     transformation <- scale$get_transformation()
     if (identical(transformation, previous)) return(cached)
     transformed <- scale$transform(values)
-    keep <- is.finite(transformed)
-    complete <- all(keep)
-    observed <- if (complete) transformed else transformed[keep]
-    bounds <- if (is.null(groups)) range(observed) else
-      .con_bar_range(observed, if (complete) groups else groups[keep])
+    bounds <- if (is.null(groups) && !is.object(transformed)) {
+      range(transformed, finite = TRUE)
+    } else {
+      keep <- is.finite(transformed)
+      complete <- all(keep)
+      observed <- if (complete) transformed else transformed[keep]
+      if (is.null(groups)) range(observed) else
+        .con_bar_range(observed, if (complete) groups else groups[keep])
+    }
     limits <- bounds
     if (comparisons > 0L) {
       limits[2L] <- .con_annotation_y(limits[1L], limits[2L], 0.15, comparisons)
