@@ -975,3 +975,18 @@ test_that("linear confidence intervals skip the log proximity pass", {
   environment(fn) <- env
   expect_identical(fn(input, output = "p", exp = FALSE), expected)
 })
+
+test_that("asymmetric confidence widths touch only affected intervals", {
+  input <- c(rep("0.2 (0.1, 0.3)", 80L), "0.2 (0.17, 0.5)", "-0.2 (-0.5, -0.17)")
+  expected <- suppressWarnings(stat_ci_parse(input, output = "p", exp = FALSE))
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$ifelse <- function(test, yes, no) {
+    if (identical(substitute(test), quote(e_s > 0)) && length(test) == length(input))
+      stop("calculated asymmetric widths for symmetric intervals")
+    base::ifelse(test, yes, no)
+  }
+  environment(fn) <- env
+  expect_warning(actual <- fn(input, output = "p", exp = FALSE), "not symmetric")
+  expect_identical(actual, expected)
+})

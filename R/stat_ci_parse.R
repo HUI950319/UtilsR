@@ -219,20 +219,23 @@ stat_ci_parse <- function(x,
                        (tight_lower + tight_upper) / 2) / z95
     # Full width for symmetric intervals; for asymmetric ones the half facing
     # the null, so that p < 0.05 exactly when the interval excludes the null
+    asymmetric_rows <- which(asym)
     se_of <- function(l, h) {
       full <- (h - l) / (2 * z95)
       wide <- is.finite(l) & is.finite(h) & !is.finite(full)
       if (any(wide)) full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
-      out <- full
-      if (any(asym)) {
-        half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
-        wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
-        if (any(wide)) half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
-                                           h[wide] / z95 - e_s[wide] / z95)
-        out <- ifelse(asym, half, full)
+      if (length(asymmetric_rows)) {
+        center <- e_s[asymmetric_rows]
+        lower <- l[asymmetric_rows]
+        upper <- h[asymmetric_rows]
+        half <- ifelse(center > 0, center - lower, upper - center) / z95
+        wide <- is.finite(center) & is.finite(lower) & is.finite(upper) & !is.finite(half)
+        if (any(wide)) half[wide] <- ifelse(center[wide] > 0,
+          center[wide] / z95 - lower[wide] / z95, upper[wide] / z95 - center[wide] / z95)
+        full[asymmetric_rows] <- half
       }
-      if (length(tight)) out[tight] <- tight_se
-      out
+      if (length(tight)) full[tight] <- tight_se
+      full
     }
     se <- se_of(l_s, h_s)
     work_scale <- rep(1, length(est))
