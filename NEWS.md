@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` resolves character shape names from the first observed entry and retains complete missing or unconverted shapes.
+
 * Factor recoding checks bounds directly for ordinary indices and collects invalid positions only on failure.
 
 * `fct_num()` reports when interpolating opposite infinities produces undefined quantile cut points.

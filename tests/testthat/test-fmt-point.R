@@ -1121,3 +1121,14 @@ test_that("explicit point grouping skips the mapped aesthetic scan", {
   data <- data.frame(fill = rep(c("a", "b"), 100), x = 1:200, y = 1:200)
   expect_identical(fn(self, data), list(position = self$dodge, args = list(n = 200L)))
 })
+
+test_that("shape name detection skips collecting every nonmissing point index", {
+  x <- rep(c(NA_character_, "triangle", "circle", "square cross"), 300L)
+  fn <- .shape_convert
+  env <- new.env(parent = environment(fn))
+  env$which <- function(x, ...) stop("collected nonmissing shape positions")
+  environment(fn) <- env
+  for (value in list(x, c(NA_character_, NA_character_), c("q", "square"))) {
+    expect_identical(fn(value), .shape_convert(value))
+  }
+})

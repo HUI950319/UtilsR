@@ -571,10 +571,13 @@ fmt_point <- function(plot,
     "diamond" = 18, "circle" = 19, "bullet" = 20, "circle filled" = 21,
     "square filled" = 22, "diamond filled" = 23, "triangle filled" = 24,
     "triangle down filled" = 25)
-  if (is.character(x) && length(x) && any(!is.na(x)) &&
-      nchar(x[[which(!is.na(x))[1L]]]) > 1L) {
-    matched <- charmatch(x, names(shape_names))
-    if (all(is.na(x) | (!is.na(matched) & matched > 0L))) x <- unname(shape_names[matched])
+  if (is.character(x) && length(x)) {
+    missing <- is.na(x)
+    first <- match(FALSE, missing, nomatch = 0L)
+    if (first && nchar(x[[first]]) > 1L) {
+      matched <- charmatch(x, names(shape_names))
+      if (all(missing | (!is.na(matched) & matched > 0L))) x <- unname(shape_names[matched])
+    }
   }
   dict <- c("0" = 22, "15" = 22,
             "1" = 21, "16" = 21, "19" = 21, "20" = 21,
