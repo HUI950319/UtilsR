@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse grouped category percentages use existing group positions to calculate denominators.
+
 * Categorical UpSet plots use integer membership codes for up to 31 sets and retain wider-set support.
 
 * Categorical background bands use prepared level positions to retain axis order and coded missing labels.

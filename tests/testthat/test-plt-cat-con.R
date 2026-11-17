@@ -2004,3 +2004,20 @@ test_that("categorical UpSet membership codes preserve observed set combinations
   wide <- draw(fn, d, names(d), setNames(rep(list("TRUE"), ncol(d)), names(d)))
   expect_identical(wide$intersection, draw(fn, d, vars, selectors)$intersection)
 })
+
+test_that("sparse category percentages sum denominators from existing codes", {
+  d <- data.frame(item = factor(rep(c("m", "n", "m", "n", "n"), 200L)),
+    group = factor(rep(c("\u03b1", "\u03b1", "\u03b2", "\u03b2", "\u03b2"), 200L),
+      levels = c(paste0("unused", seq_len(1500L)), "\u03b2", "\u03b1")))
+  fn <- .prepare_cat_data
+  env <- new.env(parent = environment(fn))
+  env$ave <- function(...) stop("regrouped sparse categorical denominators")
+  environment(fn) <- env
+  result <- fn(d, "item", "group", "percent")
+  expect_identical(result, .prepare_cat_data(d, "item", "group", "percent"))
+  expect_identical(result$n, c(200L, 400L, 200L, 200L))
+  expect_equal(result$value, c(100/3, 200/3, 50, 50))
+  empty <- fn(d[0L, ], "item", "group", "percent")
+  expect_equal(nrow(empty), 0L)
+  expect_type(empty$value, "logical")
+})

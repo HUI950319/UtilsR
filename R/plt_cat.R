@@ -915,8 +915,9 @@ plt_cat <- function(data,
       n = tabulate(ids, attr(ids, "n"))[order_at]
     )
     if (stat == "percent") {
-      total <- ave(df$n, df$group_var, FUN = sum)
-      df$value <- ifelse(total > 0, df$n / total * 100, 0)
+      totals <- rowsum(as.double(df$n), j, reorder = FALSE)
+      total <- unname(totals[match(j, as.integer(rownames(totals))), 1L])
+      df$value <- if (length(total)) df$n / total * 100 else logical()
       df$label_text <- sprintf("%.1f%%", df$value)
       return(dplyr::as_tibble(df))
     }
