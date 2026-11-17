@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` uses a single conversion of numeric group pairs for both validation and statistical prechecks.
+
 * `PlotDumbbell()` preserves the existing observation order when preparing an ordinary factor axis.
 
 * `PlotButterfly2()` reports a missing wing group before widening or constructing its mirrored layers.

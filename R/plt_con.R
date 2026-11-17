@@ -921,8 +921,8 @@ plt_con <- function(data,
   available <- if (ordinary_factor) {
     group_levels[.factor_tally(groups)$codes]
   } else unique(as.character(groups[!is.na(groups)]))
-  keep <- vapply(comparisons, function(pair) {
-    if (is.numeric(pair)) pair <- levels(groups)[pair]
+  pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) group_levels[pair] else pair)
+  keep <- vapply(pairs, function(pair) {
     length(pair) == 2L && !anyNA(pair) && all(pair %in% available)
   }, logical(1))
   if (!all(keep)) {
@@ -932,7 +932,6 @@ plt_con <- function(data,
   if (any(keep)) {
     test_params <- ggpubr::stat_compare_means(comparisons = comparisons[keep], method = method)$stat_params
     test <- .con_pairwise_test(test_params[["test"]])
-    pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) levels(groups)[pair] else pair)
     used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
     group_ids <- if (ordinary_factor) match(group_levels, used_groups)[as.integer(groups)] else
       match(groups, used_groups)

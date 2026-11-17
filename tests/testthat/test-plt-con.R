@@ -2284,3 +2284,23 @@ test_that("continuous ANOVA bounds use the original plain outcome", {
     expect_identical(fn(x), .con_anova_values(x))
   }
 })
+
+test_that("numeric comparison pair positions are translated once", {
+  g <- factor(rep(c("c", "a", "b"), each = 8L), levels = c("b", "a", "c", "unused"))
+  y <- c(seq_len(8L), 3:10, 2:9)
+  comparisons <- list(c(2L, 1L), c(3L, 1L))
+  fn <- .con_comparisons
+  env <- new.env(parent = environment(fn))
+  reads <- 0L
+  env$levels <- function(x) {
+    if (identical(x, g)) {
+      reads <<- reads + 1L
+      if (reads > 1L) stop("decoded a comparison pair twice")
+    }
+    base::levels(x)
+  }
+  environment(fn) <- env
+  out <- fn(comparisons, g, "y", y, "t.test")
+  expect_equal(unname(lapply(out, identity)), comparisons)
+  expect_length(attr(out, ".con_test_cache"), 2L)
+})
