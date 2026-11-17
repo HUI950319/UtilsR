@@ -3043,3 +3043,15 @@ test_that("palette lists skip lookups for mostly unique inputs", {
   environment(fn) <- env
   expect_identical(fn(palettes, x = x, reverse = TRUE), expected)
 })
+
+test_that("palette catalogues reuse palette positions without repeating names", {
+  palettes <- list(second = c("red", "white"), first = "blue", third = c("green", "grey"))
+  fn <- .pal_show_gg
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(x, names(palettes))) stop("expanded every palette name into swatch text")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(palettes)$data, .pal_show_gg(palettes)$data)
+})

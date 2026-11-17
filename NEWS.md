@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The palette catalogue builds swatch group codes directly from each palette's size.
+
 * Confidence interval precision scans extract exponent text only from scientific notation.
 
 * Confidence interval parsing extracts annotation text only after a nonterminal closing bracket.

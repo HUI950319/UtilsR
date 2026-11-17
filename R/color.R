@@ -923,12 +923,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   force(pals)
   counts <- lengths(pals)
   plot_data <- data.frame(
-    palette = rep(names(pals), counts),
+    palette = structure(rep.int(rev(seq_along(pals)), counts),
+                        levels = rev(names(pals)), class = "factor"),
     color = as.character(unlist(pals, use.names = FALSE)),
     x = sequence(counts),
     stringsAsFactors = FALSE
   )
-  plot_data$palette <- factor(plot_data$palette, levels = rev(names(pals)))
 
   ggplot2::ggplot(plot_data, ggplot2::aes(
     x = .data[["x"]], y = .data[["palette"]], fill = I(.data[["color"]]))) +
