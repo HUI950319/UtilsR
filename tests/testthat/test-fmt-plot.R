@@ -284,3 +284,21 @@ test_that("background palettes build fallback levels only for unmatched training
   p$layers[[1L]]$geom <- ggplot2::ggproto(NULL, geom, draw_layer = draw)
   expect_identical(ggplot2::ggplotGrob(p)$layout, expected$layout)
 })
+
+test_that("statistical comparisons decode only distinct factor labels", {
+  d <- data.frame(g = ordered(rep(c("B", "A"), each = 130L), levels = c("unused", "A", "B")),
+    y = seq_len(260L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_boxplot()
+  expected <- suppressMessages(fmt_com(p))
+  fn <- fmt_com
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    cl <- substitute(x)
+    if (is.factor(x) && length(x) > 100L && is.call(cl) && identical(cl[[2L]], quote(x_data)))
+      stop("decoded full comparison groups")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(p))
+  expect_length(actual$layers, length(expected$layers))
+})

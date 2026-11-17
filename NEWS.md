@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` decodes only distinct observed group codes during comparison preparation.
+
 * `fmt_bg()` skips merging fallback levels when trained categories have known colors.
 
 * `plt_dist()` computes bar proportions from one vector of group totals.

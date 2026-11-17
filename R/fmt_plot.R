@@ -4345,7 +4345,12 @@ fmt_com <- function(plot,
       cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
     if (length(x_data) != n || !is.null(attributes(x_data))) x_data <- rep(x_data, length.out = n)
     if (length(y_data) != n || !is.null(attributes(y_data))) y_data <- rep(y_data, length.out = n)
-    observed <- unique(as.character(x_data[!is.na(x_data) & is.finite(y_data)]))
+    available <- !is.na(x_data) & is.finite(y_data)
+    ordinary_factor <- identical(class(x_data), "factor") ||
+      identical(class(x_data), c("ordered", "factor"))
+    observed <- if (ordinary_factor) {
+      levels(x_data)[unique(as.integer(x_data)[available])]
+    } else unique(as.character(x_data[available]))
     if (length(observed) < 2L)
       cli::cli_abort("Comparisons require at least two observed groups with finite outcomes.")
     if (is.character(ref_group) && !ref_all && !ref_group %in% observed)
