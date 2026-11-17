@@ -335,3 +335,18 @@ test_that("opposite infinite quantiles explain their undefined cut points", {
   expect_error(fct_num(c(-Inf, Inf), nbins = 2L), "Quantile cut points.*undefined")
   expect_identical(as.integer(fct_num(c(-Inf, Inf), breaks = 0)), c(1L, 2L))
 })
+
+test_that("valid integer cut points need no second finiteness mask", {
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  env$is.finite <- function(x) {
+    if (identical(substitute(x), quote(breaks)) && is.integer(x))
+      stop("checked finite integer cut points twice")
+    base::is.finite(x)
+  }
+  environment(fn) <- env
+  x <- c(-Inf, 1, 200, 400, Inf, NA)
+  expect_identical(fn(x, breaks = 1:400), fct_num(x, breaks = 1:400))
+  expect_error(fn(x, breaks = c(NA_integer_, 1L)), "finite")
+  expect_error(fn(x, breaks = c(1, Inf)), "finite")
+})

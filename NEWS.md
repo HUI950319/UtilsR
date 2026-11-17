@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` skips an additional finiteness pass for integer cut points after ruling out missing values.
+
 * Factor helpers derive the observed FALSE and TRUE levels directly and preserve missing positions and observation names.
 
 * `plt_na()` assigns label factor codes from its ordering indices while retaining original variable names.

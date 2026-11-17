@@ -148,7 +148,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     if (!is.numeric(breaks) || is.complex(breaks) || !is.null(dim(breaks))) {
       cli::cli_abort("{.arg breaks} must be a numeric vector of cut points.")
     }
-    if (anyNA(breaks) || any(!is.finite(breaks))) {
+    if (anyNA(breaks) || ((!is.integer(breaks) || is.object(breaks)) && any(!is.finite(breaks)))) {
       cli::cli_abort("{.arg breaks} must contain only finite, non-missing values.")
     }
     if (is.object(breaks) || is.unsorted(breaks, strictly = TRUE)) {
