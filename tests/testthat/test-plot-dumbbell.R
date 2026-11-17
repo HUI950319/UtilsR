@@ -968,3 +968,17 @@ test_that("dumbbell guides reuse separate endpoint vectors", {
   expect_identical(suppressWarnings(ggplot2::ggplot_build(actual)$data[[1L]]),
     suppressWarnings(ggplot2::ggplot_build(expected)$data[[1L]]))
 })
+
+test_that("complete integer64 differences need no overflow mask", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740993", "9007199254740995", "9007199254740994"))
+  y <- bit64::as.integer64("9007199254740992")
+  fn <- .dumbbell_integer64_difference
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(substitute(x), quote(difference))) stop("allocated a complete integer64 difference mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, y), bit64::as.integer64(c(1L, 3L, 2L)))
+})

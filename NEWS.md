@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Integer64 endpoint subtraction returns an already complete result before allocating overflow masks.
+
 * Continuous test preparation gets finite bounds without copying ordinary outcomes.
 
 * Time-category matching formats repeated scalar time values once per distinct value.

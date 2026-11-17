@@ -605,6 +605,7 @@ PlotDumbbell <- function(
     }
   }
   difference <- suppressWarnings(x - y)
+  if (!anyNA(difference)) return(difference)
   overflow <- is.na(difference) & !is.na(x) & !is.na(y)
   if (!any(overflow)) return(difference)
   step <- bit64::as.integer64("4294967296")
