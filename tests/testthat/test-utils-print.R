@@ -2088,3 +2088,10 @@ test_that("console table highlights use supplied row positions", {
   environment(fn) <- env
   expect_identical(capture.output(do.call(fn, args)), expected)
 })
+
+test_that("empty badge vectors stay empty with and without color", {
+  for (depth in c(1L, 16L, 256L)) {
+    withr::local_options(cli.num_colors = depth)
+    expect_identical(pr_badge(character(), integer()), character())
+  }
+})

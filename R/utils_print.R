@@ -445,6 +445,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
   }
+  if (n == 0L) return(character())
   key <- ._pr_escape(if (is.factor(key)) ._as_text(key) else as.character(key))
   value <- ._pr_escape(if (is.factor(value)) ._as_text(value) else as.character(value))
   if (!._pr_colour()) {
