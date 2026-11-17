@@ -1284,3 +1284,21 @@ test_that("butterfly gradient limits reuse complete finite score vectors", {
   result <- suppressMessages(do.call(fn, args))
   for (i in seq_along(result)) expect_identical(result[[i]]$data, expected[[i]]$data)
 })
+
+test_that("butterfly filtering does not expand complete ordinary factor categories", {
+  d <- data.frame(cat = ordered(rep(c("b", "a"), 8L), levels = c("a", "b", "Mixed")),
+    group = rep(c("L", "R"), each = 8L), score = 1:16, fill = "one")
+  args <- list(data = d, stat.by = "cat", value.by = "score", group.by = "group",
+    fill.by = "fill", type = "box", levels = c("b", "a"))
+  expected <- suppressMessages(do.call(PlotButterfly2, args))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$cat)) stop("decoded raw butterfly filter categories")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual[[1L]]$data, expected[[1L]]$data)
+  expect_identical(actual[[2L]]$data, expected[[2L]]$data)
+})

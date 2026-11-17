@@ -217,9 +217,19 @@ PlotButterfly2 <- function(
   # ---- Filter NA / "Mixed" ----
   .register_integer64(data[[stat.by]])
   .register_integer64(data[[value.by]])
-  categories <- as.character(data[[stat.by]])
-  keep <- !is.na(data[[stat.by]]) & !is.na(categories) & categories != "Mixed"
-  data <- data[keep, ]
+  category <- data[[stat.by]]
+  if (identical(class(category), "factor") ||
+      identical(class(category), c("ordered", "factor"))) {
+    labels <- levels(category)
+    rejected <- which(is.na(labels) | labels == "Mixed")
+    codes <- as.integer(category)
+    keep <- !is.na(codes)
+    if (length(rejected)) keep <- keep & !codes %in% rejected
+  } else {
+    categories <- as.character(category)
+    keep <- !is.na(category) & !is.na(categories) & categories != "Mixed"
+  }
+  if (!all(keep)) data <- data[keep, , drop = FALSE]
 
   value_name <- value.by
   if (".data" %in% names(data)) {
