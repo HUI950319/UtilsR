@@ -842,6 +842,7 @@ plt_con <- function(data,
   })
   limits <- range(unlist(endpoints, use.names = FALSE))
   changed <- lapply(info$plots, function(p) {
+    if (identical(p$scales$get_scales("size")$limits, limits)) return(p)
     p$scales <- p$scales$clone()
     size_scale <- p$scales$get_scales("size")
     size_scale$limits <- limits

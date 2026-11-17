@@ -2372,3 +2372,17 @@ test_that("bar interval ranges reuse complete factor partition codes", {
   grp[1L] <- NA
   expect_identical(fn(y, grp), .con_bar_range(y, grp))
 })
+
+test_that("matching continuous dot size scales are not cloned again", {
+  frame <- data.frame(x = 1:4, y = 1:4, n = c(1L, 3L, 4L, 6L))
+  make <- function(limits) ggplot2::ggplot() +
+    ggplot2::geom_point(ggplot2::aes(x, y, size = n), data = frame) +
+    ggplot2::scale_size_continuous(limits = limits)
+  left <- make(c(1L, 6L))
+  left$scales$clone <- function(...) stop("cloned an already shared dot size scale")
+  right <- make(c(2L, 4L))
+  result <- .con_dot_scales(list(left, right))
+  expect_identical(result[[1L]], left)
+  expect_identical(result[[2L]]$scales$get_scales("size")$limits, c(1L, 6L))
+  expect_identical(right$scales$get_scales("size")$limits, c(2L, 4L))
+})
