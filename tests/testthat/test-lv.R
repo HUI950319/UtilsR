@@ -1711,3 +1711,24 @@ test_that("inspection table styling only checks level labels for special markers
   expect_identical(lapply(actual, function(x) x[["_styles"]]),
     lapply(expected, function(x) x[["_styles"]]))
 })
+
+test_that("grouped inspection reuses distinct ordinary group keys", {
+  d <- data.frame(grouping = rep(c("c", "b", NA_character_, "a"), 40L),
+    category = rep(letters[1:5], 32L))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  keys <- 0L
+  env$unique <- function(x, ...) {
+    if (identical(substitute(x), quote(by_values)) ||
+        identical(substitute(x), quote(by_values[!is.na(by_values)]))) {
+      keys <<- keys + 1L
+      if (keys > 1L) stop("encoded ordinary inspection group keys twice")
+    }
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expected <- capture_reports(lv(d, group = grouping))
+  actual <- capture_reports(fn(d, group = grouping))
+  expect_identical(lapply(actual, function(x) x$table_body), lapply(expected, function(x) x$table_body))
+  expect_identical(keys, 1L)
+})

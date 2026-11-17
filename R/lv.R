@@ -1073,8 +1073,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (inherits(data[[group_var]], "integer64") && !requireNamespace("bit64", quietly = TRUE))
       cli::cli_abort("Inspecting integer64 groups requires the {.pkg bit64} package.")
     by_values <- .label_na_level(.spss_missing_to_na(data[[group_var]]))
+    distinct <- if (!is.object(by_values)) unique(by_values)
     n_by <- if (is.factor(by_values)) nlevels(by_values) else
-      length(unique(by_values[!is.na(by_values)]))
+      if (!is.null(distinct)) sum(!is.na(distinct)) else length(unique(by_values[!is.na(by_values)]))
     if (n_by > 100L) {
       cli::cli_abort(c(
         "{.arg group} column {.var {group_var}} has {n_by} distinct values; grouped summaries take at most 100.",
@@ -1091,7 +1092,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       return(invisible(data))
     }
 
-    n_groups <- length(unique(by_values))
+    n_groups <- length(distinct %||% unique(by_values))
     if (knitting) {
       cli::cli_h1(cli::col_magenta(glue::glue("Variable Summary by {group_var}")))
       cli::cli_alert_info("Groups: {.val {n_groups}}")

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grouped `lv()` reuses distinct ordinary keys across the level limit and reported group count.
+
 * Console P-value cells skip decimal parsing when none of their entries can carry significance styling.
 
 * `pr_spark()` keeps complete finite numeric series without slicing or coercing their values again.
