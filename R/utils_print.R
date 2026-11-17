@@ -222,8 +222,10 @@
     }
     paste(v, collapse = ", ")
   }, character(1), USE.NAMES = FALSE)
-  kw    <- min(max(cli::ansi_nchar(keys, type = "width")), max(1L, floor((width - 2L) / 2L)))
-  keys  <- ._pr_trim(keys, kw)
+  key_widths <- cli::ansi_nchar(keys, type = "width")
+  kw <- min(max(key_widths), max(1L, floor((width - 2L) / 2L)))
+  if (any(key_widths > kw)) keys <- ._pr_trim(keys, kw)
+  keys <- cli::col_grey(cli::ansi_align(keys, kw))
   avail <- max(1L, width - kw - 2L)
   lead  <- strrep(" ", kw + 2)
   unlist(lapply(seq_along(keys), function(i) {
@@ -235,7 +237,7 @@
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
       if (nzchar(cli::ansi_strip(s))) ._pr_wrap(s, width = avail) else ""
     }))
-    c(paste0(cli::col_grey(cli::ansi_align(keys[i], kw)), "  ", body[1]),
+    c(paste0(keys[i], "  ", body[1]),
       if (length(body) > 1L) paste0(lead, body[-1]))
   }))
 }

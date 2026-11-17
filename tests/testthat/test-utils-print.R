@@ -2165,3 +2165,15 @@ test_that("plain P-value text does not parse absent bound operators", {
     expect_identical(fn(x), ._p_cells(x))
   }
 })
+
+test_that("console key labels use one display alignment batch", {
+  keys <- c("group", "\u5206\u7ec4", "long coefficient name")
+  x <- stats::setNames(list("A\nB", 1.2, c(2L, 3L)), keys)
+  expected <- ._kv_lines(x, width = 18)
+  original <- cli::ansi_align
+  local_mocked_bindings(ansi_align = function(x, width, ...) {
+    if (length(x) == 1L) stop("aligned each console key separately")
+    original(x, width, ...)
+  }, .package = "cli")
+  expect_identical(._kv_lines(x, width = 18), expected)
+})

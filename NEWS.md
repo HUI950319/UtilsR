@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console key-value output aligns and styles its keys in one batch while retaining wrapped value layout.
+
 * `PlotCircleLollipop()` reads endpoints and colours directly from its prepared sector positions.
 
 * `plt_dist()` uses the shared exact numeric factor conversion for ordinary numeric axes.
