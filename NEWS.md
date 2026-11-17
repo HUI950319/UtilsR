@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` uses original variable positions to encode ordered display labels.
+
 * `fct_to_combine()` scans typed inputs while skipping complete ordinary columns in the same call.
 
 * Ungrouped shared continuous limits avoid an intermediate transformed-value mask.

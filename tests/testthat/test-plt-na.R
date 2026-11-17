@@ -545,3 +545,18 @@ test_that("missingness retains only positive cells before making its summary", {
   }, .package = "dplyr")
   expect_identical(plt_na(d), expected)
 })
+
+test_that("missingness summaries encode positions without recoding displayed names", {
+  local_mocked_bindings(.plt_na_plot = function(...) list(...))
+  d <- data.frame(a = c(NA, 1, NA), b = c(1, NA, 1), c = c(NA, NA, NA))
+  args <- list(data = d, sort = "desc", name.map = c(a = "shared", b = "shared"))
+  expected <- do.call(plt_na, args)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (length(x) == 5L) stop("recoded row-wise missingness labels")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(do.call(fn, args), expected)
+})
