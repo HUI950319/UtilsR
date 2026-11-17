@@ -61,7 +61,7 @@ again replaces its earlier tags while keeping user annotations. Inside a
 faceted plot the same label appears in each facet; an outside tag
 appears once for the whole plot. Inside-only styling such as `fill` and
 `alpha` is passed to
-[`ggpp::geom_label_npc()`](https://rdrr.io/pkg/ggpp/man/geom_text_npc.html)
+[`ggpp::geom_label_npc()`](https://docs.r4photobiology.info/ggpp/reference/geom_text_npc.html)
 through `...`.
 
 ``` r

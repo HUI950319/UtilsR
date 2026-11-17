@@ -50,7 +50,107 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Decimal token parsing returns complete numeric conversions before allocating NaN-recovery masks.</p></li>
+<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids constructing a replacement mask when all star inputs have values.</p></li>
+<li><p>Console table gradients use all rows directly for ordinary integer columns.</p></li>
+<li><p>Grouped continuous bar limits combine their intervals with the raw range without copying all raw values.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> creates grid dictionaries without converting every ordinary factor row to text.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores predicted factor codes directly when the backend retains the dictionary.</p></li>
+<li><p>Plot formatters read ordinary directly mapped axis columns without constructing a tidy-evaluation data mask.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> formats distinct repeated counts and percentages before expanding them to labels.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> formats its displayed columns without augmenting and selecting the full numeric summary.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> selects percentage-label rows directly at plot build time.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> uses panel order directly for tables with no nested raster panels.</p></li>
+<li><p>Categorical chord plots use integer cell counts for complete plain factor inputs.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> applies the signed-zero substitution only to matching output rows.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> reuses scalar <code>digits</code> while reformatting confidence interval text.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores whole scaled columns directly when every row enters the backend.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> uses original variable positions to encode ordered display labels.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> scans typed inputs while skipping complete ordinary columns in the same call.</p></li>
+<li><p>Ungrouped shared continuous limits avoid an intermediate transformed-value mask.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> checks the distinct color count before retaining a row lookup.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> avoids rebuilding mostly unique numeric inputs as lookups for palette lists.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> formats the group correlation lines together, retaining their wrap order.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> reuses already complete paired score vectors when computing group correlations.</p></li>
+<li><p>Point sampling skips unused keys in a single sparse factor stratum with a coded NA.</p></li>
+<li><p>Sankey successor stages reuse a single integer pattern across rows.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> encodes distinct caption text once and expands its integer positions over flow rows.</p></li>
+<li><p><code>stat_pval(add_star_p = ...)</code> reuses complete ordinary labels without allocating a missing mask.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> sends only observed levels of sparse nominal factors with a coded NA to the backend.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> skips infinity checks on ordinary integer columns.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> partially selects large ordinary score vectors for small <code>max_show</code>, preserving stable ties.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> reuses one-row dot bins and their ordinary factor ordering codes.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> converts only selected columns of ordinary tibbles.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> checks ordinary category codes for missing values and <code>Mixed</code>, reusing the frame when all rows qualify.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> skips label eligibility calculations for <code>label_args$style = "none"</code>.</p></li>
+<li><p><code>plt_dist(type = "alluvial")</code> handles actual and coded missing factor values without decoding every row.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> decodes only distinct observed group codes during comparison preparation.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> skips merging fallback levels when trained categories have known colors.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> computes bar proportions from one vector of group totals.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> counts facet values only when choosing a default layout.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> constructs factors directly from ordinary integer and logical positions.</p></li>
+<li><p>Factor releveling maps the observed codes while retaining the requested level dictionary.</p></li>
+<li><p>Sparse factor binarization only assigns observed nonreference codes to <code>Oth</code>.</p></li>
+<li><p><code><a href="../reference/pr_badge.html">pr_badge()</a></code> returns zero badges for empty key and value vectors at every color depth.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> writes each preview row without splitting the complete styled vector.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> calculates contrast from the displayed RGB channels instead of parsing generated hex text.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> restores only unbinned histogram positions and computes that row index once.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> formats distinct scores once on highly repetitive heatmaps.</p></li>
+<li><p>Dense Jaccard overlap comparisons reuse integer feature IDs from the sparse-membership preflight.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> tallies sparse features appearing in up to three groups without comparing all groups.</p></li>
+<li><p>Raster panel sizing sums shared multi-cell spans once.</p></li>
+<li><p>Axis tile guides reuse the key table when every label is visible.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> computes the shared guide minimum directly from its endpoint columns.</p></li>
+<li><p><code>plt_con(ref_group = ...)</code> finds observed reference-comparison groups with sparse factor tallies.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> uses a scalar working scale for ordinary confidence intervals.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> limits asymmetric standard-error calculations to the affected intervals.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> skips log proximity work when all intervals are linear.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> skips recycling complete ordinary comparison columns.</p></li>
+<li><p><code><a href="../reference/grob_insert.html">grob_insert()</a></code> gives repeated insets in the same cell distinct layout names so they all draw.</p></li>
+<li><p>Categorical set plots size palettes from observed factor codes even when many levels are unused.</p></li>
+<li><p>Scatter correlation checks reuse the length of complete ordinary axes.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> counts ordinary atomic frequency rows directly in sorted value order.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> checks the shared bitmap dimensions once per panel with raster runs.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> keeps full foreground data or returns the base grob directly for homogeneous shapes.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> checks each candidate categorical axis for observations once.</p></li>
+<li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> draws every child of a plain grob list placed in a shared side cell.</p></li>
+<li><p><code>grob_insert(on_top = FALSE)</code> draws an inset before an overlapping foreground with z equal to negative infinity.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> uses the group count to skip duplicate counting for unique pivot keys.</p></li>
+<li><p>Scatter group preparation reuses the matched positions for ordinary input and level vectors.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> keeps the existing codes when every factor level is observed.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> checks for empty grobs only in panel cells.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> checks the actual distinct count before constructing a palette-position index.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> uses one membership index across ordinary factor-list sets.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> builds its percentage summary directly from nonzero counts.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> looks up ordinary whole-number shape codes directly.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> avoids deduplicating facet values for scalar or named labels.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> finds coded missing categories without expanding all factor labels.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> counts character markers using the levels it already found.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> uses the original feature and sector codes to find shared labels on complete input.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> splits original group scores by the existing integer positions.</p></li>
+<li><p><code>plt_cat(type = "upset")</code> retains its data directly when every row belongs to an intersection.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> filters the supplied highlights directly to the displayed rows.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> reuses decoded RGBA for contrast and hex labels.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> obtains successor nodes from stage positions without shifting the complete label vector.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> counts hidden siblings at the depth limit without visiting every leaf.</p></li>
+<li><p><code><a href="../reference/pr_badge.html">pr_badge()</a></code> styles a length-one key or value once when building vector badges.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> reuses fixed-point text for highly repeated double columns.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> skips a second width measurement for columns that already fit.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> evaluates normal tails directly for complete valid interval vectors and skips empty underflow repairs.</p></li>
+<li><p>KNN range checks use double endpoints to avoid overflow when subtracting ordinary integer extremes.</p></li>
+<li><p>Palette lists use their shared discrete keys without a preliminary factor conversion.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> reuses its sparse membership index when features occur in three or more groups.</p></li>
+<li><p><code>plt_cat(NA_stat = TRUE)</code> adds the shared missing label directly to ordinary factor codes.</p></li>
+<li><p>Ordinary categorical plots retain only observed factor levels without decoding every row as text.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> builds ordinary numeric category labels from distinct keys and matches original row codes.</p></li>
+<li><p>Sparse categorical tallies skip missing rows without materializing a full grid when missing values are excluded.</p></li>
+<li><p>KNN restores complete predictors directly after numeric distance normalization.</p></li>
+<li><p>KNN donor counts subtract missing counts directly from column lengths.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> limits top-ranked tibble conversion to columns it uses.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> uses its prepared group frames directly to scale ordinary ranked scores.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> splits group rows with existing integer codes instead of rematching a factor.</p></li>
+<li><p>Factor combinations, categorical axes, and Sankey nodes reuse row codes already decoded by the tally helper.</p></li>
+<li><p>Factor recoding uses compact target dictionaries when most declared levels are unused.</p></li>
+<li><p>Decimal token parsing returns complete numeric conversions before allocating NaN-recovery masks.</p></li>
 <li><p>Logical UpSet membership checks avoid missingness masks for complete columns and all-inclusive selections.</p></li>
 <li><p>Paired comparison helper columns avoid names referenced by facet expressions, including literal <code><a href="https://rdrr.io/r/base/get.html" class="external-link">get()</a></code> lookups.</p></li>
 <li><p>Explicit paired ID validation uses vectorized row-duplicate detection after the existing data-frame conversion.</p></li>

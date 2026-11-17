@@ -2,6 +2,333 @@
 
 ## UtilsR 0.6.23
 
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  avoids constructing a replacement mask when all star inputs have
+  values.
+
+- Console table gradients use all rows directly for ordinary integer
+  columns.
+
+- Grouped continuous bar limits combine their intervals with the raw
+  range without copying all raw values.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  creates grid dictionaries without converting every ordinary factor row
+  to text.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores predicted factor codes directly when the backend retains the
+  dictionary.
+
+- Plot formatters read ordinary directly mapped axis columns without
+  constructing a tidy-evaluation data mask.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  formats distinct repeated counts and percentages before expanding them
+  to labels.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  formats its displayed columns without augmenting and selecting the
+  full numeric summary.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  selects percentage-label rows directly at plot build time.
+
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  uses panel order directly for tables with no nested raster panels.
+
+- Categorical chord plots use integer cell counts for complete plain
+  factor inputs.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  applies the signed-zero substitution only to matching output rows.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  reuses scalar `digits` while reformatting confidence interval text.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores whole scaled columns directly when every row enters the
+  backend.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  uses original variable positions to encode ordered display labels.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  scans typed inputs while skipping complete ordinary columns in the
+  same call.
+
+- Ungrouped shared continuous limits avoid an intermediate
+  transformed-value mask.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  checks the distinct color count before retaining a row lookup.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  avoids rebuilding mostly unique numeric inputs as lookups for palette
+  lists.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  formats the group correlation lines together, retaining their wrap
+  order.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  reuses already complete paired score vectors when computing group
+  correlations.
+
+- Point sampling skips unused keys in a single sparse factor stratum
+  with a coded NA.
+
+- Sankey successor stages reuse a single integer pattern across rows.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  encodes distinct caption text once and expands its integer positions
+  over flow rows.
+
+- `stat_pval(add_star_p = ...)` reuses complete ordinary labels without
+  allocating a missing mask.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  sends only observed levels of sparse nominal factors with a coded NA
+  to the backend.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  skips infinity checks on ordinary integer columns.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  partially selects large ordinary score vectors for small `max_show`,
+  preserving stable ties.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  reuses one-row dot bins and their ordinary factor ordering codes.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  converts only selected columns of ordinary tibbles.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  checks ordinary category codes for missing values and `Mixed`, reusing
+  the frame when all rows qualify.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  skips label eligibility calculations for `label_args$style = "none"`.
+
+- `plt_dist(type = "alluvial")` handles actual and coded missing factor
+  values without decoding every row.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  decodes only distinct observed group codes during comparison
+  preparation.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  skips merging fallback levels when trained categories have known
+  colors.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  computes bar proportions from one vector of group totals.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  counts facet values only when choosing a default layout.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  constructs factors directly from ordinary integer and logical
+  positions.
+
+- Factor releveling maps the observed codes while retaining the
+  requested level dictionary.
+
+- Sparse factor binarization only assigns observed nonreference codes to
+  `Oth`.
+
+- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  returns zero badges for empty key and value vectors at every color
+  depth.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  writes each preview row without splitting the complete styled vector.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  calculates contrast from the displayed RGB channels instead of parsing
+  generated hex text.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  restores only unbinned histogram positions and computes that row index
+  once.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  formats distinct scores once on highly repetitive heatmaps.
+
+- Dense Jaccard overlap comparisons reuse integer feature IDs from the
+  sparse-membership preflight.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  tallies sparse features appearing in up to three groups without
+  comparing all groups.
+
+- Raster panel sizing sums shared multi-cell spans once.
+
+- Axis tile guides reuse the key table when every label is visible.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  computes the shared guide minimum directly from its endpoint columns.
+
+- `plt_con(ref_group = ...)` finds observed reference-comparison groups
+  with sparse factor tallies.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  uses a scalar working scale for ordinary confidence intervals.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  limits asymmetric standard-error calculations to the affected
+  intervals.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  skips log proximity work when all intervals are linear.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  skips recycling complete ordinary comparison columns.
+
+- [`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+  gives repeated insets in the same cell distinct layout names so they
+  all draw.
+
+- Categorical set plots size palettes from observed factor codes even
+  when many levels are unused.
+
+- Scatter correlation checks reuse the length of complete ordinary axes.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) counts
+  ordinary atomic frequency rows directly in sorted value order.
+
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  checks the shared bitmap dimensions once per panel with raster runs.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  keeps full foreground data or returns the base grob directly for
+  homogeneous shapes.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  checks each candidate categorical axis for observations once.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  draws every child of a plain grob list placed in a shared side cell.
+
+- `grob_insert(on_top = FALSE)` draws an inset before an overlapping
+  foreground with z equal to negative infinity.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  uses the group count to skip duplicate counting for unique pivot keys.
+
+- Scatter group preparation reuses the matched positions for ordinary
+  input and level vectors.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  keeps the existing codes when every factor level is observed.
+
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  checks for empty grobs only in panel cells.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  checks the actual distinct count before constructing a
+  palette-position index.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  uses one membership index across ordinary factor-list sets.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  builds its percentage summary directly from nonzero counts.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  looks up ordinary whole-number shape codes directly.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  avoids deduplicating facet values for scalar or named labels.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  finds coded missing categories without expanding all factor labels.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) counts
+  character markers using the levels it already found.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  uses the original feature and sector codes to find shared labels on
+  complete input.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  splits original group scores by the existing integer positions.
+
+- `plt_cat(type = "upset")` retains its data directly when every row
+  belongs to an intersection.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  filters the supplied highlights directly to the displayed rows.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  reuses decoded RGBA for contrast and hex labels.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  obtains successor nodes from stage positions without shifting the
+  complete label vector.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  counts hidden siblings at the depth limit without visiting every leaf.
+
+- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  styles a length-one key or value once when building vector badges.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  reuses fixed-point text for highly repeated double columns.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  skips a second width measurement for columns that already fit.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  evaluates normal tails directly for complete valid interval vectors
+  and skips empty underflow repairs.
+
+- KNN range checks use double endpoints to avoid overflow when
+  subtracting ordinary integer extremes.
+
+- Palette lists use their shared discrete keys without a preliminary
+  factor conversion.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  reuses its sparse membership index when features occur in three or
+  more groups.
+
+- `plt_cat(NA_stat = TRUE)` adds the shared missing label directly to
+  ordinary factor codes.
+
+- Ordinary categorical plots retain only observed factor levels without
+  decoding every row as text.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  builds ordinary numeric category labels from distinct keys and matches
+  original row codes.
+
+- Sparse categorical tallies skip missing rows without materializing a
+  full grid when missing values are excluded.
+
+- KNN restores complete predictors directly after numeric distance
+  normalization.
+
+- KNN donor counts subtract missing counts directly from column lengths.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  limits top-ranked tibble conversion to columns it uses.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  uses its prepared group frames directly to scale ordinary ranked
+  scores.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  splits group rows with existing integer codes instead of rematching a
+  factor.
+
+- Factor combinations, categorical axes, and Sankey nodes reuse row
+  codes already decoded by the tally helper.
+
+- Factor recoding uses compact target dictionaries when most declared
+  levels are unused.
+
 - Decimal token parsing returns complete numeric conversions before
   allocating NaN-recovery masks.
 
