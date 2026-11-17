@@ -1787,3 +1787,28 @@ test_that("numeric categorical labels format only distinct observations", {
   actual <- suppressMessages(fn(d, "s", group.by = "g", NA_stat = TRUE, stat = "count"))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("categorical plot factor drops use observed codes", {
+  d <- data.frame(s = ordered(c("c", "a", "c"), levels = c("a", "unused", "c")),
+    g = factor(c("B", "A", "B"), levels = c("A", "unused", "B")))
+  expected <- plt_cat(d, "s", group.by = "g", stat = "count")
+  fn <- plt_cat
+  environment(fn) <- list2env(list(droplevels = function(x, ...) {
+    if (is.factor(x)) stop("text-based categorical level drop")
+    base::droplevels(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, "s", group.by = "g", stat = "count")$data, expected$data)
+})
+
+test_that("categorical level drops honor factor subclass methods", {
+  seen <- 0L
+  rlang::local_bindings(droplevels.utilsr_drop_levels = function(x, ...) {
+    seen <<- seen + 1L
+    NextMethod()
+  }, .env = globalenv())
+  x <- structure(factor(c("b", "a", "a"), levels = c("a", "unused", "b")),
+    class = c("utilsr_drop_levels", "factor"))
+  p <- plt_cat(data.frame(x = x), "x", stat = "count")
+  expect_identical(seen, 1L)
+  expect_identical(levels(p$data$stat_var), c("a", "b"))
+})

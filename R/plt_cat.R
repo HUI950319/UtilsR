@@ -591,7 +591,10 @@ plt_cat <- function(data,
   if (!nrow(data)) cli::cli_abort("No observations remain after excluding missing values.")
   if (type %in% std_types && !keep_empty) {
     for (col in unique(c(stat.by, group.by))) {
-      data[[col]] <- droplevels(data[[col]])
+      value <- data[[col]]
+      ordinary <- identical(class(value), "factor") ||
+        identical(class(value), c("ordered", "factor"))
+      data[[col]] <- if (ordinary && !anyNA(levels(value))) .cat_axis_factor(value) else droplevels(value)
     }
   }
   # A named palette maps by level, as in plt_con(); an unnamed one by position.
