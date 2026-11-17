@@ -394,15 +394,21 @@
 
   resolved <- .resolve_stat_level(data, stat.by, stat_level)
 
-  # Build boolean matrix and compute intersections (vectorized)
-  bool_mat <- vapply(stat.by, function(s) {
-    .cat_set_members(data[[s]], resolved[[s]])
-  }, logical(nrow(data)))
-  dim(bool_mat) <- c(nrow(data), length(stat.by))
+  membership <- function(s) .cat_set_members(data[[s]], resolved[[s]])
+  if (length(stat.by) <= 31L) {
+    sets <- lapply(stat.by, function(s) which(membership(s)))
+    codes <- .upset_row_codes(sets, nrow(data))
+    groups <- vctrs::vec_group_id(codes)
+    bits <- bitwShiftL(1L, seq_along(stat.by) - 1L)
+    combinations <- lapply(unique(codes), function(code) stat.by[bitwAnd(code, bits) != 0L])
+  } else {
+    bool_mat <- vapply(stat.by, membership, logical(nrow(data)))
+    dim(bool_mat) <- c(nrow(data), length(stat.by))
+    groups <- vctrs::vec_group_id(as.data.frame(bool_mat))
+    combinations <- lapply(which(!duplicated(groups)), function(i) stat.by[bool_mat[i, ]])
+  }
 
   intersection_col <- utils::tail(make.unique(c(names(data), "intersection")), 1L)
-  groups <- vctrs::vec_group_id(as.data.frame(bool_mat))
-  combinations <- lapply(which(!duplicated(groups)), function(i) stat.by[bool_mat[i, ]])
   nonempty <- lengths(combinations) > 0L
   data[[intersection_col]] <- combinations[groups]
   if (!all(nonempty)) data <- data[nonempty[groups], , drop = FALSE]

@@ -1984,3 +1984,23 @@ test_that("category background bands keep their resolved level positions", {
   expect_identical(as.integer(actual$x), c(1L, 3L, 4L))
   expect_identical(levels(actual$x), limits)
 })
+
+test_that("categorical UpSet membership codes preserve observed set combinations", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = rep(c(TRUE, FALSE, TRUE, FALSE), 30L),
+    B = rep(c(FALSE, TRUE, TRUE, FALSE), 30L), C = rep(c(TRUE, FALSE), 60L))
+  vars <- names(d)
+  selectors <- setNames(rep(list("TRUE"), length(vars)), vars)
+  fn <- .plt_cat_upset
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (is.matrix(x) && ncol(x) == 3L) stop("constructed full membership columns for UpSet grouping")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, d, vars, selectors) f(d, vars, "red", stat_level = selectors)$data
+  expect_identical(draw(fn, d, vars, selectors), draw(.plt_cat_upset, d, vars, selectors))
+  for (i in seq_len(30L)) d[[paste0("extra", i)]] <- FALSE
+  wide <- draw(fn, d, names(d), setNames(rep(list("TRUE"), ncol(d)), names(d)))
+  expect_identical(wide$intersection, draw(fn, d, vars, selectors)$intersection)
+})

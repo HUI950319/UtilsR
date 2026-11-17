@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical UpSet plots use integer membership codes for up to 31 sets and retain wider-set support.
+
 * Categorical background bands use prepared level positions to retain axis order and coded missing labels.
 
 * Dodged rose plots find the outer label radius from complete group observations without a grouped maximum table.
