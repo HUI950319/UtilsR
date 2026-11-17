@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous comparison brackets keep all annotation rows when the precomputed labels are complete.
+
 * `lv()` prepares typed summary table inputs in one column pass while preserving missing, clock and calendar handling.
 
 * `PlotRank()` uses the same grouping pass to obtain ordinary category names and row positions.

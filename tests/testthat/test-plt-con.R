@@ -2335,3 +2335,25 @@ test_that("dot summaries reuse first-observation order codes for plain groups", 
   environment(fn) <- env
   expect_identical(fn(d, c("group", "bin")), .con_dot_counts(d, c("group", "bin")))
 })
+
+test_that("complete significance bracket annotations keep their computed rows", {
+  fn <- .con_stat_layer
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(result)) && is.data.frame(x) &&
+        "annotation" %in% names(x) && is.logical(i) && all(i)) {
+      stop("copied complete significance annotations")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function() {
+    d <- data.frame(x = c(1:10, 11:20), g = rep(c("A", "B"), each = 10L))
+    p <- suppressMessages(plt_con(d, "x", "g", type = "box", combine = FALSE,
+      comparisons = list(c("A", "B"))))[[1L]]
+    ggplot2::ggplot_build(p)$data
+  }
+  expected <- draw()
+  local_mocked_bindings(.con_stat_layer = fn)
+  expect_identical(draw(), expected)
+})

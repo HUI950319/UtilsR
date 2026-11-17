@@ -1101,7 +1101,7 @@ plt_con <- function(data,
         }
       }
       result <- do.call(stat$compute_panel, c(list(data = data, scales = scales), params))
-      if (inherits(stat, "StatSignif") && !is.null(result[["annotation"]])) {
+      if (inherits(stat, "StatSignif") && anyNA(result[["annotation"]])) {
         result <- result[!is.na(result[["annotation"]]), , drop = FALSE]
       }
       result
