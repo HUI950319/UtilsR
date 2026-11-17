@@ -557,11 +557,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (!is.object(x) && is.numeric(x)) {
       if (.pal_use_unique(x)) {
         unique_x <- unique(x)
-        positions <- match(x, unique_x)
-        mapping <- .pal_numeric_positions(unique_x, reverse)
-        return(lapply(palette, function(cols) {
-          .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
-        }))
+        if (length(unique_x) < length(x) / 2) {
+          positions <- match(x, unique_x)
+          mapping <- .pal_numeric_positions(unique_x, reverse)
+          return(lapply(palette, function(cols) {
+            .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
+          }))
+        }
       }
       if (length(palette) > 1L) {
         mapping <- .pal_numeric_positions(x, reverse)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` avoids rebuilding mostly unique numeric inputs as lookups for palette lists.
+
 * `PlotRankCor()` formats the group correlation lines together, retaining their wrap order.
 
 * `PlotRankCor()` reuses already complete paired score vectors when computing group correlations.

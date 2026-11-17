@@ -3028,3 +3028,18 @@ test_that("palette numeric positions verify repetition beyond the sample", {
   expect_identical(observed$at, expected)
   expect_null(observed$index)
 })
+
+test_that("palette lists skip lookups for mostly unique inputs", {
+  x <- as.double(seq_len(10000L))
+  x[round(seq.int(1, length(x), length.out = 1024L))] <- 0
+  palettes <- list(a = c("red", "blue"), b = c("black", "yellow"))
+  expected <- pal_get(palettes, x = x, reverse = TRUE)
+  fn <- pal_get
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (is.numeric(table) && length(table) > 5000L) stop("allocated a high-cardinality palette list lookup")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(palettes, x = x, reverse = TRUE), expected)
+})
