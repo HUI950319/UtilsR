@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` keeps full foreground data or returns the base grob directly for homogeneous shapes.
+
 * `fmt_bg()` checks each candidate categorical axis for observations once.
 
 * `grob_add()` draws every child of a plain grob list placed in a shared side cell.

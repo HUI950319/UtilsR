@@ -585,8 +585,9 @@ fmt_point <- function(plot,
 
 .fmt_point_draw_panel <- function(data, panel_params, coord, na.rm = FALSE) {
   base <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord, na.rm = na.rm)
-  foreground <- data[!data$shape %in% 21:25, , drop = FALSE]
-  if (!nrow(foreground)) return(base)
+  draw_foreground <- !data$shape %in% 21:25
+  if (!any(draw_foreground)) return(base)
+  foreground <- if (all(draw_foreground)) data else data[draw_foreground, , drop = FALSE]
   foreground$colour <- foreground$fill
   foreground$size <- foreground$size / 1.5
   grid::grobTree(base, ggplot2::GeomPoint$draw_panel(

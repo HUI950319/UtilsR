@@ -1071,3 +1071,25 @@ test_that("ordinary whole point shapes use numeric code lookup", {
     expect_identical(fn(shapes), .shape_convert(shapes))
   }
 })
+
+test_that("filled point panels reuse all or no foreground rows", {
+  base_plot <- ggplot2::ggplot(data.frame(x = 1:20, y = 20:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(shape = 8, fill = "red")
+  build <- ggplot2::ggplot_build(base_plot)
+  data <- build$data[[1L]]
+  params <- build$layout$panel_params[[1L]]
+  coord <- build$layout$coord
+  fn <- .fmt_point_draw_panel
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && identical(names(x), names(data)) &&
+        !missing(i) && is.logical(i) && length(i) == nrow(data)) {
+      stop("subset a complete point panel")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_s3_class(fn(data, params, coord), "gTree")
+  data$shape <- 21L
+  expect_s3_class(fn(data, params, coord), "points")
+})
