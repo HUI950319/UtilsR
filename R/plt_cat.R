@@ -1032,10 +1032,20 @@ plt_cat <- function(data,
   } else {
     return(NULL)
   }
+  if (length(parts) == 1L) {
+    value <- parts[[1L]]
+    if (length(value) > 1024L && .pal_use_unique(value)) {
+      keys <- unique(value)
+      if (length(keys) < length(value) / 2) {
+        return(sprintf("%.17g", keys + 0)[match(value, keys)])
+      }
+    }
+    return(sprintf("%.17g", value + 0))
+  }
   # Repeated compound values need formatting only once per component tuple.
   lookup <- NULL
   n <- length(parts[[1L]])
-  if (length(parts) > 1L && n > 1024L) {
+  if (n > 1024L) {
     names(parts) <- paste0("p", seq_along(parts))
     sample <- seq.int(1L, n, length.out = 128L)
     if (vctrs::vec_unique_count(vctrs::new_data_frame(lapply(parts, "[", sample))) < 64L) {

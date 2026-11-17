@@ -1923,3 +1923,18 @@ test_that("rose arcs use the declared group positions in one frame", {
     expect_identical(actual, expected)
   }
 })
+
+test_that("scalar time keys format only repeated distinct values", {
+  fn <- .cat_time_key
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, x, ...) {
+    if (identical(fmt, "%.17g") && length(x) > 1000L)
+      stop("formatted every repeated scalar time value")
+    base::sprintf(fmt, x, ...)
+  }
+  environment(fn) <- env
+  for (x in list(as.Date("2026-04-01") + rep(c(0L, 1L, NA_integer_), 400L),
+                 as.difftime(rep(c(-0, 1 / 3, NA), 400L), units = "hours"))) {
+    expect_identical(fn(x), .cat_time_key(x))
+  }
+})
