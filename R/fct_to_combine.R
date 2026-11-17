@@ -274,7 +274,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
   if (!early_filter) {
     inputs <- unname(lapply(args, encode_input))
-    missing_rows <- Reduce(`|`, lapply(args, is.na))
+    incomplete <- vapply(args, function(x) is.object(x) || anyNA(x), logical(1L))
+    missing_rows <- Reduce(`|`, lapply(args[incomplete], is.na))
   }
 
   complete_rows <- NULL

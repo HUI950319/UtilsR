@@ -575,3 +575,17 @@ test_that("combining a single fully observed factor reuses its codes", {
   environment(fn) <- env
   expect_identical(fn(x), fct_to_combine(x))
 })
+
+test_that("mixed factor combination types skip complete ordinary masks", {
+  input <- rep(c("x", "b"), 130L)
+  time <- as.Date("2001-01-01") + rep(c(0, 1, NA), length.out = length(input))
+  expected <- fct_to_combine(time, input)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, input)) stop("built missing mask for a complete combination column")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(time, input), expected)
+})
