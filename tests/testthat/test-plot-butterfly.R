@@ -1319,3 +1319,22 @@ test_that("butterfly distribution tibble coercion keeps selected columns only", 
   expect_identical(actual[[1L]]$data, expected[[1L]]$data)
   expect_identical(actual[[2L]]$data, expected[[2L]]$data)
 })
+
+test_that("butterfly grids decode only observed factor codes", {
+  d <- data.frame(category = ordered(rep(c("b", "a"), 16L), levels = c("a", "unused", "b")),
+    side = factor(rep(c("R", "L"), each = 16L)), fill = factor(rep(c("no", "yes"), each = 4L, times = 4L)),
+    value = seq_len(32L))
+  args <- list(data = d, stat.by = "category", value.by = "value", group.by = "side",
+    fill.by = "fill", type = "bar")
+  expected <- suppressMessages(do.call(PlotButterfly, args))
+  fn <- PlotButterfly
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("decoded all butterfly factor rows")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual[[1L]]$data, expected[[1L]]$data)
+  expect_identical(actual[[2L]]$data, expected[[2L]]$data)
+})

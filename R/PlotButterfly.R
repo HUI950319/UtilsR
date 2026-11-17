@@ -288,7 +288,13 @@ PlotButterfly <- function(
       data[[value.by]] <- vctrs::vec_data(.scatter_axis_values(values))
     }
 
-    groups <- unique(as.character(data[[group.by]]))
+    observed_labels <- function(x) {
+      if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
+        return(unique(levels(x)[unique(as.integer(x))]))
+      }
+      unique(as.character(x))
+    }
+    groups <- observed_labels(data[[group.by]])
     if (length(groups) != 2L)
       cli::cli_abort("{.arg group.by} must have exactly 2 levels, got {length(groups)}.")
 
@@ -320,8 +326,8 @@ PlotButterfly <- function(
     }
 
     # Complete missing stat.by x fill.by x group.by combinations with 0
-    all_stats  <- unique(as.character(data[[stat.by]]))
-    all_fills  <- unique(as.character(data[[fill.by]]))
+    all_stats  <- observed_labels(data[[stat.by]])
+    all_fills  <- observed_labels(data[[fill.by]])
     grid_keys <- unique(c(stat.by, fill.by, group.by))
     grid_values <- list(all_stats, all_fills, groups)[match(grid_keys, c(stat.by, fill.by, group.by))]
     if (prod(lengths(grid_values)) > .Machine$integer.max)

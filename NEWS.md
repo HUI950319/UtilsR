@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` creates grid dictionaries without converting every ordinary factor row to text.
+
 * `impute_na_knn()` restores predicted factor codes directly when the backend retains the dictionary.
 
 * Plot formatters read ordinary directly mapped axis columns without constructing a tidy-evaluation data mask.
