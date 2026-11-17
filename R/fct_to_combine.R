@@ -237,7 +237,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
           "i" = "Choose a different {.arg sep} or relabel the inputs."
         ))
       }
-      codes <- match(tally$row_codes, observed)
+      codes <- if (length(observed) == nlevels(x)) tally$row_codes else
+        match(tally$row_codes, observed)
       return(structure(codes, levels = lvls, class = "factor"))
     }
   }

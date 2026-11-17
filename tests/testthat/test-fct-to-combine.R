@@ -563,3 +563,15 @@ test_that("factor combination reuses the row codes from its tally", {
   expect_identical(fn(x), expected)
   expect_identical(.factor_tally(x)$row_codes, as.integer(x))
 })
+
+test_that("combining a single fully observed factor reuses its codes", {
+  x <- ordered(rep(c("b", NA, "a"), 400L), levels = c("a", "b"))
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(x) >= 100L) stop("rematched fully observed factor codes")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x), fct_to_combine(x))
+})

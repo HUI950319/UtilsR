@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` keeps the existing codes when every factor level is observed.
+
 * `fmt_raster()` checks for empty grobs only in panel cells.
 
 * `pal_get()` checks the actual distinct count before constructing a palette-position index.
