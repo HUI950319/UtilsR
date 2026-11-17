@@ -399,11 +399,10 @@ plt_sankey <- function(data,
   stage <- rep.int(stage_ids, nrow(data))
   stage_levels <- if (nrow(data)) stages else character()
   nodes <- as.character(do.call(rbind, unname(lapply(data[stages], as.character))))
-  final <- stage == length(stages)
   successors <- if (length(stage_ids)) c(stage_ids[-1L], NA_integer_) else integer()
   next_stage <- rep.int(successors, nrow(data))
   following <- seq_along(nodes) + 1L
-  following[final] <- NA_integer_
+  if (length(nodes)) following[seq.int(length(stages), length(nodes), by = length(stages))] <- NA_integer_
   next_node <- nodes[following]
   tibble::tibble(
     x = structure(stage, levels = stage_levels, class = "factor"), node = nodes,

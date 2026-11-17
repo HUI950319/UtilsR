@@ -980,3 +980,19 @@ test_that("visible Sankey labels keep the complete layout rows", {
       draw(plt_sankey, threshold)$layers[[3L]]$data)
   }
 })
+
+test_that("Sankey terminal rows use fixed successor positions", {
+  d <- data.frame(a = rep(c("one", NA), 20L), b = rep(c("two", "three"), each = 20L),
+    c = rep(letters[1:4], 10L))
+  fn <- .sankey_path_rows
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(stage))) stop("compared every Sankey stage position to the terminal level")
+    base::"=="(e1, e2)
+  }
+  environment(fn) <- env
+  actual <- fn(d, names(d))
+  expect_identical(actual, .sankey_path_rows(d, names(d)))
+  expect_identical(which(is.na(actual$next_x)), seq.int(3L, 120L, by = 3L))
+  expect_identical(fn(d[0L, ], names(d)), .sankey_path_rows(d[0L, ], names(d)))
+})
