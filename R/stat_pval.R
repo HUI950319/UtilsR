@@ -126,7 +126,7 @@ stat_pval <- function(x,
     if (is.null(endpoints) && !is.object(pvals)) {
       index <- findInterval(pvals, map, left.open = TRUE) + 1L
       stars <- c(names(map), "")[index]
-      stars[is.na(pvals)] <- ""
+      if (anyNA(pvals)) stars[is.na(pvals)] <- ""
       return(stars)
     }
     if (is.null(endpoints)) {

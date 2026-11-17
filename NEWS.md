@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` avoids constructing a replacement mask when all star inputs have values.
+
 * Console table gradients use all rows directly for ordinary integer columns.
 
 * Grouped continuous bar limits combine their intervals with the raw range without copying all raw values.

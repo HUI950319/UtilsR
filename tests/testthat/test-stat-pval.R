@@ -857,3 +857,18 @@ test_that("external P-value stars avoid a complete label mask", {
   environment(fn) <- env
   expect_identical(fn(x, add_star_p = p), expected)
 })
+
+test_that("complete significance star vectors skip missing replacement", {
+  p <- seq(0, .8, length.out = 512L)
+  args <- list(x = rep("label", length(p)), add_star_p = p)
+  expected <- do.call(stat_pval, args)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(substitute(x), quote(pvals)) && identical(x, p))
+      stop("rewrote missing slots in complete star input")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_identical(do.call(fn, args), expected)
+})
