@@ -1310,3 +1310,24 @@ test_that("alluvial observed factors keep existing complete level codes", {
   d$a <- ordered(d$a, levels = c("b", "unused", "a"))
   expect_identical(draw(fn, d), draw(plt_alluvial, d))
 })
+
+test_that("alluvial gap strata use their final factor codes at construction", {
+  d <- data.frame(a = rep(c("left", "right"), 12L),
+    b = factor(rep(c(".gap_1", "B", "C"), 8L), levels = c("C", ".gap_1", "B")))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(table), quote(all_group_levels)))
+      stop("matched stratum names back to gap order")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, y) suppressMessages(f(d, "a", "b", y_type = y,
+    stratum_args = list(gap = .04)))$data
+  for (y in c("count", "percent")) {
+    out <- draw(fn, y)
+    expect_identical(out, draw(plt_alluvial, y))
+    expect_identical(levels(out$.group)[c(1L, 3L, 5L)], levels(d$b))
+    expect_identical(unique(as.integer(out$.group[out$.is_gap])), c(2L, 4L))
+  }
+})

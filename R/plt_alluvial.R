@@ -558,6 +558,7 @@ plt_alluvial <- function(
     )
   }
 
+  all_group_levels <- group_levels
   gap_names <- character()
   if (stratum_args$gap > 0 && length(group_levels) > 1L) {
     gap_names <- utils::tail(make.unique(c(
@@ -571,10 +572,18 @@ plt_alluvial <- function(
       gap_height <- gap_height * unname(max_total[as.integer(observed$.facet)])
     }
     n_gaps <- length(gap_names)
+    all_group_levels <- character(length(group_levels) + n_gaps)
+    group_codes <- seq.int(1L, length(all_group_levels), by = 2L)
+    gap_codes <- seq.int(2L, length(all_group_levels), by = 2L)
+    all_group_levels[group_codes] <- group_levels
+    all_group_levels[gap_codes] <- gap_names
+    stat$.group <- structure(group_codes[as.integer(stat$.group)],
+                             levels = all_group_levels, class = "factor")
     gap_rows <- data.frame(
       .facet = rep.int(observed$.facet, n_gaps),
       .cat_var = rep.int(observed$.cat_var, n_gaps),
-      .group = rep(gap_names, each = n_pairs),
+      .group = structure(rep(gap_codes, each = n_pairs), levels = all_group_levels,
+                         class = "factor"),
       count = 0,
       group_total = rep.int(observed$group_total, n_gaps),
       percent = 0,
@@ -583,15 +592,6 @@ plt_alluvial <- function(
       .label = NA_character_
     )
     stat <- rbind(stat, gap_rows)
-  }
-
-  all_group_levels <- group_levels
-  if (length(gap_names)) {
-    all_group_levels <- character(length(group_levels) + length(gap_names))
-    all_group_levels[seq.int(1L, length(all_group_levels), by = 2L)] <- group_levels
-    all_group_levels[seq.int(2L, length(all_group_levels), by = 2L)] <- gap_names
-    codes <- match(levels(stat$.group), all_group_levels)[as.integer(stat$.group)]
-    stat$.group <- structure(codes, levels = all_group_levels, class = "factor")
   }
 
   real_colors <- if (!is.null(names(color))) {
