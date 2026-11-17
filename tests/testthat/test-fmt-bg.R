@@ -626,3 +626,21 @@ test_that("background stripe midpoints preserve extreme finite discrete position
     expect_length(bg_fills(fmt_bg(bg_plot(), palcolor = bg_colors)), 3L)
   }
 })
+
+test_that("finite background stripe positions keep their complete vectors", {
+  fn <- fmt_bg
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(keep)) && length(x) > 5L &&
+        is.logical(i) && all(i)) stop("copied complete trained stripe positions")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  env$fmt_bg <- fn
+  d <- data.frame(g = rep(letters[1:15], 4L), y = 1:60)
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  actual <- ggplot2::ggplotGrob(fn(p))
+  expected <- ggplot2::ggplotGrob(fmt_bg(p))
+  expect_identical(actual$layout, expected$layout)
+  expect_length(actual$grobs, length(expected$grobs))
+})

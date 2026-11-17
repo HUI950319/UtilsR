@@ -5039,8 +5039,10 @@ fmt_bg <- function(plot,
           positions <- as.numeric(scale$map(values))
           keep <- is.finite(positions)
           if (!any(keep)) return(NULL)
-          positions <- positions[keep]
-          values <- values[keep]
+          if (!all(keep)) {
+            positions <- positions[keep]
+            values <- values[keep]
+          }
           if (is.unsorted(positions)) {
             index <- order(positions)
             positions <- positions[index]
