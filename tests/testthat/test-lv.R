@@ -1665,3 +1665,19 @@ test_that("complete measurement listings avoid observed and finite row copies", 
   expect_identical(listing(result$output), listing(expected$output))
   expect_identical(result$tables, expected$tables)
 })
+
+test_that("character level summaries reuse observed values for marker counts", {
+  d <- data.frame(x = rep(c("unknown", " \t", NA_character_), 5L))
+  expected <- capture_lv(lv(d))
+  fn <- .count_special_values
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(x, d$x)) stop("scanned character levels again")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.count_special_values = fn)
+  actual <- capture_lv(lv(d))
+  expect_identical(actual$tables, expected$tables)
+  expect_identical(actual$tables[[1L]]$n_special, 10)
+})

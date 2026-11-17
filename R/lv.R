@@ -406,12 +406,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       unique_values <- .get_levels(col_data, complete = n_na == 0L)
     }
     n_unique <- length(unique_values)
+    distinct <- if (is.character(col_data) && !is.object(col_data) && is.null(dim(col_data))) {
+      if (n_na) c(unique_values, NA_character_) else unique_values
+    }
     summary <- tibble::tibble(
       vars = var,
       class = var_class,
       n_unique = n_unique,
       n_na = n_na,
-      n_special = .count_special_values(col_data, tally = tally),
+      n_special = .count_special_values(col_data, tally = tally, distinct = distinct),
       unique = noquote("")
     )
     if (is.expression(col_data)) return(summary)

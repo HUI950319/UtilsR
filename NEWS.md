@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` counts character markers using the levels it already found.
+
 * `PlotCircleLollipop()` uses the original feature and sector codes to find shared labels on complete input.
 
 * `PlotCircleLollipop()` splits original group scores by the existing integer positions.

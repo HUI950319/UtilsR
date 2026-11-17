@@ -305,7 +305,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # whitespace-only values are blank. `special`, a character vector of regular
 # expressions, replaces the built-in markers. Values recognized by is.na() are
 # missing, not special.
-.count_special_values <- function(x, special = NULL, tally = NULL) {
+.count_special_values <- function(x, special = NULL, tally = NULL, distinct = NULL) {
   if (!is.factor(x) && !is.character(x)) return(0L)
   if (!is.null(special) && length(special) == 0L) return(0)
   if (is.factor(x)) {
@@ -313,7 +313,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     u <- levels(x)[tally$codes]
     n <- tally$counts
   } else {
-    u <- unique(x)
+    u <- distinct %||% unique(x)
     markers <- u[.is_special_value(u, special) & !is.na(u)]
     if (!length(markers)) return(0)
     if (length(markers) == length(u)) return(length(x) + 0)
