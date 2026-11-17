@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point shapes retain unchanged entries and reuse the row selection for converted codes.
+
 * Console wrapping measures the returned lines together and splits only lines that exceed the display width.
 
 * Continuous bar ranges split complete factor groups directly and only retain occupied partitions.

@@ -587,8 +587,9 @@ fmt_point <- function(plot,
     (is.double(x) && all(is.na(x) | x == trunc(x))))
   index <- if (whole) match(x, as.integer(names(dict))) else as.character(x)
   converted <- unname(dict[index])
-  if (all(!is.na(converted))) return(converted)
-  x[!is.na(converted)] <- converted[!is.na(converted)]
+  mapped <- !is.na(converted)
+  if (all(mapped)) return(converted)
+  if (any(mapped)) x[mapped] <- converted[mapped]
   x
 }
 

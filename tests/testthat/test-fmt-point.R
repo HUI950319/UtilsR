@@ -1132,3 +1132,17 @@ test_that("shape name detection skips collecting every nonmissing point index", 
     expect_identical(fn(value), .shape_convert(value))
   }
 })
+
+test_that("unconverted shapes keep their names without replacement", {
+  fn <- .shape_convert
+  env <- new.env(parent = environment(fn))
+  env[["[<-"]] <- function(x, i, ..., value) {
+    if (identical(substitute(i), quote(!is.na(converted))) && !any(i))
+      stop("replaced an empty set of converted point shapes")
+    base::"[<-"(x, i, ..., value = value)
+  }
+  environment(fn) <- env
+  for (value in list(c(A = 4, B = 7, C = 8, D = NA), c(12, 19, 5, NA), c("q", "z"))) {
+    expect_identical(fn(value), .shape_convert(value))
+  }
+})
