@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` reuses globally observed levels for a single panel and drops local unused levels after splitting.
+
 * `PlotCircleLollipop()` derives plain group keys from existing sector codes and preserves typed time-group handling.
 
 * `PlotRankCor()` assigns method values to prepared row positions without rematching complete output sequences.

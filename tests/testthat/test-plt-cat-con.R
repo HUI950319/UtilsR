@@ -2033,3 +2033,18 @@ test_that("area value labels align at the numeric endpoints without distinct key
   out <- fn(p, d, stat = "count", type = "area")
   expect_identical(tail(out$layers, 1L)[[1L]]$data$label_hjust, rep(c(0, .5, 1), each = 2L))
 })
+
+test_that("unsplit category panels keep their already prepared levels", {
+  d <- data.frame(a = factor(c("one", "two", "one", "two"), levels = c("two", "unused", "one")),
+    g = factor(c("left", "left", "right", "right")), split = c("x", "y", "x", "y"))
+  fn <- .plt_cat_single
+  env <- new.env(parent = environment(fn))
+  env$droplevels <- function(...) stop("dropped categorical levels after preparing the single panel")
+  environment(fn) <- env
+  draw <- function() suppressMessages(plt_cat(d, "a", group.by = "g", stat = "count", label = FALSE))
+  expected <- draw()
+  local_mocked_bindings(.plt_cat_single = fn)
+  expect_identical(draw()$data, expected$data)
+  panels <- suppressMessages(plt_cat(d, "a", group.by = "g", split.by = "split", label = FALSE))
+  expect_s3_class(panels, "patchwork")
+})

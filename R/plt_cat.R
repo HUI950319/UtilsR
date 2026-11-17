@@ -665,6 +665,9 @@ plt_cat <- function(data,
   }
 
   draw_one <- function(panel_data, panel_title) {
+    if (!is.null(split.by) && !keep_empty && type %in% std_types) {
+      for (col in unique(c(stat.by, group.by))) panel_data[[col]] <- droplevels(panel_data[[col]])
+    }
     .plt_cat_single(panel_data, stat.by, group.by, type, stat, position,
       colors, alpha, label, label.size, label.fg, label.bg, label.bg.r,
       bg.by, bg_palette, bg_alpha, flip, NA_stat, keep_empty, stat_level,
@@ -780,9 +783,6 @@ plt_cat <- function(data,
   }
 
   # --- Standard types: prepare data then plot ---------------------------------
-  if (!keep_empty) {
-    for (col in unique(c(stat.by, group.by))) data[[col]] <- droplevels(data[[col]])
-  }
   plotdata <- .prepare_cat_data(data, stat.by, group.by, stat,
                                 NA_stat = NA_stat,
                                 keep_empty = keep_empty || type %in% c("area", "trend"))
