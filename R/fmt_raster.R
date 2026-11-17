@@ -312,6 +312,10 @@ fmt_raster <- function(
     nested <- nested[keep]
     children <- children[keep]
     counts <- counts[keep]
+    if (!length(nested)) {
+      return(list(indices = indices, nested = nested, children = children,
+        positions = seq_along(indices), offsets = integer(), count = length(indices)))
+    }
     # A table entry can be both a panel and a parent. Visit the panel first.
     sizes <- integer(length(gt$grobs))
     sizes[nested] <- counts

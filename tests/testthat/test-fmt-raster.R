@@ -967,3 +967,22 @@ test_that("raster panel sizes reuse repeated cell spans", {
     cell_sizes = seq_len(20L) / 7)
   expect_identical(out, expected)
 })
+
+test_that("flat raster layouts need no cumulative decoration offsets", {
+  skip_if_not_installed("ragg")
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::nullGrob()), 140L), 1L, 1L,
+    name = paste0("guide-", 1:140))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), 1L, 1L, name = "panel", clip = "on")
+  fn <- .fmt_raster_ragg
+  env <- new.env(parent = environment(fn))
+  env$cumsum <- function(x) {
+    if (length(x) > 100L) stop("planned offsets across every raster decoration")
+    base::cumsum(x)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.fmt_raster_ragg = fn)
+  out <- fmt_raster(gt, method = "ragg", dpi = 20)
+  expect_s3_class(out, "patchwork")
+  expect_identical(attr(out, "size")$width, 1)
+})
