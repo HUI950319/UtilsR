@@ -289,3 +289,16 @@ test_that("interval formatting skips signed zero regex for positive values", {
   expect_identical(fn(x, x/2, x*2), stat_ci(x, x/2, x*2))
   expect_identical(stat_ci(-.001, -.002, .001, digits = 2), "0.00 (0.00\u20130.00)")
 })
+
+test_that("confidence interval string precision stays scalar when explicit", {
+  x <- c(rep("0.3 (0.1,0.5)", 1400L), NA, "")
+  expected <- stat_ci(x, digits = 3L)
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$rep.int <- function(x, times) {
+    if (identical(x, 3L) && times > 1000L) stop("expanded scalar CI precision")
+    base::rep.int(x, times)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, digits = 3L), expected)
+})

@@ -149,7 +149,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     est <- parsed$estimate
     lo  <- parsed$lower
     hi  <- parsed$upper
-    d   <- if (!is.null(digits)) rep.int(digits, length(x)) else parsed$digits
+    d   <- digits %||% parsed$digits
     valid <- parsed$valid
     .check_precision(d, est, lo, hi)
 
@@ -170,7 +170,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     } else {
       out <- x
       if (any(valid)) {
-        precision <- d[valid]
+        precision <- if (length(d) == 1L) d else d[valid]
         out[valid] <- .format_values(template, precision, est[valid], bp[1], precision,
                                      lo[valid], sep, precision, hi[valid], bp[2])
       }
