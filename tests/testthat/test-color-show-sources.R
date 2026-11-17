@@ -3139,3 +3139,18 @@ test_that("named swatches build flags directly and retain fallback hex labels", 
   expect_identical(out$label, c("Red", "#00FF00", "#AD44AB80"))
   expect_identical(out$has_name, c(TRUE, FALSE, FALSE))
 })
+
+test_that("complete discrete palette previews reuse the full vector", {
+  cols <- structure(setNames(c("red", "green", "blue"), c("A", "B", "")),
+    type = "discrete", metadata = "unused")
+  fn <- .pal_resize
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(cols)) && length(i) == length(x))
+      stop("sliced a complete discrete palette")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(cols, 3L), .pal_resize(cols, 3L))
+  expect_identical(fn(cols, 2L), .pal_resize(cols, 2L))
+})
