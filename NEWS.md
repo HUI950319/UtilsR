@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews with wholly translucent colours skip the opaque-colour replacement.
+
 * Palette opacity processing only expands deduplicated values where the full palette has enough repeated colours.
 
 * `PlotCircleLollipop()` finds min-max bounds directly for complete ordinary scores.

@@ -3101,3 +3101,16 @@ test_that("opacity skips reindexing a mostly distinct palette after probing", {
   environment(fn) <- env
   expect_identical(fn(cols, alpha = .7), as.character(ggplot2::alpha(cols, .7)))
 })
+
+test_that("all-translucent palette previews skip empty opaque replacement", {
+  fn <- .pal_hex
+  env <- new.env(parent = environment(fn))
+  env$substr <- function(x, ...) {
+    if (!length(x)) stop("trimmed an empty set of opaque colours")
+    base::substr(x, ...)
+  }
+  environment(fn) <- env
+  cols <- c("#AA22CC80", "#AACC3300", "#11111140")
+  expect_identical(fn(cols), cols)
+  expect_identical(fn(c(cols, "red")), c(cols, "#FF0000"))
+})

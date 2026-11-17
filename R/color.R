@@ -1908,7 +1908,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   }
   out <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ], rgba[4L, ],
                        maxColorValue = 255)
-  out[opaque] <- substr(out[opaque], 1L, 7L)
+  if (any(opaque)) out[opaque] <- substr(out[opaque], 1L, 7L)
   out
 }
 
