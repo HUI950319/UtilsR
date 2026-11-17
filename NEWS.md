@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Raster panel sizing sums shared multi-cell spans once.
+
 * Axis tile guides reuse the key table when every label is visible.
 
 * `PlotDumbbell()` computes the shared guide minimum directly from its endpoint columns.

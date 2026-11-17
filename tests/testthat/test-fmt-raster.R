@@ -948,3 +948,22 @@ test_that("interleaved raster runs share one bitmap dimension check", {
   expect_length(out$children, 3L)
   expect_identical(count, 1L)
 })
+
+test_that("raster panel sizes reuse repeated cell spans", {
+  gt <- gtable::gtable(grid::unit(rep(1, 20), "cm"), grid::unit(rep(1, 40), "cm"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 40L),
+    t = seq_len(40L), l = 1L, r = 20L, name = "panel")
+  fn <- .resolve_panel_size
+  env <- new.env(parent = environment(fn))
+  count <- 0L
+  env$sum <- function(...) {
+    count <<- count + 1L
+    if (count > 1L) stop("measured a shared raster panel span again")
+    base::sum(...)
+  }
+  environment(fn) <- env
+  out <- fn(gt, seq_len(40L), "width", NULL, "cm", cell_sizes = seq_len(20L) / 7)
+  expected <- .resolve_panel_size(gt, seq_len(40L), "width", NULL, "cm",
+    cell_sizes = seq_len(20L) / 7)
+  expect_identical(out, expected)
+})
