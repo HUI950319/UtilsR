@@ -180,3 +180,15 @@ test_that("scale clones preserve deferred labels without evaluation", {
     expect_equal(reads, 1L)
   }
 })
+
+test_that("facet strip scalar and named labels need no level discovery", {
+  values <- list(g = rep(c("a", "b", "c"), 300L), h = rep("panel", 900L))
+  fn <- .fmt_strip_labeller
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(...) stop("deduplicated facet values")
+  environment(fn) <- env
+  for (replacement in list("Group", c(a = "A", c = "C"))) {
+    expected <- .fmt_strip_labeller(ggplot2::label_value, "g", replacement)(values)
+    expect_identical(fn(ggplot2::label_value, "g", replacement)(values), expected)
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip()` avoids deduplicating facet values for scalar or named labels.
+
 * `plt_cat()` finds coded missing categories without expanding all factor labels.
 
 * `lv()` counts character markers using the levels it already found.

@@ -1876,11 +1876,12 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
   force(replacement)
   labeller <- function(values) {
     if (!variable %in% names(values)) return(original(values))
-    # The labeller receives levels in facet order, which can differ from their
-    # first appearance in the raw data.
-    levels <- unique(values[[variable]])
-    if (is.null(names(replacement))) {
-      if (!length(replacement) %in% c(1L, length(levels))) {
+    if (is.null(names(replacement)) && length(replacement) == 1L) {
+      mapped <- rep_len(replacement, length(values[[variable]]))
+    } else if (is.null(names(replacement))) {
+      # Use facet order, which may differ from first appearance in the data.
+      levels <- unique(values[[variable]])
+      if (length(replacement) != length(levels)) {
         cli::cli_warn(c(
           "{.fn fmt_strip} got {length(replacement)} labels for {length(levels)} \\
            level{?s} of {.field {variable}}; recycling them.",
