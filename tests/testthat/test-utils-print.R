@@ -2058,3 +2058,18 @@ test_that("badge styles scalar fields before recycling", {
   expect_identical(fn(key, value), expected)
   expect_identical(chip_lengths, c(1L, 3L))
 })
+
+test_that("console tree counts hidden depth-limit siblings without reading them", {
+  withr::local_options(cli.num_colors = 1L)
+  x <- as.list(seq_len(1000L))
+  args <- list(x = x, max_depth = 1L, max_items = 900L, max_lines = 3L)
+  expected <- capture.output(do.call(pr_tree, args))
+  fn <- pr_tree
+  env <- new.env(parent = environment(fn))
+  env[["[["]] <- function(value, i, ...) {
+    if (identical(value, x) && i > 2L) stop("read hidden siblings")
+    base::"[["(value, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(do.call(fn, args)), expected)
+})

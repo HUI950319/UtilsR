@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` counts hidden siblings at the depth limit without visiting every leaf.
+
 * `pr_badge()` styles a length-one key or value once when building vector badges.
 
 * `pr_table()` reuses fixed-point text for highly repeated double columns.

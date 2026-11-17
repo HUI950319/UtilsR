@@ -1045,7 +1045,13 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)
       }
       had_stub <- FALSE
-      for (k in seq_len(min(length(p), max_items))) {
+      take_children <- min(length(p), max_items)
+      for (k in seq_len(take_children)) {
+        if (rows$n >= max_lines && depth + 1L >= max_depth && !is.object(p)) {
+          rows$n <- rows$n + take_children - k + 1L
+          if (shown && !had_stub) kids <- c(kids, add(paste0(id, "/", k), ""))
+          break
+        }
         child <- p[[k]]
         h <- slot(shown)
         if (h == "stub") {
