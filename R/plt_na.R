@@ -263,7 +263,7 @@ plt_na <- function(
     plot <- ggplot2::ggplot(missing_summary) +
       common_layers +
       ggplot2::geom_label(
-        data = \(x) dplyr::filter(x, .data[["isna"]]),
+        data = \(x) x[which(x[["isna"]]), , drop = FALSE],
         ggplot2::aes(
           label = ifelse(.data[["pct"]] > 0 & .data[["pct"]] < 0.01, "<0.01%",
             ifelse(.data[["pct"]] < 100 & .data[["pct"]] > 99.99, ">99.99%",

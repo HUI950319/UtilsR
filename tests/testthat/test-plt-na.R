@@ -560,3 +560,17 @@ test_that("missingness summaries encode positions without recoding displayed nam
   environment(fn) <- env
   expect_identical(do.call(fn, args), expected)
 })
+
+test_that("percentage labels select their existing missing rows directly", {
+  d <- data.frame(a = c(NA, 1, 2, 3), b = c(2, NA, 1, NA))
+  p <- plt_na(d, output = "percentage")
+  expected <- ggplot2::ggplot_build(p)$data[[3L]]
+  original <- dplyr::filter
+  local_mocked_bindings(filter = function(.data, ...) {
+    if (all(c("isna", "label", "pct") %in% names(.data)))
+      stop("filtered the missingness summary during plot build")
+    original(.data, ...)
+  }, .package = "dplyr")
+  built <- ggplot2::ggplot_build(plt_na(d, output = "percentage"))
+  expect_identical(built$data[[3L]], expected)
+})

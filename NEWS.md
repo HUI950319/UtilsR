@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` selects percentage-label rows directly at plot build time.
+
 * `fmt_raster()` uses panel order directly for tables with no nested raster panels.
 
 * Categorical chord plots use integer cell counts for complete plain factor inputs.
