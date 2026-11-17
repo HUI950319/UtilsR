@@ -294,8 +294,7 @@ stat_ci_parse <- function(x,
   }
   # Only very high precision can require the formatted-number byte checks below.
   if (output %in% c("p", "p_star") && !any(d > 7881L)) {
-    out <- if (output == "p") pval else
-      ifelse(valid, stat_pval(pval, map_signif = map_signif), NA_character_)
+    out <- if (output == "p") pval else stat_pval(pval, map_signif = map_signif)
     names(out) <- names(x)
     return(out)
   }

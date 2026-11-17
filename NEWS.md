@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse(output = "p_star")` formats the prepared P-values directly with missing inputs preserved.
+
 * `stat_ci()` passes complete observations directly to its precision check and shares filtered values with the formatter.
 
 * Continuous comparison brackets keep all annotation rows when the precomputed labels are complete.

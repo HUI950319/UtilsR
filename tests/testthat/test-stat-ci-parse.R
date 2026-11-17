@@ -1069,3 +1069,18 @@ test_that("CI scale probes and classification share rounding unit columns", {
   expect_identical(do.call(fn, args), do.call(.ci_scale, args))
   expect_identical(accesses, rep(1L, 3L))
 })
+
+test_that("CI P-value stars keep invalid and missing intervals without remasking", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$ifelse <- function(test, yes, no) {
+    if (is.call(substitute(yes)) && identical(substitute(yes)[[1L]], quote(stat_pval)))
+      stop("masked an already missing P-value twice")
+    base::ifelse(test, yes, no)
+  }
+  environment(fn) <- env
+  x <- c(a = "2.00 (1.00, 3.00)", bad = "2.00 (3.00, 4.00)", absent = NA, null = "0.00 (-1.00, 1.00)")
+  expect_warning(out <- fn(x, output = "p_star", exp = FALSE), "invalid")
+  expect_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE), "invalid")
+  expect_identical(out, stat_pval(p, map_signif = c("***" = .001, "**" = .01, "*" = .05)))
+})
