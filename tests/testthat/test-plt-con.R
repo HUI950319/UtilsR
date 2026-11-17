@@ -2304,3 +2304,24 @@ test_that("numeric comparison pair positions are translated once", {
   expect_equal(unname(lapply(out, identity)), comparisons)
   expect_length(attr(out, ".con_test_cache"), 2L)
 })
+
+test_that("global comparison panel bounds avoid copying distinct outcomes", {
+  d <- data.frame(x = c(1:12, 3:14), g = rep(c("A", "B"), each = 12L))
+  fn <- .con_global_layer
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(substitute(x), quote(data$y[is.finite(data$y)])))
+      stop("hashed all finite panel outcomes")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function() {
+    p <- suppressMessages(plt_con(d, "x", "g", type = "box", combine = FALSE,
+      multiplegroup_comparisons = TRUE, multiple_method = "anova"))[[1L]]
+    tail(ggplot2::ggplot_build(p)$data, 1L)[[1L]]$p
+  }
+  expected <- draw()
+  local_mocked_bindings(.con_global_layer = fn)
+  expect_identical(draw(), expected)
+  expect_equal(expected, summary(stats::aov(x ~ g, d))[[1L]][["Pr(>F)"]][1L])
+})

@@ -1133,7 +1133,8 @@ plt_con <- function(data,
     parameters = function(extra = FALSE) original$parameters(extra),
     compute_panel = function(data, scales, ...) {
       feature <- features[if (length(features) > 1L) as.integer(data$PANEL[1L]) else 1L]
-      if (length(unique(data$y[is.finite(data$y)])) < 2L) {
+      bounds <- suppressWarnings(range(data$y, finite = TRUE))
+      if (bounds[1L] >= bounds[2L]) {
         cli::cli_warn("Skipping global comparison for {.val {feature}}: the feature is constant.")
         return(data.frame())
       }

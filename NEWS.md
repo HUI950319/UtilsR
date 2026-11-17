@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` checks global test panel variation without building a vector of distinct outcomes.
+
 * `plt_con()` uses a single conversion of numeric group pairs for both validation and statistical prechecks.
 
 * `PlotDumbbell()` preserves the existing observation order when preparing an ordinary factor axis.
