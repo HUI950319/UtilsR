@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis tile guides reuse the key table when every label is visible.
+
 * `PlotDumbbell()` computes the shared guide minimum directly from its endpoint columns.
 
 * `plt_con(ref_group = ...)` finds observed reference-comparison groups with sparse factor tallies.

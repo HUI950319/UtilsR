@@ -227,3 +227,21 @@ test_that("comparison preparation does not recycle full ordinary mappings", {
   result <- suppressMessages(fn(p))
   expect_length(result$layers, length(expected$layers))
 })
+
+test_that("axis tile guides keep fully labelled keys", {
+  parent <- ggplot2::ggproto(NULL, ggplot2::GuideAxis,
+    build_labels = function(key, elements, params) key)
+  fn <- .axis_tile_guide
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && ".fmt_label" %in% names(x) &&
+        !missing(i) && is.logical(i) && isTRUE(all(i))) stop("copied all axis label rows")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  guide <- fn(parent, list(mode = "tile"))
+  key <- data.frame(x = 1:80, .fmt_label = TRUE)
+  expect_identical(guide$build_labels(key, list(), list()), key)
+  key$.fmt_label[2L] <- FALSE
+  expect_identical(guide$build_labels(key, list(), list()), key[-2L, ])
+})

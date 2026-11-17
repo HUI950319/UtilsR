@@ -3977,7 +3977,10 @@ fmt_axisTile <- function(plot,
       tile
     },
     build_labels = function(key, elements, params) {
-      if (settings$mode == "tile") key <- key[key$.fmt_label, , drop = FALSE]
+      if (settings$mode == "tile" &&
+          (is.null(key$.fmt_label) || !isTRUE(all(key$.fmt_label)))) {
+        key <- key[key$.fmt_label, , drop = FALSE]
+      }
       labels <- parent$build_labels(key, elements, params)
       if (settings$mode != "text" || !settings$show_text || !nrow(key) ||
           isTRUE(elements$fmt_colour_override)) return(labels)
