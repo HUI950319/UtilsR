@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_cat()` constructs factors directly from ordinary integer and logical positions.
+
 * Factor releveling maps the observed codes while retaining the requested level dictionary.
 
 * Sparse factor binarization only assigns observed nonreference codes to `Oth`.

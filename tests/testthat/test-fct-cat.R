@@ -909,3 +909,17 @@ test_that("sparse factor ordering remaps only observed source labels", {
   environment(fn) <- env
   expect_identical(fn(x, lvls), .relevel_factor(x, lvls))
 })
+
+test_that("factor construction matches ordinary integers and logicals directly", {
+  fn <- .as_factor
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (length(x) > 100L) stop("factorized the full ordinary input")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  for (x in list(rep(c(3L, -1L, NA, 0L), 300L), rep(c(TRUE, FALSE, NA), 400L))) {
+    names(x) <- as.character(seq_along(x))
+    expect_identical(fn(x), factor(x))
+  }
+})

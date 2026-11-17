@@ -354,7 +354,7 @@ fct_cat <- function(x, ...,
   }
   if (inherits(x, "haven_labelled")) x <- vctrs::vec_data(.scatter_axis_values(x))
   if (is.double(x) && identical(class(x), "AsIs") && is.null(dim(x))) x <- unclass(x)
-  if (is.double(x) && !is.object(x) && is.null(dim(x))) {
+  if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x) || is.logical(x))) {
     distinct <- sort(unique(x), na.last = NA)
     labels <- as.character(distinct)
     if (anyDuplicated(labels)) labels <- sprintf("%.17g", distinct)
