@@ -319,8 +319,10 @@ plt_sankey <- function(data,
 
   # Set node factor levels
   plot_data$node <- factor(plot_data$node, levels = all_levels)
-  plot_data$label <- factor(unname(node_labels[as.integer(plot_data$node)]),
-                            levels = unique(unname(node_labels)))
+  captions <- unique(unname(node_labels[!is.na(node_labels)]))
+  caption_codes <- match(node_labels, captions)
+  plot_data$label <- structure(caption_codes[as.integer(plot_data$node)],
+                               levels = captions, class = "factor")
 
   # Generate colours (always as plain character, not palette class)
   if (is.null(palette)) {

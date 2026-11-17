@@ -928,3 +928,22 @@ test_that("Sankey successors reuse the final stage mask", {
   expect_identical(as.integer(out$next_x), c(2L, 3L, NA, 2L, 3L, NA))
   expect_identical(.sankey_path_rows(d[0, ], names(d))$next_node, character())
 })
+
+test_that("Sankey caption factors reuse node code mappings", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = rep(c("A", "same", NA_character_), 60L),
+    b = rep(c("B", "same", NA_character_), 60L))
+  args <- list(data = d, vars = c("a", "b"), show_text = "name",
+    label_args = list(min_pct = 1))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  expected <- suppressMessages(do.call(plt_sankey, args))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (is.character(x) && length(x) == 2L * nrow(d) && !any(startsWith(x, ".sankey_"), na.rm = TRUE))
+      stop("built captions for every Sankey row")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
+})
