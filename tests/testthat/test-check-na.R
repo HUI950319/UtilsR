@@ -819,3 +819,18 @@ test_that("quality displays construct only their four output columns", {
   }, .package = "dplyr")
   expect_identical(capture_gt_data(check_na(d)), expected)
 })
+
+test_that("first custom marker scan keeps the supplied value vector", {
+  x <- rep(c("A", "B", "C", "D"), 30L)
+  patterns <- c("^a$", "^(B|C)$")
+  fn <- .is_special_value
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(remaining)) && identical(x, rep(c("A", "B", "C", "D"), 30L)) &&
+        length(i) == length(x)) stop("copied all special-marker inputs")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, patterns), rep(c(TRUE, TRUE, TRUE, FALSE), 30L))
+  expect_identical(fn(c("A", NA, "C", "D"), patterns), c(TRUE, FALSE, TRUE, FALSE))
+})
