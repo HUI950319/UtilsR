@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` skips recycling complete ordinary comparison columns.
+
 * `grob_insert()` gives repeated insets in the same cell distinct layout names so they all draw.
 
 * Categorical set plots size palettes from observed factor codes even when many levels are unused.

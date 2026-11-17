@@ -208,3 +208,22 @@ test_that("background stripes reuse the categorical axis observation check", {
   expect_identical(ggplot2::ggplot_build(fn(p))$data[[1L]], expected)
   expect_identical(checks, 1L)
 })
+
+test_that("comparison preparation does not recycle full ordinary mappings", {
+  d <- data.frame(g = rep(c("B", "A"), each = 200L), y = as.double(seq_len(400L)))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_boxplot()
+  expected <- suppressMessages(fmt_com(p))
+  fn <- fmt_com
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ..., length.out = NA) {
+    if (!is.na(length.out) && length.out == length(x) && length(x) == 400L) {
+      calls <- sys.calls()
+      if (any(vapply(calls, function(cl) identical(cl[[1L]], quote(get_comparisons)), logical(1))))
+        stop("recycled a full comparison column")
+    }
+    if (missing(length.out)) base::rep(x, ...) else base::rep(x, ..., length.out = length.out)
+  }
+  environment(fn) <- env
+  result <- suppressMessages(fn(p))
+  expect_length(result$layers, length(expected$layers))
+})
