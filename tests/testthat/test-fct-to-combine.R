@@ -589,3 +589,19 @@ test_that("mixed factor combination types skip complete ordinary masks", {
   environment(fn) <- env
   expect_identical(fn(time, input), expected)
 })
+
+test_that("distinct factor combinations reuse their row positions", {
+  a <- factor(rep(rev(letters[1:8]), 6L))
+  b <- rep(6:1, each = 8L)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(table), quote(ids))) stop("matched every distinct combination back to its row")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  out <- fn(a, b, sep = ":")
+  expect_identical(out, fct_to_combine(a, b, sep = ":"))
+  expect_identical(as.character(out), paste(a, b, sep = ":"))
+  expect_identical(levels(out), as.vector(t(outer(letters[1:8], 1:6, paste, sep = ":"))))
+})

@@ -298,7 +298,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
   names(codes) <- paste0("v", seq_along(codes))
   group_n <- if (is.null(complete_rows)) n else length(complete_rows)
   ids <- vctrs::vec_group_id(vctrs::new_data_frame(codes, n = group_n))
-  first <- match(seq_len(attr(ids, "n")), ids)
+  keys <- attr(ids, "n")
+  first <- if (keys == group_n) seq_len(group_n) else match(seq_len(keys), ids)
   ord <- do.call(order, unname(lapply(codes, function(v) v[first])))
   first <- first[ord]
   lvls <- do.call(paste, c(lapply(seq_along(inputs), function(i) {

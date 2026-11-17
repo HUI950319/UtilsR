@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` uses the existing row positions when every complete encoded combination is distinct.
+
 * The shared butterfly and scatter label helper returns ordinary integer values directly because decimal integer labels are distinct.
 
 * Scatter grouping uses the already distinct default numeric group values to prepare exact labels.
