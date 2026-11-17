@@ -1167,3 +1167,20 @@ test_that("rank correlation needs no duplicate mask for unique pivot keys", {
   environment(fn) <- env
   expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
 })
+
+test_that("rank correlation keeps complete paired scores", {
+  d <- data.frame(gene = rep(sprintf("g%03d", 1:210), 2L),
+    method = rep(c("first", "second"), each = 210L), score = c(1:210, (1:210)^2))
+  args <- list(data = d, stat.by = "gene", method.by = "method", value.by = "score",
+    use_rank = FALSE, show.label = FALSE)
+  expected <- capture.output(suppressMessages(do.call(PlotRankCor, args)))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(ok)) && !missing(i) && length(i) == 210L && all(i))
+      stop("copied fully paired rank scores")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(suppressMessages(do.call(fn, args))), expected)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` reuses already complete paired score vectors when computing group correlations.
+
 * Point sampling skips unused keys in a single sparse factor stratum with a coded NA.
 
 * Sankey successor stages reuse a single integer pattern across rows.

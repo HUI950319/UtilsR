@@ -478,9 +478,13 @@ PlotRankCor <- function(
     x <- rank_wide[[method_cols[1]]][idx]
     y <- rank_wide[[method_cols[2]]][idx]
     ok <- is.finite(x) & is.finite(y)
-    if (sum(ok) < 3L) return(c(NA_real_, NA_real_))
-    x <- x[ok]; y <- y[ok]
-    if (min(x) == max(x) || min(y) == max(y)) return(c(NA_real_, NA_real_))
+    complete <- sum(ok)
+    if (complete < 3L) return(c(NA_real_, NA_real_))
+    if (complete < length(ok)) {
+      x <- x[ok]
+      y <- y[ok]
+    }
+    if (diff(range(x)) == 0 || diff(range(y)) == 0) return(c(NA_real_, NA_real_))
     if (!use_rank) {
       x <- .center_scale_vec(x)
       y <- .center_scale_vec(y)
