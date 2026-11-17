@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value cells skip decimal parsing when none of their entries can carry significance styling.
+
 * `pr_spark()` keeps complete finite numeric series without slicing or coercing their values again.
 
 * Axis guides reuse trained character labels during named-colour checks.

@@ -2125,3 +2125,15 @@ test_that("numeric sparklines reuse complete finite score vectors", {
   d$x[c(1, 4)] <- c(NA, Inf)
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("nonnumeric console P-value cells skip decimal parsing", {
+  fn <- ._p_cells
+  env <- new.env(parent = environment(fn))
+  env$gsub <- function(pattern, replacement, x, ...) {
+    if (identical(substitute(x), quote(mantissa))) stop("parsed absent decimal tokens")
+    base::gsub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  x <- c(" unknown ", "test omitted", NA_character_, "invalid p", "\t")
+  expect_identical(fn(x), ._p_cells(x))
+})

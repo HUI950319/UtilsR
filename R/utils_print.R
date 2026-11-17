@@ -498,6 +498,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
+    if (!any(valid)) {
+      txt <- ifelse(is.na(txt), "NA", ._pr_escape(txt))
+      return(if (._pr_colour()) as.character(cli::col_grey(txt)) else as.character(txt))
+    }
     parsed <- replace(txt, !valid, NA_character_)
     op <- ifelse(grepl(paste0("^", bound), parsed, perl = TRUE),
                  sub(paste0("(?s)^(", bound, ").*$"), "\\1", parsed, perl = TRUE), "")
