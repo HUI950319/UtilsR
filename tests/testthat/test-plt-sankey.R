@@ -947,3 +947,17 @@ test_that("Sankey caption factors reuse node code mappings", {
   environment(fn) <- env
   expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
 })
+
+test_that("Sankey successor stages repeat one compact template", {
+  d <- data.frame(a = rep(c("x", "y"), 50L), b = "next", c = "last")
+  fn <- .sankey_path_rows
+  env <- new.env(parent = environment(fn))
+  env[["+"]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(stage))) stop("incremented all Sankey stage rows")
+    base::"+"(e1, e2)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, names(d)), .sankey_path_rows(d, names(d)))
+  expect_identical(fn(d[0L, ], names(d)), .sankey_path_rows(d[0L, ], names(d)))
+  expect_identical(fn(d["a"], "a"), .sankey_path_rows(d["a"], "a"))
+})

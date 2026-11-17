@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey successor stages reuse a single integer pattern across rows.
+
 * `plt_sankey()` encodes distinct caption text once and expands its integer positions over flow rows.
 
 * `stat_pval(add_star_p = ...)` reuses complete ordinary labels without allocating a missing mask.

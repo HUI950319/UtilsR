@@ -395,12 +395,13 @@ plt_sankey <- function(data,
 }
 
 .sankey_path_rows <- function(data, stages) {
-  stage <- rep.int(seq_along(stages), nrow(data))
+  stage_ids <- seq_along(stages)
+  stage <- rep.int(stage_ids, nrow(data))
   stage_levels <- if (nrow(data)) stages else character()
   nodes <- as.character(do.call(rbind, unname(lapply(data[stages], as.character))))
   final <- stage == length(stages)
-  next_stage <- stage + 1L
-  next_stage[final] <- NA_integer_
+  successors <- if (length(stage_ids)) c(stage_ids[-1L], NA_integer_) else integer()
+  next_stage <- rep.int(successors, nrow(data))
   following <- seq_along(nodes) + 1L
   following[final] <- NA_integer_
   next_node <- nodes[following]
