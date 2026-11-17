@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na(special = character())` skips full missingness masks for ordinary complete factors.
+
 * `check_na()` assigns rows to shading bands in one threshold lookup per percentage vector with the same closed upper boundaries.
 
 * `fmt_scale()` compares changed position-scale members without evaluating unrelated lazy scale fields.

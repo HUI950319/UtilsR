@@ -855,3 +855,18 @@ test_that("missingness shading preserves threshold edges with a single partition
   expect_identical(actual[["_data"]], expected[["_data"]])
   expect_identical(actual[["_styles"]], expected[["_styles"]])
 })
+
+test_that("complete factors skip missing masks with marker detection disabled", {
+  d <- data.frame(stage = ordered(rep(c("I", "II", "Unknown"), 70L)),
+    incomplete = factor(rep(c("I", NA), 105L)))
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, unclass(d$stage))) stop("allocated a complete factor missingness mask")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  args <- list(data = d, special = character(), show_all = TRUE)
+  expected <- capture_gt_data(do.call(check_na, args))
+  expect_identical(capture_gt_data(do.call(fn, args)), expected)
+})
