@@ -1220,3 +1220,24 @@ test_that("rank correlation normalization avoids a full absolute-score vector", 
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("singleton rank groups fill observed and missing ranks together", {
+  d <- data.frame(item = rep(letters[1:12], each = 2L),
+    method = rep(c("left", "right"), 12L), group = rep(letters[1:12], each = 2L),
+    score = replace(as.double(seq_len(24L)), 5L, NA_real_))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(scores)) && identical(substitute(i), quote(idx)) &&
+        length(i) == 1L) stop("ranked singleton observations individually")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d, "item", "score", "group", "method",
+      show.label = FALSE))))
+    p$data
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})
