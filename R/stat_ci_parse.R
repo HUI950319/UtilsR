@@ -275,9 +275,10 @@ stat_ci_parse <- function(x,
     # rounded to zero width (0 / 0)
     if (output != "ci") {
       z <- ifelse(e_s == 0, 0, e_s / se)
-      pval <- ifelse(valid, 2 * pnorm(-abs(z)), NA_real_)
+      pval <- 2 * pnorm(-abs(z))
+      if (!all(valid)) pval[!valid] <- NA_real_
       underflow <- which(pval == 0 & is.finite(z))
-      pval[underflow] <- exp(log(2) + pnorm(-abs(z[underflow]), log.p = TRUE))
+      if (length(underflow)) pval[underflow] <- exp(log(2) + pnorm(-abs(z[underflow]), log.p = TRUE))
     }
   }
 

@@ -952,3 +952,16 @@ test_that("unparsed interval counts reuse normally encoded strings", {
   }), parent = environment(fn))
   expect_equal(fn(text), 2)
 })
+
+test_that("complete confidence interval p values bypass validity reallocation", {
+  x <- c(a = "1.00 (0.00, 2.00)", b = "3.00 (1.00, 5.00)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(valid)) && all(test))
+      stop("reshaped complete CI probabilities")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = FALSE, output = "p"), stat_ci_parse(x, exp = FALSE, output = "p"))
+  mixed <- c(x, missing = NA_character_)
+  expect_identical(fn(mixed, exp = FALSE, output = "p"), stat_ci_parse(mixed, exp = FALSE, output = "p"))
+})
