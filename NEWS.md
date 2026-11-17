@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor helpers derive the observed FALSE and TRUE levels directly and preserve missing positions and observation names.
+
 * `plt_na()` assigns label factor codes from its ordering indices while retaining original variable names.
 
 * Sankey stages reuse complete factor codes in either level order.

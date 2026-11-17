@@ -936,3 +936,14 @@ test_that("valid ordinary factor indices skip the rejection mask", {
   expect_identical(fn(1:1024, "index", 1024L), 1:1024)
   expect_error(fn(c(0L, 1025L), "index", 1024L), "between")
 })
+
+test_that("logical factor conversion keeps boolean levels without distinct hashing", {
+  fn <- .as_factor
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) stop("hashed observations to collect logical factor levels")
+  environment(fn) <- env
+  for (x in list(rep(c(TRUE, NA, FALSE), 300L), rep(c(TRUE, NA), 60L),
+      c(a = FALSE, b = NA), c(a = NA, b = NA), logical())) {
+    expect_identical(fn(x), factor(x))
+  }
+})

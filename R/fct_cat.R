@@ -354,7 +354,16 @@ fct_cat <- function(x, ...,
   }
   if (inherits(x, "haven_labelled")) x <- vctrs::vec_data(.scatter_axis_values(x))
   if (is.double(x) && identical(class(x), "AsIs") && is.null(dim(x))) x <- unclass(x)
-  if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x) || is.logical(x))) {
+  if (is.logical(x) && !is.object(x) && is.null(dim(x))) {
+    has_false <- !all(x, na.rm = TRUE)
+    has_true <- any(x, na.rm = TRUE)
+    codes <- if (has_false && has_true) as.integer(x) + 1L else {
+      match(x, c(FALSE, TRUE)[c(has_false, has_true)])
+    }
+    return(structure(codes, names = names(x), levels = c("FALSE", "TRUE")[c(has_false, has_true)],
+                     class = "factor"))
+  }
+  if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x))) {
     distinct <- sort(unique(x), na.last = NA)
     labels <- as.character(distinct)
     if (anyDuplicated(labels)) labels <- sprintf("%.17g", distinct)
