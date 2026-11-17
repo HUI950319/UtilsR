@@ -1408,3 +1408,17 @@ test_that("console color previews avoid mostly unique row lookups", {
   environment(fn) <- env
   expect_identical(capture.output(fn(x)), expected)
 })
+
+test_that("table gradients need no infinity selector for integer columns", {
+  d <- data.frame(x = c(1L, 2L, NA_integer_, 4L))
+  expected <- .cat_tb(d, theme = "none", numeric_columns = "x")
+  fn <- .cat_tb
+  env <- new.env(parent = environment(fn))
+  env$is.infinite <- function(x) {
+    if (identical(x, d$x)) stop("checked integer table colors for infinity")
+    base::is.infinite(x)
+  }
+  environment(fn) <- env
+  actual <- fn(d, theme = "none", numeric_columns = "x")
+  expect_identical(actual[["_styles"]], expected[["_styles"]])
+})

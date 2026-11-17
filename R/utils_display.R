@@ -630,7 +630,7 @@ console_width <- function() {
           colour_fn <- scales::col_numeric(palette = palette, domain = domain / magnitude)
           tb <- gt::data_color(tb,
             columns = col,
-            rows = which(!is.infinite(v)),
+            rows = if (ordinary && is.integer(v)) TRUE else which(!is.infinite(v)),
             fn = function(x) {
               if (encoded) x <- if (is.null(origin)) suppressWarnings(as.numeric(x)) else as.numeric(x - origin)
               colour_fn(x / magnitude)
