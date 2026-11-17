@@ -965,3 +965,13 @@ test_that("complete confidence interval p values bypass validity reallocation", 
   mixed <- c(x, missing = NA_character_)
   expect_identical(fn(mixed, exp = FALSE, output = "p"), stat_ci_parse(mixed, exp = FALSE, output = "p"))
 })
+
+test_that("linear confidence intervals skip the log proximity pass", {
+  input <- rep("0.2 (0.1, 0.3)", 70L)
+  expected <- stat_ci_parse(input, output = "p", exp = FALSE)
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$pmax <- function(...) stop("computed log proximity for linear intervals")
+  environment(fn) <- env
+  expect_identical(fn(input, output = "p", exp = FALSE), expected)
+})

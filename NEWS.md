@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` skips log proximity work when all intervals are linear.
+
 * `fmt_com()` skips recycling complete ordinary comparison columns.
 
 * `grob_insert()` gives repeated insets in the same cell distinct layout names so they all draw.
