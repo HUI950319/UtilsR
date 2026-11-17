@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical set plots size palettes from observed factor codes even when many levels are unused.
+
 * Scatter correlation checks reuse the length of complete ordinary axes.
 
 * `lv()` counts ordinary atomic frequency rows directly in sorted value order.

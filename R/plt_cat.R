@@ -644,8 +644,8 @@ plt_cat <- function(data,
       values <- data[[s]]
       if (identical(class(values), "factor") ||
           identical(class(values), c("ordered", "factor"))) {
-        labels <- levels(values)
-        return(labels[tabulate(values, nbins = length(labels)) > 0L & !is.na(labels)])
+        labels <- levels(values)[.factor_tally(values)$codes]
+        return(labels[!is.na(labels)])
       }
       levels(factor(values))
     })))

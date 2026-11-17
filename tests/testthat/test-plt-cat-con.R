@@ -1840,3 +1840,20 @@ test_that("categorical omission recognizes coded missing values without decoding
   actual <- suppressMessages(fn(d, "group", NA_stat = FALSE))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("categorical set palettes skip unused sparse factor bins", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(a = factor(c("yes", "no", "yes"), levels = c("yes", "no", paste0("a", 1:1500))),
+    b = factor(c("no", "yes", "yes"), levels = c("no", "yes", paste0("b", 1:1500))))
+  args <- list(data = d, stat.by = c("a", "b"), type = "upset", stat_level = "yes")
+  expected <- suppressMessages(do.call(plt_cat, args))
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins, ...) {
+    if (nbins > 1500L) stop("counted unused set palette levels")
+    base::tabulate(bin, nbins, ...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
+})
