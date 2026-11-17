@@ -3001,3 +3001,14 @@ test_that("palette lists avoid factoring ordinary discrete dictionary inputs", {
       pal_get(palettes, x = x, reverse = TRUE, alpha = .7))
   }
 })
+
+test_that("palette preview contrast reuses decoded RGBA", {
+  colors <- c("black", "#00000040", "#000000A0", "white", "#00000000", "#FF000088")
+  expected <- .pal_show_colors(colors, max_colors = Inf)$data
+  fn <- .pal_show_colors
+  env <- new.env(parent = environment(fn))
+  env$strtoi <- function(...) stop("parsed RGB hex again")
+  environment(fn) <- env
+  result <- fn(colors, max_colors = Inf)$data
+  expect_identical(result[, c("hex", "fg")], expected[, c("hex", "fg")])
+})
