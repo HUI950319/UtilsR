@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` assigns rows to shading bands in one threshold lookup per percentage vector with the same closed upper boundaries.
+
 * `fmt_scale()` compares changed position-scale members without evaluating unrelated lazy scale fields.
 
 * Palette previews with wholly translucent colours skip the opaque-colour replacement.

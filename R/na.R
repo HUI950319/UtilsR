@@ -217,21 +217,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       heading.background.color = "#F0F8FF"
     )
 
-  high_missing_rows <- which(res_na$missing_percentage > 50)
-  medium_missing_rows <- which(
-    res_na$missing_percentage > 20 & res_na$missing_percentage <= 50
-  )
-  low_missing_rows <- which(
-    res_na$missing_percentage > 0 & res_na$missing_percentage <= 20
-  )
-
-  high_special_rows <- which(res_na$special_percentage > 30)
-  medium_special_rows <- which(
-    res_na$special_percentage > 10 & res_na$special_percentage <= 30
-  )
-  low_special_rows <- which(
-    res_na$special_percentage > 0 & res_na$special_percentage <= 10
-  )
+  shading_rows <- function(percent, limits) {
+    bands <- findInterval(percent, c(0, limits), left.open = TRUE)
+    rows <- which(bands > 0L)
+    groups <- structure(4L - bands[rows], levels = c("high", "medium", "low"), class = "factor")
+    split(rows, groups)
+  }
 
   fill_cells <- function(table, rows, columns, color) {
     gt::tab_style(table,
@@ -239,7 +230,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       locations = gt::cells_body(columns = dplyr::all_of(columns), rows = rows)
     )
   }
-  missing_rows <- list(high_missing_rows, medium_missing_rows, low_missing_rows)
+  missing_rows <- shading_rows(res_na$missing_percentage, c(20, 50))
   missing_fills <- c("#ffebee", "#fff3e0", "#fef9e7")
   count_fills <- c("#ffcdd2", "#ffcc80", "#fff176")
   for (i in which(lengths(missing_rows) > 0L)) {
@@ -247,7 +238,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     gt_table <- fill_cells(gt_table, rows, c("variable", "data_type"), missing_fills[i])
     gt_table <- fill_cells(gt_table, rows, "missing_combined", count_fills[i])
   }
-  special_rows <- list(high_special_rows, medium_special_rows, low_special_rows)
+  special_rows <- shading_rows(res_na$special_percentage, c(10, 30))
   special_fills <- c("#90caf9", "#bbdefb", "#e3f2fd")
   for (i in which(lengths(special_rows) > 0L)) {
     gt_table <- fill_cells(gt_table, special_rows[[i]], "special_combined", special_fills[i])

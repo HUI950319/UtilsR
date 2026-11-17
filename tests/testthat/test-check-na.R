@@ -834,3 +834,24 @@ test_that("first custom marker scan keeps the supplied value vector", {
   expect_identical(fn(x, patterns), rep(c(TRUE, TRUE, TRUE, FALSE), 30L))
   expect_identical(fn(c("A", NA, "C", "D"), patterns), c(TRUE, FALSE, TRUE, FALSE))
 })
+
+test_that("missingness shading preserves threshold edges with a single partition", {
+  rates <- c(0, 1, 10, 11, 20, 21, 30, 31, 50, 51)
+  d <- as.data.frame(setNames(lapply(rates, function(n) c(rep(NA, n), rep(1, 100L - n))),
+    paste0("x", rates)))
+  for (n in rates) d[[paste0("s", n)]] <- c(rep("Unknown", n), rep("value", 100L - n))
+  expected <- capture_gt_table(check_na(d, show_all = TRUE))
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env[[">"]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(res_na$missing_percentage)) ||
+        identical(substitute(e1), quote(res_na$special_percentage))) {
+      stop("rescanned missingness shading thresholds")
+    }
+    base::">"(e1, e2)
+  }
+  environment(fn) <- env
+  actual <- capture_gt_table(fn(d, show_all = TRUE))
+  expect_identical(actual[["_data"]], expected[["_data"]])
+  expect_identical(actual[["_styles"]], expected[["_styles"]])
+})
