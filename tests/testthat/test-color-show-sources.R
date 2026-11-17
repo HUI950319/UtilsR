@@ -3154,3 +3154,16 @@ test_that("complete discrete palette previews reuse the full vector", {
   expect_identical(fn(cols, 3L), .pal_resize(cols, 3L))
   expect_identical(fn(cols, 2L), .pal_resize(cols, 2L))
 })
+
+test_that("discrete palettes retain plain character labels from their keys", {
+  fn <- .pal_discrete_levels
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.character(x) && !is.object(x)) stop("reconverted ordinary discrete colour levels")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(rep(c("b", "a", NA, ""), 500L)), c("b", "a", ""))
+  expect_identical(fn(c(TRUE, FALSE, NA)), c("TRUE", "FALSE"))
+  expect_identical(fn(ordered("o", levels = c("x", "o"))), c("x", "o"))
+})

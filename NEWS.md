@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete palette mapping keeps plain observed character labels without an extra character conversion.
+
 * `plt_cat()` reuses globally observed levels for a single panel and drops local unused levels after splitting.
 
 * `PlotCircleLollipop()` derives plain group keys from existing sector codes and preserves typed time-group handling.
