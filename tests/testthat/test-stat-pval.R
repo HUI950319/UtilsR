@@ -887,3 +887,17 @@ test_that("ordinary P validation needs no vector finite check", {
   expect_error(fn(c(NA, Inf, .1)), "between 0 and 1")
   expect_error(fn(c(NA, .1, -.01)), "between 0 and 1")
 })
+
+test_that("ordinary decimal P-values skip building empty threshold tie groups", {
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, f, ...) {
+    if (identical(substitute(x), quote(tied)) && !length(x))
+      stop("grouped an empty set of threshold ties")
+    base::split(x, f, ...)
+  }
+  environment(fn) <- env
+  for (x in list(c(".031", ".16", ".07", "3e-4", NA), c(".05", "0.050000000000000000001"))) {
+    expect_identical(fn(x), stat_pval(x))
+  }
+})

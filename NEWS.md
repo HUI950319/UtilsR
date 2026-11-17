@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` isolates decimal threshold tie checks to the rows that need exact comparison.
+
 * `lv()` counts TRUE and FALSE directly in ordinary logical frequency lists and retains missing rows.
 
 * Sparse factor recoding uses the observation codes already captured by the tally.
