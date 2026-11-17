@@ -943,3 +943,19 @@ test_that("stacked distributions pool facet totals without a grouped mutate", {
   actual <- suppressMessages(do.call(plt_dist, args))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("alluvial distribution omission checks explicit missing factor codes", {
+  skip_if_not_installed("ggalluvial")
+  x <- structure(c(1L, 2L, NA_integer_, 3L, 1L), levels = c("a", NA_character_, "b"), class = "factor")
+  d <- data.frame(x = x, y = c("m", "n", "n", "m", "n"))
+  args <- list(data = d, dis_vars = names(d), type = "alluvial")
+  expected <- suppressMessages(do.call(plt_dist, args))
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$x)) stop("expanded alluvial missing factor labels")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
+})

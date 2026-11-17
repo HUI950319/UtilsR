@@ -368,15 +368,24 @@ plt_dist <- function(data,
     }
     ordinary_factor <- identical(class(value), "factor") ||
       identical(class(value), c("ordered", "factor"))
-    missing <- if (ordinary_factor) anyNA(unclass(value)) else is.object(value) || anyNA(value)
-    if (missing) {
-      valid <- !is.na(value)
-      keep <- if (is.null(keep)) valid else keep & valid
-    }
-    if (length(dis_vars) == 2L && type == "alluvial" && is.object(value) &&
-        (!ordinary_factor || anyNA(levels(value)))) {
-      valid <- !is.na(as.character(value))
-      keep <- if (is.null(keep)) valid else keep & valid
+    alluvial <- length(dis_vars) == 2L && type == "alluvial"
+    if (ordinary_factor) {
+      codes <- as.integer(value)
+      coded_na <- if (alluvial) which(is.na(levels(value))) else integer()
+      if (anyNA(codes) || length(coded_na)) {
+        valid <- !is.na(codes)
+        if (length(coded_na)) valid <- valid & !codes %in% coded_na
+        keep <- if (is.null(keep)) valid else keep & valid
+      }
+    } else {
+      if (is.object(value) || anyNA(value)) {
+        valid <- !is.na(value)
+        keep <- if (is.null(keep)) valid else keep & valid
+      }
+      if (alluvial && is.object(value)) {
+        valid <- !is.na(as.character(value))
+        keep <- if (is.null(keep)) valid else keep & valid
+      }
     }
   }
   removed <- if (is.null(keep)) 0L else sum(!keep)
