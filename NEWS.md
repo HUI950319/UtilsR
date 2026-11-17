@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` counts distinct nonempty intersections from compact row codes.
+
 * Grouped `lv()` reuses distinct ordinary keys across the level limit and reported group count.
 
 * Console P-value cells skip decimal parsing when none of their entries can carry significance styling.

@@ -523,7 +523,7 @@ plt_upset <- function(data,
   if (output %in% c("upset", "both", "all")) {
     if (is.null(row_codes)) {
       codes <- .upset_row_codes(set_list)
-      nintersects <- length(unique(codes[codes != 0L]))
+      nintersects <- sum(unique(codes) != 0L)
     }
     p_upset <- .safe_upset(set_list, nintersects, upset_colors)
   }

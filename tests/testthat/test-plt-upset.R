@@ -1068,3 +1068,19 @@ test_that("UpSet validation selects columns once for dimensional and class check
   expect_identical(draw(fn), draw(plt_upset))
   expect_identical(selects, 1L)
 })
+
+test_that("UpSet plot counts distinct intersections before filtering the empty code", {
+  skip_if_not_installed("ggVennDiagram")
+  skip_if_not_installed("aplot")
+  d <- data.frame(a = rep(c(TRUE, TRUE, FALSE, FALSE), 20L),
+    b = rep(c(TRUE, FALSE, TRUE, FALSE), 20L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(i), quote(codes != 0L)))
+      stop("copied every nonzero intersection row")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_s3_class(suppressMessages(fn(d, c("a", "b"), levels = TRUE, output = "upset")), "upset_plot")
+})
