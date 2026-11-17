@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical area labels use one range calculation for left and right alignment.
+
 * `stat_ci_parse(output = "p_star")` formats the prepared P-values directly with missing inputs preserved.
 
 * `stat_ci()` passes complete observations directly to its precision check and shares filtered values with the formatter.

@@ -2021,3 +2021,15 @@ test_that("sparse category percentages sum denominators from existing codes", {
   expect_equal(nrow(empty), 0L)
   expect_type(empty$value, "logical")
 })
+
+test_that("area value labels align at the numeric endpoints without distinct keys", {
+  d <- data.frame(stat_var = factor(rep(c("I", "II"), 3L)),
+    group_var = factor(rep(c("a", "b", "c"), each = 2L)), value = 1:6, label_text = as.character(1:6))
+  p <- .plt_cat_area(d, c("red", "blue"))
+  fn <- .add_cat_labels
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(...) stop("collected distinct area label positions")
+  environment(fn) <- env
+  out <- fn(p, d, stat = "count", type = "area")
+  expect_identical(tail(out$layers, 1L)[[1L]]$data$label_hjust, rep(c(0, .5, 1), each = 2L))
+})

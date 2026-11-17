@@ -1371,9 +1371,13 @@ plt_cat <- function(data,
   } else {
     # bar, trend, area, rose
     plotdata[["label_hjust"]] <- 0.5
-    if (type == "area" && length(unique(plotdata[[x_aes]])) > 1L) {
-      plotdata[["label_hjust"]][plotdata[[x_aes]] == min(plotdata[[x_aes]])] <- 0
-      plotdata[["label_hjust"]][plotdata[[x_aes]] == max(plotdata[[x_aes]])] <- 1
+    if (type == "area") {
+      x <- plotdata[[x_aes]]
+      edges <- range(x)
+      if (isTRUE(edges[1L] < edges[2L])) {
+        plotdata[["label_hjust"]][x == edges[1L]] <- 0
+        plotdata[["label_hjust"]][x == edges[2L]] <- 1
+      }
     }
     p <- p + ggrepel::geom_text_repel(
       data = plotdata,
