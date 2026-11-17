@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` formats its displayed columns without augmenting and selecting the full numeric summary.
+
 * `plt_na()` selects percentage-label rows directly at plot build time.
 
 * `fmt_raster()` uses panel order directly for tables with no nested raster panels.

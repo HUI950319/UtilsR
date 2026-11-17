@@ -178,13 +178,14 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   total_missing_vars <- sum(res_na$missing_count > 0)
   total_special_vars <- sum(res_na$special_count > 0)
 
-  gt_table <- res_na %>%
-    dplyr::mutate(
-      missing_combined = sprintf("%.0f (%s)", missing_count, format_pct(missing_percentage, 1L)),
-      special_combined = sprintf("%.0f (%s)", special_count, format_pct(special_percentage, 1L))
-    ) %>%
-    dplyr::select(variable, missing_combined, special_combined, data_type) %>%
-    gt::gt() %>%
+  display <- data.frame(
+    variable = res_na$variable,
+    missing_combined = sprintf("%.0f (%s)", missing_count, format_pct(res_na$missing_percentage, 1L)),
+    special_combined = sprintf("%.0f (%s)", special_count, format_pct(res_na$special_percentage, 1L)),
+    data_type = res_na$data_type,
+    stringsAsFactors = FALSE
+  )
+  gt_table <- gt::gt(display) %>%
     gt::tab_header(
       title = gt::md("**Missing & Special Value Analysis**"),
       subtitle = gt::md(sprintf(

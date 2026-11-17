@@ -807,3 +807,15 @@ test_that("entirely special columns skip rescanning their marker membership", {
   expect_identical(fn(x), as.double(length(x)))
   expect_identical(fn(c("known", "Unknown", NA_character_)), 1)
 })
+
+test_that("quality displays construct only their four output columns", {
+  d <- data.frame(a = c("unknown", "ok", NA), b = c(1L, NA_integer_, 3L))
+  expected <- capture_gt_data(check_na(d))
+  original <- dplyr::mutate
+  local_mocked_bindings(mutate = function(.data, ...) {
+    if (all(c("missing_count", "special_count", "missing_percentage") %in% names(.data)))
+      stop("mutated the full quality summary")
+    original(.data, ...)
+  }, .package = "dplyr")
+  expect_identical(capture_gt_data(check_na(d)), expected)
+})
