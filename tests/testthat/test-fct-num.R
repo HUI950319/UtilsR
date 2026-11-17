@@ -330,3 +330,8 @@ test_that("AsIs numeric cuts use bin codes without factor rematching", {
   local_mocked_bindings(.fct_num_cut = fn)
   expect_identical(fct_num(values, breaks = c(0, 1)), expected)
 })
+
+test_that("opposite infinite quantiles explain their undefined cut points", {
+  expect_error(fct_num(c(-Inf, Inf), nbins = 2L), "Quantile cut points.*undefined")
+  expect_identical(as.integer(fct_num(c(-Inf, Inf), breaks = 0)), c(1L, 2L))
+})

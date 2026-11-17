@@ -207,6 +207,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     } else {
       stats::quantile(x, probs = probs, na.rm = TRUE)
     }
+    if (anyNA(bin_breaks)) {
+      cli::cli_abort("Quantile cut points are undefined for {.arg x}; use explicit {.arg breaks} for infinite observations.")
+    }
     # Deduplicate (ties in quantiles)
     bin_breaks <- unique(bin_breaks)
     n_groups <- length(bin_breaks) - 1L

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` reports when interpolating opposite infinities produces undefined quantile cut points.
+
 * Complete discrete palette previews retain all colours and names without an index slice.
 
 * Palette previews build one name flag vector and skip replacing labels when every colour is unnamed.
