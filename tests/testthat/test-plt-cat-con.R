@@ -1857,3 +1857,21 @@ test_that("categorical set palettes skip unused sparse factor bins", {
   environment(fn) <- env
   expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
 })
+
+test_that("ordinary chord frequencies use the prepared factor positions", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(a = ordered(c("A", "B", "A", "A"), levels = c("B", "unused", "A")),
+    b = factor(c("z", "y", "z", "y"), levels = c("z", "absent", "y")))
+  output <- NULL
+  local_mocked_bindings(chordDiagram = function(x, ...) output <<- x, .package = "circlize")
+  cols <- c(A = "red", B = "blue", z = "grey", y = "green")
+  invisible(.plt_cat_chord(d, names(d), cols))
+  expected <- output
+  fn <- .plt_cat_chord
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("rebuilt ordinary chord frequency factors")
+  environment(fn) <- env
+  invisible(fn(d, names(d), cols))
+  expect_identical(output, expected)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical chord plots use integer cell counts for complete plain factor inputs.
+
 * `stat_ci()` applies the signed-zero substitution only to matching output rows.
 
 * `stat_ci()` reuses scalar `digits` while reformatting confidence interval text.

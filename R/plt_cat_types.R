@@ -296,13 +296,29 @@
   if (!requireNamespace("circlize", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg circlize} is required. Install with: {.code install.packages('circlize')}")
   }
-  from <- droplevels(data[[stat.by[1]]])
-  to <- droplevels(data[[stat.by[2]]])
-  if (as.double(nlevels(from)) * nlevels(to) >= 2^31) {
+  from <- data[[stat.by[1]]]
+  to <- data[[stat.by[2]]]
+  ordinary <- function(x) {
+    (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+      !anyNA(levels(x)) && !anyNA(x)
+  }
+  direct <- ordinary(from) && ordinary(to)
+  from <- if (direct) .cat_axis_factor(from) else droplevels(from)
+  to <- if (direct) .cat_axis_factor(to) else droplevels(to)
+  n_from <- nlevels(from)
+  n_to <- nlevels(to)
+  n_cells <- as.double(n_from) * n_to
+  if (n_cells >= 2^31) {
     cli::cli_abort("A chord frequency table must contain fewer than 2^31 cells. Reduce the number of categories.")
   }
-  M <- table(from, to, useNA = "ifany")
-  m <- matrix(M, ncol = ncol(M), dimnames = dimnames(M))
+  m <- if (direct) {
+    cells <- as.integer(from) + (as.integer(to) - 1L) * n_from
+    matrix(tabulate(cells, n_cells), nrow = n_from, ncol = n_to,
+      dimnames = list(from = levels(from), to = levels(to)))
+  } else {
+    counts <- table(from, to, useNA = "ifany")
+    matrix(counts, ncol = ncol(counts), dimnames = dimnames(counts))
+  }
   colnames(m)[is.na(colnames(m))] <- "NA"
   rownames(m)[is.na(rownames(m))] <- "NA"
 
