@@ -596,9 +596,13 @@ fmt_raster <- function(
     w <- local_size[1L]
     h <- local_size[2L]
   }
+  checked_size <- FALSE
   capture_run <- function(indices) {
-    inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
-    .check_raster_pixels(c(w, h) * inches * dpi, "Panel")
+    if (!checked_size) {
+      inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
+      .check_raster_pixels(c(w, h) * inches * dpi, "Panel")
+      checked_size <<- TRUE
+    }
     g_geom <- g
     g_geom$children <- do.call(grid::gList, g$children[indices])
     g_geom$childrenOrder <- names(g_geom$children)

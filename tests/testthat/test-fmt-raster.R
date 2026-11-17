@@ -931,3 +931,20 @@ test_that("raster panel detection classifies panel grobs only", {
   expect_s3_class(result, "patchwork")
   expect_identical(attr(result, "size")$width, 1)
 })
+
+test_that("interleaved raster runs share one bitmap dimension check", {
+  skip_if_not_installed("ragg")
+  g <- grid::grobTree(grid::rectGrob(), grid::textGrob("A"), grid::circleGrob())
+  fn <- .rasterize_panel_grob
+  env <- new.env(parent = environment(fn))
+  count <- 0L
+  env$.check_raster_pixels <- function(...) {
+    count <<- count + 1L
+    if (count > 1L) stop("checked the same raster dimensions twice")
+    .check_raster_pixels(...)
+  }
+  environment(fn) <- env
+  out <- fn(g, 1, 1, 24, "in", "transparent")
+  expect_length(out$children, 3L)
+  expect_identical(count, 1L)
+})
