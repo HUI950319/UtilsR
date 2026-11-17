@@ -206,12 +206,20 @@
         binding_env <- parent.env(binding_env)
       }
     }
-    d <- tryCatch(
-      rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
-      error = function(e) {
-        cli::cli_abort("Cannot infer the {axis}-axis scale from the mapping.", parent = e)
-      }
-    )
+    column <- if (is.symbol(expr)) as.character(expr) else ""
+    ordinary_data <- identical(class(data), "data.frame") ||
+      identical(class(data), c("tbl_df", "tbl", "data.frame"))
+    d <- if (ordinary_data && nzchar(column) && !column %in% c(".data", ".env") &&
+             column %in% names(data)) {
+      data[[column]]
+    } else {
+      tryCatch(
+        rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
+        error = function(e) {
+          cli::cli_abort("Cannot infer the {axis}-axis scale from the mapping.", parent = e)
+        }
+      )
+    }
     if (length(d) == 0L) next
     if (defer && any(!class(d) %in% c(
       "factor", "ordered", "Date", "POSIXct", "POSIXlt", "POSIXt",

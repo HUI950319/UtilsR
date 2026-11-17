@@ -79,8 +79,9 @@ test_that("implicit temporal axes retain their scale types and time resolution",
     p <- ggplot2::ggplot(data.frame(x = case$x, y = 1:3),
                          ggplot2::aes(x, y)) + ggplot2::geom_point()
     q <- fmt_expand(p, mult = 0.05, axis = "x")
-    expect_identical(q$scales$get_scales("x")$trans$name, case$transform)
-    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, as.numeric(case$x))
+    built <- ggplot2::ggplot_build(q)
+    expect_identical(built$layout$panel_scales_x[[1L]]$trans$name, case$transform)
+    expect_equal(built$data[[1L]]$x, as.numeric(case$x))
   }
 })
 

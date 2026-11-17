@@ -302,3 +302,16 @@ test_that("statistical comparisons decode only distinct factor labels", {
   actual <- suppressMessages(fn(p))
   expect_length(actual$layers, length(expected$layers))
 })
+
+test_that("scale inference reads ordinary mapped columns directly", {
+  d <- data.frame(value = seq_len(80L), cat = rep(c("b", "a"), 40L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(cat, value)) + ggplot2::geom_point()
+  original <- rlang::eval_tidy
+  local_mocked_bindings(eval_tidy = function(expr, data = NULL, ...) {
+    if (identical(data, d) && is.symbol(rlang::get_expr(expr)))
+      stop("evaluated an ordinary direct axis column")
+    original(expr, data = data, ...)
+  }, .package = "rlang")
+  expect_identical(.detect_scale_type(p, "x"), "scale_x_discrete")
+  expect_identical(.detect_scale_type(p, "y"), "scale_y_continuous")
+})
