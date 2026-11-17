@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` detects multiple fill categories per heatmap cell through the existing typed row grouping library.
+
 * Continuous dot layouts only clone scales that need a change to their shared size limits.
 
 * Console key-value output aligns and styles its keys in one batch while retaining wrapped value layout.

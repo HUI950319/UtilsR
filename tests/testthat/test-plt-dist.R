@@ -989,3 +989,19 @@ test_that("distribution numeric groups reuse the shared exact factor conversion"
   expect_identical(draw(fn)$data, draw(plt_dist)$data)
   expect_true(calls > 0L, info = "did not reuse exact distribution factor conversion")
 })
+
+test_that("distribution heatmaps check collisions with typed cell identities", {
+  d <- data.frame(x = c("a", "a", "b"), y = c("c", "d", "c"), value = c("I", "II", "II"))
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$anyDuplicated <- function(x, ...) {
+    if (is.data.frame(x) && ncol(x) == 2L)
+      stop("grouped heatmap cells through the slower data-frame comparison")
+    base::anyDuplicated(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, data) suppressMessages(f(data, names(d), save = NULL))
+  expect_identical(draw(fn, d)$data, draw(plt_dist, d)$data)
+  expect_error(draw(fn, rbind(d, transform(d[1L, ], value = "extra"))),
+    "more than one fill category")
+})

@@ -636,7 +636,7 @@ plt_dist <- function(data,
 
   plotdata <- data %>%
     dplyr::count(dplyr::across(dplyr::all_of(dis_vars)))
-  if (anyDuplicated(plotdata[dis_vars[1:2]])) {
+  if (vctrs::vec_duplicate_any(plotdata[dis_vars[1:2]])) {
     cli::cli_abort(c(
       "Heatmap cells must not contain more than one fill category.",
       "i" = "Use a bar or alluvial plot to show category composition."
