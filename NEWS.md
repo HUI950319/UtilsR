@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console text conversion reuses its missing-row positions and leaves complete classed labels intact.
+
 * `impute_na_knn()` shares its preflight completeness result for predictor columns that keep their missingness during normalization.
 
 * `plt_dist()` detects multiple fill categories per heatmap cell through the existing typed row grouping library.

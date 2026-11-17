@@ -2177,3 +2177,18 @@ test_that("console key labels use one display alignment batch", {
   }, .package = "cli")
   expect_identical(._kv_lines(x, width = 18), expected)
 })
+
+test_that("complete classed console text skips empty missing replacements", {
+  fn <- ._as_text
+  env <- new.env(parent = environment(fn))
+  env[["[<-"]] <- function(x, i, ..., value) {
+    if (identical(substitute(i), quote(missing)) && !any(i))
+      stop("replaced an empty set of missing console labels")
+    base::"[<-"(x, i, ..., value = value)
+  }
+  environment(fn) <- env
+  for (x in list(as.Date("2020-01-01") + 0:5, factor(c("A", NA), exclude = NULL),
+                 factor(c("B", NA)), as.Date(c(NA, 0), origin = "1970-01-01"))) {
+    expect_identical(fn(x), ._as_text(x))
+  }
+})

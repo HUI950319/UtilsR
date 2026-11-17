@@ -188,8 +188,8 @@
   missing <- if (is.expression(v)) is.na(as.list(v)) else
     if (is.language(v)) rep(FALSE, length(v)) else is.na(v)
   text <- as.character(v)
-  text[missing] <- NA_character_
-  if (is.factor(v)) text[!missing & is.na(text)] <- "<NA>"
+  if (any(missing)) text[missing] <- NA_character_
+  if (is.factor(v) && any(!missing & is.na(text))) text[!missing & is.na(text)] <- "<NA>"
   text
 }
 
