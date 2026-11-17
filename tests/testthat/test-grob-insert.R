@@ -156,8 +156,9 @@ test_that("grob_insert() keeps successive insets aligned to custom panels", {
 
   result <- grob_insert(grob_insert(table, grid::rectGrob()),
                          grid::textGrob("Second inset"), left = 0.2, bottom = 0.2)
-  insets <- result$layout[result$layout$name == "inset", , drop = FALSE]
+  insets <- result$layout[result$layout$name %in% c("inset", "inset.1"), , drop = FALSE]
 
+  expect_identical(insets$name, c("inset", "inset.1"))
   expect_equal(nrow(insets), 2L)
   expect_equal(insets$t, c(2, 2))
   expect_equal(insets$l, c(2, 2))
@@ -388,4 +389,19 @@ test_that("behind insets preserve negative infinite draw order", {
   gt$layout$z <- c(-Inf, -Inf)
   out <- grob_insert(gt, grid::rectGrob(), on_top = FALSE, align_to = "full")
   expect_identical(out$layout$name[order(out$layout$z)], c("background", "inset", "panel"))
+})
+
+test_that("two insets in one cell both draw", {
+  skip_if_not_installed("ragg")
+  rect <- function(fill) grid::rectGrob(gp = grid::gpar(fill = fill, col = NA))
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, rect("white"), 1L, 1L, name = "panel")
+  p <- grob_insert(gt, rect("red"), left = 0, bottom = 0, right = .5, top = 1)
+  p <- grob_insert(p, rect("blue"), left = .5, bottom = 0, right = 1, top = 1)
+  capture <- ragg::agg_capture(width = 1, height = 1, units = "in", res = 40,
+    background = "white")
+  on.exit(grDevices::dev.off())
+  grid::grid.draw(p)
+  expect_identical(unname(grDevices::col2rgb(capture()[20L, c(10L, 30L)])),
+    unname(grDevices::col2rgb(c("red", "blue"))))
 })

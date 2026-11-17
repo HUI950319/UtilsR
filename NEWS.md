@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert()` gives repeated insets in the same cell distinct layout names so they all draw.
+
 * Categorical set plots size palettes from observed factor codes even when many levels are unused.
 
 * Scatter correlation checks reuse the length of complete ordinary axes.

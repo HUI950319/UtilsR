@@ -470,6 +470,11 @@ grob_insert <- function(
     }
   }
 
+  layout_names <- gt$layout$name[which(gt$layout$t == ref_t & gt$layout$b == ref_b &
+    gt$layout$l == ref_l & gt$layout$r == ref_r)]
+  inset_name <- if ("inset" %in% layout_names) {
+    utils::tail(make.unique(c(layout_names, "inset")), 1L)
+  } else "inset"
   gt <- gtable::gtable_add_grob(
     gt, inset_wrapped,
     t = ref_t,
@@ -478,7 +483,7 @@ grob_insert <- function(
     r = ref_r,
     z = z_val,
     clip = clip_mode,
-    name = "inset"
+    name = inset_name
   )
   if (length(before)) {
     index <- append(seq_len(nrow(layout)), nrow(gt$layout), after = before - 1L)
