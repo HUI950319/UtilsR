@@ -1338,3 +1338,14 @@ test_that("butterfly grids decode only observed factor codes", {
   expect_identical(actual[[1L]]$data, expected[[1L]]$data)
   expect_identical(actual[[2L]]$data, expected[[2L]]$data)
 })
+
+test_that("missing butterfly wing groups report the grouping field", {
+  d <- data.frame(feature = rep(c("a", "b"), 4L), score = 1:8,
+    wing = factor(rep(c("L", NA), each = 4L)), fill = "one")
+  for (fill in list(NULL, "fill")) {
+    expect_error(PlotButterfly2(d, "feature", "score", "wing", fill.by = fill, type = "box"),
+      "group.by.*missing")
+  }
+  d$wing <- factor(rep(c("L", "R"), each = 4L))
+  expect_length(suppressMessages(PlotButterfly2(d, "feature", "score", "wing", fill.by = "fill")), 2L)
+})

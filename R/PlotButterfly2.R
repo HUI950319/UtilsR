@@ -258,6 +258,7 @@ PlotButterfly2 <- function(
   # ---- Two groups ----
   group <- as.character(data[[group.by]])
   groups <- unique(group)
+  if (anyNA(groups)) cli::cli_abort("{.arg group.by} must not contain missing group values.")
   if (length(groups) != 2L)
     cli::cli_abort("{.arg group.by} must have exactly 2 levels, got {length(groups)}.")
 
