@@ -536,12 +536,12 @@ plt_dist <- function(data,
     # Compute proportions within each x (and facet) group
     grp_vars <- if (!is.null(facet)) c(x_var, fill_var, facet) else c(x_var, fill_var)
     plotdata <- data %>%
-      dplyr::count(dplyr::across(dplyr::all_of(grp_vars)), name = count_name) %>%
-      dplyr::group_by(dplyr::across(dplyr::all_of(
-        if (!is.null(facet)) c(x_var, facet) else x_var
-      ))) %>%
-      dplyr::mutate(!!prop_name := .data[[count_name]] / sum(.data[[count_name]])) %>%
-      dplyr::ungroup()
+      dplyr::count(dplyr::across(dplyr::all_of(grp_vars)), name = count_name)
+    plotdata <- tibble::as_tibble(plotdata)
+    group_id <- vctrs::vec_group_id(plotdata[c(x_var, facet)])
+    counts <- plotdata[[count_name]]
+    totals <- unname(rowsum(as.double(counts), group_id, reorder = FALSE)[, 1L])
+    plotdata[[prop_name]] <- counts / totals[group_id]
 
     # Label text per `label_args$style`; segments below `min_pct` get NA
     # labels, which are dropped when drawn without changing the stacking.

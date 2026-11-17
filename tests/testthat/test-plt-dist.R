@@ -927,3 +927,19 @@ test_that("distribution explicit facet layouts skip counting facet values", {
   expect_identical(actual$data, expected$data)
   expect_identical(actual$facet$params$ncol, expected$facet$params$ncol)
 })
+
+test_that("stacked distributions pool facet totals without a grouped mutate", {
+  d <- data.frame(x = rep(c("b", "a"), 12L),
+    y = rep(rep(c("m", "n"), each = 3L), 4L), facet = rep(c("one", "two"), each = 12L))
+  args <- list(data = d[-c(1L, 3L, 14L), ], dis_vars = c("x", "y"), type = "bar", facet = "facet")
+  expected <- suppressMessages(do.call(plt_dist, args))
+  mutate <- dplyr::mutate
+  local_mocked_bindings(mutate = function(.data, ...) {
+    if (inherits(.data, "grouped_df") && all(c("x", "y", "facet", "n") %in% names(.data))) {
+      stop("mutated grouped stacked distribution rows")
+    }
+    mutate(.data, ...)
+  }, .package = "dplyr")
+  actual <- suppressMessages(do.call(plt_dist, args))
+  expect_identical(actual$data, expected$data)
+})
