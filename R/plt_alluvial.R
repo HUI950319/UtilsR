@@ -451,6 +451,7 @@ plt_alluvial <- function(
         return(structure(match(codes, observed), levels = value_levels[observed], class = class(value)))
       }
       observed <- tabulate(codes, length(value_levels)) > 0L
+      if (all(observed)) return(structure(codes, levels = value_levels, class = class(value)))
       new_codes <- cumsum(observed)
       return(structure(new_codes[codes], levels = value_levels[observed], class = class(value)))
     }

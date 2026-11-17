@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` retains existing ordinal codes for complete observed factor levels.
+
 * `plt_alluvial()` identifies explicit missing factor levels from codes without expanding observations to labels.
 
 * `lv()` inspects special-value labels only where it can highlight a category level in the report.

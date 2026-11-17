@@ -1293,3 +1293,20 @@ test_that("alluvial missing factor levels use codes before counting flows", {
   expect_true(all(is.finite(out$data$.y)))
   expect_identical(sum(out$data$count), 60)
 })
+
+test_that("alluvial observed factors keep existing complete level codes", {
+  d <- data.frame(a = ordered(rep(c("a", "b"), 60L), levels = c("b", "a")),
+    b = factor(rep(c("x", "y", "x"), 40L)))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$cumsum <- function(x) {
+    if (identical(substitute(x), quote(observed)) && all(x))
+      stop("remapped all observed factor levels")
+    base::cumsum(x)
+  }
+  environment(fn) <- env
+  draw <- function(f, d) suppressMessages(f(d, "a", "b"))$data
+  expect_identical(draw(fn, d), draw(plt_alluvial, d))
+  d$a <- ordered(d$a, levels = c("b", "unused", "a"))
+  expect_identical(draw(fn, d), draw(plt_alluvial, d))
+})
