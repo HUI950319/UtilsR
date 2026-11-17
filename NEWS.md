@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The shared butterfly and scatter label helper returns ordinary integer values directly because decimal integer labels are distinct.
+
 * Scatter grouping uses the already distinct default numeric group values to prepare exact labels.
 
 * `check_na(special = character())` skips full missingness masks for ordinary complete factors.

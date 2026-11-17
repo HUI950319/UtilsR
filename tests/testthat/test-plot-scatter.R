@@ -1890,3 +1890,13 @@ test_that("default numeric scatter groups reuse observed levels for exact labels
   expect_identical(names(out), names(values))
   expect_identical(as.integer(out)[1:5], c(1L, NA_integer_, 2L, 3L, 4L))
 })
+
+test_that("integer category labels do not scan exact integer keys", {
+  x <- rep(c(-2147483647L, NA_integer_, 2147483647L, 0L), 600L)
+  names(x) <- as.character(seq_along(x))
+  fn <- .butterfly_category_labels
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) stop("probed ordinary integer labels for collisions")
+  environment(fn) <- env
+  expect_identical(fn(x), x)
+})

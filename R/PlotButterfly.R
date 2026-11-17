@@ -639,6 +639,7 @@ PlotButterfly <- function(
 
 # Keep numeric category identities before character-based matching or pivoting.
 .butterfly_category_labels <- function(value) {
+  if (is.integer(value) && !is.object(value) && is.null(dim(value))) return(value)
   .register_integer64(value)
   key <- .cat_time_key(value)
   if (!is.null(key)) {
