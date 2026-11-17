@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey stages reuse complete factor codes in either level order.
+
 * Wide butterfly preparation keeps ordinary factor codes while preserving first-observation category order.
 
 * Set membership encoding assigns the first bit directly and skips empty set updates.

@@ -996,3 +996,27 @@ test_that("Sankey terminal rows use fixed successor positions", {
   expect_identical(which(is.na(actual$next_x)), seq.int(3L, 120L, by = 3L))
   expect_identical(fn(d[0L, ], names(d)), .sankey_path_rows(d[0L, ], names(d)))
 })
+
+test_that("complete Sankey stages keep their existing membership codes", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = factor(rep(c("a", "b"), 18L)),
+    b = factor(rep(c("I", "II", "III"), 12L)))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(table), quote(observed)))
+      stop("rematched complete Sankey stage codes")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, reverse) suppressMessages(f(d, names(d), show_text = "name",
+    reverse_levels = reverse, theme_use = ggplot2::theme_void()))
+  for (reverse in c(FALSE, TRUE)) {
+    expected <- draw(plt_sankey, reverse)
+    actual <- draw(fn, reverse)
+    expect_identical(actual$data, expected$data)
+    expect_identical(actual$layers[[3L]]$data, expected$layers[[3L]]$data)
+  }
+  expect_identical(as.character(draw(fn, FALSE)$data$node[1:4]),
+    c(".sankey_1_1", ".sankey_2_1", ".sankey_1_2", ".sankey_2_2"))
+})
