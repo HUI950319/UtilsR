@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` passes complete observations directly to its precision check and shares filtered values with the formatter.
+
 * Continuous comparison brackets keep all annotation rows when the precomputed labels are complete.
 
 * `lv()` prepares typed summary table inputs in one column pass while preserving missing, clock and calendar handling.

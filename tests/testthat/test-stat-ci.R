@@ -316,3 +316,22 @@ test_that("confidence interval signed-zero cleanup touches only affected labels"
   environment(fn) <- env
   expect_identical(fn(x, y, digits = 2L), expected)
 })
+
+test_that("complete high precision CI and SD inputs skip full vector slicing", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(observed)) && is.logical(i) && all(i)) {
+      stop("copied complete interval formatting values")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  for (z in list(NULL, c(2, 3, 4))) {
+    args <- list(x = stats::setNames(c(1, 2, 3), letters[1:3]),
+                 y = c(.1, .2, .3), z = z, digits = 7882L)
+    expect_identical(do.call(fn, args), do.call(stat_ci, args))
+    args$x[[2L]] <- NA_real_
+    expect_identical(do.call(fn, args), do.call(stat_ci, args))
+  }
+})

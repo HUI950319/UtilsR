@@ -194,13 +194,17 @@ stat_ci <- function(x, y = NULL, z = NULL,
     complete <- !is.object(x) && !is.object(y) && !is.object(z) &&
       !anyNA(x) && !anyNA(y) && !anyNA(z)
     observed <- if (complete) TRUE else !(is.na(x) | is.na(y) | is.na(z))
-    .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     if (all(observed)) {
+      .check_precision(d, x, y, z)
       out <- .format_values(fmt, x, y, z)
     } else {
+      estimate <- x[observed]
+      lower <- y[observed]
+      upper <- z[observed]
+      .check_precision(d, estimate, lower, upper)
       out <- rep(NA_character_, n)
-      out[observed] <- .format_values(fmt, x[observed], y[observed], z[observed])
+      out[observed] <- .format_values(fmt, estimate, lower, upper)
     }
     names(out) <- input_names
     return(out)
@@ -217,13 +221,16 @@ stat_ci <- function(x, y = NULL, z = NULL,
   d <- digits %||% 1L
   complete <- !is.object(x) && !is.object(y) && !anyNA(x) && !anyNA(y)
   observed <- if (complete) TRUE else !(is.na(x) | is.na(y))
-  .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   if (all(observed)) {
+    .check_precision(d, x, y)
     out <- .format_values(fmt, x, y)
   } else {
+    centre <- x[observed]
+    spread <- y[observed]
+    .check_precision(d, centre, spread)
     out <- rep(NA_character_, length(x))
-    out[observed] <- .format_values(fmt, x[observed], y[observed])
+    out[observed] <- .format_values(fmt, centre, spread)
   }
   names(out) <- input_names
   out
