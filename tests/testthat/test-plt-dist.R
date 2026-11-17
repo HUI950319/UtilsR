@@ -959,3 +959,18 @@ test_that("alluvial distribution omission checks explicit missing factor codes",
   environment(fn) <- env
   expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
 })
+
+test_that("stacked distribution labels use complete visible count vectors", {
+  d <- expand.grid(x = letters[1:10], fill = LETTERS[1:6], stringsAsFactors = FALSE)
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(visible)) && length(i) == length(x))
+      stop("copied an entirely visible stacked label vector")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(d, c("x", "fill"), type = "bar",
+    label_args = list(style = "count_percent"), save = NULL))$data
+  expect_identical(draw(fn), draw(plt_dist))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked `plt_dist()` labels reuse complete count and proportion columns when the threshold shows every segment.
+
 * `PlotRankCor()` fills ranks for ordinary singleton observations together and preserves missing scores.
 
 * `PlotHeatmapJaccard()` extracts row and column indices directly from sparse intersection keys.

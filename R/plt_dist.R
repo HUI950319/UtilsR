@@ -556,13 +556,16 @@ plt_dist <- function(data,
     # labels, which are dropped when drawn without changing the stacking.
     plotdata[[label_name]] <- rep(NA_character_, nrow(plotdata))
     if (label_args$style != "none") {
-      visible <- which(plotdata[[prop_name]] >= label_args$min_pct)
+      proportions <- plotdata[[prop_name]]
+      visible <- which(proportions >= label_args$min_pct)
       if (length(visible)) {
+        complete <- length(visible) == nrow(plotdata)
         if (label_args$style != "percent") {
-          counts <- scales::comma(plotdata[[count_name]][visible], accuracy = 1)
+          counts <- scales::comma(if (complete) counts else counts[visible], accuracy = 1)
         }
         if (label_args$style != "count") {
-          pct <- scales::percent(plotdata[[prop_name]][visible], accuracy = label_args$pct_accuracy)
+          pct <- scales::percent(if (complete) proportions else proportions[visible],
+                                 accuracy = label_args$pct_accuracy)
         }
         plotdata[[label_name]][visible] <- switch(label_args$style,
           count              = counts,
