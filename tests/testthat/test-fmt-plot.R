@@ -245,3 +245,23 @@ test_that("axis tile guides keep fully labelled keys", {
   key$.fmt_label[2L] <- FALSE
   expect_identical(guide$build_labels(key, list(), list()), key[-2L, ])
 })
+
+test_that("histogram positions share one unbinned restore index", {
+  p <- ggplot2::ggplot(data.frame(x = seq(0, 10, length.out = 303L)), ggplot2::aes(x)) +
+    ggplot2::geom_histogram(bins = 100L)
+  p <- fmt_his(p)
+  expected <- ggplot2::ggplot_build(p)$data
+  index <- length(p$layers)
+  geom <- p$layers[[index]]$geom
+  method <- environment(geom$use_defaults)$f
+  env <- new.env(parent = environment(method))
+  calls <- 0L
+  env$any <- function(...) {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("rescanned histogram bin markers")
+    base::any(...)
+  }
+  environment(method) <- env
+  p$layers[[index]]$geom <- ggplot2::ggproto(NULL, geom, use_defaults = method)
+  expect_identical(ggplot2::ggplot_build(p)$data, expected)
+})

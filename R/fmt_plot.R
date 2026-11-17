@@ -5483,11 +5483,12 @@ fmt_his <- function(plot,
         positions <- intersect(c("x", "xmin", "xmax"), names(data))
         # Binned panels already carry the native post-stat positions.
         binned <- !is.na(data$.fmt_his_binned) & data$.fmt_his_binned
+        restore <- if (any(binned)) which(!binned)
         for (name in positions) {
           saved <- paste0(".fmt_his_", name)
           if (saved %in% names(data)) {
-            if (any(binned)) data[[name]][!binned] <- data[[saved]][!binned]
-            else data[[name]] <- data[[saved]]
+            if (is.null(restore)) data[[name]] <- data[[saved]]
+            else if (length(restore)) data[[name]][restore] <- data[[saved]][restore]
           }
         }
         if (".fmt_his_binned" %in% names(data)) data$.fmt_his_binned <- NULL

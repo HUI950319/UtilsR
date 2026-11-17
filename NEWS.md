@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` restores only unbinned histogram positions and computes that row index once.
+
 * `PlotHeatmapJaccard()` formats distinct scores once on highly repetitive heatmaps.
 
 * Dense Jaccard overlap comparisons reuse integer feature IDs from the sparse-membership preflight.
