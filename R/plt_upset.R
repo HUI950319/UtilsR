@@ -291,6 +291,7 @@ plt_upset <- function(data,
     }
     # Use row indices as shared member identities for both input formats.
     prototype <- unlist(data)
+    codes <- NULL
     if (all(factor_members) && any(vapply(data, function(x) anyNA(base::levels(x)), logical(1)))) {
       codes <- lapply(data, function(x) {
         value <- match(base::levels(x), base::levels(prototype))[as.integer(x)]
@@ -303,8 +304,14 @@ plt_upset <- function(data,
     homogeneous <- !any(factor_members) && all(vapply(data, function(x) {
       !length(x) || identical(typeof(x), typeof(prototype))
     }, logical(1)))
-    if (homogeneous) {
-      indices <- match(prototype, all_elements)
+    ordinary_factors <- all(factor_members) && all(vapply(data, function(x) {
+      identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+    }, logical(1)))
+    if (homogeneous || ordinary_factors) {
+      indices <- if (ordinary_factors) {
+        flattened <- if (is.null(codes)) as.integer(prototype) else unlist(codes)
+        match(flattened, as.integer(all_elements))
+      } else match(prototype, all_elements)
       end <- cumsum(lengths(data))
       start <- c(0L, end[-length(end)])
       set_list <- Map(function(start, end) {

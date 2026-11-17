@@ -1029,3 +1029,24 @@ test_that("categorical UpSet does not subset rows when all intersect", {
   environment(fn) <- env
   expect_identical(do.call(fn, args)$data, expected$data)
 })
+
+test_that("factor UpSet lists share one coded lookup", {
+  d <- list(a = factor(c("a", "b", NA, "c"), levels = c("c", "a", "b")),
+    b = factor(c("c", "d", "b"), levels = c("d", "c", "b")))
+  expected <- plt_upset(d, output = "data")
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x) && length(x) == length(unique(unlist(d)))) {
+      n <<- n + 1L
+      if (n > 1L) stop("reencoded UpSet membership universe")
+    }
+    base::as.integer(x, ...)
+  }
+  n <- 0L
+  environment(fn) <- env
+  expect_identical(fn(d, output = "data"), expected)
+  explicit <- structure(c(1L, 2L, NA), levels = c("x", NA_character_), class = "factor")
+  named <- list(a = explicit, b = factor(c("y", NA)), empty = character())
+  expect_identical(fn(named, output = "data"), plt_upset(named, output = "data"))
+})
