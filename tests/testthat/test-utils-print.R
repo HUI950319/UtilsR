@@ -1643,7 +1643,7 @@ test_that("complete ordinary console values skip a full missing mask", {
   expect_identical(fn(factor(c("a", NA), exclude = NULL)), c("a", "<NA>"))
 })
 
-test_that("console table computes visible highlight rows once", {
+test_that("console table computes visible highlight rows at most once", {
   fn <- pr_table
   env <- new.env(parent = environment(fn))
   rows <- 0L
@@ -1659,7 +1659,7 @@ test_that("console table computes visible highlight rows once", {
   withr::local_options(cli.num_colors = 1L)
   expect_identical(capture.output(fn(d, n = 100L, highlight = c(3L, 115L), indent = 0L)),
     capture.output(pr_table(d, n = 100L, highlight = c(3L, 115L), indent = 0L)))
-  expect_identical(rows, 1L)
+  expect_lte(rows, 1L)
 })
 
 test_that("console tables use the missing mask from formatted ordinary text", {
@@ -2069,6 +2069,21 @@ test_that("console tree counts hidden depth-limit siblings without reading them"
   env[["[["]] <- function(value, i, ...) {
     if (identical(value, x) && i > 2L) stop("read hidden siblings")
     base::"[["(value, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(do.call(fn, args)), expected)
+})
+
+test_that("console table highlights use supplied row positions", {
+  withr::local_options(cli.num_colors = 1L)
+  d <- data.frame(value = seq_len(11L))
+  args <- list(data = d, n = NULL, highlight = c(100, 10, 2, 2, 0), width = 30L)
+  expected <- capture.output(do.call(pr_table, args))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$seq_len <- function(n) {
+    if (identical(n, 11L)) stop("scanned displayed rows")
+    base::seq_len(n)
   }
   environment(fn) <- env
   expect_identical(capture.output(do.call(fn, args)), expected)

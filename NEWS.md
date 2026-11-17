@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` filters the supplied highlights directly to the displayed rows.
+
 * `pal_show()` reuses decoded RGBA for contrast and hex labels.
 
 * `plt_sankey()` obtains successor nodes from stage positions without shifting the complete label vector.

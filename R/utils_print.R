@@ -671,7 +671,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   colour <- ._pr_colour()
   hl <- if (is.logical(highlight)) which(highlight) else highlight
-  at <- if (length(hl)) which(seq_len(nrow(data)) %in% hl) else integer()
+  at <- sort(unique(hl[hl >= 1L & hl <= nrow(data)]))
   if (!colour && length(at)) indent <- max(indent, 2L)
   avail <- (width %||% console_width()) - indent
   # The first column and every P-value column must fit.
