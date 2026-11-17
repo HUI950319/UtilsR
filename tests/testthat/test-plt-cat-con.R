@@ -1886,3 +1886,19 @@ test_that("categorical factor drops preserve named observations", {
   sparse <- stats::setNames(factor(c("b", "a", NA), levels = c("b", "unused", "a")), letters[1:3])
   expect_identical(.cat_axis_factor(sparse), droplevels(sparse))
 })
+
+test_that("factor set membership handles missing codes in the lookup", {
+  fn <- .cat_set_members
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.factor(x)) stop("scanned all factor rows for missingness")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  for (extra in list(character(), paste0("unused", seq_len(300L)))) {
+    x <- structure(c(a = 2L, b = NA_integer_, c = 3L, d = 1L),
+      levels = c("A", NA_character_, "B", extra), class = "factor")
+    expect_identical(fn(x, c(NA_character_, "B")), c(a = TRUE, b = FALSE, c = TRUE, d = FALSE))
+    expect_identical(fn(x, "A"), c(a = FALSE, b = FALSE, c = FALSE, d = TRUE))
+  }
+})

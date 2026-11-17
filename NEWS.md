@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical set membership treats uncoded NA as absent using matched factor codes.
+
 * `plt_cat()` reuses codes for fully observed factor levels and keeps their observation names.
 
 * `stat_pval()` avoids constructing a replacement mask when all star inputs have values.
