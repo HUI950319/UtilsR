@@ -3087,3 +3087,17 @@ test_that("viridis previews select RGB knots without copying map rows", {
     expect_identical(actual, .pal_viridis_preview(99L, pal, index, .6, .2, .9, -1))
   }
 })
+
+test_that("opacity skips reindexing a mostly distinct palette after probing", {
+  n <- 2400L
+  cols <- sprintf("#%06X", seq_len(n))
+  cols[round(seq.int(1L, n, length.out = 1024L))] <- "red"
+  fn <- .pal_apply
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(x) == n && length(table) > n / 2L) stop("reindexed mostly distinct opacity colours")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(cols, alpha = .7), as.character(ggplot2::alpha(cols, .7)))
+})

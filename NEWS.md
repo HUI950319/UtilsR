@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette opacity processing only expands deduplicated values where the full palette has enough repeated colours.
+
 * `PlotCircleLollipop()` finds min-max bounds directly for complete ordinary scores.
 
 * `PlotRankCor()` uses centered score extrema to determine scaling magnitudes.

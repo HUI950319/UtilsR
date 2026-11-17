@@ -776,9 +776,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   if (alpha < 1) {
     input <- keys <- NULL
     if (!is.object(out) && length(out) > 1024L && .pal_use_unique(out)) {
-      input <- out
-      keys <- unique(out)
-      out <- keys
+      distinct <- unique(out)
+      if (length(distinct) < length(out) / 2) {
+        input <- out
+        keys <- distinct
+        out <- keys
+      }
     }
     # Unlike col2rgb(), farver interprets the literal "NA" as a missing value.
     out[out %in% "NA"] <- "#FFFFFF00"
