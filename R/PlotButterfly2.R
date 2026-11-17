@@ -269,11 +269,17 @@ PlotButterfly2 <- function(
   # Path A: fill.by = NULL AND non-beeswarm → delegate to PlotButterfly
   # ==================================================================
   if (is.null(fill.by) && !is_beeswarm) {
-    category <- as.character(data[[stat.by]])
+    category <- data[[stat.by]]
     left <- which(group == groups[1L])
     right <- which(group == groups[2L])
-    categories <- unique(category)
-    codes <- match(category, categories)
+    if (identical(class(category), "factor") || identical(class(category), c("ordered", "factor"))) {
+      categories <- levels(category)
+      codes <- as.integer(category)
+    } else {
+      category <- as.character(category)
+      categories <- unique(category)
+      codes <- match(category, categories)
+    }
     common <- intersect(codes[left], codes[right])
     if (!length(common)) cli::cli_abort("No common {.arg stat.by} categories.")
     .to_wide <- function(index) {

@@ -1349,3 +1349,17 @@ test_that("missing butterfly wing groups report the grouping field", {
   d$wing <- factor(rep(c("L", "R"), each = 4L))
   expect_length(suppressMessages(PlotButterfly2(d, "feature", "score", "wing", fill.by = "fill")), 2L)
 })
+
+test_that("wide butterfly preparation reuses ordinary category codes", {
+  d <- data.frame(category = ordered(rep(c("b", "a", "b", ""), 4L),
+    levels = c("", "a", "unused", "b")), score = 1:16, group = rep(c("L", "R"), each = 8L))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$category)) stop("converted all butterfly category observations to labels")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(d, "category", "score", "group", type = "box"))
+  expect_identical(lapply(draw(fn), function(p) p$data), lapply(draw(PlotButterfly2), function(p) p$data))
+})
