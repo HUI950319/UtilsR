@@ -1955,3 +1955,15 @@ test_that("set defaults reuse observed labels before sorting the fallback", {
   expect_identical(suppressMessages(fn(d, "set", NULL)), list(set = "a"))
   expect_identical(scanned, 1L)
 })
+
+test_that("dodged rose label radii reuse complete group observations", {
+  skip_if_not_installed("geomtextpath")
+  d <- data.frame(group_var = factor(rep(c("a", "b", "c"), each = 8L)),
+    stat_var = factor(rep(letters[1:8], 3L)), value = seq_len(24L))
+  colours <- rep("red", 8L)
+  local_mocked_bindings(aggregate = function(...) {
+    stop("aggregated a dodged rose radius by group")
+  }, .package = "stats")
+  p <- .plt_cat_rose(d, colours, position = "dodge")
+  expect_identical(unique(p$layers[[2L]]$data$y), 24 * 1.15)
+})

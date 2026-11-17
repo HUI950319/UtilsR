@@ -87,14 +87,16 @@
     positions <- which(!is.na(group_labels) & group_labels != "")
     group_levels <- group_labels[positions]
     if (length(group_levels) > 1) {
-      if (position == "stack") {
-        y_total <- stats::aggregate(plotdata[["value"]],
-          by = list(plotdata[["group_var"]]), FUN = sum, na.rm = TRUE)
+      values <- plotdata[["value"]]
+      groups <- plotdata[["group_var"]]
+      if (position != "stack" && !anyNA(groups) && !anyNA(group_labels) && length(values)) {
+        radius <- max(values, na.rm = TRUE)
       } else {
-        y_total <- stats::aggregate(plotdata[["value"]],
-          by = list(plotdata[["group_var"]]), FUN = max, na.rm = TRUE)
+        summary <- stats::aggregate(values, by = list(groups),
+          FUN = if (position == "stack") sum else max, na.rm = TRUE)
+        radius <- max(summary[[2L]], na.rm = TRUE)
       }
-      y_outer <- max(y_total[[2]], na.rm = TRUE) * 1.15
+      y_outer <- radius * 1.15
       npt <- 40
       arcs <- vapply(positions, function(x) seq(x - 0.46, x + 0.46, length.out = npt),
                      numeric(npt))
