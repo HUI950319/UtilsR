@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval(add_star_p = ...)` reuses complete ordinary labels without allocating a missing mask.
+
 * `impute_na_knn()` sends only observed levels of sparse nominal factors with a coded NA to the backend.
 
 * `impute_na_knn()` skips infinity checks on ordinary integer columns.

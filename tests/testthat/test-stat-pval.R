@@ -843,3 +843,17 @@ test_that("complete decimal tokens skip unneeded NaN recovery scans", {
   expect_identical(fn(text), as.numeric(text))
   expect_identical(fn(c("0.25", NA_character_)), c(0.25, NA_real_))
 })
+
+test_that("external P-value stars avoid a complete label mask", {
+  x <- stats::setNames(paste0("code", seq_len(800L)), paste0("row", seq_len(800L)))
+  p <- rep(c(.001, .02, .9, NA_real_), 200L)
+  expected <- stat_pval(x, add_star_p = p)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(v) {
+    if (identical(v, x)) stop("allocated missing mask for complete external labels")
+    base::is.na(v)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, add_star_p = p), expected)
+})

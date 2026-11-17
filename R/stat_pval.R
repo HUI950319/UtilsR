@@ -173,13 +173,13 @@ stat_pval <- function(x,
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
     .register_integer64(x)
-    missing_x <- is.na(x)
+    missing_x <- if (is.object(x) || anyNA(x)) is.na(x)
     x <- as.character(x)
     if (length(add_star_p) != length(x)) {
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
     out <- paste0(x, .add_stars(add_star_p, map_signif))
-    out[missing_x] <- NA_character_
+    if (length(missing_x)) out[missing_x] <- NA_character_
     names(out) <- input_names
     return(out)
   }
