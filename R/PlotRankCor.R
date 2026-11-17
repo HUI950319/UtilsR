@@ -357,14 +357,15 @@ PlotRankCor <- function(
   values <- pivot_data[[plot_value]]
   if (is.numeric(values) && !is.object(values)) {
     ids <- vctrs::vec_group_id(pivot_data[pivot_keys])
-    first <- !duplicated(ids)
-    complete <- all(first)
+    n_keys <- attr(ids, "n")
+    complete <- n_keys == length(ids)
+    first <- if (!complete) !duplicated(ids)
     pivot_data <- if (complete) pivot_data[pivot_keys] else pivot_data[first, pivot_keys, drop = FALSE]
     scores <- as.double(if (complete) values else values[first])
     scores[is.na(scores)] <- NaN
     scores[which(scores == 0)] <- 0
-    repeated <- tabulate(ids, nbins = attr(ids, "n")) > 1L
-    if (any(repeated)) {
+    if (!complete) {
+      repeated <- tabulate(ids, nbins = n_keys) > 1L
       rows <- which(repeated[ids])
       groups <- split(rows, ids[rows])
       scores[as.integer(names(groups))] <- vapply(groups, function(idx) {

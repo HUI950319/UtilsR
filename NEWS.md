@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` uses the group count to skip duplicate counting for unique pivot keys.
+
 * Scatter group preparation reuses the matched positions for ordinary input and level vectors.
 
 * `fct_to_combine()` keeps the existing codes when every factor level is observed.

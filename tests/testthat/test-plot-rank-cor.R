@@ -1150,3 +1150,20 @@ test_that("complete rank correlation scaling skips empty missing assignments", {
   expect_identical(result$data, expected$data)
   expect_identical(attr(result, "cor_results"), attr(expected, "cor_results"))
 })
+
+test_that("rank correlation needs no duplicate mask for unique pivot keys", {
+  d <- data.frame(id = rep(letters[1:7], 2L), method = rep(c("X", "Y"), each = 7L),
+    score = c(7:1, 1:7))
+  args <- list(data = d, stat.by = "id", method.by = "method", value.by = "score", use_rank = FALSE)
+  expected <- suppressMessages(do.call(PlotRankCor, args))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$duplicated <- function(x, ...) {
+    if (length(x) == nrow(d) && identical(as.integer(attr(x, "n")), nrow(d))) {
+      stop("scanned unique rank pivot ids")
+    }
+    base::duplicated(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressMessages(do.call(fn, args))$data, expected$data)
+})
