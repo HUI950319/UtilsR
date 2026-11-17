@@ -848,9 +848,14 @@ plt_con <- function(data,
 }
 
 .con_anova_values <- function(x) {
-  finite <- is.finite(x)
-  if (!any(finite)) return(x)
-  bounds <- range(x[finite])
+  if (!is.object(x)) {
+    bounds <- suppressWarnings(range(x, finite = TRUE))
+    if (!all(is.finite(bounds))) return(x)
+  } else {
+    finite <- is.finite(x)
+    if (!any(finite)) return(x)
+    bounds <- range(x[finite])
+  }
   unit <- max(abs(bounds))
   if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                    unit > sqrt(.Machine$double.xmax))) {

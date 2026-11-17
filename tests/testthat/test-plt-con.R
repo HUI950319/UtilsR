@@ -2269,3 +2269,18 @@ test_that("continuous bar limits combine data endpoints without joining raw valu
   expect_identical(suppressWarnings(fn(values, groups)), expected)
   expect_identical(fn(numeric(), factor(character())), c(0, 0))
 })
+
+test_that("continuous ANOVA bounds use the original plain outcome", {
+  fn <- .con_anova_values
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.numeric(x) && length(x) == 6L && is.logical(i))
+      stop("copied ordinary finite ANOVA outcomes")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  for (x in list(c(0, 1, 2, Inf, 4, NA_real_), c(-1e307, 0, 2e307, Inf, NaN, 4e307),
+                 rep(NA_real_, 6L))) {
+    expect_identical(fn(x), .con_anova_values(x))
+  }
+})

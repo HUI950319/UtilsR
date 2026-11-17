@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous test preparation gets finite bounds without copying ordinary outcomes.
+
 * Time-category matching formats repeated scalar time values once per distinct value.
 
 * `plt_cat(type = "rose")` prepares label paths together from existing level indices.
