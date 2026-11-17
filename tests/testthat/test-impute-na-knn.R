@@ -869,3 +869,20 @@ test_that("scaled KNN columns do not slice fully observed row sets", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("explicit missing KNN factor restoration reuses backend codes", {
+  skip_if_not_installed("VIM")
+  f <- structure(c(2L, 1L, 1L, 3L, NA_integer_), levels = c("A", NA_character_, "B"),
+    class = "factor")
+  d <- data.frame(f = f, near = c(1, 10, 15, 23, 1.01))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && any(startsWith(levels(x), ".knn_level_")))
+      stop("decoded predicted factor text before restoration")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})

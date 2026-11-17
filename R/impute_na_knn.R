@@ -344,7 +344,13 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     original <- factor_na_original[[var_name]]
     if (anyNA(unclass(original))) {
       missing <- is.na(original)
-      codes <- match(as.character(result[[var_name]][missing]), levels(data_for_impute[[var_name]]))
+      values <- result[[var_name]][missing]
+      backend_levels <- levels(data_for_impute[[var_name]])
+      ordinary_factor <- identical(class(values), "factor") ||
+        identical(class(values), c("ordered", "factor"))
+      codes <- if (ordinary_factor && identical(levels(values), backend_levels)) {
+        as.integer(values)
+      } else match(as.character(values), backend_levels)
       if (!is.null(factor_na_codes[[var_name]])) codes <- factor_na_codes[[var_name]][codes]
       restored <- as.integer(original)
       restored[missing] <- codes

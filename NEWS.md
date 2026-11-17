@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` restores predicted factor codes directly when the backend retains the dictionary.
+
 * Plot formatters read ordinary directly mapped axis columns without constructing a tidy-evaluation data mask.
 
 * `plt_alluvial()` formats distinct repeated counts and percentages before expanding them to labels.
