@@ -450,11 +450,11 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (!._pr_colour()) {
     return(sprintf("[%s: %s]", rep_len(key, n), rep_len(value, n)))
   }
+  if (!length(key) %in% c(1L, n)) key <- rep_len(key, n)
+  if (!length(value) %in% c(1L, n)) value <- rep_len(value, n)
   white <- cli::make_ansi_style("br_white")
-  paste0(._chip(rep_len(key, n),
-                cli::make_ansi_style("grey30", bg = TRUE), white),
-         ._chip(rep_len(value, n),
-                cli::make_ansi_style(bg, bg = TRUE), cli::make_ansi_style(fg)))
+  paste0(._chip(key, cli::make_ansi_style("grey30", bg = TRUE), white),
+         ._chip(value, cli::make_ansi_style(bg, bg = TRUE), cli::make_ansi_style(fg)))
 }
 
 # ------------- pr_table -----------------------------------------------------

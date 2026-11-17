@@ -2041,3 +2041,20 @@ test_that("console table formats repeated doubles by distinct value", {
   environment(fn) <- env
   expect_identical(capture.output(fn(d, n = NULL, width = 23L)), expected)
 })
+
+test_that("badge styles scalar fields before recycling", {
+  withr::local_options(cli.num_colors = 256L)
+  key <- "group"
+  value <- c("A", "B", "C")
+  expected <- pr_badge(rep(key, length(value)), value)
+  fn <- pr_badge
+  env <- new.env(parent = environment(fn))
+  chip_lengths <- integer()
+  env$._chip <- function(x, ...) {
+    chip_lengths <<- c(chip_lengths, length(x))
+    ._chip(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(key, value), expected)
+  expect_identical(chip_lengths, c(1L, 3L))
+})
