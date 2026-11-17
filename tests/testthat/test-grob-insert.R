@@ -380,3 +380,12 @@ test_that("behind insets precede the smallest representable finite drawing order
   expect_identical(q$layout$name[order(q$layout$z)], c("inset", "panel"))
   expect_true(all(is.finite(q$layout$z)))
 })
+
+test_that("behind insets preserve negative infinite draw order", {
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, list(grid::rectGrob(), grid::pointsGrob(.5, .5)),
+    t = 1L, l = 1L, name = c("background", "panel"))
+  gt$layout$z <- c(-Inf, -Inf)
+  out <- grob_insert(gt, grid::rectGrob(), on_top = FALSE, align_to = "full")
+  expect_identical(out$layout$name[order(out$layout$z)], c("background", "inset", "panel"))
+})

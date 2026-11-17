@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(on_top = FALSE)` draws an inset before an overlapping foreground with z equal to negative infinity.
+
 * `PlotRankCor()` uses the group count to skip duplicate counting for unique pivot keys.
 
 * Scatter group preparation reuses the matched positions for ordinary input and level vectors.

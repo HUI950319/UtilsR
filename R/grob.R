@@ -454,7 +454,7 @@ grob_insert <- function(
       below <- lowest - abs(lowest) * .Machine$double.eps
     }
     z_val <- max(min(0, below), backgrounds, na.rm = TRUE)
-    if (is.finite(lowest)) {
+    if (lowest < Inf) {
       same_order <- which(overlaps & layout$z == lowest)
       back <- same_order[background[same_order]]
       front <- same_order[!background[same_order]]
