@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` assigns label factor codes from its ordering indices while retaining original variable names.
+
 * Sankey stages reuse complete factor codes in either level order.
 
 * Wide butterfly preparation keeps ordinary factor codes while preserving first-observation category order.

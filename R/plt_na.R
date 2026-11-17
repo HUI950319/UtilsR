@@ -169,13 +169,16 @@ plt_na <- function(
     pct = numbers / n_rows * 100
   )
 
-  ordered_names <- names(counts)[order(counts, decreasing = sort == "desc")]
+  ordering <- order(counts, decreasing = sort == "desc")
+  ordered_names <- names(counts)[ordering]
   display_labels <- map_name(ordered_names)
   variable_levels <- make.unique(display_labels)
   names(display_labels) <- variable_levels
   variable_keys <- stats::setNames(variable_levels, ordered_names)
 
-  missing_summary$label <- structure(match(missing_summary$name, ordered_names),
+  codes <- integer(length(ordering))
+  codes[ordering] <- seq_along(ordering)
+  missing_summary$label <- structure(codes[(included + 1) %/% 2],
                                      levels = variable_levels, class = "factor")
 
   .plt_na_plot(

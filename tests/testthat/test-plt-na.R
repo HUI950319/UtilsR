@@ -608,3 +608,19 @@ test_that("complete missing-plot label maps skip fallback row copies", {
     expect_identical(actual$scales$get_scales("y")$labels, expected$scales$get_scales("y")$labels)
   }
 })
+
+test_that("missingness summary labels use earlier column ordering positions", {
+  d <- data.frame(z = c(NA, 1, 2), a = c(NA, NA, 3), empty = rep(NA_real_, 3L), complete = 1:3)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(table), quote(ordered_names))) stop("searched the same missing-plot label names again")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  for (order in c("asc", "desc")) {
+    draw <- function(f) suppressMessages(f(d, name.map = c(z = "A", a = "A"),
+      output = "percentage", sort = order))
+    expect_identical(draw(fn)$data, draw(plt_na)$data)
+  }
+})
