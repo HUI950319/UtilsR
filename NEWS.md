@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` restores whole scaled columns directly when every row enters the backend.
+
 * `plt_na()` uses original variable positions to encode ordered display labels.
 
 * `fct_to_combine()` scans typed inputs while skipping complete ordinary columns in the same call.

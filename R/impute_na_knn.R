@@ -282,9 +282,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     }
     observed
   }
-  backend_data <- if (all(observed_rows)) data_for_impute else
+  all_observed <- all(observed_rows)
+  backend_data <- if (all_observed) data_for_impute else
     data_for_impute[observed_rows, , drop = FALSE]
-  missing_backend <- if (all(observed_rows) && !any(labelled_cols | time_cols)) {
+  missing_backend <- if (all_observed && !any(labelled_cols | time_cols)) {
     match(vars_with_missing, names(data_for_impute))
   } else which(vapply(backend_data, anyNA, logical(1)))
   backend_variables <- backend_names[missing_backend]
@@ -323,7 +324,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       }
     )
     for (j in which(backend_scales != 1 | backend_centers != 0)) {
-      original <- data_for_impute[[j]][observed_rows]
+      original <- data_for_impute[[j]]
+      if (!all_observed) original <- original[observed_rows]
       if (j %in% missing_backend) {
         missing <- is.na(original)
         original[missing] <- result[[j]][missing] * backend_scales[j] + backend_centers[j]
@@ -331,7 +333,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       result[[j]] <- original
     }
     names(result) <- names(data_for_impute)
-    if (any(!observed_rows)) {
+    if (!all_observed) {
       expanded <- data_for_impute
       for (var_name in names(result)) expanded[[var_name]][observed_rows] <- result[[var_name]]
       result <- expanded

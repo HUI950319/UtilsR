@@ -853,3 +853,19 @@ test_that("sparse nominal KNN factors compact coded missing levels", {
   expect_identical(actual, expected)
   expect_identical(as.integer(actual$group[5L]), 81L)
 })
+
+test_that("scaled KNN columns do not slice fully observed row sets", {
+  skip_if_not_installed("VIM")
+  m <- .Machine$double.xmax
+  d <- data.frame(y = c(1, 2, NA, 4, 5), predictor = c(-m, m, -m, m, 0))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(observed_rows)) && isTRUE(i) && identical(x, d$predictor))
+      stop("copied a full scaled KNN column")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})
