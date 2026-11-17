@@ -1367,3 +1367,15 @@ test_that("console swatches validate distinct colour spellings only once", {
   expect_identical(result, expected)
   expect_identical(returned, colors)
 })
+
+test_that("console swatches use decoded channels for contrast", {
+  x <- c("black", "red", "#00000040", "#4682B4", "#FFFFFF80")
+  fn <- show_color
+  env <- new.env(parent = environment(fn))
+  env$strtoi <- function(...) stop("decoded swatch hex text again")
+  environment(fn) <- env
+  for (depth in c(16L, 256L, 16777216L)) {
+    withr::local_options(cli.num_colors = depth)
+    expect_identical(capture.output(fn(x, rev = TRUE)), capture.output(show_color(x, rev = TRUE)))
+  }
+})

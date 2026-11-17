@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` calculates contrast from the displayed RGB channels instead of parsing generated hex text.
+
 * `fmt_his()` restores only unbinned histogram positions and computes that row index once.
 
 * `PlotHeatmapJaccard()` formats distinct scores once on highly repetitive heatmaps.

@@ -834,12 +834,9 @@ show_color <- function(x, rev = FALSE) {
   right_pad <- if (padding == 2L) " " else ""
 
   # Compute relative luminance (WCAG formula) for contrast
-  .luminance <- function(hex_col) {
-    r <- strtoi(substr(hex_col, 2, 3), 16L) / 255
-    g <- strtoi(substr(hex_col, 4, 5), 16L) / 255
-    b <- strtoi(substr(hex_col, 6, 7), 16L) / 255
+  .luminance <- function(r, g, b) {
     lin <- function(v) ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
-    0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+    0.2126 * lin(r / 255) + 0.7152 * lin(g / 255) + 0.0722 * lin(b / 255)
   }
 
   # Let cli pick the depth the terminal actually reports. Pinning `colors` to
@@ -893,8 +890,7 @@ show_color <- function(x, rev = FALSE) {
           c(0, 95, 135, 175, 215, 255)[
             c(index %/% 36L, index %/% 6L %% 6L, index %% 6L) + 1L]
         }
-        luminance_cache[[shown]] <- .luminance(grDevices::rgb(
-          rgb[[1L]], rgb[[2L]], rgb[[3L]], maxColorValue = 255))
+        luminance_cache[[shown]] <- .luminance(rgb[[1L]], rgb[[2L]], rgb[[3L]])
       }
       foreground <- lapply(c("#000000", "#FFFFFF"), function(col) {
         cli::make_ansi_style(col, bg = FALSE)
@@ -904,7 +900,9 @@ show_color <- function(x, rev = FALSE) {
       # Equal contrast occurs at the geometric mean of the offset luminances.
       foreground_cutoff <- sqrt(prod(fg_luminance + 0.05)) - 0.05
     }
-    if (num_colors >= 16777216L) luminance <- .luminance(preview)
+    if (num_colors >= 16777216L) {
+      luminance <- .luminance(preview_rgb[1L, ], preview_rgb[2L, ], preview_rgb[3L, ])
+    }
     foreground_cols <- if (num_colors >= 16777216L) character(length(ids)) else NULL
     style_group <- function(position) {
       j <- position[[1L]]
