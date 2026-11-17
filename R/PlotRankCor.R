@@ -422,7 +422,7 @@ PlotRankCor <- function(
       centered <- x / magnitude - origin / magnitude
       observed_centered <- if (complete) centered else centered[observed]
     }
-    magnitude <- max(abs(observed_centered))
+    magnitude <- max(abs(range(observed_centered)))
     if (magnitude > 0) centered <- centered / magnitude
     centered
   }

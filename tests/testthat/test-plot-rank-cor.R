@@ -1201,3 +1201,22 @@ test_that("rank correlation subtitles format group summaries together", {
   invisible(capture.output(actual <- suppressMessages(do.call(fn, args))))
   expect_identical(actual$labels$subtitle, expected$labels$subtitle)
 })
+
+test_that("rank correlation normalization avoids a full absolute-score vector", {
+  d <- data.frame(item = rep(letters[1:16], 2L), method = rep(c("A", "B"), each = 16L),
+    score = c(1:16, 17:2))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$abs <- function(x) {
+    if (identical(substitute(x), quote(observed_centered))) stop("allocated every centered absolute score")
+    base::abs(x)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "zscore", scale_y = "minmax", show.label = FALSE))))
+    p$data
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

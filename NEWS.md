@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` uses centered score extrema to determine scaling magnitudes.
+
 * `plt_sankey()` preserves its complete label-layer data when every caption meets the selection threshold.
 
 * `plt_upset()` reuses its selected columns for validation and dependency checks.
