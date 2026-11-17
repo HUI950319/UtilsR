@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` reads endpoints and colours directly from its prepared sector positions.
+
 * `plt_dist()` uses the shared exact numeric factor conversion for ordinary numeric axes.
 
 * `stat_pval()` isolates decimal threshold tie checks to the rows that need exact comparison.

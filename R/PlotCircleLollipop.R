@@ -517,12 +517,10 @@ PlotCircleLollipop <- function(
         track.height = track_height,
         panel.fun = function(x, y) {
           sector_id <- match(circlize::CELL_META$sector.index, sector_keys)
-          sector_data <- df[sector_rows[[sector_id]], , drop = FALSE]
-
-          for (i in seq_len(nrow(sector_data))) {
-            xp <- sector_data$x_pos[i]
-            yp <- sector_data$y_pos[i]
-            cl <- sector_data$color[i]
+          for (i in sector_rows[[sector_id]]) {
+            xp <- df$x_pos[i]
+            yp <- df$y_pos[i]
+            cl <- df$color[i]
             circlize::circos.lines(c(xp, xp), c(0, yp), col = cl, lwd = line_lwd)
             circlize::circos.points(xp, yp, pch = 16, col = cl, cex = point_cex)
           }

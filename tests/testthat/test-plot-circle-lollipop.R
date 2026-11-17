@@ -1439,3 +1439,27 @@ test_that("ordinary circular groups use one sector encoding", {
   expect_no_error(PlotCircleLollipop(d, value_scale = "group",
     show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
 })
+
+test_that("circular stems and points reuse sector row positions", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("b", "a"), each = 4L),
+    name = letters[1:8], value = seq(.1, .8, by = .1))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(sector_rows[[sector_id]])) && is.data.frame(x))
+      stop("copied an entire circle lollipop sector frame")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  points <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    points <<- c(points, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_equal(sort(points), d$value)
+})
