@@ -1370,7 +1370,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       # classed numbers (integer64, labelled) as plain doubles: mean() of an
       # integer64 is an integer64, which formatC() writes as its raw bits
       num <- suppressWarnings(as.numeric(v))
-      fin <- num[!missing & is.finite(num)]
+      valid <- !missing & is.finite(num)
+      fin <- if (all(valid)) num else num[valid]
       if (!length(fin)) return(c("", "no finite values", na))
       shape <- fin
       if (inherits(v, "integer64") && diff(range(fin)) <= 2^53) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` keeps complete finite numeric series without slicing or coercing their values again.
+
 * Axis guides reuse trained character labels during named-colour checks.
 
 * `fmt_strip()` uses recycled labels directly when the facet keys occur once and retains the lookup for repeated keys.

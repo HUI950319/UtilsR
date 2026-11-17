@@ -2110,3 +2110,18 @@ test_that("console integral precision reuses complete finite values", {
   expect_identical(capture.output(fn(d, n = NULL, width = 38)),
     capture.output(pr_table(d, n = NULL, width = 38)))
 })
+
+test_that("numeric sparklines reuse complete finite score vectors", {
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(num)) && is.logical(i) && all(i))
+      stop("copied every finite sparkline score")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  d <- data.frame(x = seq(-2.5, 7.5, length.out = 1001L))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+  d$x[c(1, 4)] <- c(NA, Inf)
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})
