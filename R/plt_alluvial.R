@@ -422,7 +422,11 @@ plt_alluvial <- function(
       valid <- !is.na(value)
       keep <- if (is.null(keep)) valid else keep & valid
     }
-    if (is.object(value) && (!ordinary_factor || anyNA(levels(value)))) {
+    if (ordinary_factor && anyNA(levels(value))) {
+      missing_code <- match(NA_character_, levels(value))
+      valid <- !as.integer(value) %in% missing_code
+      keep <- if (is.null(keep)) valid else keep & valid
+    } else if (is.object(value) && !ordinary_factor) {
       valid <- !is.na(as.character(value))
       keep <- if (is.null(keep)) valid else keep & valid
     }

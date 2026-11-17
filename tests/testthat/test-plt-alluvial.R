@@ -1275,3 +1275,21 @@ test_that("alluvial labels reuse highly repeated counts and shares", {
   }, .package = "scales")
   expect_identical(suppressMessages(do.call(plt_alluvial, args))$data$.label, reference$data$.label)
 })
+
+test_that("alluvial missing factor levels use codes before counting flows", {
+  d <- data.frame(a = structure(rep(c(1L, 2L, NA_integer_, 3L), 30L),
+      levels = c("a", NA, "b"), class = "factor"),
+    b = factor(rep(c("i", "i", "j", "j"), 30L)))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$a)) stop("expanded alluvial factor observations to find missing levels")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressWarnings(suppressMessages(f(d, "a", "b")))
+  out <- draw(fn)
+  expect_identical(out$data, draw(plt_alluvial)$data)
+  expect_true(all(is.finite(out$data$.y)))
+  expect_identical(sum(out$data$count), 60)
+})
