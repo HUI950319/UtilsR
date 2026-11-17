@@ -83,8 +83,9 @@
     ggplot2::coord_polar(theta = "x")
 
   if (requireNamespace("geomtextpath", quietly = TRUE) && x_var == "group_var") {
-    group_levels <- levels(plotdata[["group_var"]])
-    group_levels <- group_levels[group_levels != "" & !is.na(group_levels)]
+    group_labels <- levels(plotdata[["group_var"]])
+    positions <- which(!is.na(group_labels) & group_labels != "")
+    group_levels <- group_labels[positions]
     if (length(group_levels) > 1) {
       if (position == "stack") {
         y_total <- stats::aggregate(plotdata[["value"]],
@@ -95,13 +96,12 @@
       }
       y_outer <- max(y_total[[2]], na.rm = TRUE) * 1.15
       npt <- 40
-      path_df <- do.call(rbind, lapply(seq_along(group_levels), function(idx) {
-        x_idx <- which(levels(plotdata[["group_var"]]) == group_levels[idx])
-        data.frame(
-          x = seq(x_idx - 0.46, x_idx + 0.46, length.out = npt),
-          y = y_outer, label = group_levels[idx], group = idx
-        )
-      }))
+      arcs <- vapply(positions, function(x) seq(x - 0.46, x + 0.46, length.out = npt),
+                     numeric(npt))
+      path_df <- data.frame(
+        x = as.vector(arcs), y = y_outer,
+        label = rep(group_levels, each = npt), group = rep(seq_along(positions), each = npt)
+      )
       p <- p + geomtextpath::geom_textpath(
         ggplot2::aes(x = .data[["x"]], y = .data[["y"]],
                      label = .data[["label"]], group = .data[["group"]]),

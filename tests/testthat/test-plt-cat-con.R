@@ -1902,3 +1902,24 @@ test_that("factor set membership handles missing codes in the lookup", {
     expect_identical(fn(x, "A"), c(a = FALSE, b = FALSE, c = FALSE, d = TRUE))
   }
 })
+
+test_that("rose arcs use the declared group positions in one frame", {
+  skip_if_not_installed("geomtextpath")
+  values <- c("b", "", "a")
+  groups <- factor(rep(values, each = 2L), levels = c(values, "unused"))
+  d <- data.frame(stat_var = factor(rep(c("X", "Y"), 3L)),
+    group_var = groups, value = c(2, 3, 1, 4, 5, 4))
+  cols <- c(X = "red", Y = "blue")
+  fn <- .plt_cat_rose
+  env <- new.env(parent = environment(fn))
+  env$do.call <- function(what, args, ...) {
+    if (identical(what, rbind)) stop("bound individual rose paths")
+    base::do.call(what, args, ...)
+  }
+  environment(fn) <- env
+  for (position in c("stack", "dodge")) {
+    expected <- .plt_cat_rose(d, cols, position = position)$layers[[2L]]$data
+    actual <- fn(d, cols, position = position)$layers[[2L]]$data
+    expect_identical(actual, expected)
+  }
+})

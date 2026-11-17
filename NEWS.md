@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(type = "rose")` prepares label paths together from existing level indices.
+
 * Categorical set membership treats uncoded NA as absent using matched factor codes.
 
 * `plt_cat()` reuses codes for fully observed factor levels and keeps their observation names.
