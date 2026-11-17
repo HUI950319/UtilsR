@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous bar ranges split complete factor groups directly and only retain occupied partitions.
+
 * `fct_num()` skips an additional finiteness pass for integer cut points after ruling out missing values.
 
 * Factor helpers derive the observed FALSE and TRUE levels directly and preserve missing positions and observation names.

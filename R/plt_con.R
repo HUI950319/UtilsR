@@ -1261,7 +1261,11 @@ plt_con <- function(data,
   ordinary_factor <- identical(class(groups), "factor") ||
     identical(class(groups), c("ordered", "factor"))
   partitions <- if (ordinary_factor && !anyNA(levels(groups))) {
-    split(values, if (anyNA(groups)) addNA(groups) else groups, drop = TRUE)
+    missing <- anyNA(groups)
+    if (!missing && nlevels(groups) <= length(groups)) {
+      by_group <- split(values, groups)
+      by_group[lengths(by_group) > 0L]
+    } else split(values, if (missing) addNA(groups) else groups, drop = TRUE)
   } else {
     split(values, match(groups, unique(groups)))
   }

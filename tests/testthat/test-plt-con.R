@@ -2357,3 +2357,18 @@ test_that("complete significance bracket annotations keep their computed rows", 
   local_mocked_bindings(.con_stat_layer = fn)
   expect_identical(draw(), expected)
 })
+
+test_that("bar interval ranges reuse complete factor partition codes", {
+  y <- seq(-4, 4, length.out = 240L)
+  grp <- ordered(rep(c("b", "a"), 120L), levels = c("a", "unused", "b"))
+  fn <- .con_bar_range
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, f, drop = FALSE, ...) {
+    if (is.factor(f) && !anyNA(f) && !anyNA(levels(f)) && drop) stop("re-encoded the complete bar range factor")
+    base::split(x, f, drop = drop, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(y, grp), .con_bar_range(y, grp))
+  grp[1L] <- NA
+  expect_identical(fn(y, grp), .con_bar_range(y, grp))
+})
