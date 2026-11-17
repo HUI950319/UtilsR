@@ -590,3 +590,21 @@ test_that("missingness matrices reuse their logical column masks", {
   expect_identical(actual$data, expected$data)
   expect_identical(actual$data$isna, expected$data$isna)
 })
+
+test_that("complete missing-plot label maps skip fallback row copies", {
+  d <- data.frame(a = c(1, NA, 3), b = c(NA, 2, NA), c = 1:3)
+  fn <- plt_na
+  env <- new.env(parent = environment(fn))
+  env[["[<-"]] <- function(x, i, ..., value) {
+    if (identical(substitute(i), quote(is.na(mapped))) && !any(i))
+      stop("copied an empty label fallback")
+    base::"[<-"(x, i, ..., value = value)
+  }
+  environment(fn) <- env
+  for (map in list(c(a = "Alpha", b = "Beta"), c(a = "Alpha"))) {
+    expected <- suppressMessages(plt_na(d, name.map = map, output = "percentage"))
+    actual <- suppressMessages(fn(d, name.map = map, output = "percentage"))
+    expect_identical(actual$data, expected$data)
+    expect_identical(actual$scales$get_scales("y")$labels, expected$scales$get_scales("y")$labels)
+  }
+})

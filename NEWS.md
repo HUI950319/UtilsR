@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` resolves the fallback label indices once and retains complete label maps directly.
+
 * `plt_na(output = "matrix")` assembles missingness directly from the logical column masks.
 
 * Set plots reuse the distinct observed values when selecting a fallback positive category.

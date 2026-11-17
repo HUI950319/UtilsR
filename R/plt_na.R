@@ -145,7 +145,8 @@ plt_na <- function(
       return(x)
     }
     mapped <- unname(name.map[x])
-    mapped[is.na(mapped)] <- x[is.na(mapped)]
+    missing <- which(is.na(mapped))
+    if (length(missing)) mapped[missing] <- x[missing]
     mapped
   }
 
