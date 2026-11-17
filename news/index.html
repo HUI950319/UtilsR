@@ -50,7 +50,107 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids constructing a replacement mask when all star inputs have values.</p></li>
+<ul><li><p>Gtable panel bounds use one compact position vector across row and column extent calculations.</p></li>
+<li><p>Console text conversion reuses its missing-row positions and leaves complete classed labels intact.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> shares its preflight completeness result for predictor columns that keep their missingness during normalization.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> detects multiple fill categories per heatmap cell through the existing typed row grouping library.</p></li>
+<li><p>Continuous dot layouts only clone scales that need a change to their shared size limits.</p></li>
+<li><p>Console key-value output aligns and styles its keys in one batch while retaining wrapped value layout.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> reads endpoints and colours directly from its prepared sector positions.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> uses the shared exact numeric factor conversion for ordinary numeric axes.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> isolates decimal threshold tie checks to the rows that need exact comparison.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> counts TRUE and FALSE directly in ordinary logical frequency lists and retains missing rows.</p></li>
+<li><p>Sparse factor recoding uses the observation codes already captured by the tally.</p></li>
+<li><p>Console P-value styling finds bound operators only on valid numeric tokens that have an operator.</p></li>
+<li><p>Point shapes retain unchanged entries and reuse the row selection for converted codes.</p></li>
+<li><p>Console wrapping measures the returned lines together and splits only lines that exceed the display width.</p></li>
+<li><p>Continuous bar ranges split complete factor groups directly and only retain occupied partitions.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> skips an additional finiteness pass for integer cut points after ruling out missing values.</p></li>
+<li><p>Factor helpers derive the observed FALSE and TRUE levels directly and preserve missing positions and observation names.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> assigns label factor codes from its ordering indices while retaining original variable names.</p></li>
+<li><p>Sankey stages reuse complete factor codes in either level order.</p></li>
+<li><p>Wide butterfly preparation keeps ordinary factor codes while preserving first-observation category order.</p></li>
+<li><p>Set membership encoding assigns the first bit directly and skips empty set updates.</p></li>
+<li><p>Discrete palette mapping keeps plain observed character labels without an extra character conversion.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> reuses globally observed levels for a single panel and drops local unused levels after splitting.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> derives plain group keys from existing sector codes and preserves typed time-group handling.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> assigns method values to prepared row positions without rematching complete output sequences.</p></li>
+<li><p>Categorical area labels use one range calculation for left and right alignment.</p></li>
+<li><p><code>stat_ci_parse(output = "p_star")</code> formats the prepared P-values directly with missing inputs preserved.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> passes complete observations directly to its precision check and shares filtered values with the formatter.</p></li>
+<li><p>Continuous comparison brackets keep all annotation rows when the precomputed labels are complete.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> prepares typed summary table inputs in one column pass while preserving missing, clock and calendar handling.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> uses the same grouping pass to obtain ordinary category names and row positions.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> trusts the current environment listing for default and pattern selections without rematching every name.</p></li>
+<li><p>Panel rasterization reuses established child order and retains name lookup for reordered grobs.</p></li>
+<li><p>Sankey expansion marks only terminal successor positions instead of building a logical mask over every path row.</p></li>
+<li><p>Continuous dot plot ordering derives first-observation group ranks in one pass over ordinary numeric and character columns.</p></li>
+<li><p>CI scale classification materializes each rounding-unit column once and reuses it for repeated-row probes.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> resolves character shape names from the first observed entry and retains complete missing or unconverted shapes.</p></li>
+<li><p>Factor recoding checks bounds directly for ordinary indices and collects invalid positions only on failure.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> reports when interpolating opposite infinities produces undefined quantile cut points.</p></li>
+<li><p>Complete discrete palette previews retain all colours and names without an index slice.</p></li>
+<li><p>Palette previews build one name flag vector and skip replacing labels when every colour is unnamed.</p></li>
+<li><p>Palette catalogue preview callbacks match hex codes without storing and stripping their CSS prefixes.</p></li>
+<li><p>Sparse grouped category percentages use existing group positions to calculate denominators.</p></li>
+<li><p>Categorical UpSet plots use integer membership codes for up to 31 sets and retain wider-set support.</p></li>
+<li><p>Categorical background bands use prepared level positions to retain axis order and coded missing labels.</p></li>
+<li><p>Dodged rose plots find the outer label radius from complete group observations without a grouped maximum table.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> counts distinct nonempty intersections from compact row codes.</p></li>
+<li><p>Grouped <code><a href="../reference/lv.html">lv()</a></code> reuses distinct ordinary keys across the level limit and reported group count.</p></li>
+<li><p>Console P-value cells skip decimal parsing when none of their entries can carry significance styling.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> keeps complete finite numeric series without slicing or coercing their values again.</p></li>
+<li><p>Axis guides reuse trained character labels during named-colour checks.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> uses recycled labels directly when the facet keys occur once and retains the lookup for repeated keys.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> checks global test panel variation without building a vector of distinct outcomes.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> uses a single conversion of numeric group pairs for both validation and statistical prechecks.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> preserves the existing observation order when preparing an ordinary factor axis.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> reports a missing wing group before widening or constructing its mirrored layers.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> checks exact double limits from integer64 extrema before converting donor values.</p></li>
+<li><p>Stacked <code><a href="../reference/plt_dist.html">plt_dist()</a></code> labels reuse complete count and proportion columns when the threshold shows every segment.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> fills ranks for ordinary singleton observations together and preserves missing scores.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> extracts row and column indices directly from sparse intersection keys.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> creates alternating real and gap group levels directly and keeps the same stratum order.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> retains existing ordinal codes for complete observed factor levels.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> identifies explicit missing factor levels from codes without expanding observations to labels.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> inspects special-value labels only where it can highlight a category level in the report.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> uses the existing row positions when every complete encoded combination is distinct.</p></li>
+<li><p>The shared butterfly and scatter label helper returns ordinary integer values directly because decimal integer labels are distinct.</p></li>
+<li><p>Scatter grouping uses the already distinct default numeric group values to prepare exact labels.</p></li>
+<li><p><code>check_na(special = character())</code> skips full missingness masks for ordinary complete factors.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> assigns rows to shading bands in one threshold lookup per percentage vector with the same closed upper boundaries.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> compares changed position-scale members without evaluating unrelated lazy scale fields.</p></li>
+<li><p>Palette previews with wholly translucent colours skip the opaque-colour replacement.</p></li>
+<li><p>Palette opacity processing only expands deduplicated values where the full palette has enough repeated colours.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> finds min-max bounds directly for complete ordinary scores.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> uses centered score extrema to determine scaling magnitudes.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> preserves its complete label-layer data when every caption meets the selection threshold.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> reuses its selected columns for validation and dependency checks.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> reuses full-length plain vectors for comparison layouts with per-bracket settings.</p></li>
+<li><p><code>grob_insert(on_top = FALSE)</code> layers an inset between its background and foreground when those layers share positive infinite z-order.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> resolves the fallback label indices once and retains complete label maps directly.</p></li>
+<li><p><code>plt_na(output = "matrix")</code> assembles missingness directly from the logical column masks.</p></li>
+<li><p>Set plots reuse the distinct observed values when selecting a fallback positive category.</p></li>
+<li><p>Viridis previews select the required RGB samples directly from the upstream channel columns.</p></li>
+<li><p>Palette placement reuses its existing lookup when normalization leaves repeated coordinate keys distinct.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> reuses contiguous panel codes when partitioning histogram rows in build order.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> skips row copies when all displayed background stripe positions are finite.</p></li>
+<li><p>Axis tiles reuse fully visible bounds and filter partially clipped tile vectors once.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> reuses its explicit grouping decision without inspecting mapped aesthetics for automatic dodge.</p></li>
+<li><p>The palette catalogue builds swatch group codes directly from each palette’s size.</p></li>
+<li><p>Confidence interval precision scans extract exponent text only from scientific notation.</p></li>
+<li><p>Confidence interval parsing extracts annotation text only after a nonterminal closing bracket.</p></li>
+<li><p>Confidence interval parsing revisits suffix whitespace only on rows ending with a dot.</p></li>
+<li><p>P-value validation compares the extrema of ordinary numeric inputs instead of allocating several row masks.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> reuses complete finite columns when choosing display precision.</p></li>
+<li><p>Custom quality markers match the first pattern on the supplied values and narrow subsequent searches.</p></li>
+<li><p>Integer64 endpoint subtraction returns an already complete result before allocating overflow masks.</p></li>
+<li><p>Continuous test preparation gets finite bounds without copying ordinary outcomes.</p></li>
+<li><p>Time-category matching formats repeated scalar time values once per distinct value.</p></li>
+<li><p><code>plt_cat(type = "rose")</code> prepares label paths together from existing level indices.</p></li>
+<li><p>Categorical set membership treats uncoded NA as absent using matched factor codes.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> reuses codes for fully observed factor levels and keeps their observation names.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids constructing a replacement mask when all star inputs have values.</p></li>
 <li><p>Console table gradients use all rows directly for ordinary integer columns.</p></li>
 <li><p>Grouped continuous bar limits combine their intervals with the raw range without copying all raw values.</p></li>
 <li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> creates grid dictionaries without converting every ordinary factor row to text.</p></li>
