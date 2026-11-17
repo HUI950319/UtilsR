@@ -982,3 +982,23 @@ test_that("complete integer64 differences need no overflow mask", {
   environment(fn) <- env
   expect_identical(fn(x, y), bit64::as.integer64(c(1L, 3L, 2L)))
 })
+
+test_that("dumbbell factor axes reuse their category codes in sorted row order", {
+  d <- data.frame(start = 6:1, end = c(8, 9, 7, 6, 6, 2),
+    category = ordered(c("B", "A", "B", NA, "A", "B"), levels = c("A", "unused", "B")))
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(categories)) && is.factor(x))
+      stop("converted full dumbbell factor categories")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d))))
+    p$data$category
+  }
+  expect_identical(draw(fn), draw(PlotDumbbell))
+  expect_true(is.ordered(draw(fn)))
+})

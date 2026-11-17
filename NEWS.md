@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` preserves the existing observation order when preparing an ordinary factor axis.
+
 * `PlotButterfly2()` reports a missing wing group before widening or constructing its mirrored layers.
 
 * `impute_na_knn()` checks exact double limits from integer64 extrema before converting donor values.

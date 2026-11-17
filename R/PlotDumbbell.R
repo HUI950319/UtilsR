@@ -335,7 +335,16 @@ PlotDumbbell <- function(
   if (y_col %in% endpoint_cols) {
     y_col <- utils::tail(make.unique(c(names(data), ".category")), 1L)
   }
-  data[[y_col]] <- factor(categories, levels = unique(categories))
+  if (identical(class(categories), "factor") || identical(class(categories), c("ordered", "factor"))) {
+    codes <- as.integer(categories)
+    observed <- unique(codes)
+    observed <- observed[!is.na(observed)]
+    updated <- match(codes, observed)
+    names(updated) <- names(categories)
+    data[[y_col]] <- structure(updated, levels = levels(categories)[observed], class = class(categories))
+  } else {
+    data[[y_col]] <- factor(categories, levels = unique(categories))
+  }
 
   # Draw mixed endpoints on one numeric scale while retaining the input and exact deltas.
   mean_cols <- c(x_col, xend_col)
