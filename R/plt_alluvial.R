@@ -519,10 +519,10 @@ plt_alluvial <- function(
   }
 
   stat$.label <- NA_character_
-  show_label <- stat$count > 0 &
-    stat$percent >= label_args$min_pct &
-    label_args$style != "none"
-  if (any(show_label)) {
+  show_label <- if (label_args$style != "none") {
+    which(stat$count > 0 & stat$percent >= label_args$min_pct)
+  }
+  if (length(show_label)) {
     style <- label_args$style
     group_name <- as.character(stat$.group[show_label])
     if (style %in% c("count_percent", "count_percent_wrap", "count")) {

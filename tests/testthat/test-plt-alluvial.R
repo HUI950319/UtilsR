@@ -1242,3 +1242,20 @@ test_that("complete alluvial columns skip missingness masks", {
   environment(fn) <- env
   expect_identical(suppressMessages(fn(d, "x", "g"))$data, expected)
 })
+
+test_that("unlabelled alluvial plots skip selecting label rows", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(cat = rep(c("a", "b"), each = 6L), group = rep(c("x", "y"), 6L))
+  args <- list(data = d, cat_var = "cat", group = "group", label_args = list(style = "none"))
+  expected <- suppressMessages(do.call(plt_alluvial, args))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env[["&"]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(stat$count > 0))) stop("selected rows for disabled alluvial labels")
+    base::"&"(e1, e2)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual$data, expected$data)
+  expect_length(actual$layers, length(expected$layers))
+})

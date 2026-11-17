@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` skips label eligibility calculations for `label_args$style = "none"`.
+
 * `plt_dist(type = "alluvial")` handles actual and coded missing factor values without decoding every row.
 
 * `fmt_com()` decodes only distinct observed group codes during comparison preparation.
