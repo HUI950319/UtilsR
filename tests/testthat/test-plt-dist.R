@@ -909,3 +909,21 @@ test_that("distribution time labels format representatives before collision chec
   result <- fn(d, c("a", "b"), type = "bar")
   expect_identical(result$data, expected$data)
 })
+
+test_that("distribution explicit facet layouts skip counting facet values", {
+  d <- data.frame(x = rep(c("a", "b"), 8L), y = rep(c("m", "m", "n", "n"), 4L),
+    facet = rep(LETTERS[1:4], each = 4L))
+  args <- list(data = d, dis_vars = c("x", "y"), type = "bar",
+    facet = "facet", facet_args = list(ncol = 2L))
+  expected <- suppressMessages(do.call(plt_dist, args))
+  fn <- plt_dist
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(substitute(x), quote(plotdata[[facet]]))) stop("counted facet values for an explicit grid")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual$data, expected$data)
+  expect_identical(actual$facet$params$ncol, expected$facet$params$ncol)
+})

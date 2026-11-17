@@ -608,11 +608,10 @@ plt_dist <- function(data,
     }
 
     if (!is.null(facet)) {
-      n_facet <- length(unique(plotdata[[facet]]))
       p <- p + ggplot2::facet_wrap(
         ggplot2::vars(!!rlang::sym(facet)),
         nrow = facet_args$nrow %||%
-          (if (is.null(facet_args$ncol)) ceiling(n_facet / 3)),
+          (if (is.null(facet_args$ncol)) ceiling(length(unique(plotdata[[facet]])) / 3)),
         ncol = facet_args$ncol,
         scales = facet_args$scales
       )
