@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` checks exact double limits from integer64 extrema before converting donor values.
+
 * Stacked `plt_dist()` labels reuse complete count and proportion columns when the threshold shows every segment.
 
 * `PlotRankCor()` fills ranks for ordinary singleton observations together and preserves missing scores.

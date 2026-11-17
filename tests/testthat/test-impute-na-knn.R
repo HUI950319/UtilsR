@@ -886,3 +886,21 @@ test_that("explicit missing KNN factor restoration reuses backend codes", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
 })
+
+test_that("KNN integer64 preflight reads extrema while enforcing both precision limits", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("bit64")
+  d <- data.frame(score = c(1, NA, 3, 4), id = bit64::as.integer64(c(-3, 2, 4, 6)))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env[["|"]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(x > limit))) stop("allocated both integer64 precision masks")
+    base::"|"(e1, e2)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+  for (value in c("9007199254740993", "-9007199254740993")) {
+    d$id[1L] <- bit64::as.integer64(value)
+    expect_error(fn(d, k = 1L, verbose = FALSE), "exact double precision")
+  }
+})
