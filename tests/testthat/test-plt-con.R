@@ -2205,3 +2205,20 @@ test_that("shared continuous ranges reuse complete transformed values", {
   missing <- .con_shared_range(c(1, NA_real_, 4), NULL, 0L, FALSE)
   expect_identical(missing(scale), list(data = c(1, 4), limits = c(1, 4)))
 })
+
+test_that("reference comparisons skip tallies for unused factor groups", {
+  d <- data.frame(group = factor(rep(c("B", "A"), each = 5L),
+    levels = c("A", "B", paste0("unused", seq_len(1000L)))),
+    y = c(1, 2, 3, 4, 5, 3, 5, 6, 7, 8))
+  args <- list(data = d, stat.by = "y", group.by = "group", ref_group = "A", force = TRUE, palette = "lancet", pairwise_method = "t.test")
+  expected <- suppressMessages(do.call(plt_con, args))
+  fn <- plt_con
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins, ...) {
+    if (nbins > 1000L) stop("tallied all declared reference group levels")
+    base::tabulate(bin, nbins, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual$data, expected$data)
+})

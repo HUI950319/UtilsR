@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con(ref_group = ...)` finds observed reference-comparison groups with sparse factor tallies.
+
 * `stat_ci_parse()` uses a scalar working scale for ordinary confidence intervals.
 
 * `stat_ci_parse()` limits asymmetric standard-error calculations to the affected intervals.
