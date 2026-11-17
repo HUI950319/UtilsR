@@ -558,7 +558,10 @@ PlotScatter1 <- function(
   if (!is.object(value) && !is.object(levels) &&
       typeof(value) %in% c("character", "integer", "logical") &&
       identical(typeof(value), typeof(levels))) {
-    return(factor(value, levels = levels))
+    if (anyNA(levels) || anyDuplicated(levels)) return(factor(value, levels = levels))
+    codes <- match(value, levels)
+    names(codes) <- names(value)
+    return(structure(codes, levels = as.character(levels), class = "factor"))
   }
   if (!is.object(value) && !is.object(levels) && is.numeric(value) && is.numeric(levels) &&
       !is.complex(value) && !is.complex(levels)) {
@@ -570,9 +573,10 @@ PlotScatter1 <- function(
     level_labels <- labels[length(observed) + seq_along(levels)]
     if (!anyDuplicated(level_labels)) {
       codes <- match(value, levels)
-      names(codes) <- names(value)
       kept <- !is.na(level_labels)
-      return(factor(codes, levels = seq_along(levels)[kept], labels = level_labels[kept]))
+      if (!all(kept)) codes <- match(codes, which(kept))
+      names(codes) <- names(value)
+      return(structure(codes, levels = level_labels[kept], class = "factor"))
     }
   }
   if (inherits(value, "haven_labelled_spss")) value <- .scatter_axis_values(value)

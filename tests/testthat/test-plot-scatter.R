@@ -1835,3 +1835,22 @@ test_that("scatter group inference reuses complete ordinary values", {
   result <- fn(d, x = "x", y = "y", group = "group", test_method = "none", cor_method = "none")
   expect_identical(result$data, expected$data)
 })
+
+test_that("scatter group matching constructs factors from existing positions", {
+  fn <- .scatter_group_factor
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (length(x) > 10L) stop("rebuilt already matched scatter categories")
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  inputs <- list(
+    list(x = rep(c("a", "c", NA_character_, "b"), 30L), levels = c("c", "b", "a")),
+    list(x = rep(c(1L, NA, 3L, 9L), 30L), levels = c(3L, 1L)),
+    list(x = rep(c(2.1, 3.1, NA, NaN), 30L), levels = c(NA_real_, 3.1, 2.1, NaN))
+  )
+  for (input in inputs) {
+    names(input$x) <- as.character(seq_along(input$x))
+    expect_identical(fn(input$x, input$levels), .scatter_group_factor(input$x, input$levels))
+  }
+})

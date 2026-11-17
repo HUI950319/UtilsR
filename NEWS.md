@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter group preparation reuses the matched positions for ordinary input and level vectors.
+
 * `fct_to_combine()` keeps the existing codes when every factor level is observed.
 
 * `fmt_raster()` checks for empty grobs only in panel cells.
