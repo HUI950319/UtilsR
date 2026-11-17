@@ -770,8 +770,11 @@ show_color <- function(x, rev = FALSE) {
   lookup <- NULL
   colours <- x
   if (length(x) > 1024L && .pal_use_unique(x)) {
-    colours <- unique(x)
-    lookup <- match(x, colours)
+    distinct <- unique(x)
+    if (length(distinct) < length(x) / 2) {
+      colours <- distinct
+      lookup <- match(x, colours)
+    }
   }
   bad_encoding <- !validEnc(colours) | Encoding(colours) == "bytes"
   numeric_index <- rep(FALSE, length(colours))

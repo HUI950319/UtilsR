@@ -1393,3 +1393,18 @@ test_that("console swatches print rows without splitting the styled vector", {
   expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
   expect_identical(capture.output(fn(character())), capture.output(show_color(character())))
 })
+
+test_that("console color previews avoid mostly unique row lookups", {
+  withr::local_options(cli.num_colors = 1L)
+  x <- sprintf("#%06X", seq_len(3300L))
+  x[round(seq.int(1, length(x), length.out = 1024L))] <- "red"
+  expected <- capture.output(show_color(x))
+  fn <- show_color
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(table) > 1600L) stop("matched mostly unique console colors")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(x)), expected)
+})
