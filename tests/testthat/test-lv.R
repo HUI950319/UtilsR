@@ -1732,3 +1732,20 @@ test_that("grouped inspection reuses distinct ordinary group keys", {
   expect_identical(lapply(actual, function(x) x$table_body), lapply(expected, function(x) x$table_body))
   expect_identical(keys, 1L)
 })
+
+test_that("inspection table inputs normalize mixed columns with one pass", {
+  d <- data.frame(cat = c("", "value", NA), missing = rep(NA_character_, 3L),
+    date = as.Date("2020-01-01") + c(0, NA, 1),
+    span = as.difftime(c(0, 1, NA), units = "days"), score = c(1 + 1i, NA, 2 + 1i))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(X, FUN, ...) {
+    if (identical(substitute(X), quote(df)) && is.data.frame(X)) {
+      stop("rescanned the report frame during table preparation")
+    }
+    base::vapply(X, FUN, ...)
+  }
+  environment(fn) <- env
+  extract <- function(tables) lapply(tables, function(x) if (inherits(x, "gt_tbl")) x[["_data"]] else x$table_body)
+  expect_identical(extract(capture_reports(fn(d))), extract(capture_reports(lv(d))))
+})

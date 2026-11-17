@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` prepares typed summary table inputs in one column pass while preserving missing, clock and calendar handling.
+
 * `PlotRank()` uses the same grouping pass to obtain ordinary category names and row positions.
 
 * `check_size()` trusts the current environment listing for default and pattern selections without rematching every name.

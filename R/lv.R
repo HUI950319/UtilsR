@@ -744,21 +744,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # (and rejects a level-less factor); a missing logical reports the same
   # missing count. Time spans are summarized as numbers in their own units.
   .tbl_input <- function(df) {
-    df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
-    empty_values <- vapply(df, function(x) {
-      (is.character(x) || is.complex(x) || inherits(x, c("Date", "POSIXt")) ||
-       (is.factor(x) && nlevels(x) == 0L)) && all(is.na(x))
-    }, logical(1))
-    df[empty_values] <- lapply(df[empty_values], function(x) rep(NA, length(x)))
-    spans <- vapply(df, inherits, logical(1), what = "difftime")
-    df[spans] <- lapply(df[spans], as.numeric)
-    lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
-    df[lt] <- lapply(df[lt], as.POSIXct)
-    complex <- vapply(df, is.complex, logical(1))
-    df[complex] <- lapply(df[complex], function(x) {
-      factor(.distinct_labels(x), levels = .distinct_labels(.get_levels(x)))
+    df[] <- lapply(df, function(x) {
+      x <- .label_na_level(.spss_missing_to_na(x))
+      if ((is.character(x) || is.complex(x) || inherits(x, c("Date", "POSIXt")) ||
+           (is.factor(x) && nlevels(x) == 0L)) && all(is.na(x))) {
+        return(rep(NA, length(x)))
+      }
+      if (inherits(x, "difftime")) x <- as.numeric(x)
+      if (inherits(x, "POSIXlt")) x <- as.POSIXct(x)
+      if (is.complex(x)) x <- factor(.distinct_labels(x), levels = .distinct_labels(.get_levels(x)))
+      .label_blank(x)
     })
-    df[] <- lapply(df, .label_blank)
     df
   }
 
