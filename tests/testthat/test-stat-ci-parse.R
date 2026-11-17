@@ -1020,3 +1020,17 @@ test_that("CI suffix rechecks only text with a terminal dot", {
   environment(fn) <- env
   expect_identical(fn(ci), .ci_extract(ci))
 })
+
+test_that("CI parser skips extracting absent trailing text", {
+  ci <- c(rep("2 (1, 3)", 100L), "2 (1, 3) extra", "\u22122 [\u22123, \u22121]", "bad", NA)
+  expected <- .ci_extract(ci)
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  env$substring <- function(text, first, last = 1000000L) {
+    if (missing(last) && length(text) > 1L) stop("extracted an empty suffix for complete intervals")
+    base::substring(text, first, last)
+  }
+  environment(fn) <- env
+  expect_identical(fn(ci), expected)
+  expect_identical(which(expected$trailing), 101L)
+})

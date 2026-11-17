@@ -408,7 +408,7 @@ stat_ci_parse <- function(x,
   if (length(dots)) xs[dots] <- sub(suffix, "", sub("\\.$", "", xs[dots]), perl = TRUE)
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
-  # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
+  # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close
   num <- "([-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][-+]?\\d+)?)"
   re <- paste0("^", num, space, "*([[(])", space, "*", num,
                "(", space, "*[,;~\u2013\u2014-]", space, "*|",
@@ -427,7 +427,11 @@ stat_ci_parse <- function(x,
     first <- starts[hit, k]
     substring(text, first, first + lengths[hit, k] - 1L)
   })
-  g[[7L]] <- substring(text, matched[hit] + attr(matched, "match.length")[hit])
+  end <- matched[hit] + attr(matched, "match.length")[hit]
+  extra <- which(end <= nchar(text))
+  has_trailing <- logical(length(hit))
+  if (length(extra)) has_trailing[extra] <- grepl("[^\\h\\v]",
+    substring(text[extra], end[extra]), perl = TRUE)
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
   ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
     Reduce(`&`, lapply(values, is.finite))
@@ -435,6 +439,7 @@ stat_ci_parse <- function(x,
     hit <- hit[ok]
     g <- lapply(g, "[", ok)
     values <- lapply(values, "[", ok)
+    has_trailing <- has_trailing[ok]
   }
 
   est[hit] <- values[[1]]; lo[hit] <- values[[2]]
@@ -452,7 +457,7 @@ stat_ci_parse <- function(x,
   unit[hit, ] <- 10^-do.call(cbind, dec)
 
   trailing <- logical(n)
-  trailing[hit] <- grepl("[^\\h\\v]", g[[7L]], perl = TRUE)
+  trailing[hit] <- has_trailing
   list(estimate = est, lower = lo, upper = hi, digits = d,
        open = open, sep = sep, close = close, valid = !is.na(open),
        unit = unit, trailing = trailing)

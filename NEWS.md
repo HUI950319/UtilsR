@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval parsing extracts annotation text only after a nonterminal closing bracket.
+
 * Confidence interval parsing revisits suffix whitespace only on rows ending with a dot.
 
 * P-value validation compares the extrema of ordinary numeric inputs instead of allocating several row masks.
