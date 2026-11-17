@@ -3855,11 +3855,13 @@ fmt_axisTile <- function(plot,
       key <- parent$extract_key(scale, aesthetic, ...)
       if (!scale$is_discrete()) return(key)
       values <- scale$get_limits()
-      if (!warned && settings$check_names && length(values) &&
-          !any(names(settings$colors) %in% as.character(values))) {
-        warned <<- TRUE
-        cli::cli_warn(c("No names in {.arg colors} match the {settings$axis}-axis values.",
-                        i = "Axis values: {.val {as.character(values)}}."))
+      if (!warned && settings$check_names && length(values)) {
+        labels <- if (is.character(values) && !is.object(values)) values else as.character(values)
+        if (!any(names(settings$colors) %in% labels)) {
+          warned <<- TRUE
+          cli::cli_warn(c("No names in {.arg colors} match the {settings$axis}-axis values.",
+                          i = "Axis values: {.val {labels}}."))
+        }
       }
       if (settings$mode == "text" || !length(values)) return(key)
       positions <- scale$map(values)

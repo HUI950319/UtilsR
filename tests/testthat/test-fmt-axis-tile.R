@@ -643,3 +643,22 @@ test_that("complete axis tiles reuse their unfiltered bounds and labels", {
     expect_identical(actual$gp, expected$gp)
   }
 })
+
+test_that("axis coverage checks use trained plain character labels", {
+  parent <- ggplot2::ggproto(NULL, ggplot2::GuideAxis)
+  fn <- .axis_tile_guide
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (is.character(x) && length(x) > 1L) stop("converted complete plain axis labels again")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  scale <- ggplot2::scale_x_discrete()
+  scale$train(letters[1:15])
+  settings <- list(mode = "tile", colors = stats::setNames(rep("red", 15L), letters[1:15]),
+    check_names = TRUE, axis = "x")
+  expect_identical(fn(parent, settings)$extract_key(scale, "x"),
+    .axis_tile_guide(parent, settings)$extract_key(scale, "x"))
+  settings$colors <- c(unobserved = "red")
+  expect_warning(fn(parent, settings)$extract_key(scale, "x"), "match no|No names")
+})
