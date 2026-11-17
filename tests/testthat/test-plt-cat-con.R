@@ -1875,3 +1875,14 @@ test_that("ordinary chord frequencies use the prepared factor positions", {
   invisible(fn(d, names(d), cols))
   expect_identical(output, expected)
 })
+
+test_that("categorical factor drops preserve named observations", {
+  value <- stats::setNames(ordered(c("b", "a", NA), levels = c("b", "a")), letters[1:3])
+  fn <- .cat_axis_factor
+  env <- new.env(parent = environment(fn))
+  env$match <- function(...) stop("matched every observed factor code")
+  environment(fn) <- env
+  expect_identical(fn(value), droplevels(value))
+  sparse <- stats::setNames(factor(c("b", "a", NA), levels = c("b", "unused", "a")), letters[1:3])
+  expect_identical(.cat_axis_factor(sparse), droplevels(sparse))
+})

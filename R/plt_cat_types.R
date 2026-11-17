@@ -33,8 +33,11 @@
       !anyNA(levels(value))) {
     tally <- .factor_tally(value)
     observed <- tally$codes
-    return(structure(match(tally$row_codes, observed),
-      levels = levels(value)[observed], class = class(value)))
+    labels <- levels(value)
+    codes <- if (length(observed) == length(labels)) tally$row_codes else
+      match(tally$row_codes, observed)
+    names(codes) <- names(value)
+    return(structure(codes, levels = labels[observed], class = class(value)))
   }
   factor(value)
 }

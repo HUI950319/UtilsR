@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` reuses codes for fully observed factor levels and keeps their observation names.
+
 * `stat_pval()` avoids constructing a replacement mask when all star inputs have values.
 
 * Console table gradients use all rows directly for ordinary integer columns.
