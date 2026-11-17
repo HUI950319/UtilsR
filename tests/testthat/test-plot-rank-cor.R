@@ -1241,3 +1241,24 @@ test_that("singleton rank groups fill observed and missing ranks together", {
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("rank method columns fill their positioned pairs directly", {
+  d <- data.frame(item = c(letters[1:12], letters[3:14]), method = rep(c("A", "B"), each = 12L),
+    score = c(1:12, 11:22))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(table), quote(pair_id[rows]))) stop("rematched positioned rank score pairs")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d, "item", "score", method.by = "method",
+      show.label = FALSE, use_rank = FALSE))))
+    p$data
+  }
+  out <- draw(fn)
+  expect_identical(out, draw(PlotRankCor))
+  expect_identical(unname(out$A), c(as.double(1:12), NA_real_, NA_real_))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` assigns method values to prepared row positions without rematching complete output sequences.
+
 * Categorical area labels use one range calculation for left and right alignment.
 
 * `stat_ci_parse(output = "p_star")` formats the prepared P-values directly with missing inputs preserved.

@@ -403,8 +403,9 @@ PlotRankCor <- function(
   rank_wide <- pivot_data[!duplicated(pair_id), id_cols, drop = FALSE]
   for (i in seq_along(methods)) {
     rows <- which(pivot_data[[method.by_internal]] == i)
-    rank_wide[[method_cols[i]]] <- pivot_data[[plot_value]][rows][
-      match(seq_len(nrow(rank_wide)), pair_id[rows])]
+    column <- rep(NA_real_, nrow(rank_wide))
+    column[pair_id[rows]] <- pivot_data[[plot_value]][rows]
+    rank_wide[[method_cols[i]]] <- column
   }
 
   # Merge extra columns back into rank_wide
