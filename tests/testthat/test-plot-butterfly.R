@@ -1302,3 +1302,20 @@ test_that("butterfly filtering does not expand complete ordinary factor categori
   expect_identical(actual[[1L]]$data, expected[[1L]]$data)
   expect_identical(actual[[2L]]$data, expected[[2L]]$data)
 })
+
+test_that("butterfly distribution tibble coercion keeps selected columns only", {
+  d <- tibble::tibble(cat = rep(c("a", "b"), 8L), group = rep(c("L", "R"), each = 8L), score = 1:16,
+    extra = rep(list(list(payload = seq_len(100L))), 16L))
+  args <- list(data = d, stat.by = "cat", value.by = "score", group.by = "group", type = "box")
+  expected <- suppressMessages(do.call(PlotButterfly2, args))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "tbl_df") && "extra" %in% names(x)) stop("copied irrelevant butterfly tibble columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(actual[[1L]]$data, expected[[1L]]$data)
+  expect_identical(actual[[2L]]$data, expected[[2L]]$data)
+})

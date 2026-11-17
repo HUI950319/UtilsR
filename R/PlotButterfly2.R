@@ -202,6 +202,8 @@ PlotButterfly2 <- function(
   data <- if (inherits(data, "data.table")) {
     vctrs::new_data_frame(stats::setNames(lapply(columns, function(nm) data[[nm]]), columns),
                           n = nrow(data))
+  } else if (identical(class(data), c("tbl_df", "tbl", "data.frame"))) {
+    as.data.frame(data[columns])
   } else {
     as.data.frame(data)[, columns, drop = FALSE]
   }
