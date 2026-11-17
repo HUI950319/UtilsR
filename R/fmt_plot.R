@@ -5798,10 +5798,9 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
         fields <- .update_position_scale(scale, args, axis, .detect_scale_type(p, axis),
                                           fields_only = TRUE)
         # Callable ggproto members are wrapped on direct access.
-        original_fields <- if (any(vapply(fields, is.function, logical(1))))
-          as.list(scale, all.names = TRUE)
         same <- vapply(names(fields), function(field) {
-          original <- if (is.null(original_fields)) scale[[field]] else original_fields[[field]]
+          original <- scale[[field]]
+          if (inherits(original, "ggproto_method")) original <- environment(original)$f
           identical(original, fields[[field]])
         }, logical(1))
         changed <- names(fields)[!same]

@@ -596,3 +596,16 @@ test_that("position scale field extraction does not enumerate the prototype", {
   expect_identical(result$breaks(c(1, 3)), expected$breaks(c(1, 3)))
   expect_identical(result$labels(2:3), c("x2", "x3"))
 })
+
+test_that("scale callback replacement leaves unrelated lazy bindings untouched", {
+  label <- function(x) paste0("old", x)
+  next_label <- function(x) paste0("new", x)
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
+    ggplot2::geom_point() + ggplot2::scale_x_continuous(labels = label)
+  scale <- p$scales$get_scales("x")
+  delayedAssign("unrelated", stop("forced an unrelated scale binding"), assign.env = scale)
+  expect_identical(fmt_scale(p, x = list(labels = label)), p)
+  changed <- fmt_scale(p, x = list(labels = next_label))
+  expect_identical(changed$scales$get_scales("x")$labels(c(1, 2)), c("new1", "new2"))
+  expect_identical(scale$labels(c(1, 2)), c("old1", "old2"))
+})
