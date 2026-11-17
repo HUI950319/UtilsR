@@ -2016,3 +2016,14 @@ test_that("console trimming measures distinct repeated ASCII labels", {
   }, .package = "cli")
   expect_identical(._pr_trim(text, 12), expected)
 })
+
+test_that("console table reuses widths of columns that fit", {
+  withr::local_options(cli.num_colors = 256L)
+  d <- data.frame(group = c("\u5de6", "B", NA), estimate = c(1, 2, 3))
+  expected <- capture.output(pr_table(d, width = 60L))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$._pr_trim <- function(...) stop("measured an already fitting column")
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d, width = 60L)), expected)
+})

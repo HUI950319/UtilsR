@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` skips a second width measurement for columns that already fit.
+
 * `stat_ci_parse()` evaluates normal tails directly for complete valid interval vectors and skips empty underflow repairs.
 
 * KNN range checks use double endpoints to avoid overflow when subtracting ordinary integer extremes.

@@ -738,7 +738,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   cell_w <- vapply(cells, function(column) {
     max(c(0L, cli::ansi_nchar(column, type = "width")))
   }, numeric(1))
-  col_w <- pmax(cli::ansi_nchar(headers, type = "width"), cell_w)
+  measured_w <- pmax(cli::ansi_nchar(headers, type = "width"), cell_w)
+  col_w <- measured_w
   gap <- 2L
   if (length(keep) > 1L) gap <- min(gap, max(0L, floor((avail - length(keep)) / (length(keep) - 1L))))
   if (sum(col_w[keep]) + gap * (length(keep) - 1L) > avail) {
@@ -760,8 +761,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   fits <- cumsum(col_w[optional] + gap) <= remaining
   keep <- sort(c(keep, optional[fits]))
   aligned_cells <- lapply(keep, function(j) {
-    cli::ansi_align(._pr_trim(c(headers[j], cells[[j]]), col_w[j]),
-                    col_w[j], align[j])
+    text <- c(headers[j], cells[[j]])
+    if (col_w[j] < measured_w[j]) text <- ._pr_trim(text, col_w[j])
+    cli::ansi_align(text, col_w[j], align[j])
   })
   aligned_rows <- do.call(paste, c(aligned_cells, sep = strrep(" ", gap)))
 
