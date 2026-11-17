@@ -444,12 +444,17 @@ PlotHeatmapJaccard <- function(
 
   # ---- 7. Optional cell labels ----
   if (text_size > 0) {
+    format_scores <- function(values) {
+      distinct <- if (length(values) > 1024L && .pal_use_unique(values)) unique(values) else values
+      if (length(distinct) >= length(values) / 2) distinct <- values
+      labels <- sprintf("%.2f", distinct)
+      if (anyNA(distinct)) labels[is.na(distinct)] <- ""
+      if (length(distinct) < length(values)) labels[match(values, distinct)] else labels
+    }
+    environment(format_scores) <- environment(sys.function())
     p <- p +
       ggplot2::geom_text(
-        ggplot2::aes(
-          label = ifelse(is.na(.data[["Jaccard"]]), "",
-                         sprintf("%.2f", .data[["Jaccard"]]))
-        ),
+        ggplot2::aes(label = .env$format_scores(.data[["Jaccard"]])),
         size  = text_size,
         color = "black"
       )

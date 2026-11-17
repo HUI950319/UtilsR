@@ -1052,3 +1052,20 @@ test_that("Jaccard fallback matches shared feature codes instead of labels", {
   environment(fn) <- env
   expect_identical(fn(d, return_type = "data"), expected)
 })
+
+test_that("Jaccard text layers format repeated scores only once", {
+  groups <- sprintf("g%02d", seq_len(34L))
+  d <- data.frame(cell_type = rep(groups, each = 2L), gene = c(rbind("shared", groups)))
+  p <- PlotHeatmapJaccard(d, show_diag = FALSE, text_size = 2)
+  expected <- ggplot2::ggplot_build(p)$data[[2L]]$label
+  fn <- .build_jaccard_plot
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, x, ...) {
+    if (identical(fmt, "%.2f") && length(x) > 10L) stop("formatted all repeated Jaccard scores")
+    base::sprintf(fmt, x, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.build_jaccard_plot = fn)
+  p <- PlotHeatmapJaccard(d, show_diag = FALSE, text_size = 2)
+  expect_identical(ggplot2::ggplot_build(p)$data[[2L]]$label, expected)
+})
