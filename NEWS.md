@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` uses the same grouping pass to obtain ordinary category names and row positions.
+
 * `check_size()` trusts the current environment listing for default and pattern selections without rematching every name.
 
 * Panel rasterization reuses established child order and retains name lookup for reordered grobs.

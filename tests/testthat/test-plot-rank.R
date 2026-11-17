@@ -836,3 +836,16 @@ test_that("rank candidate cutoffs fall back after sampling misses", {
     expect_identical(unname(ranked$Score), unname(scores[index]))
   }
 })
+
+test_that("rank defaults obtain ordinary group keys and row positions together", {
+  d <- data.frame(group = rep(c("right", "left", ""), 60L),
+    name = paste0("Gene", 1:180), value = seq_len(180L))
+  fn <- .pr_parse
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(x, d$group)) stop("rescanned rank group labels before finding their rows")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, "group", "name", "value", NULL), .pr_parse(d, "group", "name", "value", NULL))
+})
