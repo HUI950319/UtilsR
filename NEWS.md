@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse factor recoding uses the observation codes already captured by the tally.
+
 * Console P-value styling finds bound operators only on valid numeric tokens that have an operator.
 
 * Point shapes retain unchanged entries and reuse the row selection for converted codes.

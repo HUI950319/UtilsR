@@ -947,3 +947,18 @@ test_that("logical factor conversion keeps boolean levels without distinct hashi
     expect_identical(fn(x), factor(x))
   }
 })
+
+test_that("sparse factor recoding reuses observation codes from its tally", {
+  x <- structure(c(a = 2L, b = 3L, c = NA_integer_, d = 2L), class = "factor",
+    levels = c("unused", "old", "keep", paste0("extra", seq_len(800L))))
+  fn <- .recode_factor
+  env <- new.env(parent = environment(fn))
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x)) stop("decoded sparse factor observations twice")
+    base::as.integer(x, ...)
+  }
+  environment(fn) <- env
+  out <- fn(x, list(new = 2L), checked_indices = TRUE)
+  expect_identical(as.character(out), c("new", "keep", NA, "new"))
+  expect_identical(names(out), names(x))
+})

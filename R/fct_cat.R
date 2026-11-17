@@ -258,14 +258,15 @@ fct_cat <- function(x, ...,
 
   mapped <- rep(names(newlevels), lengths(newlevels))
   if (length(lvls) > length(x)) {
-    observed <- .factor_tally(x)$codes
+    tally <- .factor_tally(x)
+    observed <- tally$codes
     groups <- match(observed, pos)
     recoded <- !is.na(groups)
     target <- lvls[observed]
     target[recoded] <- mapped[groups[recoded]]
     new_levels <- unique(c(mapped, unname(target[!recoded])))
     new_levels <- new_levels[new_levels %in% target]
-    out <- match(target, new_levels)[match(as.integer(x), observed)]
+    out <- match(target, new_levels)[match(tally$row_codes, observed)]
     attributes(out) <- .factor_attributes(x, new_levels,
       drop_scores = !identical(unname(lvls[pos]), mapped))
     return(out)
