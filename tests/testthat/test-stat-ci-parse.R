@@ -990,3 +990,17 @@ test_that("asymmetric confidence widths touch only affected intervals", {
   expect_warning(actual <- fn(input, output = "p", exp = FALSE), "not symmetric")
   expect_identical(actual, expected)
 })
+
+test_that("ordinary confidence intervals use a scalar working scale", {
+  input <- rep(c("0.2 (0.1, 0.3)", "-0.2 (-0.3, -0.1)"), 80L)
+  expected <- stat_ci_parse(input, output = "ci_p", exp = FALSE, level = .80)
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, times, ...) {
+    if (identical(x, 1) && !missing(times) && times == length(input))
+      stop("allocated a full unit working scale")
+    if (missing(times)) base::rep(x, ...) else base::rep(x, times, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(input, output = "ci_p", exp = FALSE, level = .80), expected)
+})

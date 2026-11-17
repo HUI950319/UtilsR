@@ -238,7 +238,7 @@ stat_ci_parse <- function(x,
       full
     }
     se <- se_of(l_s, h_s)
-    work_scale <- rep(1, length(est))
+    work_scale <- 1
     unstable <- !is.finite(se) | (abs(se) < .Machine$double.xmin & l_s != h_s)
     if (!is.null(level)) {
       # Near zero, the central normal probability is linear to double precision.
@@ -251,6 +251,7 @@ stat_ci_parse <- function(x,
     }
     rescale <- valid & !is_exp & unstable & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
     if (any(rescale)) {
+      work_scale <- rep(1, length(est))
       work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
       e_s[rescale] <- e_s[rescale] / work_scale[rescale]
       l_s[rescale] <- l_s[rescale] / work_scale[rescale]

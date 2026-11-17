@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` uses a scalar working scale for ordinary confidence intervals.
+
 * `stat_ci_parse()` limits asymmetric standard-error calculations to the affected intervals.
 
 * `stat_ci_parse()` skips log proximity work when all intervals are linear.
