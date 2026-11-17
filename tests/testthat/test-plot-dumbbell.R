@@ -949,3 +949,22 @@ test_that("integer64 mean counts avoid negating the missingness vector", {
   expect_identical(fn(values), .mean_plot_values(values))
   expect_equal(fn(c(values, bit64::NA_integer64_)), 1)
 })
+
+test_that("dumbbell guides reuse separate endpoint vectors", {
+  d <- data.frame(group = letters[1:17], before = as.double(2:18), after = 6:22)
+  args <- list(data = d, x_col = "before", xend_col = "after", y_col = "group",
+    sort_by = "none", dot_guide = TRUE)
+  expected <- suppressMessages(do.call(PlotDumbbell, args))
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$c <- function(...) {
+    parts <- list(...)
+    if (length(parts) == 2L && identical(parts[[1L]], d$before) &&
+        identical(parts[[2L]], d$after)) stop("joined full guide endpoints")
+    base::c(...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(do.call(fn, args))
+  expect_identical(suppressWarnings(ggplot2::ggplot_build(actual)$data[[1L]]),
+    suppressWarnings(ggplot2::ggplot_build(expected)$data[[1L]]))
+})

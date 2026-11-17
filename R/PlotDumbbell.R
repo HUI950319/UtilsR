@@ -360,7 +360,10 @@ PlotDumbbell <- function(
 
   # Dot guide lines (behind everything)
   if (dot_guide) {
-    x_min <- min(c(data[[x_col]], data[[xend_col]]), na.rm = TRUE)
+    starts <- data[[x_col]]
+    ends <- data[[xend_col]]
+    x_min <- if (is.object(starts) || is.object(ends)) min(c(starts, ends), na.rm = TRUE) else
+      min(starts, ends, na.rm = TRUE)
     p <- p +
       ggplot2::geom_segment(
         ggplot2::aes(
