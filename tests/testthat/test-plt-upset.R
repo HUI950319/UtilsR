@@ -1012,3 +1012,20 @@ test_that("complete logical UpSet membership skips missingness rescans", {
   }), parent = environment(fn))
   expect_identical(fn(d, vars = c("a", "b"), levels = "TRUE", output = "data"), expected)
 })
+
+test_that("categorical UpSet does not subset rows when all intersect", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(a = c("yes", "yes", "no"), b = c("no", "yes", "yes"), id = 7:9)
+  args <- list(data = d, stat.by = c("a", "b"), cols = character(), stat_level = "yes")
+  expected <- do.call(.plt_cat_upset, args)
+  fn <- .plt_cat_upset
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && !missing(i) && is.logical(i) && all(i)) {
+      stop("copied complete UpSet rows")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  expect_identical(do.call(fn, args)$data, expected$data)
+})

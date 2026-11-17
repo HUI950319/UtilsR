@@ -384,7 +384,7 @@
   combinations <- lapply(which(!duplicated(groups)), function(i) stat.by[bool_mat[i, ]])
   nonempty <- lengths(combinations) > 0L
   data[[intersection_col]] <- combinations[groups]
-  data <- data[nonempty[groups], , drop = FALSE]
+  if (!all(nonempty)) data <- data[nonempty[groups], , drop = FALSE]
 
   if (nrow(data) == 0) {
     if (allow_empty) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(type = "upset")` retains its data directly when every row belongs to an intersection.
+
 * `pr_table()` filters the supplied highlights directly to the displayed rows.
 
 * `pal_show()` reuses decoded RGBA for contrast and hex labels.
