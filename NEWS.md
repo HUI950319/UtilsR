@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` skips infinity checks on ordinary integer columns.
+
 * `PlotRank()` partially selects large ordinary score vectors for small `max_show`, preserving stable ties.
 
 * `plt_con()` reuses one-row dot bins and their ordinary factor ordering codes.

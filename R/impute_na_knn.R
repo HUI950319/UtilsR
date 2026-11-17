@@ -207,7 +207,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   non_finite <- vapply(data_for_impute, function(x) {
-    is.numeric(x) && (if (!is.object(x)) any(is.infinite(x)) else any(!is.finite(x) & !is.na(x)))
+    if (!is.numeric(x) || (is.integer(x) && !is.object(x))) return(FALSE)
+    if (!is.object(x)) any(is.infinite(x)) else any(!is.finite(x) & !is.na(x))
   }, logical(1))
   if (any(non_finite)) {
     cli::cli_abort("KNN requires finite numeric observations; infinite values found in {.val {names(data_for_impute)[non_finite]}}.")

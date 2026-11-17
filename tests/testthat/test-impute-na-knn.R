@@ -819,3 +819,17 @@ test_that("KNN integer extremes retain integer storage without overflow warnings
   expect_no_warning(out <- impute_na_knn(d, k = 1, verbose = FALSE))
   expect_identical(out$x, c(-2147483647L, -2147483647L, 2147483647L, 0L))
 })
+
+test_that("ordinary integer KNN columns require no infinity scan", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(1, NA_real_, 3:15), predictor = seq_len(15L))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$is.infinite <- function(x) {
+    if (identical(x, d$predictor)) stop("looked for infinities in an integer column")
+    base::is.infinite(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, k = 1L, verbose = FALSE), expected)
+})
