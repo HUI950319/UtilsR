@@ -1360,3 +1360,26 @@ test_that("circle top rankings convert only selected tibble columns", {
   local_mocked_bindings(circos.initialize = function(...) stop("drawing reached"), .package = "circlize")
   expect_error(fn(d, top_n = 2, show_labels = FALSE), "drawing reached")
 })
+
+test_that("circular group scaling avoids expanding original labels", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("", "B"), each = 3L), name = letters[1:6],
+    value = c(0, .2, 1, 1, 1.5, 3))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, f, ...) {
+    if (is.character(f) && length(f) == nrow(d)) stop("expanded original group labels")
+    base::split(x, f, ...)
+  }
+  environment(fn) <- env
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  fn(d, group_levels = c("B", ""), value_scale = "group", top_n = 2L,
+    show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(observed, c(1, .25, 1, .2))
+})
