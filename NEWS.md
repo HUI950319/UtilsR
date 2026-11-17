@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` formats the group correlation lines together, retaining their wrap order.
+
 * `PlotRankCor()` reuses already complete paired score vectors when computing group correlations.
 
 * Point sampling skips unused keys in a single sparse factor stratum with a coded NA.

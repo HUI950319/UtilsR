@@ -1184,3 +1184,20 @@ test_that("rank correlation keeps complete paired scores", {
   environment(fn) <- env
   expect_identical(capture.output(suppressMessages(do.call(fn, args))), expected)
 })
+
+test_that("rank correlation subtitles format group summaries together", {
+  d <- data.frame(gene = rep(letters[1:5], 30L), g = rep(sprintf("cohort_%02d", 1:15), each = 10L),
+    m = rep(rep(c("first", "second"), each = 5L), 15L), score = rep(c(1:5, c(4, 2, 5, 3, 1)), 15L))
+  args <- list(data = d, stat.by = "gene", method.by = "m", value.by = "score", group.by = "g", use_rank = FALSE)
+  invisible(capture.output(expected <- suppressMessages(do.call(PlotRankCor, args))))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%s: %s = %.3f (p = %.3g)") && length(..1) != 15L)
+      stop("formatted rank subtitle one group at a time")
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  invisible(capture.output(actual <- suppressMessages(do.call(fn, args))))
+  expect_identical(actual$labels$subtitle, expected$labels$subtitle)
+})

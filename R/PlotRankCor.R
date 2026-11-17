@@ -501,11 +501,8 @@ PlotRankCor <- function(
            p_col = "P", digits = 3)
 
   # ---- Build subtitle with correlation info ----
-  sub_parts <- vapply(seq_len(nrow(cor_results)), function(i) {
-    sprintf("%s: %s = %.3f (p = %.3g)",
-            cor_results$group[i], cor_label, cor_results$rho[i],
-            cor_results$p.value[i])
-  }, character(1))
+  sub_parts <- sprintf("%s: %s = %.3f (p = %.3g)",
+    cor_results$group, cor_label, cor_results$rho, cor_results$p.value)
   subtitle_lines <- character(length(sub_parts) + 1L)
   line_index <- 1L
   subtitle_line <- ""
