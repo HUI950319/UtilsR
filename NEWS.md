@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews build one name flag vector and skip replacing labels when every colour is unnamed.
+
 * Palette catalogue preview callbacks match hex codes without storing and stripping their CSS prefixes.
 
 * Sparse grouped category percentages use existing group positions to calculate denominators.

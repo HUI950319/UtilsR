@@ -1944,13 +1944,10 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   rgba <- unname(grDevices::col2rgb(colors, alpha = TRUE))
   hex <- .pal_hex(colors, rgba)
 
-  has_name <- rep(FALSE, n)
-  if (!is.null(color_names)) {
-    has_name <- !is.na(color_names) &
-      nzchar(trimws(color_names, whitespace = "[\\h\\v]"))
-  }
+  has_name <- if (is.null(color_names)) rep.int(FALSE, n) else
+    !is.na(color_names) & nzchar(trimws(color_names, whitespace = "[\\h\\v]"))
   labels <- hex
-  labels[has_name] <- color_names[has_name]
+  if (any(has_name)) labels[has_name] <- color_names[has_name]
 
   # Compute luminance for text contrast
   translucent <- rgba[4L, ] != 255L

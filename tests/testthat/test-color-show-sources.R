@@ -3125,3 +3125,17 @@ test_that("portable catalogue previews extract hex colours without copying CSS p
   expect_identical(fn(x), c("#00AAFF #11223355", "", "#12EF", ""))
   expect_identical(fn(x), .pal_preview_formats$default(x))
 })
+
+test_that("named swatches build flags directly and retain fallback hex labels", {
+  fn <- .pal_show_colors
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(x, FALSE)) stop("allocated default names flags for a named palette")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  colours <- setNames(c("red", "green", "#AD44AB80"), c("Red", " \t", NA_character_))
+  out <- fn(colours, max_colors = 10L)$data
+  expect_identical(out$label, c("Red", "#00FF00", "#AD44AB80"))
+  expect_identical(out$has_name, c(TRUE, FALSE, FALSE))
+})
