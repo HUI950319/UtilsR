@@ -872,3 +872,18 @@ test_that("complete significance star vectors skip missing replacement", {
   environment(fn) <- env
   expect_identical(do.call(fn, args), expected)
 })
+
+test_that("ordinary P validation needs no vector finite check", {
+  p <- c(.0001, .051, .8, NA_real_, NaN)
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$is.finite <- function(x) {
+    if (identical(x, p)) stop("allocated a finite flag for every P-value")
+    base::is.finite(x)
+  }
+  environment(fn) <- env
+  expect_identical(fn(p), stat_pval(p))
+  expect_identical(fn(c(NA_real_, NaN)), c(NA_character_, NA_character_))
+  expect_error(fn(c(NA, Inf, .1)), "between 0 and 1")
+  expect_error(fn(c(NA, .1, -.01)), "between 0 and 1")
+})

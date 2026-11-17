@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value validation compares the extrema of ordinary numeric inputs instead of allocating several row masks.
+
 * `pr_table()` reuses complete finite columns when choosing display precision.
 
 * Custom quality markers match the first pattern on the supplied values and narrow subsequent searches.
