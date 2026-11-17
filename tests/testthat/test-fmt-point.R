@@ -1109,3 +1109,15 @@ test_that("sampling sparse coded missing point strata uses observed levels only"
   environment(fn) <- env
   expect_identical(fn(d, mapping, sample_n = 3L, seed = 17L), expected)
 })
+
+test_that("explicit point grouping skips the mapped aesthetic scan", {
+  fn <- .fmt_point_position_setup
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(...) stop("inspected unused mapped aesthetics")
+  environment(fn) <- env
+  self <- list(explicit_group = TRUE,
+    dodge = list(setup_params = function(data) list(n = nrow(data))),
+    plain = list(setup_params = function(data) list()))
+  data <- data.frame(fill = rep(c("a", "b"), 100), x = 1:200, y = 1:200)
+  expect_identical(fn(self, data), list(position = self$dodge, args = list(n = 200L)))
+})

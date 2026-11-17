@@ -615,10 +615,13 @@ fmt_point <- function(plot,
 }
 
 .fmt_point_position_setup <- function(self, data) {
-  candidates <- intersect(c("fill", "colour", "linetype", "shape", "size", "alpha"), names(data))
-  discrete <- vapply(data[candidates], function(x)
-    is.factor(x) || is.character(x) || is.logical(x), logical(1))
-  position <- if (self$explicit_group || any(discrete)) self$dodge else self$plain
+  use_dodge <- self$explicit_group
+  if (!use_dodge) {
+    candidates <- intersect(c("fill", "colour", "linetype", "shape", "size", "alpha"), names(data))
+    use_dodge <- any(vapply(data[candidates], function(x)
+      is.factor(x) || is.character(x) || is.logical(x), logical(1)))
+  }
+  position <- if (use_dodge) self$dodge else self$plain
   list(position = position, args = position$setup_params(data))
 }
 

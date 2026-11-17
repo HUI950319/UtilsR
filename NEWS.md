@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` reuses its explicit grouping decision without inspecting mapped aesthetics for automatic dodge.
+
 * The palette catalogue builds swatch group codes directly from each palette's size.
 
 * Confidence interval precision scans extract exponent text only from scientific notation.
