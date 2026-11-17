@@ -1261,7 +1261,8 @@ plt_con <- function(data,
     interval <- .con_mean_sd(v)
     c(interval$ymin, interval$ymax)
   }), use.names = FALSE)
-  range(c(0, values, intervals), finite = TRUE)
+  observed_range <- if (!is.object(values)) suppressWarnings(range(values, finite = TRUE)) else values
+  range(c(0, observed_range, intervals), finite = TRUE)
 }
 
 .con_base_plot <- function(data) {

@@ -2253,3 +2253,19 @@ test_that("ungrouped continuous ranges need no finite row mask", {
   environment(fn) <- env
   expect_identical(fn(x, NULL, 0L, FALSE)(scale), expected)
 })
+
+test_that("continuous bar limits combine data endpoints without joining raw values", {
+  values <- c(-Inf, NA, seq_len(200L), Inf)
+  groups <- factor(rep(c("B", "A"), length.out = length(values)))
+  expected <- suppressWarnings(.con_bar_range(values, groups))
+  fn <- .con_bar_range
+  env <- new.env(parent = environment(fn))
+  env$c <- function(...) {
+    if (any(vapply(list(...), identical, logical(1), y = values)))
+      stop("joined all raw bar values to interval bounds")
+    base::c(...)
+  }
+  environment(fn) <- env
+  expect_identical(suppressWarnings(fn(values, groups)), expected)
+  expect_identical(fn(numeric(), factor(character())), c(0, 0))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grouped continuous bar limits combine their intervals with the raw range without copying all raw values.
+
 * `PlotButterfly()` creates grid dictionaries without converting every ordinary factor row to text.
 
 * `impute_na_knn()` restores predicted factor codes directly when the backend retains the dictionary.
