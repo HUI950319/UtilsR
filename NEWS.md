@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor releveling maps the observed codes while retaining the requested level dictionary.
+
 * Sparse factor binarization only assigns observed nonreference codes to `Oth`.
 
 * `pr_badge()` returns zero badges for empty key and value vectors at every color depth.

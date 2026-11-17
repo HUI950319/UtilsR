@@ -310,9 +310,17 @@ fct_cat <- function(x, ...,
 
 # ---- Shared helpers ----
 .relevel_factor <- function(x, new_levels) {
-  if (identical(levels(x), new_levels)) return(x)
-  out <- match(levels(x), new_levels)[x]
-  attributes(out) <- .factor_attributes(x, new_levels)
+  old_levels <- levels(x)
+  if (identical(old_levels, new_levels)) return(x)
+  if (length(old_levels) > length(x) &&
+      (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))) {
+    tally <- .factor_tally(x)
+    observed <- tally$codes
+    out <- match(old_levels[observed], new_levels)[match(tally$row_codes, observed)]
+  } else {
+    out <- match(old_levels, new_levels)[x]
+  }
+  attributes(out) <- .factor_attributes(x, new_levels, old_levels = old_levels)
   out
 }
 

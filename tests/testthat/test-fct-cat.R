@@ -895,3 +895,17 @@ test_that("sparse binary factors only enumerate observed nonreference levels", {
   levels(x)[1L] <- "Oth"
   expect_error(fn(x, 1L), "reference label conflicts")
 })
+
+test_that("sparse factor ordering remaps only observed source labels", {
+  x <- ordered(c("b", "a", NA, "c"), levels = c("a", "b", "c", paste0("unused", 1:2000)))
+  names(x) <- letters[1:4]
+  lvls <- rev(levels(x))
+  fn <- .relevel_factor
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (is.character(x) && length(x) > 10L) stop("matched all declared source levels")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, lvls), .relevel_factor(x, lvls))
+})
