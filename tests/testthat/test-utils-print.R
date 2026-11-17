@@ -2151,3 +2151,17 @@ test_that("short wrapped console lines skip per-line expansion", {
     expect_identical(fn(value, 8), ._pr_wrap(value, 8))
   }
 })
+
+test_that("plain P-value text does not parse absent bound operators", {
+  fn <- ._p_cells
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (identical(substitute(pattern), quote(paste0("^", bound, "[\\h\\v]*"))) &&
+        identical(substitute(x), quote(parsed))) stop("removed P-value operator prefixes from plain numbers")
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  for (x in list(c("1", ".02", "unknown", "3e-4", NA), c(".051", "<.05", ">=0", "<.001"))) {
+    expect_identical(fn(x), ._p_cells(x))
+  }
+})

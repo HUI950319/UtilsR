@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value styling finds bound operators only on valid numeric tokens that have an operator.
+
 * Point shapes retain unchanged entries and reuse the row selection for converted codes.
 
 * Console wrapping measures the returned lines together and splits only lines that exceed the display width.

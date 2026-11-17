@@ -507,9 +507,14 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       return(if (._pr_colour()) as.character(cli::col_grey(txt)) else as.character(txt))
     }
     parsed <- replace(txt, !valid, NA_character_)
-    op <- ifelse(grepl(paste0("^", bound), parsed, perl = TRUE),
-                 sub(paste0("(?s)^(", bound, ").*$"), "\\1", parsed, perl = TRUE), "")
-    decimal <- sub(paste0("^", bound, "[\\h\\v]*"), "", parsed, perl = TRUE)
+    bounded <- which(grepl(paste0("^", bound), parsed, perl = TRUE))
+    op <- rep.int("", length(parsed))
+    decimal <- parsed
+    if (length(bounded)) {
+      bound_text <- parsed[bounded]
+      op[bounded] <- sub(paste0("(?s)^(", bound, ").*$"), "\\1", bound_text, perl = TRUE)
+      decimal[bounded] <- sub(paste0("^", bound, "[\\h\\v]*"), "", bound_text, perl = TRUE)
+    }
     exponent <- suppressWarnings(as.numeric(ifelse(grepl("[eE]", decimal),
       sub("^.*[eE]", "", decimal), "0")))
     mantissa <- sub("[eE].*$", "", decimal)
