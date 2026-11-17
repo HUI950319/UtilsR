@@ -563,3 +563,21 @@ test_that("large size selections share one binding inventory", {
   expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", keys))
   expect_equal(result[["_data"]][["Size"]][1L], sum(result[["_data"]][["Size"]][-1L]))
 })
+
+test_that("size reports reuse names already selected from the environment listing", {
+  e <- list2env(list(b = 1:4, alpha = 1:2, z = "value"), parent = emptyenv())
+  fn <- check_size
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(substitute(table), quote(all_objects))) stop("revalidated another copy of the environment name list")
+    base::"%in%"(x, table)
+  }
+  environment(fn) <- env
+  draw <- function(f, ...) {
+    tab <- NULL
+    invisible(capture.output(tab <- f(..., envir = e)))
+    tab[["_data"]]
+  }
+  expect_identical(draw(fn), draw(check_size))
+  expect_identical(draw(fn, pattern = "^(alpha|z)$"), draw(check_size, pattern = "^(alpha|z)$"))
+})

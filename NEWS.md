@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` trusts the current environment listing for default and pattern selections without rematching every name.
+
 * Panel rasterization reuses established child order and retains name lookup for reordered grobs.
 
 * Sankey expansion marks only terminal successor positions instead of building a logical mask over every path row.
