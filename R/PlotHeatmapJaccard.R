@@ -280,11 +280,17 @@ PlotHeatmapJaccard <- function(
     first_at <- match(membership, membership)
     repeated <- which(first_at != seq_along(membership))
     first <- first_at[repeated]
-    sparse_pairs <- !anyDuplicated(first)
+    extra <- which(duplicated(first))
+    sparse_pairs <- !anyDuplicated(first[extra])
     if (sparse_pairs && length(repeated)) {
       groups <- rep(seq_len(n_ct), times = set_sizes)
       i <- groups[repeated]
       j <- groups[first]
+      # A triple also contributes the pair between its two later memberships.
+      if (length(extra)) {
+        i <- c(i, groups[repeated[extra]])
+        j <- c(j, groups[repeated[match(first[extra], first)]])
+      }
       keys <- i + (j - 1) * n_ct
       pairs <- unique(keys)
       counts <- tabulate(match(keys, pairs), nbins = length(pairs))

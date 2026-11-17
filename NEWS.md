@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` tallies sparse features appearing in up to three groups without comparing all groups.
+
 * Raster panel sizing sums shared multi-cell spans once.
 
 * Axis tile guides reuse the key table when every label is visible.

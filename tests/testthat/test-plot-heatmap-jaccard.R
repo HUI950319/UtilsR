@@ -1017,3 +1017,20 @@ test_that("Jaccard fallback reuses feature rows from sparse indexing", {
   }), parent = environment(fn))
   expect_identical(fn(d, group_col = "g", name_col = "item", return_type = "data"), expected)
 })
+
+test_that("Jaccard sparse triple memberships avoid all group comparisons", {
+  n <- 30L
+  d <- data.frame(cell_type = rep(paste0("g", seq_len(n)), each = 3L),
+    gene = c(rbind(paste0("triple", rep(seq_len(n / 3L), each = 3L)),
+                   paste0("local", seq_len(n)), paste0("extra", seq_len(n)))))
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_equal(unname(expected[1L, 2:4]), c(.2, .2, 0))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(substitute(x), quote(gi))) stop("compared sparse triple feature groups")
+    base::"%in%"(x, table)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, return_type = "data"), expected)
+})
