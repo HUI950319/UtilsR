@@ -704,7 +704,13 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       if (d > 0L && length(tiny) && min(tiny) < 0.5 * 10^-d) {
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
-      txt <- formatC(v, format = "f", digits = d)
+      # Sign-bit differences at zero can affect fixed-point output.
+      distinct <- if (.pal_use_unique(v) && !any(fin == 0)) unique(v) else v
+      txt <- if (length(distinct) < length(v) / 2) {
+        formatC(distinct, format = "f", digits = d)[match(v, distinct)]
+      } else {
+        formatC(v, format = "f", digits = d)
+      }
       wide <- which(finite & nchar(txt) > max(10L, avail))
       candidates <- if (getOption("OutDec") %in% c(".", ",")) {
         which(finite & v != 0 & abs(v) <= 0.5 * 10^-d)

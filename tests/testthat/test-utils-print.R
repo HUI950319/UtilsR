@@ -2027,3 +2027,17 @@ test_that("console table reuses widths of columns that fit", {
   environment(fn) <- env
   expect_identical(capture.output(fn(d, width = 60L)), expected)
 })
+
+test_that("console table formats repeated doubles by distinct value", {
+  withr::local_options(cli.num_colors = 1L, OutDec = ",")
+  d <- data.frame(score = rep(c(2.125, -4.25, NA_real_, Inf, NaN), 300L))
+  expected <- capture.output(pr_table(d, n = NULL, width = 23L))
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  env$formatC <- function(x, ...) {
+    if (length(x) > 20L) stop("formatted repeated doubles in bulk")
+    base::formatC(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d, n = NULL, width = 23L)), expected)
+})
