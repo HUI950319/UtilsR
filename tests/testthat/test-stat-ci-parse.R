@@ -1034,3 +1034,18 @@ test_that("CI parser skips extracting absent trailing text", {
   expect_identical(fn(ci), expected)
   expect_identical(which(expected$trailing), 101L)
 })
+
+test_that("CI precision extracts exponents only on scientific tokens", {
+  x <- c(rep("2.00 (1.0, 3.000)", 100L), "2.1e-3 (1e-3, 3.00e-3)")
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (identical(pattern, "^.*[eE]") && length(x) > 1L)
+      stop("extracted exponents from ordinary decimal tokens")
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expected <- .ci_extract(x)
+  expect_identical(fn(x), expected)
+  expect_identical(as.integer(tail(expected$digits, 1L)), 5L)
+})

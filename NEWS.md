@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval precision scans extract exponent text only from scientific notation.
+
 * Confidence interval parsing extracts annotation text only after a nonterminal closing bracket.
 
 * Confidence interval parsing revisits suffix whitespace only on rows ending with a dot.

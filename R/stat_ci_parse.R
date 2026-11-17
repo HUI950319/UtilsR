@@ -449,9 +449,13 @@ stat_ci_parse <- function(x,
                 "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
-    ex <- ifelse(grepl("[eE]", s), sub("^.*[eE]", "", s), "0")
-    nchar(sub("^[-+]?\\d*\\.?", "", sub("[eE].*$", "", s), perl = TRUE)) -
-      as.numeric(ex)
+    scientific <- which(grepl("[eE]", s))
+    ex <- numeric(length(s))
+    if (length(scientific)) {
+      ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
+      s[scientific] <- sub("[eE].*$", "", s[scientific])
+    }
+    nchar(sub("^[-+]?\\d*\\.?", "", s, perl = TRUE)) - ex
   })
   d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
   unit[hit, ] <- 10^-do.call(cbind, dec)
