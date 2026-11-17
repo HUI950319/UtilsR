@@ -1874,3 +1874,19 @@ test_that("complete ordinary scatter pairs need no case mask", {
   expect_equal(unname(.scatter_cor_test(x, y, "pearson")$estimate),
     stats::cor(x, y, use = "complete.obs"))
 })
+
+test_that("default numeric scatter groups reuse observed levels for exact labels", {
+  values <- rep(c(1 + .Machine$double.eps, NA, 1, 2, NaN), 400L)
+  names(values) <- as.character(seq_along(values))
+  fn <- .scatter_group_factor
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) {
+    if (identical(x, values)) stop("rescanned the entire scatter group vector")
+    base::unique(x, ...)
+  }
+  environment(fn) <- env
+  out <- fn(values)
+  expect_identical(out, .scatter_group_factor(values))
+  expect_identical(names(out), names(values))
+  expect_identical(as.integer(out)[1:5], c(1L, NA_integer_, 2L, 3L, 4L))
+})

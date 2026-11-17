@@ -565,12 +565,13 @@ PlotScatter1 <- function(
   }
   if (!is.object(value) && !is.object(levels) && is.numeric(value) && is.numeric(levels) &&
       !is.complex(value) && !is.complex(levels)) {
-    observed <- unique(value)
+    default_levels <- missing(levels)
+    observed <- if (default_levels) NULL else unique(value)
     combined <- c(observed, levels)
     labels <- as.character(.butterfly_category_labels(combined))
-    missing <- is.na(combined)
-    if (any(missing)) labels[missing] <- as.character(combined[missing])
-    level_labels <- labels[length(observed) + seq_along(levels)]
+    absent <- is.na(combined)
+    if (any(absent)) labels[absent] <- as.character(combined[absent])
+    level_labels <- if (default_levels) labels else labels[length(observed) + seq_along(levels)]
     if (!anyDuplicated(level_labels)) {
       codes <- match(value, levels)
       kept <- !is.na(level_labels)
