@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` counts ordinary atomic frequency rows directly in sorted value order.
+
 * `fmt_raster()` checks the shared bitmap dimensions once per panel with raster runs.
 
 * `fmt_point()` keeps full foreground data or returns the base grob directly for homogeneous shapes.

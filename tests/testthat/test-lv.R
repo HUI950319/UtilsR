@@ -1681,3 +1681,15 @@ test_that("character level summaries reuse observed values for marker counts", {
   expect_identical(actual$tables, expected$tables)
   expect_identical(actual$tables[[1L]]$n_special, 10)
 })
+
+test_that("ordinary inspection frequencies use direct value tallies", {
+  d <- data.frame(code = rep(c("z", NA, "", "a", "\u00e9"), 40L),
+    flag = rep(c(TRUE, FALSE, NA, TRUE, FALSE), 40L))
+  reference <- capture.output(suppressMessages(lv(d)))
+  count <- dplyr::count
+  local_mocked_bindings(count = function(x, ...) {
+    if (identical(names(x), "value") && !is.object(x$value)) stop("grouped ordinary frequency rows")
+    count(x, ...)
+  }, .package = "dplyr")
+  expect_identical(capture.output(suppressMessages(lv(d))), reference)
+})

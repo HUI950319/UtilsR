@@ -505,6 +505,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       valid <- levels(x)[tally$codes]
       n <- tally$counts
       missing_n <- length(x) - sum(n)
+    } else if (!is.object(x) && is.null(dim(x)) &&
+               typeof(x) %in% c("character", "logical", "integer", "double") &&
+               !isTRUE(getOption("dplyr.legacy_locale"))) {
+      valid <- .get_levels(x, complete = !anyNA(x))
+      n <- tabulate(match(x, valid), length(valid))
+      missing_n <- length(x) - sum(n)
     } else {
       tab <- dplyr::count(tibble::tibble(value = x), .data$value)
       missing <- is.na(tab$value)
