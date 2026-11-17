@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` applies the signed-zero substitution only to matching output rows.
+
 * `stat_ci()` reuses scalar `digits` while reformatting confidence interval text.
 
 * `impute_na_knn()` restores whole scaled columns directly when every row enters the backend.

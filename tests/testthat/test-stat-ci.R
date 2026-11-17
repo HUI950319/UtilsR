@@ -302,3 +302,17 @@ test_that("confidence interval string precision stays scalar when explicit", {
   environment(fn) <- env
   expect_identical(fn(x, digits = 3L), expected)
 })
+
+test_that("confidence interval signed-zero cleanup touches only affected labels", {
+  x <- c(-.001, seq(-.99, -.2, length.out = 610L))
+  y <- rep(.25, length(x))
+  expected <- stat_ci(x, y, digits = 2L)
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$gsub <- function(pattern, replacement, x, ...) {
+    if (startsWith(pattern, "-0") && length(x) > 5L) stop("rewrote unaffected interval labels")
+    base::gsub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(x, y, digits = 2L), expected)
+})
