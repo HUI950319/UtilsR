@@ -1004,3 +1004,19 @@ test_that("ordinary confidence intervals use a scalar working scale", {
   environment(fn) <- env
   expect_identical(fn(input, output = "ci_p", exp = FALSE, level = .80), expected)
 })
+
+test_that("CI suffix rechecks only text with a terminal dot", {
+  ci <- c("2 (1, 3) **. *", "2 (1, 3) **. suffix", rep("2 (1, 3)\u3000**", 60L), NA)
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (startsWith(pattern, "(?<![*") && length(x) == length(ci)) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("retrimmed confidence interval text without dots")
+    }
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(ci), .ci_extract(ci))
+})

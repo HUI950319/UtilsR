@@ -404,8 +404,8 @@ stat_ci_parse <- function(x,
   }
   suffix <- "(?<![*\\h\\v])[*\\h\\v]++$"
   xs <- sub(suffix, "", xs, perl = TRUE) # strip trailing stars/spaces
-  xs <- sub("\\.$", "", xs)            # strip single trailing dot
-  xs <- sub(suffix, "", xs, perl = TRUE)
+  dots <- which(endsWith(xs, "."))
+  if (length(dots)) xs[dots] <- sub(suffix, "", sub("\\.$", "", xs[dots]), perl = TRUE)
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
   # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
