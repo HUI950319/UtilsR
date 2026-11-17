@@ -1824,3 +1824,19 @@ test_that("missing categories use integer codes in ordinary factors", {
   }), parent = environment(fn))
   expect_identical(fn(d, "s", group.by = "g", NA_stat = TRUE, stat = "count")$data, expected$data)
 })
+
+test_that("categorical omission recognizes coded missing values without decoding", {
+  group <- structure(c(1L, 2L, NA_integer_, 3L, 1L),
+    levels = c("a", NA_character_, "b", "unused"), class = "factor")
+  d <- data.frame(group = group)
+  expected <- suppressMessages(plt_cat(d, "group", NA_stat = FALSE))
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, group)) stop("decoded missing category codes")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  actual <- suppressMessages(fn(d, "group", NA_stat = FALSE))
+  expect_identical(actual$data, expected$data)
+})

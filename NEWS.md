@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` finds coded missing categories without expanding all factor labels.
+
 * `lv()` counts character markers using the levels it already found.
 
 * `PlotCircleLollipop()` uses the original feature and sector codes to find shared labels on complete input.

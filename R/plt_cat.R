@@ -551,8 +551,15 @@ plt_cat <- function(data,
     for (col in cols_check) {
       x <- data[[col]]
       ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
-      if (ordinary_factor && !anyNA(levels(x)) && !anyNA(unclass(x))) next
-      missing <- if (ordinary_factor && !anyNA(levels(x))) is.na(x) else is.na(as.character(x))
+      if (ordinary_factor) {
+        codes <- as.integer(x)
+        na_level <- which(is.na(levels(x)))
+        if (!length(na_level) && !anyNA(codes)) next
+        missing <- is.na(codes)
+        if (length(na_level)) missing <- missing | codes %in% na_level
+      } else {
+        missing <- is.na(as.character(x))
+      }
       keep <- if (is.null(keep)) !missing else keep & !missing
     }
     n_after <- if (is.null(keep)) n_before else sum(keep)
