@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Set membership encoding assigns the first bit directly and skips empty set updates.
+
 * Discrete palette mapping keeps plain observed character labels without an extra character conversion.
 
 * `plt_cat()` reuses globally observed levels for a single panel and drops local unused levels after splitting.

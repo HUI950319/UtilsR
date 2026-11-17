@@ -1084,3 +1084,16 @@ test_that("UpSet plot counts distinct intersections before filtering the empty c
   environment(fn) <- env
   expect_s3_class(suppressMessages(fn(d, c("a", "b"), levels = TRUE, output = "upset")), "upset_plot")
 })
+
+test_that("UpSet row codes assign the first set without combining zero bits", {
+  fn <- .upset_row_codes
+  env <- new.env(parent = environment(fn))
+  env$bitwOr <- function(a, b) {
+    if (!length(a) || b == 1L) stop("combined initial membership bits with zeros")
+    base::bitwOr(a, b)
+  }
+  environment(fn) <- env
+  sets <- list(A = 1:6, empty = integer(), C = c(2L, 9L))
+  expect_identical(fn(sets, 10L), c(1L, 5L, rep(1L, 4L), 0L, 0L, 4L, 0L))
+  expect_identical(fn(list(integer(), c(1L, 3L)), 3L), c(2L, 0L, 2L))
+})
