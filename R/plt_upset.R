@@ -350,7 +350,8 @@ plt_upset <- function(data,
     if (length(missing_vars) > 0) {
       cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
     }
-    supported <- vapply(data[vars], function(x) {
+    selected <- data[vars]
+    supported <- vapply(selected, function(x) {
       is.null(dim(x)) && (!is.list(x) || inherits(x, "POSIXlt")) && !is.expression(x)
     }, logical(1))
     if (!all(supported)) {
@@ -359,7 +360,7 @@ plt_upset <- function(data,
     if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
       cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
     }
-    for (values in c(list(levels), unname(data[vars]))) {
+    for (values in c(list(levels), unname(selected))) {
       pkg <- if (inherits(values, "integer64")) "bit64" else
         if (inherits(values, "haven_labelled")) "haven" else
           if (inherits(values, c("Duration", "Period", "Interval"))) "lubridate" else NULL

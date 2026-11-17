@@ -1050,3 +1050,21 @@ test_that("factor UpSet lists share one coded lookup", {
   named <- list(a = explicit, b = factor(c("y", NA)), empty = character())
   expect_identical(fn(named, output = "data"), plt_upset(named, output = "data"))
 })
+
+test_that("UpSet validation selects columns once for dimensional and class checks", {
+  d <- data.frame(a = rep(c(TRUE, FALSE, NA), 60L), b = rep(c(FALSE, TRUE), 90L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  selects <- 0L
+  env[["["]] <- function(x, i, ...) {
+    if (is.data.frame(x) && identical(substitute(i), quote(vars))) {
+      selects <<- selects + 1L
+      if (selects > 1L) stop("selected UpSet columns again")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(d, vars = c("a", "b"), levels = TRUE, output = "data"))
+  expect_identical(draw(fn), draw(plt_upset))
+  expect_identical(selects, 1L)
+})

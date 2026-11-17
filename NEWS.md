@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` reuses its selected columns for validation and dependency checks.
+
 * `fmt_com()` reuses full-length plain vectors for comparison layouts with per-bracket settings.
 
 * `grob_insert(on_top = FALSE)` layers an inset between its background and foreground when those layers share positive infinite z-order.
