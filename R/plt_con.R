@@ -810,9 +810,19 @@ plt_con <- function(data,
 .con_dot_counts <- function(data, by) {
   groups <- data[by]
   ids <- vctrs::vec_group_id(groups)
-  counts <- as.data.frame(groups[!duplicated(ids), , drop = FALSE])
-  counts$n <- tabulate(ids, attr(ids, "n"))
-  order_keys <- lapply(counts[by], function(x) match(x, unique(x)))
+  n_keys <- attr(ids, "n")
+  if (n_keys == length(ids)) {
+    counts <- as.data.frame(groups)
+    counts$n <- rep.int(1L, n_keys)
+  } else {
+    counts <- as.data.frame(groups[!duplicated(ids), , drop = FALSE])
+    counts$n <- tabulate(ids, n_keys)
+  }
+  order_keys <- lapply(counts[by], function(x) {
+    if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+        !anyNA(levels(x))) x <- as.integer(x)
+    match(x, unique(x))
+  })
   counts <- counts[do.call(order, rev(order_keys)), , drop = FALSE]
   rownames(counts) <- NULL
   counts

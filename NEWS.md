@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` reuses one-row dot bins and their ordinary factor ordering codes.
+
 * `PlotButterfly2()` converts only selected columns of ordinary tibbles.
 
 * `PlotButterfly2()` checks ordinary category codes for missing values and `Mixed`, reusing the frame when all rows qualify.

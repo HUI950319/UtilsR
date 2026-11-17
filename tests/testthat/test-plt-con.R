@@ -2222,3 +2222,20 @@ test_that("reference comparisons skip tallies for unused factor groups", {
   actual <- suppressMessages(do.call(fn, args))
   expect_identical(actual$data, expected$data)
 })
+
+test_that("continuous unique dot bins do not count or decode row keys again", {
+  n <- 120L
+  d <- data.frame(group = ordered(rep(c("B", "A"), each = n / 2L)),
+    value = seq_len(n))
+  expected <- .con_dot_counts(d, names(d))
+  fn <- .con_dot_counts
+  env <- new.env(parent = environment(fn))
+  env$tabulate <- function(bin, nbins, ...) {
+    if (length(bin) == n && nbins == n) stop("counted unique dot bins again")
+    base::tabulate(bin, nbins, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, names(d)), expected)
+  d2 <- rbind(d[1:3, ], d[2:4, ])
+  expect_identical(fn(d2, names(d2)), .con_dot_counts(d2, names(d2)))
+})
