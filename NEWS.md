@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` reuses contiguous panel codes when partitioning histogram rows in build order.
+
 * `fmt_bg()` skips row copies when all displayed background stripe positions are finite.
 
 * Axis tiles reuse fully visible bounds and filter partially clipped tile vectors once.

@@ -5346,7 +5346,8 @@ fmt_his <- function(plot,
             spec <- self$his_specs[[layer$his_id]]
             panel <- as.integer(data$PANEL)
             panels <- unique(panel)
-            panel_rows <- split(seq_len(nrow(data)), match(panel, panels))
+            panel_codes <- structure(match(panel, panels), levels = as.character(panels), class = "factor")
+            panel_rows <- split(seq_len(nrow(data)), panel_codes)
             indices <- match(panels, as.integer(layout$PANEL))
             for (i in seq_along(indices)) {
               rows <- panel_rows[[i]]

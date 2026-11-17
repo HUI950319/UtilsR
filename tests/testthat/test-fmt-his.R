@@ -929,3 +929,19 @@ test_that("histogram overlay peaks reuse complete count vectors", {
   local_mocked_bindings(fmt_his = fn)
   expect_identical(his_test_build(p, con_var = "x", binwidth = 1)$data, expected)
 })
+
+test_that("distribution overlays reuse contiguous facet row codes", {
+  d <- data.frame(x = seq(0, 10, length.out = 100L), g = rep(c("b", "a"), each = 50L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x)) +
+    ggplot2::geom_histogram(bins = 20L) + ggplot2::facet_wrap(~g, scales = "free_x")
+  fn <- fmt_his
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, f, ...) {
+    if (identical(substitute(f), quote(match(panel, panels)))) stop("regrouped histogram panel codes")
+    base::split(x, f, ...)
+  }
+  environment(fn) <- env
+  env$fmt_his <- fn
+  expected <- ggplot2::ggplot_build(fmt_his(p, binwidth = .2))$data
+  expect_identical(ggplot2::ggplot_build(fn(p, binwidth = .2))$data, expected)
+})
