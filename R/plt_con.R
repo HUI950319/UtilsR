@@ -821,6 +821,9 @@ plt_con <- function(data,
   order_keys <- lapply(counts[by], function(x) {
     if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
         !anyNA(levels(x))) x <- as.integer(x)
+    if (!is.object(x) && (is.numeric(x) || is.character(x) || is.logical(x))) {
+      return(vctrs::vec_group_id(x))
+    }
     match(x, unique(x))
   })
   counts <- counts[do.call(order, rev(order_keys)), , drop = FALSE]

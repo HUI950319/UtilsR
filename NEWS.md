@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot plot ordering derives first-observation group ranks in one pass over ordinary numeric and character columns.
+
 * CI scale classification materializes each rounding-unit column once and reuses it for repeated-row probes.
 
 * `fmt_point()` resolves character shape names from the first observed entry and retains complete missing or unconverted shapes.

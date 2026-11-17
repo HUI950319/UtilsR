@@ -2325,3 +2325,13 @@ test_that("global comparison panel bounds avoid copying distinct outcomes", {
   expect_identical(draw(), expected)
   expect_equal(expected, summary(stats::aov(x ~ g, d))[[1L]][["Pr(>F)"]][1L])
 })
+
+test_that("dot summaries reuse first-observation order codes for plain groups", {
+  d <- data.frame(group = factor(rep(c("z", "a", "m"), 50L)),
+    bin = rep(c(NA_real_, 0, 2, -1, 4), 30L))
+  fn <- .con_dot_counts
+  env <- new.env(parent = environment(fn))
+  env$unique <- function(x, ...) stop("looked up unique dot ordering keys twice")
+  environment(fn) <- env
+  expect_identical(fn(d, c("group", "bin")), .con_dot_counts(d, c("group", "bin")))
+})
