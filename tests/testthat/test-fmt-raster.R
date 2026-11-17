@@ -909,3 +909,25 @@ test_that("panel raster viewports retain physical geometry sizes", {
     expect_equal(expected, c(20, 20))
   }
 })
+
+test_that("raster panel detection classifies panel grobs only", {
+  skip_if_not_installed("ragg")
+  gt <- gtable::gtable(widths = grid::unit(1, "in"), heights = grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), 1, 1, name = "panel", clip = "on")
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::nullGrob()), 60L),
+    1, 1, name = paste0("guide-", seq_len(60L)))
+  fn <- .fmt_raster_ragg
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(X, FUN, FUN.VALUE, ...) {
+    if (length(X) > 1L && identical(FUN, inherits) &&
+        identical(list(...), list(c("zeroGrob", "null")))) {
+      stop("classified non-panel raster decorations")
+    }
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.fmt_raster_ragg = fn)
+  result <- fmt_raster(gt, method = "ragg", dpi = 20)
+  expect_s3_class(result, "patchwork")
+  expect_identical(attr(result, "size")$width, 1)
+})

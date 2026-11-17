@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster()` checks for empty grobs only in panel cells.
+
 * `pal_get()` checks the actual distinct count before constructing a palette-position index.
 
 * `plt_upset()` uses one membership index across ordinary factor-list sets.

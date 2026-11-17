@@ -300,8 +300,8 @@ fmt_raster <- function(
 
   unclipped_panels <- FALSE
   panel_indices <- function(gt) {
-    which(grepl("^panel(-[0-9]+)*$", gt$layout$name) &
-            !vapply(gt$grobs, inherits, logical(1), c("zeroGrob", "null")))
+    indices <- which(grepl("^panel(-[0-9]+)*$", gt$layout$name))
+    indices[!vapply(gt$grobs[indices], inherits, logical(1), c("zeroGrob", "null"))]
   }
   plan_panels <- function(gt) {
     indices <- panel_indices(gt)
