@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` reuses its sparse membership index when features occur in three or more groups.
+
 * `plt_cat(NA_stat = TRUE)` adds the shared missing label directly to ordinary factor codes.
 
 * Ordinary categorical plots retain only observed factor levels without decoding every row as text.

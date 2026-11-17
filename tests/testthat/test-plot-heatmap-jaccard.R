@@ -1001,3 +1001,19 @@ test_that("Jaccard row splits reuse resolved integer group codes", {
   expect_identical(actual, matrix(c(1, .5, 0, .5, 1, 0, 0, 0, 0), 3,
     dimnames = list(c("a", "b", "empty"), c("a", "b", "empty"))))
 })
+
+test_that("Jaccard fallback reuses feature rows from sparse indexing", {
+  g <- sprintf("G%02d", 1:18)
+  d <- data.frame(g = rep(g, each = 3), item = c(rbind("shared", paste0(g, "a"), paste0(g, "b"))))
+  expected <- PlotHeatmapJaccard(d, group_col = "g", name_col = "item", return_type = "data")
+  calls <- 0L
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(unlist = function(x, ...) {
+    if (is.list(x) && length(x) == length(g)) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("Jaccard feature memberships flattened twice")
+    }
+    base::unlist(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, group_col = "g", name_col = "item", return_type = "data"), expected)
+})
