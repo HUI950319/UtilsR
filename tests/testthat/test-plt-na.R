@@ -574,3 +574,19 @@ test_that("percentage labels select their existing missing rows directly", {
   built <- ggplot2::ggplot_build(plt_na(d, output = "percentage"))
   expect_identical(built$data[[3L]], expected)
 })
+
+test_that("missingness matrices reuse their logical column masks", {
+  d <- data.frame(a = c(NA, 1, 2, 3), b = c("b", NA, NA, "b"), c = 1:4)
+  fn <- .plt_na_plot
+  env <- new.env(parent = environment(fn))
+  env$lapply <- function(X, FUN, ...) {
+    if (identical(substitute(FUN), quote(as.logical))) stop("recoerced missingness masks")
+    base::lapply(X, FUN, ...)
+  }
+  environment(fn) <- env
+  expected <- suppressMessages(plt_na(d, output = "matrix"))
+  local_mocked_bindings(.plt_na_plot = fn)
+  actual <- suppressMessages(plt_na(d, output = "matrix"))
+  expect_identical(actual$data, expected$data)
+  expect_identical(actual$data$isna, expected$data$isna)
+})

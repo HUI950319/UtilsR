@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na(output = "matrix")` assembles missingness directly from the logical column masks.
+
 * Set plots reuse the distinct observed values when selecting a fallback positive category.
 
 * Viridis previews select the required RGB samples directly from the upstream channel columns.
