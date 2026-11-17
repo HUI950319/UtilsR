@@ -803,3 +803,36 @@ test_that("ranked group scaling uses the already partitioned frames", {
     expect_identical(do.call(fn, args), do.call(PlotRank, args))
   }
 })
+
+test_that("large capped rankings select leading scores without a full order", {
+  scores <- as.double(rep(c(5, Inf, 1:2048), 6L))
+  scores[c(9L, 50L, 69L)] <- Inf
+  names(scores) <- paste0("key", seq_along(scores))
+  args <- list(data = scores, max_show = 17L, value_scale = "none", clean_names = FALSE,
+    return_type = "data")
+  expected <- do.call(PlotRank, args)
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  env$order <- function(..., decreasing = FALSE, method = "auto") {
+    if (length(..1) > 1000L) stop("ordered all scores to show a small leading set")
+    base::order(..., decreasing = decreasing, method = method)
+  }
+  environment(fn) <- env
+  expect_identical(do.call(fn, args), expected)
+})
+
+test_that("rank candidate cutoffs fall back after sampling misses", {
+  values <- as.double(seq_len(12000L))
+  sample_rows <- seq.int(1L, length(values), length.out = 1024L)
+  values[sample_rows] <- rev(seq_len(1024L)) + 15000
+  values[sample_rows[800L]] <- 18000
+  values[sample_rows[801L]] <- 18000
+  names(values) <- sprintf("gene_%05d", seq_along(values))
+  for (scores in list(values, sort(values), sort(values, decreasing = TRUE), as.integer(values))) {
+    names(scores) <- names(values)
+    ranked <- PlotRank(scores, max_show = 15L, clean_names = FALSE, return_type = "data")
+    index <- order(scores, decreasing = TRUE, method = "radix")[seq_len(15L)]
+    expect_identical(ranked$Label, names(scores)[index])
+    expect_identical(unname(ranked$Score), unname(scores[index]))
+  }
+})

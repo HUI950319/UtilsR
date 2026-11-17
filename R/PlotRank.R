@@ -217,7 +217,22 @@ PlotRank <- function(
     grp <- names(score_list)[i]
     scores <- score_list[[i]]
     n <- min(length(scores), max_show)
-    shown <- if (!is.object(scores) && n < length(scores)) {
+    candidates <- NULL
+    if (!is.object(scores) && is.double(scores) && length(scores) >= 8192L &&
+        n <= length(scores) / 64) {
+      probe <- scores[seq.int(1L, length(scores), length.out = 1024L)]
+      if (is.unsorted(probe) && is.unsorted(rev(probe))) {
+        cut <- max(2L, ceiling(4 * length(probe) / length(scores) * n))
+        threshold <- sort(probe, decreasing = TRUE, method = "radix")[cut]
+        rows <- which(scores >= threshold)
+        # Sorting the candidates is exact only when they cover all shown ranks.
+        if (length(rows) >= n && length(rows) <= length(scores) / 8) candidates <- rows
+      }
+    }
+    shown <- if (!is.null(candidates)) {
+      positions <- order(scores[candidates], decreasing = TRUE, method = "radix")[seq_len(n)]
+      scores[candidates[positions]]
+    } else if (!is.object(scores) && n < length(scores)) {
       scores[order(scores, decreasing = TRUE, method = "radix")[seq_len(n)]]
     } else {
       sort(scores, decreasing = TRUE)[seq_len(n)]

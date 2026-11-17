@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` partially selects large ordinary score vectors for small `max_show`, preserving stable ties.
+
 * `plt_con()` reuses one-row dot bins and their ordinary factor ordering codes.
 
 * `PlotButterfly2()` converts only selected columns of ordinary tibbles.
