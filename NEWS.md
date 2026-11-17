@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` obtains successor nodes from stage positions without shifting the complete label vector.
+
 * `pr_tree()` counts hidden siblings at the depth limit without visiting every leaf.
 
 * `pr_badge()` styles a length-one key or value once when building vector badges.

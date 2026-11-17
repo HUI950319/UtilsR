@@ -919,3 +919,12 @@ test_that("Sankey node counts ignore unused factor tally bins", {
   result <- suppressMessages(fn(d, c("a", "b"), reverse_levels = TRUE))
   expect_identical(result$data, expected$data)
 })
+
+test_that("Sankey successors reuse the final stage mask", {
+  local_mocked_bindings(lead = function(...) stop("shifted all Sankey labels"), .package = "dplyr")
+  d <- data.frame(A = c("a", NA), B = c("b", "c"), C = c(NA, "d"))
+  out <- .sankey_path_rows(d, c("C", "A", "B"))
+  expect_identical(out$next_node, c("a", "b", NA, NA, "c", NA))
+  expect_identical(as.integer(out$next_x), c(2L, 3L, NA, 2L, 3L, NA))
+  expect_identical(.sankey_path_rows(d[0, ], names(d))$next_node, character())
+})

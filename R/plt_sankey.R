@@ -399,8 +399,9 @@ plt_sankey <- function(data,
   final <- stage == length(stages)
   next_stage <- stage + 1L
   next_stage[final] <- NA_integer_
-  next_node <- dplyr::lead(nodes)
-  next_node[final] <- NA_character_
+  following <- seq_along(nodes) + 1L
+  following[final] <- NA_integer_
+  next_node <- nodes[following]
   tibble::tibble(
     x = structure(stage, levels = stage_levels, class = "factor"), node = nodes,
     next_x = structure(next_stage, levels = stage_levels, class = "factor"),
