@@ -1693,3 +1693,21 @@ test_that("ordinary inspection frequencies use direct value tallies", {
   }, .package = "dplyr")
   expect_identical(capture.output(suppressMessages(lv(d))), reference)
 })
+
+test_that("inspection table styling only checks level labels for special markers", {
+  d <- data.frame(code = factor(rep(c("I", "Unknown", NA), 6L)), score = seq_len(18L))
+  expected <- capture_reports(lv(d))
+  marker <- .is_special_value
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env$.is_special_value <- function(x, ...) {
+    if (identical(substitute(x), quote(as.character(body$label)))) stop("inspected every report body label")
+    marker(x, ...)
+  }
+  environment(fn) <- env
+  actual <- capture_reports(fn(d))
+  expect_identical(lapply(actual, function(x) x[["_data"]]),
+    lapply(expected, function(x) x[["_data"]]))
+  expect_identical(lapply(actual, function(x) x[["_styles"]]),
+    lapply(expected, function(x) x[["_styles"]]))
+})

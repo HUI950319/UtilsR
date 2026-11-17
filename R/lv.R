@@ -671,7 +671,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     body <- gt_tbl$`_data`
     rows_missing <- which(body$row_type == "missing")
-    special <- body$row_type == "level" & .is_special_value(as.character(body$label))
+    levels <- which(body$row_type == "level")
+    special <- logical(nrow(body))
+    special[levels] <- .is_special_value(as.character(body$label[levels]))
     for (var in unique(body$variable[which(special)])) {
       original <- analysis_data[[var]]
       if (is.factor(original) && anyNA(levels(original))) {
