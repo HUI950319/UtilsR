@@ -1049,3 +1049,23 @@ test_that("CI precision extracts exponents only on scientific tokens", {
   expect_identical(fn(x), expected)
   expect_identical(as.integer(tail(expected$digits, 1L)), 5L)
 })
+
+test_that("CI scale probes and classification share rounding unit columns", {
+  estimate <- seq(1, 4, length.out = 1100L)
+  unit <- matrix(.001, nrow = length(estimate), ncol = 3L)
+  fn <- .ci_scale
+  env <- new.env(parent = environment(fn))
+  accesses <- integer(3L)
+  env[["["]] <- function(x, i, j, ...) {
+    if (is.matrix(x) && missing(i) && !missing(j)) {
+      accesses[j] <<- accesses[j] + 1L
+      if (accesses[j] > 1L) stop("materialized a rounding unit column twice")
+      return(base::"["(x, , j, ...))
+    }
+    if (missing(j)) base::"["(x, i, ...) else base::"["(x, i, j, ...)
+  }
+  environment(fn) <- env
+  args <- list(estimate, estimate - .1, estimate + .2, unit, "auto", rep(TRUE, length(estimate)))
+  expect_identical(do.call(fn, args), do.call(.ci_scale, args))
+  expect_identical(accesses, rep(1L, 3L))
+})

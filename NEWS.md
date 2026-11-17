@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI scale classification materializes each rounding-unit column once and reuses it for repeated-row probes.
+
 * `fmt_point()` resolves character shape names from the first observed entry and retains complete missing or unconverted shapes.
 
 * Factor recoding checks bounds directly for ordinary indices and collects invalid positions only on failure.

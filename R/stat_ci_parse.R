@@ -470,10 +470,10 @@ stat_ci_parse <- function(x,
 #' @noRd
 .ci_scale <- function(est, lo, hi, unit, exp, valid) {
   n <- length(est)
+  ue <- unit[, 1L]; ul <- unit[, 2L]; uh <- unit[, 3L]
   if (n > 1024L && is.null(names(est)) && is.null(names(lo)) &&
       is.null(names(hi)) && is.null(names(valid)) && is.null(rownames(unit))) {
-    parts <- list(est = est, lo = lo, hi = hi, ue = unit[, 1L],
-                  ul = unit[, 2L], uh = unit[, 3L], valid = valid)
+    parts <- list(est = est, lo = lo, hi = hi, ue = ue, ul = ul, uh = uh, valid = valid)
     sample <- seq.int(1L, n, length.out = 128L)
     if (vctrs::vec_unique_count(vctrs::new_data_frame(lapply(parts, "[", sample))) < 64L) {
       groups <- vctrs::vec_group_id(vctrs::new_data_frame(parts))
@@ -485,7 +485,6 @@ stat_ci_parse <- function(x,
       }
     }
   }
-  ue <- unit[, 1]; ul <- unit[, 2]; uh <- unit[, 3]
   # Rounding moves each printed number by up to half its unit, no further
   invalid <- valid & (lo >= hi | est < lo - (ue / 2 + ul / 2) |
                         est > hi + (ue / 2 + uh / 2))
