@@ -185,7 +185,16 @@ fct_cat <- function(x, ...,
 
   # 4. reverse
   if (reverse) {
-    return(.relevel_factor(x, rev(levels(x))))
+    old_levels <- levels(x)
+    if (length(old_levels) < 2L) return(x)
+    new_levels <- rev(old_levels)
+    if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+        !anyDuplicated(old_levels)) {
+      out <- length(old_levels) - as.integer(x) + 1L
+      attributes(out) <- .factor_attributes(x, new_levels, old_levels)
+      return(out)
+    }
+    return(.relevel_factor(x, new_levels))
   }
 
   # 5. ... — named = recode, unnamed = reorder

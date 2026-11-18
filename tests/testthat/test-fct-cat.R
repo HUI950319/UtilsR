@@ -962,3 +962,17 @@ test_that("sparse factor recoding reuses observation codes from its tally", {
   expect_identical(as.character(out), c("new", "keep", NA, "new"))
   expect_identical(names(out), names(x))
 })
+
+test_that("factor reversal reuses ordinary integer positions", {
+  x <- structure(c(first = 2L, second = 3L, third = NA_integer_, fourth = 1L),
+    levels = c("b", NA_character_, "a", "unused"), class = c("ordered", "factor"))
+  attr(x, "scores") <- 1:4
+  original <- fct_cat(x, reverse = TRUE)
+  fn <- fct_cat
+  environment(fn) <- list2env(list(.relevel_factor = function(...) {
+    stop("re-matched the complete reverse level dictionary")
+  }), parent = environment(fn))
+  expect_identical(fn(x, reverse = TRUE), original)
+  expect_identical(as.integer(original), c(3L, 2L, NA_integer_, 4L))
+  expect_identical(fn(x[FALSE], reverse = TRUE), fct_cat(x[FALSE], reverse = TRUE))
+})
