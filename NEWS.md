@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_legend()` preserves unrelated lazy and active guide bindings when installing its layout calculation.
+
 * `pr_spark()` computes each bin peak once when rendering a sparkline.
 
 * Custom significance threshold maps use a single range reduction for complete ordinary numeric values.

@@ -1302,17 +1302,16 @@ fmt_legend <- function(plot,
                                    list(layout = guide_args))
       if (scaling) updates$scale <- (updates$scale %||% 1) * factor
       if (identical(updates, guides$.fmt_legend_args)) next
-      members <- as.list(guides, all.names = TRUE)
-      inherited <- as.list(parent, all.names = TRUE)
-      members <- members[!vapply(names(members), function(nm) {
-        identical(members[[nm]], inherited[[nm]])
-      }, logical(1))]
-      members$.fmt_legend_parent <- parent
-      members$.fmt_legend_args <- updates
-      members$.fmt_legend_process_keys <- list(process_keys)
-      members$setup <- setup_guides
-      plots[[i]]$guides <- do.call(ggplot2::ggproto, c(list(NULL, parent), members),
-                                 envir = baseenv())
+      updated <- do.call(ggplot2::ggproto, list(NULL, parent,
+        .fmt_legend_parent = parent, .fmt_legend_args = updates,
+        .fmt_legend_process_keys = list(process_keys), setup = setup_guides),
+        envir = baseenv())
+      current <- guides
+      while (!is.null(current) && !identical(current, parent)) {
+        rlang::env_coalesce(updated, current)
+        current <- if (is.function(current$super)) current$super()
+      }
+      plots[[i]]$guides <- updated
     }
   }
 

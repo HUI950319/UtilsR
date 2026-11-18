@@ -1175,3 +1175,23 @@ test_that("relative legend fonts continue to inherit later parent sizes", {
     expect_equal(ggplot2::calc_element("legend.title", effective)$size, 48)
   }
 })
+
+test_that("legend layout does not read unrelated guide bindings", {
+  p <- legend_test_plot()
+  control <- ggplot2::ggplot_build(fmt_legend(p, ncol = 2))$plot$guides$params
+  guides <- p$guides
+  delayedAssign("unrelated", stop("forced unrelated guide container binding"), assign.env = guides)
+  n <- 0L
+  makeActiveBinding("active_marker", function() {
+    n <<- n + 1L
+    "ok"
+  }, guides)
+  out <- fmt_legend(p, ncol = 2)
+  repeated <- fmt_legend(out, ncol = 3)
+  expect_identical(repeated$guides$.fmt_legend_parent, guides)
+  expect_identical(n, 0L)
+  params <- ggplot2::ggplot_build(out)$plot$guides$params
+  expect_identical(lapply(params, function(x) x$ncol), lapply(control, function(x) x$ncol))
+  expect_identical(repeated$guides$active_marker, "ok")
+  expect_identical(n, 1L)
+})
