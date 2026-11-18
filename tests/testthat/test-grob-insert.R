@@ -418,3 +418,21 @@ test_that("behind insets preserve positive infinite draw order", {
     expect_identical(inset$layout$z[match(gt$layout$name, inset$layout$name)], z)
   }
 })
+
+test_that("first inset names skip all layout coordinate scans", {
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), t = 1L, l = 1L, name = "panel")
+  fn <- grob_insert
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(e1, e2) {
+    if (identical(substitute(e1), quote(gt$layout$t))) {
+      stop("compared inset coordinates without an existing inset name")
+    }
+    base::"=="(e1, e2)
+  }
+  environment(fn) <- env
+  out <- fn(gt, grid::pointsGrob(), align_to = "full")
+  expect_identical(out$layout, grob_insert(gt, grid::pointsGrob(), align_to = "full")$layout)
+  added <- grob_insert(out, grid::pointsGrob(), align_to = "full")
+  expect_identical(added$layout$name, c("panel", "inset", "inset.1"))
+})

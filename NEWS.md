@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Insets assign the first name directly when the host layout has no existing inset at any location.
+
 * Rank correlation pivots retain their data frame when the existing key order is already correct.
 
 * `PlotRankCor()` orders ordinary factor keys without a second lookup across all labels.
