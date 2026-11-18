@@ -1112,3 +1112,20 @@ test_that("complete ordinary UpSet selectors avoid an unnecessary mask slice", {
   expect_identical(draw(fn, c("yes", "true")), draw(plt_upset, c("yes", "true")))
   expect_identical(draw(fn, c("yes", NA)), draw(plt_upset, c("yes", NA)))
 })
+
+test_that("UpSet classifies a time selector before scanning the columns", {
+  df <- data.frame(a = as.difftime(c(1, 2, NA), units = "mins"),
+                   b = as.difftime(c(120, 60, 60), units = "secs"),
+                   c = as.difftime(c(2, 3, 1), units = "mins"))
+  fn <- plt_upset
+  comparisons <- 0L
+  environment(fn) <- list2env(list(inherits = function(x, what, ...) {
+    if (identical(substitute(x), quote(value_levels)) && identical(what, "difftime")) {
+      comparisons <<- comparisons + 1L
+      if (comparisons > 1L) stop("reclassified the shared time selector")
+    }
+    base::inherits(x, what, ...)
+  }), parent = environment(fn))
+  expect_identical(as.character(fn(df, vars = names(df), levels = df[["a"]][1L],
+                                  output = "data")[["intersect_group"]]), c("a", "b", "b/c"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` checks the time classes of a selector once across all selected columns.
+
 * `PlotRank()` skips cleaning synthetic missing labels for unnamed scores.
 
 * `PlotRank(max_show = 1)` finds the first top observation without sorting a complete score vector.

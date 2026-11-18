@@ -371,15 +371,15 @@ plt_upset <- function(data,
     missing_levels <- anyNA(levels)
     value_levels <- if (!is.object(levels) && !missing_levels) levels else levels[!is.na(levels)]
     time_level_keys <- NULL
+    time_classes <- c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")
+    time_classes <- time_classes[vapply(time_classes, function(cls) inherits(value_levels, cls),
+                                       logical(1))]
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
       values <- data[[v]]
       if (!length(value_levels)) {
         return(if (missing_levels) which(is.na(values)) else integer())
       }
-      same_time <- any(vapply(c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"),
-                              function(cls) inherits(values, cls) && inherits(value_levels, cls),
-                              logical(1)))
-      selected <- if (same_time) {
+      selected <- if (inherits(values, time_classes)) {
         if (inherits(values, c("Period", "Interval"))) {
           if (is.null(time_level_keys)) time_level_keys <<- .cat_time_key(value_levels, units = "secs")
           .cat_time_key(values, units = "secs") %in% time_level_keys
