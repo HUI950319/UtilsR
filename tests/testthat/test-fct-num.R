@@ -350,3 +350,14 @@ test_that("valid integer cut points need no second finiteness mask", {
   expect_error(fn(x, breaks = c(NA_integer_, 1L)), "finite")
   expect_error(fn(x, breaks = c(1, Inf)), "finite")
 })
+
+test_that("repeated interval labels reuse checked bin codes", {
+  x <- setNames(c(-Inf, -1, 0, 1, 2, Inf, NA, NaN), letters[1:8])
+  fn <- .fct_num_cut
+  environment(fn) <- list2env(list(cut = function(...) stop("re-binned validated intervals")),
+    parent = environment(fn))
+  breaks <- c(-Inf, 0, 1, Inf)
+  for (labels in list(c("A", "A", "B"), c(NA_character_, "B", "A"), c("", "a", ""))) {
+    expect_identical(fn(x, breaks, labels), cut(x, breaks, labels, include.lowest = TRUE))
+  }
+})
