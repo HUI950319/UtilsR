@@ -913,3 +913,17 @@ test_that("decimal star formatting skips empty missing-symbol writes", {
   expect_identical(fn(x), stat_pval(x))
   expect_identical(fn(c("a", "b"), add_star_p = c(.02, NA)), c("a*", "b"))
 })
+
+test_that("sorted significance maps keep their existing order and duplicate precedence", {
+  fn <- stat_pval
+  map <- c("I" = 0, "first" = .05, "second" = .05, "wide" = .1)
+  environment(fn) <- list2env(list(sort = function(x, ...) {
+    if (identical(x, map)) stop("sorted an already ordered significance map")
+    base::sort(x, ...)
+  }), parent = environment(fn))
+  x <- c(0, .01, .05, .06, .2, NA)
+  for (p in list(x, as.character(x))) {
+    expect_identical(fn(p, map_signif = map), stat_pval(p, map_signif = map))
+  }
+  expect_identical(fn(x, map_signif = rev(map)), stat_pval(x, map_signif = rev(map)))
+})

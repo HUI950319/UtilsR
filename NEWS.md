@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Significance formatting preserves sorted threshold maps and their stable duplicate precedence.
+
 * `stat_pval()` skips replacing absent values when all parsed probability tokens have values.
 
 * `pal_get()` computes a shared numeric mapping for palette lists with supported classed numeric observations.
