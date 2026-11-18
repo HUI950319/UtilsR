@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` computes a shared numeric mapping for palette lists with supported classed numeric observations.
+
 * `fct_num()` reuses its checked breakpoints for duplicate or missing character labels with base factor relabelling semantics.
 
 * `fct_cat(reverse = TRUE)` reverses ordinary factor codes directly while retaining observation names and missing levels.

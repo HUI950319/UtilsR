@@ -565,10 +565,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
           }))
         }
       }
-      if (length(palette) > 1L) {
-        mapping <- .pal_numeric_positions(x, reverse)
-        return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
-      }
+    }
+    if (length(palette) > 1L && is.numeric(x)) {
+      mapping <- .pal_numeric_positions(x, reverse)
+      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
     }
     levels <- if (!is.null(x) && !is.numeric(x)) .pal_discrete_levels(x) else NULL
     return(lapply(palette, .pal_apply,

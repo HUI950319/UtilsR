@@ -3167,3 +3167,18 @@ test_that("discrete palettes retain plain character labels from their keys", {
   expect_identical(fn(c(TRUE, FALSE, NA)), c("TRUE", "FALSE"))
   expect_identical(fn(ordered("o", levels = c("x", "o"))), c("x", "o"))
 })
+
+test_that("numeric palette lists share coordinates for protected numeric vectors", {
+  palettes <- list(a = c("navy", "white"), b = c("red", "gold"), c = "#AB112233")
+  values <- I(c(5, 1, 2, NA_real_, 5, 3, Inf))
+  expected <- lapply(palettes, pal_get, x = values, alpha = .4, reverse = TRUE)
+  locate <- .pal_numeric_positions
+  count <- 0L
+  local_mocked_bindings(.pal_numeric_positions = function(...) {
+    count <<- count + 1L
+    if (count > 1L) stop("recomputed numeric coordinates for another palette")
+    locate(...)
+  })
+  expect_identical(pal_get(palettes, x = values, alpha = .4, reverse = TRUE), expected)
+  expect_equal(count, 1L)
+})
