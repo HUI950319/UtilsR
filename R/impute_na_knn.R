@@ -406,7 +406,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     attributes(original) <- attributes(time_original[[var_name]])
     result[[var_name]] <- original
   }
-  remaining <- vapply(result[vars_with_missing], function(x) sum(is.na(x)), numeric(1))
+  remaining <- vapply(result[vars_with_missing], function(x) {
+    if (!is.object(x) && !anyNA(x)) 0L else sum(is.na(x))
+  }, numeric(1))
   if (any(remaining > 0)) {
     cli::cli_warn("KNN left {sum(remaining)} missing value(s) in {.val {names(remaining)[remaining > 0]}} because usable predictor information was unavailable.")
   }

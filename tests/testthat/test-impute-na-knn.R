@@ -918,3 +918,15 @@ test_that("complete ordinary KNN predictors avoid a second missingness probe", {
   environment(fn) <- env
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("complete KNN results do not allocate a final missing mask", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(value = c(4, 7, NA, 2, 8), partner = c(1, 2, 2, 4, 5))
+  expected <- impute_na_knn(d, k = 1, verbose = FALSE)
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, expected$value)) stop("scanned every row of a complete KNN result")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1, verbose = FALSE), expected)
+})
