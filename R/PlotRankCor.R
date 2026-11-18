@@ -388,6 +388,12 @@ PlotRankCor <- function(
   key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], function(x) {
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
       labels <- levels(x)
+      if (!anyDuplicated(labels)) {
+        ordering <- order(labels, na.last = TRUE)
+        positions <- integer(length(labels))
+        positions[ordering] <- seq_along(ordering)
+        return(positions[as.integer(x)])
+      }
       return(match(labels, sort(labels, na.last = TRUE))[as.integer(x)])
     }
     as.character(x)

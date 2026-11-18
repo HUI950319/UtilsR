@@ -1262,3 +1262,24 @@ test_that("rank method columns fill their positioned pairs directly", {
   expect_identical(out, draw(PlotRankCor))
   expect_identical(unname(out$A), c(as.double(1:12), NA_real_, NA_real_))
 })
+
+test_that("rank correlation uses level order positions without rematching labels", {
+  d <- data.frame(name = factor(rep(c("z", "a", "m", "b"), 2L),
+      levels = c("b", "z", "a", "m", "unused")),
+    method = rep(c("X", "Y"), each = 4L), val = c(2, 3, 4, 6, 2, 3, 6, 7))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(table), quote(sort(labels, na.last = TRUE))))
+      stop("rematched already sorted rank labels")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    result <- NULL
+    invisible(capture.output(result <- f(d, "name", "val", method.by = "method", show.label = FALSE)))
+    result$data
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+  expect_identical(as.character(draw(fn)$name), c("a", "b", "m", "z"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` orders ordinary factor keys without a second lookup across all labels.
+
 * Panel rasterization checks direct gtables for drawable panels before opening a graphics device.
 
 * Replacing axis colours no longer forces unrelated bindings while inspecting the guide container.
