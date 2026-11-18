@@ -1007,3 +1007,18 @@ test_that("raster panel children already in order skip name lookup", {
       unname(lapply(expected$children, class)))
   }
 })
+
+test_that("rasterization skips device creation for direct tables without panels", {
+  skip_if_not_installed("ragg")
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::nullGrob(), t = 1L, l = 1L, name = "panel")
+  fn <- .fmt_raster_ragg
+  env <- new.env(parent = environment(fn))
+  env$.agg_capture <- function(...) stop("opened unused measurement device")
+  environment(fn) <- env
+  device <- grDevices::dev.cur()
+  expect_warning(out <- fn(gt, 72, NULL, NULL, "in", "transparent"), "No panels detected")
+  expect_identical(out, gt)
+  expect_identical(grDevices::dev.cur(), device)
+  expect_error(fn(gt, 72, c(1, 1), NULL, "in", "transparent"), "number of panels")
+})

@@ -268,6 +268,50 @@ fmt_raster <- function(
     cli::cli_abort(c("Panel rasterization requires a ggplot, patchwork, or gtable.",
                     i = "Use {.code method = \"image\"} for a standalone grob."))
   }
+  panel_indices <- function(gt) {
+    indices <- which(grepl("^panel(-[0-9]+)*$", gt$layout$name))
+    indices[!vapply(gt$grobs[indices], inherits, logical(1), c("zeroGrob", "null"))]
+  }
+  plan_panels <- function(gt) {
+    indices <- panel_indices(gt)
+    nested <- which(vapply(gt$grobs, inherits, logical(1), "gtable"))
+    children <- lapply(gt$grobs[nested], plan_panels)
+    counts <- vapply(children, `[[`, integer(1), "count")
+    keep <- counts > 0L
+    nested <- nested[keep]
+    children <- children[keep]
+    counts <- counts[keep]
+    if (!length(nested)) {
+      return(list(indices = indices, nested = nested, children = children,
+        positions = seq_along(indices), offsets = integer(), count = length(indices)))
+    }
+    # A table entry can be both a panel and a parent. Visit the panel first.
+    sizes <- integer(length(gt$grobs))
+    sizes[nested] <- counts
+    sizes[indices] <- sizes[indices] + 1L
+    preceding <- cumsum(c(0L, sizes))
+    list(indices = indices, nested = nested, children = children,
+         positions = preceding[indices] + 1L,
+         offsets = preceding[nested] + as.integer(nested %in% indices),
+         count = preceding[length(preceding)])
+  }
+  check_dimensions <- function(panel_total) {
+    for (arg in c("width", "height")) {
+      value <- if (arg == "width") width else height
+      if (!is.null(value) && !length(value) %in% c(1L, panel_total)) {
+        cli::cli_abort("Length of {.arg {arg}} must be 1 or {panel_total} (number of panels).")
+      }
+    }
+  }
+  direct <- inherits(plot, "gtable") && !inherits(plot, "patchwork")
+  plan <- if (direct) plan_panels(plot)
+  if (direct) {
+    check_dimensions(plan$count)
+    if (!plan$count) {
+      cli::cli_warn("No panels detected. Returning plot as-is.")
+      return(plot)
+    }
+  }
   original_device <- grDevices::dev.cur()
   device_size <- if (original_device == 1L) {
     unlist(grDevices::pdf.options()[c("width", "height")], use.names = FALSE)
@@ -299,44 +343,13 @@ fmt_raster <- function(
   }
 
   unclipped_panels <- FALSE
-  panel_indices <- function(gt) {
-    indices <- which(grepl("^panel(-[0-9]+)*$", gt$layout$name))
-    indices[!vapply(gt$grobs[indices], inherits, logical(1), c("zeroGrob", "null"))]
-  }
-  plan_panels <- function(gt) {
-    indices <- panel_indices(gt)
-    nested <- which(vapply(gt$grobs, inherits, logical(1), "gtable"))
-    children <- lapply(gt$grobs[nested], plan_panels)
-    counts <- vapply(children, `[[`, integer(1), "count")
-    keep <- counts > 0L
-    nested <- nested[keep]
-    children <- children[keep]
-    counts <- counts[keep]
-    if (!length(nested)) {
-      return(list(indices = indices, nested = nested, children = children,
-        positions = seq_along(indices), offsets = integer(), count = length(indices)))
+  if (!direct) {
+    plan <- plan_panels(gtable)
+    check_dimensions(plan$count)
+    if (!plan$count) {
+      cli::cli_warn("No panels detected. Returning plot as-is.")
+      return(plot)
     }
-    # A table entry can be both a panel and a parent. Visit the panel first.
-    sizes <- integer(length(gt$grobs))
-    sizes[nested] <- counts
-    sizes[indices] <- sizes[indices] + 1L
-    preceding <- cumsum(c(0L, sizes))
-    list(indices = indices, nested = nested, children = children,
-         positions = preceding[indices] + 1L,
-         offsets = preceding[nested] + as.integer(nested %in% indices),
-         count = preceding[length(preceding)])
-  }
-  plan <- plan_panels(gtable)
-  panel_total <- plan$count
-  for (arg in c("width", "height")) {
-    value <- if (arg == "width") width else height
-    if (!is.null(value) && !length(value) %in% c(1L, panel_total)) {
-      cli::cli_abort("Length of {.arg {arg}} must be 1 or {panel_total} (number of panels).")
-    }
-  }
-  if (panel_total == 0L) {
-    cli::cli_warn("No panels detected. Returning plot as-is.")
-    return(plot)
   }
   raster_table <- function(gtable, plan, offset = 0L) {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
