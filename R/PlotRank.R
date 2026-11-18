@@ -240,7 +240,7 @@ PlotRank <- function(
       sort(scores, decreasing = TRUE)[seq_len(n)]
     }
     labels <- if (is.null(names(shown))) rep(NA_character_, n) else names(shown)
-    if (clean_names) {
+    if (clean_names && !is.null(names(shown))) {
       labels <- clean_labels(labels)
       names(shown) <- labels
     }

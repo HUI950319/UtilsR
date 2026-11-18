@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` skips cleaning synthetic missing labels for unnamed scores.
+
 * `PlotRank(max_show = 1)` finds the first top observation without sorting a complete score vector.
 
 * Insets assign the first name directly when the host layout has no existing inset at any location.

@@ -863,3 +863,16 @@ test_that("single row ranking previews avoid a full score sort", {
   expect_identical(out, PlotRank(score, max_show = 1L, return_type = "data"))
   expect_identical(out$Label, "v4001")
 })
+
+test_that("unnamed ranking observations do not clean synthetic missing labels", {
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  env$sub <- function(pattern, replacement, x, ...) {
+    if (is.character(x) && length(x) && all(is.na(x))) stop("cleaned nonexistent score labels")
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  dat <- matrix(c(2, 1, 3, 7, 4, 0), ncol = 2L, dimnames = list(NULL, c("first", "second")))
+  expect_identical(fn(dat, clean_names = TRUE, return_type = "data"),
+    PlotRank(dat, clean_names = TRUE, return_type = "data"))
+})
