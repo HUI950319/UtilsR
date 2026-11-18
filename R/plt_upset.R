@@ -447,7 +447,7 @@ plt_upset <- function(data,
     row_keys <- row_codes + 1L
     counts <- tabulate(row_keys, nbins = length(group_names))
     nintersects <- sum(counts[-1L] > 0L)
-    region_order <- order(-counts[codes + 1L])
+    region_order <- order(counts[codes + 1L], decreasing = TRUE, method = "radix")
     ordered <- c(region_order, length(group_names))
     level_codes <- integer(length(group_names))
     level_codes[c(codes[region_order] + 1L, 1L)] <- seq_along(ordered)

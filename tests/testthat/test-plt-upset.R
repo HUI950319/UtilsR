@@ -1129,3 +1129,20 @@ test_that("UpSet classifies a time selector before scanning the columns", {
   expect_identical(as.character(fn(df, vars = names(df), levels = df[["a"]][1L],
                                   output = "data")[["intersect_group"]]), c("a", "b", "b/c"))
 })
+
+test_that("UpSet sorts bounded intersection counts without negating them", {
+  sets <- setNames(lapply(seq_len(16L), function(i) c("shared", as.character(i))),
+                   sprintf("S%02d", seq_len(16L)))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(order = function(x, ...) {
+    if (length(x) == 65535L && any(x < 0L)) stop("allocated negated intersection counts")
+    base::order(x, ...)
+  }), parent = environment(fn))
+  out <- fn(sets, output = "data")
+  groups <- out[["intersect_group"]]
+  expect_identical(length(levels(groups)), 65536L)
+  expect_identical(head(levels(groups), 3),
+                   c("S01", "S02", "S03"))
+  expect_identical(as.character(groups[1L]), paste(names(sets), collapse = "/"))
+  expect_identical(tail(levels(groups), 1L), "None")
+})

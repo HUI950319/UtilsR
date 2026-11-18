@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` orders intersection counts without allocating a vector of negated counts.
+
 * `plt_upset()` checks the time classes of a selector once across all selected columns.
 
 * `PlotRank()` skips cleaning synthetic missing labels for unnamed scores.
