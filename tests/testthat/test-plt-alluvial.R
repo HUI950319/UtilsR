@@ -1331,3 +1331,21 @@ test_that("alluvial gap strata use their final factor codes at construction", {
     expect_identical(unique(as.integer(out$.group[out$.is_gap])), c(2L, 4L))
   }
 })
+
+test_that("ordinary alluvial labels keep their encounter positions in one code pass", {
+  x <- data.frame(a = rep(c("b", "", "a"), 20L), b = rep(c("z", "x", "z", "y"), 15L))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    if (identical(substitute(x), quote(value_chr))) {
+      stop("encoded ordinary character strata through a second factor match")
+    }
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) suppressMessages(f(x, "a", "b", stratum_args = list(gap = 0)))
+  out <- draw(fn)
+  expect_identical(out$data, draw(plt_alluvial)$data)
+  expect_identical(levels(out$data$.cat_var), c("b", "", "a"))
+  expect_identical(levels(out$data$.group), c("z", "x", "y"))
+})

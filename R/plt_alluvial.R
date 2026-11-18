@@ -455,6 +455,10 @@ plt_alluvial <- function(
       new_codes <- cumsum(observed)
       return(structure(new_codes[codes], levels = value_levels[observed], class = class(value)))
     }
+    if (is.character(value) && !is.object(value)) {
+      codes <- vctrs::vec_group_id(value)
+      return(structure(as.integer(codes), levels = unname(value[!duplicated(codes)]), class = "factor"))
+    }
     value_chr <- as.character(value)
     if (is.factor(value)) {
       value_levels <- levels(value)
