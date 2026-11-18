@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` avoids grouping a constant facet column when no facet was requested.
+
 * `plt_alluvial()` builds ordinary character strata with observed encounter order in one pass.
 
 * Continuous paired t-test preparation checks complete plain pairs without copying both sample vectors for their range.

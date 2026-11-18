@@ -1349,3 +1349,16 @@ test_that("ordinary alluvial labels keep their encounter positions in one code p
   expect_identical(levels(out$data$.cat_var), c("b", "", "a"))
   expect_identical(levels(out$data$.group), c("z", "x", "y"))
 })
+
+test_that("unfaceted alluvial counts use category codes alone for pair grouping", {
+  d <- data.frame(a = factor(rep(letters[1:5], 200L)),
+    b = factor(rep(c("B", "A"), 500L)))
+  original <- vctrs::vec_group_id
+  expected <- suppressMessages(plt_alluvial(d, "a", "b"))$data
+  local_mocked_bindings(vec_group_id = function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c(".facet", ".cat_var")))
+      stop("grouped a constant facet column across all records")
+    original(x, ...)
+  }, .package = "vctrs")
+  expect_identical(suppressMessages(plt_alluvial(d, "a", "b"))$data, expected)
+})
