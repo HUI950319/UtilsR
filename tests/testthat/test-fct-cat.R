@@ -976,3 +976,15 @@ test_that("factor reversal reuses ordinary integer positions", {
   expect_identical(as.integer(original), c(3L, 2L, NA_integer_, 4L))
   expect_identical(fn(x[FALSE], reverse = TRUE), fct_cat(x[FALSE], reverse = TRUE))
 })
+
+test_that("numeric factor reorder skips checking validated names", {
+  x <- ordered(c("B", "A", NA, "C"), levels = c("A", "B", "C", "declared"))
+  fn <- fct_cat
+  environment(fn) <- list2env(list(setdiff = function(x, y, ...) {
+    if (identical(substitute(x), quote(new_order))) stop("validated already resolved level names")
+    base::setdiff(x, y, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, c(3L, 1L)), fct_cat(x, c(3L, 1L)))
+  expect_error(fn(x, c(4L, 4L)), "duplicated")
+  expect_error(fn(x, 5L), "between")
+})

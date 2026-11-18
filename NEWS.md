@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Checked positional factor reorder requests skip treating resolved levels as unvalidated labels.
+
 * Significance formatting preserves sorted threshold maps and their stable duplicate precedence.
 
 * `stat_pval()` skips replacing absent values when all parsed probability tokens have values.

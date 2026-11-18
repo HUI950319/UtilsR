@@ -221,14 +221,14 @@ fct_cat <- function(x, ...,
     }
     if (all(is_character)) {
       new_order <- unname(c(...))
+      bad <- setdiff(new_order, cur)
+      if (length(bad) > 0L) {
+        cli::cli_abort("Level{?s} not found: {.val {bad}}.")
+      }
     } else {
       indices <- lapply(dots, .check_integer_index,
                         arg_name = "reorder index", n_levels = length(cur))
       new_order <- cur[unlist(indices, use.names = FALSE)]
-    }
-    bad <- setdiff(new_order, cur)
-    if (length(bad) > 0) {
-      cli::cli_abort("Level{?s} not found: {.val {bad}}.")
     }
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
