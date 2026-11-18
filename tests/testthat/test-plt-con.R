@@ -2386,3 +2386,18 @@ test_that("matching continuous dot size scales are not cloned again", {
   expect_identical(result[[2L]]$scales$get_scales("size")$limits, c(1L, 6L))
   expect_identical(right$scales$get_scales("size")$limits, c(2L, 4L))
 })
+
+test_that("complete paired tests do not slice both observation vectors", {
+  fn <- .con_pairwise_test
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(i), quote(complete)) && all(i))
+      stop("sliced known complete observations for paired test bounds")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  x <- c(20, 3, 10, 5)
+  y <- c(10, 6, 9, 2)
+  compare <- fn("t.test")
+  expect_identical(compare(x, y, paired = TRUE), .con_pairwise_test("t.test")(x, y, paired = TRUE))
+  x[1L] <- NA
+  expect_identical(compare(x, y, paired = TRUE), .con_pairwise_test("t.test")(x, y, paired = TRUE))
+})

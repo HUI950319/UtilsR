@@ -875,14 +875,16 @@ plt_con <- function(data,
   if (identical(test, "t.test")) {
     return(function(x, y, ...) {
       args <- list(...)
-      complete <- if (isTRUE(args$paired)) stats::complete.cases(x, y) else NULL
+      paired <- isTRUE(args$paired)
+      complete <- if (paired && (is.object(x) || is.object(y) ||
+        length(x) != length(y) || anyNA(x) || anyNA(y))) stats::complete.cases(x, y)
       bounds <- suppressWarnings(if (is.null(complete)) range(x, y, finite = TRUE) else
         range(x[complete], y[complete], finite = TRUE))
       unit <- if (all(is.finite(bounds))) max(abs(bounds)) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                        unit > sqrt(.Machine$double.xmax))) {
-        if (!is.null(complete)) {
-          difference <- x[complete] - y[complete]
+        if (paired) {
+          difference <- if (is.null(complete)) x - y else x[complete] - y[complete]
           if (length(difference) && all(is.finite(difference)) && any(difference != 0)) {
             unit <- max(abs(range(difference)))
             x <- difference

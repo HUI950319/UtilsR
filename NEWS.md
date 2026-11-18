@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous paired t-test preparation checks complete plain pairs without copying both sample vectors for their range.
+
 * `impute_na_knn()` skips missing-count vector allocation on complete imputed columns.
 
 * Checked positional factor reorder requests skip treating resolved levels as unvalidated labels.
