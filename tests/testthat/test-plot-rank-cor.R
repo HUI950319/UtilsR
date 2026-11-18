@@ -1283,3 +1283,23 @@ test_that("rank correlation uses level order positions without rematching labels
   expect_identical(draw(fn), draw(PlotRankCor))
   expect_identical(as.character(draw(fn)$name), c("a", "b", "m", "z"))
 })
+
+test_that("ordered rank pivots retain already sorted rows", {
+  d <- data.frame(name = rep(letters[1:9], each = 2L), method = rep(c("X", "Y"), 9L), val = 1:18)
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(i), quote(key_order)) && identical(i, seq_len(nrow(x)))) {
+      stop("copied an already sorted rank pivot")
+    }
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) {
+    result <- NULL
+    invisible(capture.output(result <- suppressMessages(f(d, "name", "val", method.by = "method",
+      show.label = FALSE))))
+    result$data
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation pivots retain their data frame when the existing key order is already correct.
+
 * `PlotRankCor()` orders ordinary factor keys without a second lookup across all labels.
 
 * Panel rasterization checks direct gtables for drawable panels before opening a graphics device.

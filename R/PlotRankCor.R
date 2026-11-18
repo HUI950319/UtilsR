@@ -398,7 +398,7 @@ PlotRankCor <- function(
     }
     as.character(x)
   })))
-  pivot_data <- pivot_data[key_order, , drop = FALSE]
+  if (is.unsorted(key_order)) pivot_data <- pivot_data[key_order, , drop = FALSE]
 
   # Pivot to wide: one column per method
   method_names <- methods
