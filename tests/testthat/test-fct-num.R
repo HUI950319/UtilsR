@@ -361,3 +361,17 @@ test_that("repeated interval labels reuse checked bin codes", {
     expect_identical(fn(x, breaks, labels), cut(x, breaks, labels, include.lowest = TRUE))
   }
 })
+
+test_that("fixed break labels assemble without assigning a full placeholder vector", {
+  fn <- .make_break_labels
+  env <- new.env(parent = environment(fn))
+  env$character <- function(length = 0L) {
+    if (length > 1L) stop("allocated placeholder interval labels")
+    base::character(length)
+  }
+  environment(fn) <- env
+  expect_identical(fn(c(-5, 2, 10)), c("below_-5", "-5-2", "2-10", "above_10"))
+  expect_identical(fn(3), c("below_3", "above_3"))
+  x <- 1 + c(0, .Machine$double.eps, 5 * .Machine$double.eps)
+  expect_identical(fn(x), .make_break_labels(x))
+})

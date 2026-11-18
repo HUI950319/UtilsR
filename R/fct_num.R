@@ -269,13 +269,8 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (anyDuplicated(break_text)) {
     break_text <- sprintf("%.17g", breaks)
   }
-  labs <- character(n + 1L)
-  labs[1] <- paste0("below_", break_text[1])
-  if (n >= 2) {
-    labs[seq.int(2L, n)] <- paste0(break_text[-n], "-", break_text[-1L])
-  }
-  labs[n + 1] <- paste0("above_", break_text[n])
-  labs
+  middle <- if (n >= 2L) paste0(break_text[-n], "-", break_text[-1L])
+  c(paste0("below_", break_text[1L]), middle, paste0("above_", break_text[n]))
 }
 
 # ---- Internal: auto-generate labels for nbins ----
