@@ -1097,3 +1097,18 @@ test_that("UpSet row codes assign the first set without combining zero bits", {
   expect_identical(fn(sets, 10L), c(1L, 5L, rep(1L, 4L), 0L, 0L, 4L, 0L))
   expect_identical(fn(list(integer(), c(1L, 3L)), 3L), c(2L, 0L, 2L))
 })
+
+test_that("complete ordinary UpSet selectors avoid an unnecessary mask slice", {
+  d <- data.frame(a = rep(c("yes", "no", NA), 24L), b = rep(c("yes", "no"), 36L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, i, ...) {
+    if (identical(substitute(x), quote(levels)) && !missing(i) && is.logical(i) && all(i))
+      stop("sliced every complete UpSet selector")
+    base::"["(x, i, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f, lev) f(d, c("a", "b"), levels = lev, output = "data")
+  expect_identical(draw(fn, c("yes", "true")), draw(plt_upset, c("yes", "true")))
+  expect_identical(draw(fn, c("yes", NA)), draw(plt_upset, c("yes", NA)))
+})

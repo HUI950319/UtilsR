@@ -369,7 +369,7 @@ plt_upset <- function(data,
       }
     }
     missing_levels <- anyNA(levels)
-    value_levels <- levels[!is.na(levels)]
+    value_levels <- if (!is.object(levels) && !missing_levels) levels else levels[!is.na(levels)]
     time_level_keys <- NULL
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
       values <- data[[v]]
