@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Replacing axis colours no longer forces unrelated bindings while inspecting the guide container.
+
 * `fmt_legend()` preserves unrelated lazy and active guide bindings when installing its layout calculation.
 
 * `pr_spark()` computes each bin peak once when rendering a sparkline.

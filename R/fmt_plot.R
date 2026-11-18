@@ -3822,7 +3822,7 @@ fmt_axisTile <- function(plot,
     guides <- p$guides
     parent <- if (replacing && is.function(guides$super)) guides$super() else NULL
     if (!is.null(parent) && identical(class(guides), class(parent)) &&
-        identical(names(as.list(guides, inherit = FALSE, all.names = TRUE)), "guides")) {
+        identical(setdiff(ls(guides, all.names = TRUE, sorted = FALSE), "super"), "guides")) {
       configured <- guides$guides
       configured[[axis]] <- guide
       p$guides <- do.call(ggplot2::ggproto, list(NULL, parent, guides = configured), envir = baseenv())

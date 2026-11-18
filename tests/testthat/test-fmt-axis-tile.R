@@ -662,3 +662,15 @@ test_that("axis coverage checks use trained plain character labels", {
   settings$colors <- c(unobserved = "red")
   expect_warning(fn(parent, settings)$extract_key(scale, "x"), "match no|No names")
 })
+
+test_that("axis tile replacement does not force other guide bindings", {
+  p <- ggplot2::ggplot(data.frame(x = c("A", "B"), y = 1:2), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  original <- fmt_axisTile(p, c(A = "red", B = "blue"))
+  guide <- original$guides
+  delayedAssign("unrelated", stop("forced unrelated axis guide binding"), assign.env = guide)
+  edited <- fmt_axisTile(original, c(A = "red", B = "green"))
+  expect_identical(edited$guides$guides$x$params$axis_tile$colors, c(A = "red", B = "green"))
+  expect_identical(original$guides$guides$x$params$axis_tile$colors, c(A = "red", B = "blue"))
+  expect_no_error(ggplot2::ggplotGrob(edited))
+})
