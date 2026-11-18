@@ -218,7 +218,7 @@ PlotRank <- function(
     scores <- score_list[[i]]
     n <- min(length(scores), max_show)
     candidates <- NULL
-    if (!is.object(scores) && is.double(scores) && length(scores) >= 8192L &&
+    if (n > 1L && !is.object(scores) && is.double(scores) && length(scores) >= 8192L &&
         n <= length(scores) / 64) {
       probe <- scores[seq.int(1L, length(scores), length.out = 1024L)]
       if (is.unsorted(probe) && is.unsorted(rev(probe))) {
@@ -229,7 +229,9 @@ PlotRank <- function(
         if (length(rows) >= n && length(rows) <= length(scores) / 8) candidates <- rows
       }
     }
-    shown <- if (!is.null(candidates)) {
+    shown <- if (n == 1L && !is.object(scores)) {
+      scores[which.max(scores)]
+    } else if (!is.null(candidates)) {
       positions <- order(scores[candidates], decreasing = TRUE, method = "radix")[seq_len(n)]
       scores[candidates[positions]]
     } else if (!is.object(scores) && n < length(scores)) {

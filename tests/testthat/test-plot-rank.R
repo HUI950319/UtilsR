@@ -849,3 +849,17 @@ test_that("rank defaults obtain ordinary group keys and row positions together",
   environment(fn) <- env
   expect_identical(fn(d, "group", "name", "value", NULL), .pr_parse(d, "group", "name", "value", NULL))
 })
+
+test_that("single row ranking previews avoid a full score sort", {
+  score <- setNames(c(rep(-1, 4000L), Inf, 7, Inf, NA_real_), paste0("v", 1:4004))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  env$order <- function(..., decreasing = FALSE, method = c("auto", "shell", "radix")) {
+    if (decreasing && length(list(...)[[1L]]) > 100L) stop("sorted all scores for a single result")
+    base::order(..., decreasing = decreasing, method = method)
+  }
+  environment(fn) <- env
+  out <- fn(score, max_show = 1L, return_type = "data")
+  expect_identical(out, PlotRank(score, max_show = 1L, return_type = "data"))
+  expect_identical(out$Label, "v4001")
+})
