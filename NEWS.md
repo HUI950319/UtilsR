@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Custom significance threshold maps use a single range reduction for complete ordinary numeric values.
+
 * `fct_num()` assembles its first, middle and last labels directly from already formatted cut points.
 
 * `plt_upset()` uses complete ordinary query vectors directly when computing set membership.

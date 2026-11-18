@@ -361,9 +361,12 @@ stat_pval <- function(x,
 
 #' @noRd
 .validate_signif_map <- function(map) {
-  if (!is.numeric(map) || is.object(map) || !is.null(dim(map)) ||
-      (length(map) > 0L && is.null(names(map))) || anyNA(names(map)) ||
-      any(!is.finite(map) | map < 0 | map > 1)) {
-    cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
+  valid_storage <- is.numeric(map) && !is.object(map) && is.null(dim(map))
+  if (valid_storage && !length(map)) return(invisible(NULL))
+  valid_names <- !is.null(names(map)) && !anyNA(names(map))
+  if (valid_storage && valid_names && !anyNA(map)) {
+    bounds <- range(map)
+    if (bounds[1L] >= 0 && bounds[2L] <= 1) return(invisible(NULL))
   }
+  cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
 }

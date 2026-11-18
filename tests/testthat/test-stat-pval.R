@@ -927,3 +927,16 @@ test_that("sorted significance maps keep their existing order and duplicate prec
   }
   expect_identical(fn(x, map_signif = rev(map)), stat_pval(x, map_signif = rev(map)))
 })
+
+test_that("significance validation uses extrema on complete threshold maps", {
+  fn <- .validate_signif_map
+  env <- new.env(parent = environment(fn))
+  env$is.finite <- function(x) stop("allocated a finiteness mask over the threshold map")
+  environment(fn) <- env
+  expect_no_error(fn(setNames(seq(0, 1, length.out = 250L), seq_len(250L))))
+  expect_no_error(fn(numeric()))
+  for (bad in list(c(a = -Inf), c(a = Inf), c(a = -1e-15), c(a = NA_real_),
+      c(a = 2), c(a = NaN), c(.1), setNames(.1, NA_character_))) {
+    expect_error(fn(bad), "map_signif")
+  }
+})
