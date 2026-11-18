@@ -901,3 +901,15 @@ test_that("ordinary decimal P-values skip building empty threshold tie groups", 
     expect_identical(fn(x), stat_pval(x))
   }
 })
+
+test_that("decimal star formatting skips empty missing-symbol writes", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(substitute(i), quote(is.na(pvals))) && !any(i))
+      stop("replaced empty missing decimal significance symbols")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  x <- c(".005", ".05", ".050000000000000001", "0.4", NA_character_, "<0.01")
+  expect_identical(fn(x), stat_pval(x))
+  expect_identical(fn(c("a", "b"), add_star_p = c(.02, NA)), c("a*", "b"))
+})

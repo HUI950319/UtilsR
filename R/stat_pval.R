@@ -163,7 +163,7 @@ stat_pval <- function(x,
       index[rows[above]] <- index[rows[above]] + 1L
     }
     stars <- c(names(map), "")[index]
-    stars[is.na(pvals)] <- ""
+    if (anyNA(pvals)) stars[is.na(pvals)] <- ""
     stars
   }
 

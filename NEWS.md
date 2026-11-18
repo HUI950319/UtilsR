@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` skips replacing absent values when all parsed probability tokens have values.
+
 * `pal_get()` computes a shared numeric mapping for palette lists with supported classed numeric observations.
 
 * `fct_num()` reuses its checked breakpoints for duplicate or missing character labels with base factor relabelling semantics.
