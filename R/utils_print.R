@@ -1342,8 +1342,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
                           rightmost.closed = TRUE), nbins = bins)
   }
   spark <- function(counts) {
-    if (!length(counts) || max(counts) == 0) return("")
-    format(cli::spark_bar(as.numeric(counts) / max(counts)))
+    if (!length(counts)) return("")
+    peak <- max(counts)
+    if (peak == 0) return("")
+    format(cli::spark_bar(as.numeric(counts) / peak))
   }
   # 3 significant digits, trailing zeros kept, without formatC()'s padding
   sig3 <- function(z) {

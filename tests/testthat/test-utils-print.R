@@ -2192,3 +2192,20 @@ test_that("complete classed console text skips empty missing replacements", {
     expect_identical(fn(x), ._as_text(x))
   }
 })
+
+test_that("console sparklines use a single maximum per bin count vector", {
+  d <- data.frame(x = seq_len(50))
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$max <- function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...))[[2L]], quote(counts))) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("searched the same sparkline bins twice")
+    }
+    base::max(..., na.rm = na.rm)
+  }
+  environment(fn) <- env
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+  expect_identical(calls, 1L)
+})

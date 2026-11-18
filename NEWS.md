@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` computes each bin peak once when rendering a sparkline.
+
 * Custom significance threshold maps use a single range reduction for complete ordinary numeric values.
 
 * `fct_num()` assembles its first, middle and last labels directly from already formatted cut points.
