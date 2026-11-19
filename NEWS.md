@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical background bands validate ordinary factor codes and decode only the displayed background groups.
+
 * Stacked `plt_con()` builds complete numeric features and ordinary factor groups directly as a long data frame.
 
 * Stacked `plt_con()` finds complete ordinary numeric features without allocating a finiteness mask for each one.

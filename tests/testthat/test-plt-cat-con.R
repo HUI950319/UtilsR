@@ -2048,3 +2048,21 @@ test_that("unsplit category panels keep their already prepared levels", {
   panels <- suppressMessages(plt_cat(d, "a", group.by = "g", split.by = "split", label = FALSE))
   expect_s3_class(panels, "patchwork")
 })
+
+test_that("background band checks avoid converting each factor observation to text", {
+  d <- data.frame(grp = factor(rep(letters[1:3], each = 5L)),
+    bg = ordered(rep(c("n", "m", "n"), each = 5L), levels = c("m", "n", "unused")))
+  fn <- .build_bg_layer
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(x, d[["bg"]])) stop("decoded all categorical background observations")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  for (continuous in c(TRUE, FALSE)) {
+    actual <- fn(d, "grp", "bg", .2, axis_levels = c("c", "b", "a"), continuous = continuous)
+    expected <- .build_bg_layer(d, "grp", "bg", .2, axis_levels = c("c", "b", "a"), continuous = continuous)
+    expect_identical(actual[["data"]], expected[["data"]])
+  }
+  d[["bg"]][1L] <- NA
+  expect_warning(actual <- fn(d, "grp", "bg", .2), "Background disabled")
+  expect_null(actual)
+})

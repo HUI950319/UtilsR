@@ -1259,11 +1259,14 @@ plt_cat <- function(data,
     group_codes <- match(group_values, axis_levels)
   }
   group_ids <- sort(unique(group_codes))
-  backgrounds <- as.character(data[[bg.by]])
-  bg_map <- backgrounds[match(group_ids, group_codes)]
-  by_code <- rep(NA_character_, length(axis_levels))
+  backgrounds <- data[[bg.by]]
+  factor_codes <- (identical(class(backgrounds), "factor") ||
+    identical(class(backgrounds), c("ordered", "factor"))) && !anyNA(levels(backgrounds))
+  values <- if (factor_codes) as.integer(backgrounds) else as.character(backgrounds)
+  bg_map <- values[match(group_ids, group_codes)]
+  by_code <- rep.int(NA, length(axis_levels))
   by_code[group_ids] <- bg_map
-  consistent <- is.na(group_codes) | backgrounds == by_code[group_codes]
+  consistent <- is.na(group_codes) | values == by_code[group_codes]
 
   if (!isTRUE(all(consistent))) {
     cli::cli_warn(
@@ -1273,6 +1276,7 @@ plt_cat <- function(data,
   }
 
   group_levels <- axis_levels[group_ids]
+  if (factor_codes) bg_map <- levels(backgrounds)[bg_map]
   bg_levels <- unique(bg_map)
 
   bg_cols <- .resolve_bg_palette(bg_palette, bg_levels)
