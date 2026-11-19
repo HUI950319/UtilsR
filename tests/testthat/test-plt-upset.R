@@ -1146,3 +1146,18 @@ test_that("UpSet sorts bounded intersection counts without negating them", {
   expect_identical(as.character(groups[1L]), paste(names(sets), collapse = "/"))
   expect_identical(tail(levels(groups), 1L), "None")
 })
+
+test_that("UpSet uses shared factor codes with explicit missing levels", {
+  labels <- c(paste0("level", seq_len(4000L)), NA_character_)
+  a <- structure(c(1L, 4001L, 4L, NA_integer_), levels = labels, class = "factor")
+  b <- structure(c(4001L, NA_integer_, 4L, 1L), levels = labels, class = c("ordered", "factor"))
+  query <- structure(4001L, levels = labels, class = "factor")
+  df <- data.frame(a = a, b = b)
+  fn <- plt_upset
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (length(x) == 2L * length(labels)) stop("rebuilt a shared factor dictionary")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  groups <- fn(df, vars = c("a", "b"), levels = query, output = "data")
+  expect_identical(as.character(groups[["intersect_group"]]), c("b", "a", "None", "None"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` matches factor codes directly when both inputs share their level dictionary.
+
 * P-value formatting trims leading and trailing Unicode whitespace in a single pass.
 
 * `stat_ci_parse()` reuses the positive interval endpoints during log-scale diagnostics.
