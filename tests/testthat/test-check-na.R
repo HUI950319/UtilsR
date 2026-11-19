@@ -897,3 +897,17 @@ test_that("quality reports collect both column metrics without a list of pairs",
     expect_identical(fn(d, show_all = TRUE)[["_data"]], check_na(d, show_all = TRUE)[["_data"]])
   }
 })
+
+test_that("complete factor tallies keep their existing count vector", {
+  x <- factor(rep(c("c", "a", "b"), each = 4L))
+  fn <- .factor_tally
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(counts)) && identical(i, seq_along(x)))
+      stop("copied all observed factor counts")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .factor_tally(x))
+  x <- x[x != "a"]
+  expect_identical(fn(x), .factor_tally(x))
+  expect_identical(fn(factor(character())), .factor_tally(factor(character())))
+})

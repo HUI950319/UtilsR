@@ -337,7 +337,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }
   counts <- tabulate(row_codes, nbins = k)
   observed <- which(counts > 0L)
-  list(codes = observed, counts = counts[observed], row_codes = row_codes)
+  list(codes = observed, counts = if (length(observed) == k) counts else counts[observed],
+       row_codes = row_codes)
 }
 
 # Whether each distinct value is a special marker under the rules of

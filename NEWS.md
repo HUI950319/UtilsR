@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor tallies keep the complete count vector when every declared level occurs.
+
 * Sparse categorical tables reuse unique paired factor codes and their unit counts.
 
 * KNN uses scalar extrema to validate ordinary numeric columns with no infinite observations.
