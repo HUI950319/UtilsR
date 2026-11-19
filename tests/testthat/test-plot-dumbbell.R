@@ -1015,3 +1015,18 @@ test_that("ordinary integer endpoints do not need a double representability scan
   expect_identical(fn(x, y), bit64::as.integer64(c("9007199254740992", NA, "-9007199254740992", "1")))
   expect_identical(fn(y, x), -.dumbbell_integer64_difference(x, y))
 })
+
+test_that("dumbbell inset annotations use the upper numeric range endpoint", {
+  d <- data.frame(a = c(1L, 8L, 3L, 7L), b = c(2L, 5L, 12L, 11L))
+  draw <- function(f) f(d, "a", "b", "before", "after", "blue", "red", "boxplot",
+    "t.test", FALSE, FALSE, ggplot2::theme_classic())
+  fn <- .build_dumbbell_inset
+  environment(fn) <- list2env(list(max = function(..., na.rm = FALSE) {
+    x <- list(...)
+    if (length(x) == 1L && length(x[[1L]]) == 8L)
+      stop("scanned the inset values for a second endpoint maximum")
+    base::max(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  expect_identical(ggplot2::ggplot_build(draw(fn))$data,
+                   ggplot2::ggplot_build(draw(.build_dumbbell_inset))$data)
+})

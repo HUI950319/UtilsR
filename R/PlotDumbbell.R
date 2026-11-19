@@ -760,8 +760,8 @@ PlotDumbbell <- function(
       sprintf("p = %.3f", p_val)
     }
 
-    y_max <- max(df_long$.value, na.rm = TRUE)
     y_range <- range(df_long$.value, na.rm = TRUE)
+    y_max <- if (is.object(df_long$.value)) max(df_long$.value, na.rm = TRUE) else y_range[2L]
     if (is.integer(y_range) && !is.object(y_range)) y_range <- as.double(y_range)
     y_span <- diff(y_range)
     bracket_offset <- y_span * 0.05

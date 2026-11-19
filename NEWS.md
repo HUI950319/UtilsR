@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric dumbbell insets reuse their existing range for significance bracket placement.
+
 * `PlotDumbbell()` promotes ordinary integer endpoints directly when the paired endpoint uses `integer64`.
 
 * Jaccard filtering detects duplicate ordinary integer and double features without two directional scans.
