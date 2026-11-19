@@ -2510,3 +2510,23 @@ test_that("continuous ANOVA and shared ranges reuse scalar extrema", {
   scale <- ggplot2::scale_y_continuous()
   expect_identical(shared(target, NULL, 0L, FALSE)(scale)$data, c(1, 8))
 })
+
+test_that("pairwise t tests find complete sample bounds without range dispatch", {
+  x <- c(1, 3, 8, 12)
+  y <- c(2, 6, 7, 15)
+  fn <- .con_pairwise_test
+  environment(fn) <- list2env(list(range = function(x, y, ...) {
+    if (missing(y)) return(base::range(x, ...))
+    if (length(x) == 4L && length(y) == 4L && all(is.finite(c(x, y)))) {
+      stop("dispatched range for two complete samples")
+    }
+    base::range(x, y, ...)
+  }), parent = environment(fn))
+  pair <- fn("t.test")
+  reference <- .con_pairwise_test("t.test")
+  expect_identical(pair(x, y), reference(x, y))
+  expect_identical(pair(x * 1e200, y * 1e200, paired = TRUE),
+                   reference(x * 1e200, y * 1e200, paired = TRUE))
+  x[1L] <- NA_real_
+  expect_identical(pair(x, y, paired = TRUE), reference(x, y, paired = TRUE))
+})

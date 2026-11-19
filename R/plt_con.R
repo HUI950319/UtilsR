@@ -896,8 +896,15 @@ plt_con <- function(data,
       paired <- isTRUE(args$paired)
       complete <- if (paired && (is.object(x) || is.object(y) ||
         length(x) != length(y) || anyNA(x) || anyNA(y))) stats::complete.cases(x, y)
-      bounds <- suppressWarnings(if (is.null(complete)) range(x, y, finite = TRUE) else
-        range(x[complete], y[complete], finite = TRUE))
+      bounds <- NULL
+      if (is.null(complete) && !is.object(x) && !is.object(y) &&
+          (length(x) || length(y))) {
+        bounds <- c(min(x, y), max(x, y))
+      }
+      if (is.null(bounds) || !all(is.finite(bounds))) {
+        bounds <- suppressWarnings(if (is.null(complete)) range(x, y, finite = TRUE) else
+          range(x[complete], y[complete], finite = TRUE))
+      }
       unit <- if (all(is.finite(bounds))) max(abs(bounds)) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                        unit > sqrt(.Machine$double.xmax))) {

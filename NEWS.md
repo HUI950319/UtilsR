@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous pairwise t tests avoid concatenating two complete samples when checking their numeric scale.
+
 * Continuous ANOVA and shared y-axis limits use scalar extrema for complete outcomes.
 
 * Shared continuous y-axis limits reuse complete finite columns and their matching group rows.
