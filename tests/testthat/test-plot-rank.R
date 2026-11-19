@@ -892,3 +892,19 @@ test_that("ranked rows use group order from score vectors before expanding", {
   for (lv in list(NULL, c("C", "B", "A"))) expect_identical(draw(fn, lv), draw(PlotRank, lv))
   expect_identical(levels(draw(fn, c("C", "B", "A"))[["Group"]]), c("B", "A"))
 })
+
+test_that("ranking label cleanup preserves legacy chained suffix order", {
+  tails <- c("", "(+)", "(-)", "(18g)", " ", "\n", "_")
+  cases <- expand.grid(tails, tails, tails, stringsAsFactors = FALSE)
+  labels <- paste0("HALLMARK_REACTOME_X_", cases[[1L]], cases[[2L]], cases[[3L]])
+  values <- setNames(rev(seq_along(labels)), labels)
+  fn <- PlotRank
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (identical(pattern, "\\(\\+\\)$")) stop("scanned ranking scores for each sign suffix")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  expected <- sub("\\(\\d+g\\)$", "", sub("\\(\\-\\)$", "", sub("\\(\\+\\)$", "", labels)))
+  expected <- gsub("_", " ", sub("^HALLMARK_REACTOME_", "", trimws(expected)))
+  out <- fn(values, max_show = length(values), return_type = "data")
+  expect_identical(out[["Label"]], expected)
+})

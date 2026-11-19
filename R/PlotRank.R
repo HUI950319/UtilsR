@@ -203,9 +203,7 @@ PlotRank <- function(
 
   # Clean the labels of displayed scores only.
   clean_labels <- function(nm) {
-    nm <- sub("\\(\\+\\)$", "", nm)
-    nm <- sub("\\(\\-\\)$", "", nm)
-    nm <- sub("\\(\\d+g\\)$", "", nm)
+    nm <- sub("(\\(\\d+g\\))?(\\(-\\))?(\\(\\+\\))?$", "", nm)
     nm <- trimws(nm)
     nm <- sub("^(?:HALLMARK_)?(?:KEGG_)?(?:REACTOME_)?(?:GOBP_)?(?:PROGENY_)?(?:WP_)?(?:PID_)?(?:BIOCARTA_)?",
               "", nm, perl = TRUE)

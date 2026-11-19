@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` removes the existing suffix forms in one pass while preserving their precedence.
+
 * The `lv()` console uses one range per working vector to place distribution bins.
 
 * Grob validation only inspects nested unit operands when a layout actually contains compound units.
