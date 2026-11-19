@@ -542,8 +542,9 @@ stat_ci_parse <- function(x,
     undecided <- ok & !log_wins & !lin_wins
     # A vector usually holds one kind of effect: undecided intervals follow
     # the decided ones when those agree, and are read as ratios otherwise
-    agree <- any(log_wins) != any(lin_wins)
-    is_exp <- log_wins | (undecided & (!agree | any(log_wins)))
+    has_log_votes <- any(log_wins)
+    agree <- has_log_votes != any(lin_wins)
+    is_exp <- log_wins | (undecided & (!agree | has_log_votes))
     ambiguous <- undecided & !agree
   } else {
     return(list(is_exp = ok, invalid = invalid, ambiguous = rep(FALSE, length(est)),

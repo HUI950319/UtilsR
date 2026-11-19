@@ -1139,3 +1139,19 @@ test_that("fully parsed confidence interval input bypasses malformed-row inspect
   expect_warning(out <- fn(c(x, "unparsed", NA), exp = FALSE, output = "p"), "1 element")
   expect_identical(out[3:4], rep(NA_real_, 2L))
 })
+
+test_that("automatic CI diagnostics scan logarithmic votes once", {
+  fn <- .ci_scale
+  scanned <- 0L
+  environment(fn) <- list2env(list(any = function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...)), quote(list(log_wins)))) {
+      scanned <<- scanned + 1L
+      if (scanned > 1L) stop("rescanned confidence interval logarithmic votes")
+    }
+    base::any(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  a <- list(c(1, 4, -2, 2), c(.5, 2, -3, 1), c(2, 8, -1, 4),
+            matrix(.001, 4L, 3L), "auto", rep(TRUE, 4L))
+  expect_identical(do.call(fn, a), do.call(.ci_scale, a))
+  expect_identical(scanned, 1L)
+})
