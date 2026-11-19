@@ -1034,3 +1034,18 @@ test_that("text-only raster panels preserve vector viewport without measuring it
   expect_identical(result[["vp"]], g[["vp"]])
   expect_identical(result[["children"]][["text"]], g[["children"]][["text"]])
 })
+
+test_that("raster size inference skips span processing for one-cell panels", {
+  gt <- gtable::gtable(widths = grid::unit(c(1, 2, 3), "cm"), heights = grid::unit(1, "cm"))
+  gt <- gtable::gtable_add_grob(gt, list(grid::rectGrob(), grid::circleGrob()), t = 1,
+    l = c(1, 3), name = c("panel-1", "panel-2"))
+  fn <- .resolve_panel_size
+  environment(fn) <- list2env(list(vapply = function(X, FUN, FUN.VALUE, ...) {
+    if (identical(substitute(X), quote(distinct)) && !length(X))
+      stop("inspected an empty set of raster panel spans")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(gt, 1:2, "width", NULL, "cm", c(1, 2, 3)), c(1, 3))
+  gt[["layout"]][["r"]][1L] <- 2L
+  expect_identical(fn(gt, 1:2, "width", NULL, "cm", c(1, 2, 3)), c(3, 3))
+})

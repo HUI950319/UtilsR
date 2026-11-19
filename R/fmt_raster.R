@@ -561,14 +561,16 @@ fmt_raster <- function(
     to <- layout[[if (dim == "width") "r" else "b"]][panel_index]
     sizes <- cell_sizes[from]
     spanning <- which(from != to)
-    span_ids <- if (length(spanning) >= 8L) {
-      vctrs::vec_group_id(vctrs::new_data_frame(list(from = from[spanning], to = to[spanning])))
+    if (length(spanning)) {
+      span_ids <- if (length(spanning) >= 8L) {
+        vctrs::vec_group_id(vctrs::new_data_frame(list(from = from[spanning], to = to[spanning])))
+      }
+      distinct <- if (is.null(span_ids)) spanning else spanning[!duplicated(span_ids)]
+      totals <- vapply(distinct, function(i) {
+        sum(cell_sizes[from[i]:to[i]])
+      }, numeric(1L))
+      sizes[spanning] <- if (is.null(span_ids)) totals else totals[span_ids]
     }
-    distinct <- if (is.null(span_ids)) spanning else spanning[!duplicated(span_ids)]
-    totals <- vapply(distinct, function(i) {
-      sum(cell_sizes[from[i]:to[i]])
-    }, numeric(1L))
-    sizes[spanning] <- if (is.null(span_ids)) totals else totals[span_ids]
   } else {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
       nrow = length(gtable$heights), ncol = length(gtable$widths),

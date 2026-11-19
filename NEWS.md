@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterisation uses single-cell measurements directly and sums spans only for panels covering multiple cells.
+
 * Panel rasterisation leaves vector-only panels without measuring a bitmap viewport.
 
 * Sparse factor summaries avoid hashing the complete row codes twice when many factor levels are unused.
