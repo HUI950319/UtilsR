@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Complete `stat_ci_parse(output = "ci_p")` results use the computed intervals and probabilities directly.
+
 * `stat_ci_parse()` reuses the same complete-row check through interval formatting and probability output.
 
 * `plt_sankey()` uses a compact lookup for dense stage levels and preserves explicit NA levels separately from missing observations.

@@ -345,10 +345,14 @@ stat_ci_parse <- function(x,
     ci = ci_str,
     p = pval,
     ci_p = {
-      text <- stat_pval(pval[valid], mode = "pvalue")
-      value <- x
-      value[valid] <- paste0(ci_str[valid], ", p", ifelse(startsWith(text, "<"), "", "="), text)
-      value
+      text <- stat_pval(if (all_valid) pval else pval[valid], mode = "pvalue")
+      intervals <- if (all_valid) ci_str else ci_str[valid]
+      combined <- paste0(intervals, ", p", ifelse(startsWith(text, "<"), "", "="), text)
+      if (all_valid) combined else {
+        value <- x
+        value[valid] <- combined
+        value
+      }
     },
     ci_star = ifelse(valid,
       stat_pval(ci_str, add_star_p = pval, map_signif = map_signif),

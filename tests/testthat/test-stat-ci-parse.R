@@ -1187,3 +1187,18 @@ test_that("CI parsing reuses final row validity across output preparation", {
                      stat_ci_parse(value, exp = FALSE, output = "ci_p"))
   }
 })
+
+test_that("fully matched interval and probability text uses complete computed rows", {
+  x <- c(a = "50 (49, 51)", b = "0.0 (-.5, .5)", c = "1.5 (0.0, 3.0)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(pval)) && identical(substitute(i), quote(valid)) && all(i))
+      stop("resliced each probability for already complete intervals")
+    if (missing(i)) return(base::"["(x, , ...))
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  for (value in list(x, c(x, absent = NA_character_))) {
+    expect_identical(fn(value, exp = FALSE, output = "ci_p"),
+                     stat_ci_parse(value, exp = FALSE, output = "ci_p"))
+  }
+})
