@@ -861,9 +861,17 @@ plt_con <- function(data,
   .from_plot_list(changed, info$is_patchwork, info$is_single, info$pw_orig, recurse = TRUE)
 }
 
+.con_finite_bounds <- function(x) {
+  if (length(x)) {
+    bounds <- c(min(x), max(x))
+    if (all(is.finite(bounds))) return(bounds)
+  }
+  range(x, finite = TRUE)
+}
+
 .con_anova_values <- function(x) {
   if (!is.object(x)) {
-    bounds <- suppressWarnings(range(x, finite = TRUE))
+    bounds <- suppressWarnings(.con_finite_bounds(x))
     if (!all(is.finite(bounds))) return(x)
   } else {
     finite <- is.finite(x)
@@ -1211,7 +1219,7 @@ plt_con <- function(data,
     if (identical(transformation, previous)) return(cached)
     transformed <- scale$transform(values)
     bounds <- if (is.null(groups) && !is.object(transformed)) {
-      range(transformed, finite = TRUE)
+      .con_finite_bounds(transformed)
     } else {
       keep <- is.finite(transformed)
       complete <- all(keep)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous ANOVA and shared y-axis limits use scalar extrema for complete outcomes.
+
 * Shared continuous y-axis limits reuse complete finite columns and their matching group rows.
 
 * Continuous zero-variance interval calculation skips the full equality vector for ordinary constant samples.

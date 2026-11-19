@@ -2489,3 +2489,24 @@ test_that("shared continuous y limits reuse complete feature rows", {
   expect_identical(ggplot2::layer_data(out[[1L]]), ggplot2::layer_data(expected[[1L]]))
   expect_identical(ggplot2::layer_data(out[[2L]]), ggplot2::layer_data(expected[[2L]]))
 })
+
+test_that("continuous ANOVA and shared ranges reuse scalar extrema", {
+  target <- c(1, 4, 2, 8)
+  shared <- .con_shared_range
+  anova <- .con_anova_values
+  env <- list2env(list(range = function(x, ...) {
+    if (identical(x, target)) stop("recomputed the finite range of complete values")
+    base::range(x, ...)
+  }), parent = environment(anova))
+  if (exists(".con_finite_bounds", envir = environment(anova), inherits = FALSE)) {
+    finite_bounds <- get(".con_finite_bounds", envir = environment(anova))
+    environment(finite_bounds) <- env
+    env$.con_finite_bounds <- finite_bounds
+    expect_identical(finite_bounds(c(1, Inf, NA_real_, 4, NaN, 8)), c(1, 8))
+    expect_identical(suppressWarnings(finite_bounds(numeric())), c(Inf, -Inf))
+  }
+  environment(anova) <- environment(shared) <- env
+  expect_identical(anova(target), target)
+  scale <- ggplot2::scale_y_continuous()
+  expect_identical(shared(target, NULL, 0L, FALSE)(scale)$data, c(1, 8))
+})
