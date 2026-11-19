@@ -940,3 +940,18 @@ test_that("significance validation uses extrema on complete threshold maps", {
     expect_error(fn(bad), "map_signif")
   }
 })
+
+test_that("P-value boundary trimming visits both ends in one pass", {
+  x <- c(" \t.05 \r\n", "\u00a0.25\u2002", "\t\n", " a\n b ", NA_character_,
+         paste0("1", strrep(" ", 4000L), "0\n"))
+  expected <- sub("(?<![\\h\\v])[\\h\\v]++\\z", "", sub("^[\\h\\v]+", "", x, perl = TRUE),
+                  perl = TRUE)
+  fn <- .trim_pvalue_space
+  passes <- 0L
+  environment(fn) <- list2env(list(sub = function(...) {
+    passes <<- passes + 1L
+    if (passes > 1L) stop("performed a second P-token whitespace scan")
+    base::sub(...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), expected)
+})

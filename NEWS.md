@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value formatting trims leading and trailing Unicode whitespace in a single pass.
+
 * `stat_ci_parse()` reuses the positive interval endpoints during log-scale diagnostics.
 
 * `stat_ci_parse(exp = FALSE)` computes only the linear confidence-interval diagnostics.
