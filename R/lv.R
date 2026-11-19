@@ -590,11 +590,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         shape <- shape[is.finite(shape)]
       }
       spread <- sd(shape)
-      span <- max(shape) - min(shape)
+      bounds <- range(shape)
+      span <- bounds[2L] - bounds[1L]
       if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
-        shape <- (shape - min(shape)) / span
+        shape <- (shape - bounds[1L]) / span
+        bounds <- range(shape)
       }
-      bins <- tabulate(findInterval(shape, seq(min(shape), max(shape), length.out = 13L),
+      bins <- tabulate(findInterval(shape, seq(bounds[1L], bounds[2L], length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
       # three significant digits, as pr_spark() gives the mean and SD
       grouping_mark <- if (identical(getOption("OutDec"), ",")) "" else ","

@@ -1777,3 +1777,15 @@ test_that("numeric frequency listings count grouped values without rematching ob
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("inspection distributions reuse numeric endpoints for binning", {
+  d <- data.frame(score = c(seq(-2.5, 12, by = .25), NA_real_))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(min = function(..., na.rm = FALSE) {
+    if (identical(as.list(substitute(list(...)))[-1L], list(quote(shape))))
+      stop("rescanned inspection distribution endpoints")
+    base::min(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

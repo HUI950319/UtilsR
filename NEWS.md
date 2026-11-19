@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The `lv()` console uses one range per working vector to place distribution bins.
+
 * Grob validation only inspects nested unit operands when a layout actually contains compound units.
 
 * Grob layout helpers recognise ordinary panel names and panel areas in the same pass.
