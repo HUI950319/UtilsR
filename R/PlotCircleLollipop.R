@@ -316,7 +316,7 @@ PlotCircleLollipop <- function(
   }
   if (anyNA(df$group))
     stop("Group labels must not be missing or excluded by group_levels.", call. = FALSE)
-  df$group <- droplevels(df$group)
+  df$group <- .cat_axis_factor(df$group)
   sector_labels <- levels(df$group)
   sector_factors <- df$group
   if ("" %in% sector_labels) {

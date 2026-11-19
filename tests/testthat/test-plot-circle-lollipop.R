@@ -1489,3 +1489,17 @@ test_that("default circular groups use encoded sectors through top selection", {
   expect_identical(optimized, seen)
   expect_length(optimized, 6L)
 })
+
+test_that("circular sectors drop unused levels through their factor codes", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = ordered(rep(c("B", "A"), 6L), levels = c("B", "unused", "A")),
+    name = letters[1:12], value = seq(.2, .8, length.out = 12L))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(droplevels = function(x, ...) {
+    if (is.factor(x) && "unused" %in% levels(x))
+      stop("re-encoded circular factor names to drop unused groups")
+    base::droplevels(x, ...)
+  }), parent = environment(fn))
+  expect_no_error(fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+})

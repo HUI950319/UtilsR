@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` drops unused sector levels through the shared factor code compaction.
+
 * `PlotCircleLollipop()` builds default nonfactor sectors from the group codes it already computed.
 
 * `PlotRankCor()` reuses the selected wide keys when each feature and group pair already occurs once.
