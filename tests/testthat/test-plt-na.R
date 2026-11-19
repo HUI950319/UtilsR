@@ -624,3 +624,18 @@ test_that("missingness summary labels use earlier column ordering positions", {
     expect_identical(draw(fn)$data, draw(plt_na)$data)
   }
 })
+
+test_that("missingness matrices collect observed column totals directly", {
+  d <- data.frame(x = c(NA, 1, Inf), y = c("a", "b", NA), z = rep(NA_integer_, 3L),
+    complete = 1:3)
+  fn <- plt_na
+  environment(fn) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(missing_data)) && identical(FUN, sum))
+      stop("allocated a list of column missing totals")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  actual <- suppressMessages(fn(d, output = "matrix"))
+  expected <- suppressMessages(plt_na(d, output = "matrix"))
+  expect_identical(actual[["data"]], expected[["data"]])
+  expect_equal(sum(actual[["data"]][["value"]]), 5)
+})

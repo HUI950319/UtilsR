@@ -135,7 +135,7 @@ plt_na <- function(
     } else sum(mask)
   })
   missing_counts <- if (keep_masks) {
-    unlist(lapply(missing_data, sum), use.names = TRUE)
+    vapply(missing_data, sum, integer(1))
   } else {
     unlist(missing_data, use.names = TRUE)
   }

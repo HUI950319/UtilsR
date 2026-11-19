@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` collects per-column missing counts without a temporary list of scalar totals.
+
 * Categorical background bands validate ordinary factor codes and decode only the displayed background groups.
 
 * Stacked `plt_con()` builds complete numeric features and ordinary factor groups directly as a long data frame.
