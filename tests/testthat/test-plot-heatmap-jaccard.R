@@ -1122,3 +1122,18 @@ test_that("numeric Jaccard filtering detects all shared values in one pass", {
   expect_identical(fn(d, "g", "item", return_type = "data"), expected)
   expect_equal(unname(expected[1L, 2:3]), c(1/3, 2/7))
 })
+
+test_that("complete Jaccard factors skip allocating a row missingness mask", {
+  d <- data.frame(g = factor(c("B", "A", "A", "B"), levels = c("A", "B", "Empty")),
+    item = ordered(c("a", "a", "b", "c"), levels = letters[1:5]))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, d[["g"]]) || identical(x, d[["item"]]))
+      stop("allocated a missingness mask for complete Jaccard factors")
+    base::is.na(x)
+  }), parent = environment(fn))
+  actual <- fn(d, "g", "item", return_type = "data")
+  expected <- matrix(c(1, 1/3, 0, 1/3, 1, 0, 0, 0, 0), 3L,
+    dimnames = list(levels(d[["g"]]), levels(d[["g"]])))
+  expect_identical(actual, expected)
+})

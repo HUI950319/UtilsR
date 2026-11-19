@@ -165,8 +165,14 @@ PlotHeatmapJaccard <- function(
 
   # ---- 2. Build per-group feature sets ----
   group_values <- data[[group_col]]
-  complete <- !is.object(group_values) && !is.object(data[[name_col]]) &&
-    !anyNA(group_values) && !anyNA(data[[name_col]])
+  complete_values <- function(x) {
+    if (!is.object(x)) return(!anyNA(x))
+    if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
+      return(!anyNA(unclass(x)))
+    }
+    FALSE
+  }
+  complete <- complete_values(group_values) && complete_values(data[[name_col]])
   non_missing <- if (complete) TRUE else !is.na(group_values) & !is.na(data[[name_col]])
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)

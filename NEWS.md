@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` avoids row-sized missing-value masks for complete ordinary factors and plain vectors.
+
 * `PlotDumbbell()` preserves a plain data frame when its full row ranking is already in order.
 
 * Numeric dumbbell insets reuse their existing range for significance bracket placement.
