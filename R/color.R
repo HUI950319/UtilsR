@@ -547,9 +547,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       cli::cli_abort(paste("Every element of a palette list must be a",
                            "non-empty character vector of colours without dimensions."))
     for (i in seq_along(palette)) {
-      bad <- palette[[i]][!is_colour(palette[[i]])]
-      if (length(bad)) {
-        bad <- show_bad(bad)
+      colours <- palette[[i]]
+      valid <- is_colour(colours)
+      if (!all(valid)) {
+        bad <- show_bad(colours[!valid])
         label <- show_bad(nms[[i]])
         cli::cli_abort("Palette {.val {label}} contains invalid colour{?s}: {.val {bad}}.")
       }

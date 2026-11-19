@@ -3214,3 +3214,17 @@ test_that("palette contrast transforms only the appropriate channel values", {
     expect_identical(fn(cols, max_colors = 50L)[["data"]][["fg"]], old_contrast(cols))
   }
 })
+
+test_that("valid palette lists skip selecting invalid colours", {
+  pal <- list(first = rep("#AABBCC", 128L), second = c("blue", "#FF007F80"))
+  fn <- pal_get
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(x, pal[["first"]]) && is.logical(i) && !any(i))
+      stop("subset a fully valid list palette")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(palette = pal, x = c(1, 2, Inf)),
+                   pal_get(palette = pal, x = c(1, 2, Inf)))
+  expect_error(fn(palette = list(first = "bad-colour", second = "blue"), x = 1:2),
+               "bad-colour")
+})
