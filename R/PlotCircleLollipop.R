@@ -287,8 +287,12 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Normalise to standard column names ----
+  direct_groups <- is.null(group_levels) && !is.factor(data[[group_col]]) && !anyNA(group_labels)
+  selected_groups <- group_ids[selected]
+  group <- if (direct_groups) structure(selected_groups, levels = group_labels, class = "factor") else
+    group_labels[selected_groups]
   df <- data.frame(
-    group = group_labels[group_ids[selected]],
+    group = group,
     name  = as.character(.butterfly_category_labels(data[[name_col]])),
     value = numeric_values[selected],
     stringsAsFactors = FALSE
@@ -307,7 +311,7 @@ PlotCircleLollipop <- function(
     df$group <- factor(df$group, levels = group_levels)
   } else if (is.factor(data[[group_col]])) {
     df$group <- factor(df$group, levels = levels(data[[group_col]]))
-  } else {
+  } else if (!direct_groups) {
     df$group <- factor(df$group, levels = group_labels[!is.na(group_labels)])
   }
   if (anyNA(df$group))

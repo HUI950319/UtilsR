@@ -1463,3 +1463,29 @@ test_that("circular stems and points reuse sector row positions", {
   fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_equal(sort(points), d$value)
 })
+
+test_that("default circular groups use encoded sectors through top selection", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("right", "", "left"), 3L),
+    name = letters[1:9], value = c(3, 7, 1, 9, 8, 2, 6, 2, 4))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(factor = function(x, levels, ...) {
+    if (identical(deparse(substitute(x)), "df$group") && identical(levels, c("right", "", "left")))
+      stop("recreated circular group factors from displayed row labels")
+    base::factor(x, levels = levels, ...)
+  }), parent = environment(fn))
+  seen <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    seen <<- c(seen, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  draw <- function(f) f(d, top_n = 2L, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  draw(fn)
+  optimized <- seen
+  seen <- numeric()
+  draw(PlotCircleLollipop)
+  expect_identical(optimized, seen)
+  expect_length(optimized, 6L)
+})
