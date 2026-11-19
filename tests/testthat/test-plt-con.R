@@ -2472,3 +2472,20 @@ test_that("constant continuous intervals avoid constructing a value-by-value dif
   expected <- data.frame(y = 3e-200, ymin = 0, ymax = 6e-200)
   expect_equal(fn(tiny) / 1e-200, expected / 1e-200)
 })
+
+test_that("shared continuous y limits reuse complete feature rows", {
+  values <- c(1.1, 4.2, 2.3, 6.4, 3.2, 7.7)
+  d <- data.frame(first = values, second = c(6, 7, 8, NA, 9, 10),
+                  grp = rep(c("A", "B"), each = 3L))
+  args <- list(data = d, stat.by = c("first", "second"), group.by = "grp",
+               same.y.lims = TRUE, type = "bar")
+  fn <- plt_con
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(x, values) && is.logical(i)) stop("sliced a complete shared feature")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  out <- suppressMessages(do.call(fn, args))
+  expected <- suppressMessages(do.call(plt_con, args))
+  expect_identical(ggplot2::layer_data(out[[1L]]), ggplot2::layer_data(expected[[1L]]))
+  expect_identical(ggplot2::layer_data(out[[2L]]), ggplot2::layer_data(expected[[2L]]))
+})

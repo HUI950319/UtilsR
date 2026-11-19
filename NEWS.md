@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared continuous y-axis limits reuse complete finite columns and their matching group rows.
+
 * Continuous zero-variance interval calculation skips the full equality vector for ordinary constant samples.
 
 * Continuous bar limit calculation keeps the original split list when all declared factor groups are observed.

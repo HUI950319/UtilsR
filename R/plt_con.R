@@ -659,18 +659,25 @@ plt_con <- function(data,
   global_y_max <- NULL
   shared_range <- NULL
   if (isTRUE(same.y.lims) && !(isTRUE(stack) && length(stat.by) > 1L)) {
-    all_values <- unlist(lapply(stat.by, function(s) {
+    finite_rows <- lapply(stat.by, function(s) {
       v <- data[[s]]
-      v[is.finite(v)]
-    }))
-    auto_values <- if (type == "bar") unlist(lapply(stat.by, function(s) {
-      v <- data[[s]]
+      if (!is.object(v) && length(v) && is.finite(min(v)) && is.finite(max(v))) return(NULL)
       keep <- is.finite(v)
-      .con_bar_range(v[keep], data[[group.by]][keep])
-    })) else if (type == "dot") unlist(lapply(stat.by, function(s) {
-      v <- data[[s]]
-      v <- v[is.finite(v)]
-      c(v, .con_dot_bins(v, dot_breaks[[s]]))
+      if (all(keep)) NULL else keep
+    })
+    finite_values <- lapply(seq_along(stat.by), function(i) {
+      v <- data[[stat.by[i]]]
+      keep <- finite_rows[[i]]
+      if (is.null(keep)) v else v[keep]
+    })
+    all_values <- unlist(finite_values)
+    auto_values <- if (type == "bar") unlist(lapply(seq_along(stat.by), function(i) {
+      keep <- finite_rows[[i]]
+      groups <- data[[group.by]]
+      .con_bar_range(finite_values[[i]], if (is.null(keep)) groups else groups[keep])
+    })) else if (type == "dot") unlist(lapply(seq_along(stat.by), function(i) {
+      v <- finite_values[[i]]
+      c(v, .con_dot_bins(v, dot_breaks[[stat.by[i]]]))
     })) else all_values
     global_y_max <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else all_values, side = "max")
     global_y_min <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else all_values, side = "min")
@@ -680,8 +687,10 @@ plt_con <- function(data,
       if (type == "bar") {
         shared_values <- all_values
         ids <- match(data[[group.by]], unique(data[[group.by]]))
+        stride <- max(ids)
         shared_groups <- unlist(lapply(seq_along(stat.by), function(i) {
-          (i - 1L) * max(ids) + ids[is.finite(data[[stat.by[i]]])]
+          keep <- finite_rows[[i]]
+          (i - 1L) * stride + if (is.null(keep)) ids else ids[keep]
         }), use.names = FALSE)
       }
       shared_range <- .con_shared_range(shared_values, shared_groups, length(comparisons),
