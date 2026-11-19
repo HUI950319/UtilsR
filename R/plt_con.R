@@ -1578,25 +1578,41 @@ plt_con <- function(data,
 
   # Reshape only the rows used by the continuous layers.
   n <- nrow(data)
-  rows <- lapply(data[stat.by], function(value) {
+  features <- data[stat.by]
+  rows <- lapply(features, function(value) {
     if (!is.object(value) && is.finite(min(value)) && is.finite(max(value))) return(NULL)
     finite <- is.finite(value)
     if (all(finite)) NULL else which(finite)
   })
   selected <- lengths(rows)
   selected[vapply(rows, is.null, logical(1))] <- n
-  dat_long <- do.call(rbind, lapply(seq_along(stat.by), function(i) {
-    value <- data[[stat.by[i]]]
-    group <- data[[group.by]]
-    if (selected[i] < n) {
-      value <- value[rows[[i]]]
-      group <- group[rows[[i]]]
-    }
-    data.frame(value = value, group.by = group,
-               feature = structure(rep.int(i, length(value)), levels = stat.by, class = "factor"),
-               stringsAsFactors = FALSE)
-  }))
-  if (any(selected < n)) {
+  groups <- data[[group.by]]
+  complete <- all(selected == n)
+  plain <- identical(class(groups), "factor") &&
+    identical(names(attributes(groups)), c("levels", "class")) &&
+    all(vapply(features, function(x) {
+      is.null(attributes(x)) && (is.integer(x) || is.double(x))
+    }, logical(1)))
+  if (complete && plain) {
+    dat_long <- data.frame(
+      value = unlist(features, use.names = FALSE),
+      group.by = rep(groups, times = length(stat.by)),
+      feature = structure(rep.int(seq_along(stat.by), selected), levels = stat.by, class = "factor")
+    )
+  } else {
+    dat_long <- do.call(rbind, lapply(seq_along(stat.by), function(i) {
+      value <- features[[i]]
+      group <- groups
+      if (selected[i] < n) {
+        value <- value[rows[[i]]]
+        group <- group[rows[[i]]]
+      }
+      data.frame(value = value, group.by = group,
+                 feature = structure(rep.int(i, length(value)), levels = stat.by, class = "factor"),
+                 stringsAsFactors = FALSE)
+    }))
+  }
+  if (!complete) {
     rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) {
       (i - 1L) * n + (rows[[i]] %||% seq_len(n))
     }))

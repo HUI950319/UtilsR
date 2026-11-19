@@ -2414,3 +2414,18 @@ test_that("stacked numeric features check their bounds before allocating row mas
   expect_identical(out[["data"]][["value"]], c(3, 1, 8, 4, 91, 92))
   expect_identical(rownames(out[["data"]]), c("1", "2", "3", "4", "7", "8"))
 })
+
+test_that("complete stacked plots avoid intermediate frames for each feature", {
+  d <- data.frame(x = 1:12, y = 13:24, z = seq(.25, 3, by = .25),
+    g = factor(rep(c("L", "R", NA), 4L), levels = c("R", "L", "unused")))
+  draw <- function() con_plot(d, c("z", "x", "y"), "g", type = "box", stack = TRUE)
+  expected <- draw()[["data"]]
+  fn <- .plt_con_stacked
+  environment(fn) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, base::rbind) && length(args) == 3L && "feature" %in% names(args[[1L]]))
+      stop("bound complete stacked features as separate frames")
+    base::do.call(what, args, ...)
+  }), parent = environment(fn))
+  local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  expect_identical(draw()[["data"]], expected)
+})

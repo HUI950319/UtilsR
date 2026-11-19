@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked `plt_con()` builds complete numeric features and ordinary factor groups directly as a long data frame.
+
 * Stacked `plt_con()` finds complete ordinary numeric features without allocating a finiteness mask for each one.
 
 * `pal_get()` avoids creating invalid-colour subsets for fully valid palettes in a named list.
