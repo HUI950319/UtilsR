@@ -581,3 +581,15 @@ test_that("size reports reuse names already selected from the environment listin
   expect_identical(draw(fn), draw(check_size))
   expect_identical(draw(fn, pattern = "^(alpha|z)$"), draw(check_size, pattern = "^(alpha|z)$"))
 })
+
+test_that("integer object positions use their integer bounds directly", {
+  env <- list2env(list(B = 1:3, a = c(TRUE, FALSE), q = "value"), parent = emptyenv())
+  fn <- check_size
+  environment(fn) <- list2env(list(trunc = function(x, ...) {
+    if (is.integer(x)) stop("rounded already integer object indices")
+    base::trunc(x, ...)
+  }), parent = environment(fn))
+  result <- fn(c(1L, 3L), envir = env, method = "object.size")
+  expect_identical(result[["_data"]], check_size(c(1L, 3L), envir = env, method = "object.size")[["_data"]])
+  expect_error(fn(c(1L, NA_integer_), envir = env), "within the available names")
+})

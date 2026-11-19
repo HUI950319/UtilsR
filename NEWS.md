@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` validates integer object indices by missingness and bounds without rounding them.
+
 * CI scale selection reuses the presence of logarithmic votes when assigning undecided intervals.
 
 * The shared plot time-label helper only builds collision masks when formatted labels actually repeat.
