@@ -401,7 +401,8 @@ plt_sankey <- function(data,
   stage_ids <- seq_along(stages)
   stage <- rep.int(stage_ids, nrow(data))
   stage_levels <- if (nrow(data)) stages else character()
-  nodes <- as.character(do.call(rbind, unname(lapply(data[stages], as.character))))
+  nodes <- do.call(rbind, unname(lapply(data[stages], as.character)))
+  if (is.null(nodes)) nodes <- character() else dim(nodes) <- NULL
   successors <- if (length(stage_ids)) c(stage_ids[-1L], NA_integer_) else integer()
   next_stage <- rep.int(successors, nrow(data))
   following <- seq_along(nodes) + 1L

@@ -1020,3 +1020,15 @@ test_that("complete Sankey stages keep their existing membership codes", {
   expect_identical(as.character(draw(fn, FALSE)$data$node[1:4]),
     c(".sankey_1_1", ".sankey_2_1", ".sankey_1_2", ".sankey_2_2"))
 })
+
+test_that("Sankey node paths drop matrix dimensions without character coercion", {
+  d <- data.frame(a = factor(c("A", NA, "B")), b = c("", "two", "two"), c = ordered(c("x", "x", "y")))
+  fn <- .sankey_path_rows
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.matrix(x)) stop("coerced the complete Sankey node matrix to character")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  for (data in list(d, d[0L, ])) for (stages in list(names(d), "a", character())) {
+    expect_identical(fn(data, stages), .sankey_path_rows(data, stages))
+  }
+})
