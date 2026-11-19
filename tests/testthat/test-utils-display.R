@@ -1422,3 +1422,15 @@ test_that("table gradients need no infinity selector for integer columns", {
   actual <- fn(d, theme = "none", numeric_columns = "x")
   expect_identical(actual[["_styles"]], expected[["_styles"]])
 })
+
+test_that("hex console swatches bypass numeric palette-index coercion", {
+  withr::local_options(cli.num_colors = 1L)
+  fn <- show_color
+  environment(fn) <- list2env(list(as.numeric = function(x, ...) {
+    if (is.character(x) && any(startsWith(x, "#"))) stop("tried to parse a hex swatch as a numeric index")
+    base::as.numeric(x, ...)
+  }), parent = environment(fn))
+  x <- c(red = "#FF0A0CCC", blue = "blue", black = "#000000", missing = NA_character_)
+  expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
+  expect_error(fn(c("#FFFFFF", "0x2", "#broken")), "positions.*2.*3")
+})

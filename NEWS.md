@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` tests numeric palette indices only among labels outside hexadecimal notation.
+
 * `stat_ci()` skips unparseable-text diagnostics when all supplied intervals were recognised.
 
 * `fct_num()` labels bins with ordinary integer and double labels without rebuilding the cut points.
