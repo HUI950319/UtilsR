@@ -1434,3 +1434,18 @@ test_that("hex console swatches bypass numeric palette-index coercion", {
   expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
   expect_error(fn(c("#FFFFFF", "0x2", "#broken")), "positions.*2.*3")
 })
+
+test_that("repeated console colours reuse their first swatch index", {
+  withr::local_options(cli.num_colors = 256L, width = 90L)
+  x <- c(pale = "#00000000", blue = "blue", again = "#0000FF", black = "#000000",
+         white = "#FFFFFF", faded = "#00000000")
+  fn <- show_color
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(hex))) stop("rematched rendered console swatches to their colours")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  for (reverse in c(TRUE, FALSE)) {
+    expect_identical(capture.output(fn(x, rev = reverse)),
+                     capture.output(show_color(x, rev = reverse)))
+  }
+})

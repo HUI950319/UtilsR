@@ -858,7 +858,8 @@ show_color <- function(x, rev = FALSE) {
   if (use_ansi) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)
-    ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
+    swatch_ids <- if (anyDuplicated(hex)) vctrs::vec_group_id(hex)
+    ids <- if (is.null(swatch_ids)) seq_along(hex) else which(!duplicated(swatch_ids))
     source <- if (rev) length(hex) - ids + 1L else ids
     if (!is.null(lookup)) source <- lookup[source]
     rgba <- rgba[, source, drop = FALSE]
@@ -944,7 +945,7 @@ show_color <- function(x, rev = FALSE) {
         styled[selection] <- foreground[[fg_col]](styled[selection])
       }
     }
-    if (length(ids) < length(hex)) styled <- styled[match(hex, hex[ids])]
+    if (!is.null(swatch_ids)) styled <- styled[as.integer(swatch_ids)]
   } else {
     styled <- if (length(hex)) paste0(left_pad, hex, right_pad) else character()
   }

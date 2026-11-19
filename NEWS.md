@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` groups repeated hexadecimal swatches once before expanding the rendered labels.
+
 * `PlotRank()` reuses selected group names for the factor order of its returned rankings.
 
 * `show_color()` tests numeric palette indices only among labels outside hexadecimal notation.
