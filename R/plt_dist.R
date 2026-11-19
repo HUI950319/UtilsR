@@ -403,9 +403,13 @@ plt_dist <- function(data,
     if (inherits(data[[v]], "haven_labelled")) {
       value <- data[[v]]
       raw <- vctrs::vec_data(value)
+      if (!is.double(raw)) {
+        data[[v]] <- labelled::to_factor(value)
+        next
+      }
       labels <- attr(value, "labels", exact = TRUE)
       labels <- labels[!is.na(labels)]
-      unlabelled <- if (is.double(raw)) sort(setdiff(unique(raw), unname(labels))) else numeric()
+      unlabelled <- sort(setdiff(unique(raw), unname(labels)))
       keys <- as.character(c(labels, unlabelled))
       display <- as.character(unlabelled)
       collision <- tail(duplicated(keys) | duplicated(keys, fromLast = TRUE), length(unlabelled))

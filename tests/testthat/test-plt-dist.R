@@ -1005,3 +1005,17 @@ test_that("distribution heatmaps check collisions with typed cell identities", {
   expect_error(draw(fn, rbind(d, transform(d[1L, ], value = "extra"))),
     "more than one fill category")
 })
+
+test_that("labelled integer distribution categories need no decimal collision table", {
+  skip_if_not_installed("haven")
+  d <- data.frame(grp = c("a", "b", "a", "b"),
+    status = haven::labelled(c(1L, 2L, 2L, 3L), c(yes = 1L, no = 2L)))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(deparse(substitute(x)), "c(labels, unlabelled)"))
+      stop("built decimal collision keys for labelled integer categories")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, c("grp", "status"), type = "bar")[["data"]])
+  expect_identical(draw(fn), draw(plt_dist))
+})

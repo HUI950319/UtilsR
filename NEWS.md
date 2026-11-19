@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` sends integer and character labelled categories directly to their original label conversion.
+
 * Categorical axes with unused levels use a direct code lookup when the dictionary fits within the observations.
 
 * Unfaceted `plt_alluvial()` computes count-scaled gaps from one observed maximum.
