@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` labels bins with ordinary integer and double labels without rebuilding the cut points.
+
 * `PlotRankCor()` preserves unique group labels directly and computes collision suffixes only when needed.
 
 * The shared `integer64` mean helper checks missing values once when `na.rm = FALSE`.

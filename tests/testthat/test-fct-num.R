@@ -375,3 +375,15 @@ test_that("fixed break labels assemble without assigning a full placeholder vect
   x <- 1 + c(0, .Machine$double.eps, 5 * .Machine$double.eps)
   expect_identical(fn(x), .make_break_labels(x))
 })
+
+test_that("plain numeric bin labels reuse bin codes and keep merged levels", {
+  x <- c(-Inf, -3, -1, 0, 1, 3, Inf, NA)
+  knots <- c(-Inf, -1, 0, 1, Inf)
+  fn <- .fct_num_cut
+  environment(fn) <- list2env(list(cut = function(...) {
+    stop("rebuilt cuts for ordinary numeric bin labels")
+  }), parent = environment(fn))
+  for (labels in list(c(1L, 3L, NA_integer_, 1L), c(-0, 1.5, Inf, NaN), c(1, 2, 3, 4))) {
+    expect_identical(fn(x, knots, labels), cut(x, knots, labels = labels, include.lowest = TRUE))
+  }
+})

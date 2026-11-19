@@ -249,12 +249,14 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 # ---- Internal: avoid rematching already computed integer bin codes ----
 .fct_num_cut <- function(x, breaks, labels) {
   if ((!is.object(x) || identical(class(x), "AsIs")) && !is.complex(x) && !is.object(breaks) &&
-      is.character(labels) && !is.object(labels) && length(labels) == length(breaks) - 1L &&
+      typeof(labels) %in% c("character", "integer", "double") && !is.object(labels) &&
+      is.null(dim(labels)) && length(labels) == length(breaks) - 1L &&
       length(breaks) > 1L && !anyNA(breaks) &&
       !is.unsorted(breaks, strictly = TRUE)) {
     codes <- .bincode(x, breaks, right = TRUE, include.lowest = TRUE)
+    labels <- as.character(labels)
     if (!anyNA(labels) && !anyDuplicated(labels)) {
-      return(structure(codes, levels = as.character(labels), class = "factor"))
+      return(structure(codes, levels = labels, class = "factor"))
     }
     return(factor(codes, levels = seq_along(labels), labels = labels))
   }
