@@ -491,14 +491,20 @@ PlotRankCor <- function(
   cor_values <- vapply(wide_rows[["loc"]], function(idx) {
     x <- rank_wide[[method_cols[1]]][idx]
     y <- rank_wide[[method_cols[2]]][idx]
-    ok <- is.finite(x) & is.finite(y)
-    complete <- sum(ok)
-    if (complete < 3L) return(c(NA_real_, NA_real_))
-    if (complete < length(ok)) {
+    if (length(x) < 3L) return(c(NA_real_, NA_real_))
+    x_limits <- c(min(x), max(x))
+    y_limits <- c(min(y), max(y))
+    if (!all(is.finite(c(x_limits, y_limits)))) {
+      ok <- is.finite(x) & is.finite(y)
+      if (sum(ok) < 3L) return(c(NA_real_, NA_real_))
       x <- x[ok]
       y <- y[ok]
+      x_limits <- range(x)
+      y_limits <- range(y)
     }
-    if (diff(range(x)) == 0 || diff(range(y)) == 0) return(c(NA_real_, NA_real_))
+    if (x_limits[1L] == x_limits[2L] || y_limits[1L] == y_limits[2L]) {
+      return(c(NA_real_, NA_real_))
+    }
     if (!use_rank) {
       x <- .center_scale_vec(x)
       y <- .center_scale_vec(y)

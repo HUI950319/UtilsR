@@ -1318,3 +1318,17 @@ test_that("unique rank correlation group labels skip collision sorting", {
   draw <- function(f) suppressMessages(f(d, "feature", "score", group.by = "group", method.by = "method")[["data"]])
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("full rank correlation pairs use scalar finite and constant checks", {
+  d <- data.frame(feature = rep(sprintf("gene%02d", 1:12), 2L),
+    method = rep(c("first", "second"), each = 12L),
+    score = c(1:12, c(1:6, 12:7)))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) == 12L)
+      stop("constructed a complete rank-correlation row mask")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(p <- suppressMessages(f(d, "feature", "score", method.by = "method")))
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

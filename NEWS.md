@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` checks constant and complete paired columns through their bounds before allocating row masks.
+
 * `stat_ci_parse()` preserves parsed-row flags directly when scale validation finds no invalid intervals.
 
 * `pr_table()` avoids checking every finite number for fractional digits when `digits = 0`.
