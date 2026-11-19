@@ -884,3 +884,16 @@ test_that("sparse factor tallies group codes once while preserving explicit NA l
   expect_identical(fn(values), expected)
   expect_identical(fn(values[0L]), .factor_tally(values[0L]))
 })
+
+test_that("quality reports collect both column metrics without a list of pairs", {
+  data <- data.frame(f = factor(c("Unknown", NA, "ok")), value = c(1, NA, 2),
+    text = c("", "plain", "N/A"))
+  fn <- check_na
+  environment(fn) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(data))) stop("allocated a result list for quality counts")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  for (d in list(data, data["f"])) {
+    expect_identical(fn(d, show_all = TRUE)[["_data"]], check_na(d, show_all = TRUE)[["_data"]])
+  }
+})

@@ -140,7 +140,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     return(invisible(NULL))
   }
 
-  counts <- lapply(data, function(x) {
+  counts <- vapply(data, function(x) {
     ordinary_factor <- is.factor(x) &&
       (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))
     if (!ordinary_factor) return(c(.count_missing_values(x), .count_special_values(x, special)))
@@ -150,9 +150,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     }
     tally <- .factor_tally(x)
     c(length(x) - sum(tally$counts), .count_special_values(x, special, tally = tally))
-  })
-  missing_count <- vapply(counts, `[[`, numeric(1), 1L, USE.NAMES = FALSE)
-  special_count <- vapply(counts, `[[`, numeric(1), 2L, USE.NAMES = FALSE)
+  }, numeric(2L), USE.NAMES = FALSE)
+  missing_count <- counts[1L, ]
+  special_count <- counts[2L, ]
   rows <- if (show_all) seq_along(missing_count) else which(missing_count + special_count > 0)
   if (!length(rows)) {
     pr_head("check_na", "no missing or special values found", bg = "green")

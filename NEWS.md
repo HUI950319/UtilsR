@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` collects both per-column metrics in one typed pass and reuses their positions.
+
 * Significance map validation checks minimum and maximum thresholds without copying the map to calculate a range.
 
 * Decimal P-value formatting removes duplicate significance thresholds only when they occur.
