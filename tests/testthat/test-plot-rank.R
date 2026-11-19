@@ -876,3 +876,19 @@ test_that("unnamed ranking observations do not clean synthetic missing labels", 
   expect_identical(fn(dat, clean_names = TRUE, return_type = "data"),
     PlotRank(dat, clean_names = TRUE, return_type = "data"))
 })
+
+test_that("ranked rows use group order from score vectors before expanding", {
+  d <- data.frame(group = factor(rep(c("B", "A", "C"), each = 5L), levels = c("A", "B", "C", "unused")),
+    label = rep(letters[1:5], 3L), score = c(1:5, 8:12, rep(NA_real_, 5L)))
+  fn <- PlotRank
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(plot_df[["Group"]])) ||
+        identical(deparse(substitute(x)), "plot_df$Group"))
+      stop("grouped all displayed ranks a second time")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f, lv) f(d, group_col = "group", name_col = "label", value_col = "score",
+    group_levels = lv, return_type = "data")
+  for (lv in list(NULL, c("C", "B", "A"))) expect_identical(draw(fn, lv), draw(PlotRank, lv))
+  expect_identical(levels(draw(fn, c("C", "B", "A"))[["Group"]]), c("B", "A"))
+})

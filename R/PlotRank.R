@@ -299,11 +299,7 @@ PlotRank <- function(
   }
 
   # Enforce group order as factor
-  grp_order <- if (!is.null(group_levels)) {
-    intersect(group_levels, unique(plot_df$Group))
-  } else {
-    unique(plot_df$Group)
-  }
+  grp_order <- unique(names(score_list))
   plot_df$Group <- factor(plot_df$Group, levels = grp_order)
   if (return_type == "data" && is.null(filename)) return(plot_df)
 

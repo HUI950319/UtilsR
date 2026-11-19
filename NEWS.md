@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` reuses selected group names for the factor order of its returned rankings.
+
 * `show_color()` tests numeric palette indices only among labels outside hexadecimal notation.
 
 * `stat_ci()` skips unparseable-text diagnostics when all supplied intervals were recognised.
