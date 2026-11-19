@@ -861,7 +861,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
 .pal_preview_indices <- function(n, max_colors, continuous) {
   shown <- min(n, max_colors)
-  if (!continuous) return(seq_len(shown))
+  if (!continuous || shown == n) return(seq_len(shown))
   if (shown == 1L) ceiling(n / 2) else round(seq.int(1, n, length.out = shown))
 }
 

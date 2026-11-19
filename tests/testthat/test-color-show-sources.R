@@ -3238,3 +3238,14 @@ test_that("full continuous swatch previews keep their existing indices", {
   expect_identical(fn(x, 3L), x)
   expect_identical(fn(x, 1L, total = 3L), x[2L] |> structure(type = "continuous"))
 })
+
+test_that("uncapped continuous source palettes skip rounded index construction", {
+  fn <- .pal_preview_indices
+  environment(fn) <- list2env(list(round = function(...) {
+    stop("rounded indices of an uncapped source palette")
+  }), parent = environment(fn))
+  expect_identical(fn(201L, 240L, TRUE), seq_len(201L))
+  expect_identical(fn(1L, 10L, TRUE), 1L)
+  expect_equal(fn(201L, 1L, TRUE), 101L)
+  expect_identical(letters[fn(8L, 9L, TRUE)], letters[1:8])
+})

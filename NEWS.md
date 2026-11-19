@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Uncapped source palette previews use the original sequence of swatch indices.
+
 * Continuous palette previews reuse all existing swatches when the requested size matches the original.
 
 * `PlotRank()` removes the existing suffix forms in one pass while preserving their precedence.
