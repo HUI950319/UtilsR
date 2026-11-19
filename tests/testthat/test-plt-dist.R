@@ -1019,3 +1019,18 @@ test_that("labelled integer distribution categories need no decimal collision ta
   draw <- function(f) suppressMessages(f(d, c("grp", "status"), type = "bar")[["data"]])
   expect_identical(draw(fn), draw(plt_dist))
 })
+
+test_that("fully visible distribution bars directly receive their formatted text", {
+  d <- data.frame(x = c("a", "a", "a", "b", "b", "b"), fill = c("X", "X", "Y", "X", "Y", "Y"))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, NA_character_) && identical(as.list(substitute(list(...)))[-1L],
+                                                  list(quote(nrow(plotdata)))))
+      stop("allocated missing labels for fully visible distribution segments")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f, threshold) suppressMessages(f(d, c("x", "fill"), type = "bar",
+    label_args = list(style = "count_percent", min_pct = threshold))[["data"]])
+  expect_identical(draw(fn, 0), draw(plt_dist, 0))
+  expect_identical(sum(is.na(draw(plt_dist, .5)[[".lab"]])), 2L)
+})

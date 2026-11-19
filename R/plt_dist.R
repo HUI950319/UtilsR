@@ -553,7 +553,7 @@ plt_dist <- function(data,
 
     # Label text per `label_args$style`; segments below `min_pct` get NA
     # labels, which are dropped when drawn without changing the stacking.
-    plotdata[[label_name]] <- rep(NA_character_, nrow(plotdata))
+    label_text <- NULL
     if (label_args$style != "none") {
       proportions <- plotdata[[prop_name]]
       visible <- which(proportions >= label_args$min_pct)
@@ -566,14 +566,21 @@ plt_dist <- function(data,
           pct <- scales::percent(if (complete) proportions else proportions[visible],
                                  accuracy = label_args$pct_accuracy)
         }
-        plotdata[[label_name]][visible] <- switch(label_args$style,
+        shown <- switch(label_args$style,
           count              = counts,
           percent            = pct,
           count_percent      = sprintf("%s (%s)", counts, pct),
           count_percent_wrap = sprintf("%s\n%s", counts, pct)
         )
+        if (complete) {
+          label_text <- shown
+        } else {
+          label_text <- rep(NA_character_, nrow(plotdata))
+          label_text[visible] <- shown
+        }
       }
     }
+    plotdata[[label_name]] <- label_text %||% rep(NA_character_, nrow(plotdata))
 
     if (".data" %in% dis_vars) plotdata[[alias]] <- plotdata[[".data"]]
     draw_x <- drawing_vars[1L]
