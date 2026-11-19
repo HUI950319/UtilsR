@@ -2066,3 +2066,16 @@ test_that("background band checks avoid converting each factor observation to te
   expect_warning(actual <- fn(d, "grp", "bg", .2), "Background disabled")
   expect_null(actual)
 })
+
+test_that("one-way categorical summaries drop unused counts before making a frame", {
+  d <- data.frame(cat = factor(c("c", "a", "a", NA, "d"), levels = letters[1:5]))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(data.frame = function(stat_var, n, ...) {
+    if (any(n == 0L)) stop("built categorical rows for unused counts")
+    base::data.frame(stat_var = stat_var, n = n, ...)
+  }), parent = environment(fn))
+  for (stat in c("count", "percent")) {
+    expect_identical(fn(d, "cat", NULL, stat), .prepare_cat_data(d, "cat", NULL, stat))
+    expect_identical(fn(d[0L, , drop = FALSE], "cat", NULL, stat), .prepare_cat_data(d[0L, , drop = FALSE], "cat", NULL, stat))
+  }
+})

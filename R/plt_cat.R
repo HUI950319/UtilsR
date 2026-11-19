@@ -944,6 +944,11 @@ plt_cat <- function(data,
         n <- tabulate(x, nbins = nlevels(x))
         codes <- seq_along(n)
       }
+      if (!keep_empty && any(n == 0L)) {
+        observed <- n > 0L
+        codes <- codes[observed]
+        n <- n[observed]
+      }
       df <- data.frame(stat_var = structure(codes, levels = levels(x), class = "factor"),
                        n = n, group_var = rep.int("all", length(n)), row.names = codes)
       if (stat == "percent") {
@@ -955,7 +960,7 @@ plt_cat <- function(data,
         df$value <- n
         df$label_text <- as.character(n)
       }
-      return(if (keep_empty) df else df[n > 0L, , drop = FALSE])
+      return(df)
     }
   }
 

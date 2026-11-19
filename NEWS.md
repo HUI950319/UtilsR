@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* One-way categorical plots with `keep_empty = FALSE` create rows only for observed categories.
+
 * `PlotButterfly2()` uses ordinary factor codes to select wing rows and decodes only the two displayed group labels.
 
 * `plt_na()` collects per-column missing counts without a temporary list of scalar totals.
