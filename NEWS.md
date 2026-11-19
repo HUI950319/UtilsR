@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` promotes ordinary integer endpoints directly when the paired endpoint uses `integer64`.
+
 * Jaccard filtering detects duplicate ordinary integer and double features without two directional scans.
 
 * Sparse Jaccard calculations count pair keys through matrix positions when there are enough overlaps to justify the lookup.

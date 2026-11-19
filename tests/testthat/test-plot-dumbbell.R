@@ -1002,3 +1002,16 @@ test_that("dumbbell factor axes reuse their category codes in sorted row order",
   expect_identical(draw(fn), draw(PlotDumbbell))
   expect_true(is.ordered(draw(fn)))
 })
+
+test_that("ordinary integer endpoints do not need a double representability scan", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740993", "0", "-9007199254740993", "7"))
+  y <- c(1L, NA_integer_, -1L, 6L)
+  fn <- .dumbbell_integer64_difference
+  environment(fn) <- list2env(list(trunc = function(x, ...) {
+    if (is.integer(x)) stop("checked fractional parts of integer endpoints")
+    base::trunc(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, y), bit64::as.integer64(c("9007199254740992", NA, "-9007199254740992", "1")))
+  expect_identical(fn(y, x), -.dumbbell_integer64_difference(x, y))
+})

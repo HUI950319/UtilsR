@@ -598,7 +598,8 @@ PlotDumbbell <- function(
     if (length(y) == 1L) y <- rep_len(y, n)
   }
   if (!inherits(y, "integer64")) {
-    if (all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))) {
+    if ((is.integer(y) && !is.object(y)) ||
+        all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))) {
       y <- bit64::as.integer64(y)
     } else {
       step <- 2^32
