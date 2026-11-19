@@ -2159,13 +2159,16 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   if (!is.null(label_color)) label_color <- rep_len(label_color, n)
   if (!is.null(label_fill))  label_fill  <- rep_len(label_fill, n)
 
-  centered_strip_text <- function(colour, face = "bold") {
+  # A y strip is rotated, so the padding across its band is left / right; the
+  # top / bottom padding of an x strip would run along the label instead.
+  centered_strip_text <- function(colour, face = "bold", axis = "x") {
     ggplot2::element_text(
       colour = colour,
       face = face,
       hjust = 0.5,
       vjust = 0.5,
-      margin = ggplot2::margin(t = 3, b = 3, unit = "pt")
+      margin = if (identical(axis, "y")) ggplot2::margin(r = 3, l = 3, unit = "pt")
+               else ggplot2::margin(t = 3, b = 3, unit = "pt")
     )
   }
 
@@ -2234,7 +2237,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       # Apply strip style via theme
       strip_theme <- list()
       lc_val <- if (is.null(label_color)) NULL else label_color[i]
-      text_element <- centered_strip_text(lc_val, face = if (is.null(lc_val)) NULL else "bold")
+      strip_face <- if (is.null(lc_val)) NULL else "bold"
+      text_element <- centered_strip_text(lc_val, face = strip_face)
+      text_element_y <- centered_strip_text(lc_val, face = strip_face, axis = "y")
       slots <- c("strip.text", "strip.text.x", "strip.text.y", hidden_elements[1:4])
       if (is.null(base_theme)) base_theme <- ggplot2::theme_get()
       rich_text <- function(element) {
@@ -2247,13 +2252,14 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       }, logical(1))) || any(vapply(c(given_text$text_x, given_text$text_y), rich_text, logical(1)))
       if (inherit_rich) active <- base_theme + local_theme
       for (nm in slots) {
+        target <- if (grepl("^strip\\.text\\.y", nm)) text_element_y else text_element
         element <- if (inherit_rich) ggplot2::calc_element(nm, active) else NULL
         if (rich_text(element)) {
           for (field in c("colour", "face", "hjust", "vjust", "margin")) {
-            if (!is.null(text_element[[field]])) element[[field]] <- text_element[[field]]
+            if (!is.null(target[[field]])) element[[field]] <- target[[field]]
           }
           strip_theme[[nm]] <- element
-        } else strip_theme[[nm]] <- text_element
+        } else strip_theme[[nm]] <- target
       }
       if (!is.null(label_fill)) {
         background_element <- ggplot2::element_rect(fill = label_fill[i],
@@ -2271,11 +2277,12 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
           old_strip <- facet$strip
           given <- old_strip$given_elements
           for (nm in c("text_x", "text_y")) {
+            target <- if (nm == "text_y") text_element_y else text_element
             if (!is.null(given[[nm]])) {
               given[[nm]] <- lapply(given[[nm]], function(el) {
-                if (!rich_text(el)) return(ggplot2::merge_element(text_element, el))
+                if (!rich_text(el)) return(ggplot2::merge_element(target, el))
                 for (field in c("colour", "face", "hjust", "vjust", "margin")) {
-                  if (!is.null(text_element[[field]])) el[[field]] <- text_element[[field]]
+                  if (!is.null(target[[field]])) el[[field]] <- target[[field]]
                 }
                 el
               })

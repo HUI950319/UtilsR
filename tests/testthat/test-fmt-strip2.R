@@ -510,6 +510,37 @@ test_that("theme_my centers facet strips with symmetric margins", {
 })
 
 
+test_that("fmt_strip pads rotated strips across the band", {
+  band <- function(plot, name, dim) {
+    grDevices::pdf(NULL)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    gt <- ggplot2::ggplotGrob(plot)
+    idx <- grep(name, gt$layout$name)
+    pos <- if (dim == "h") unique(gt$layout$t[idx]) else unique(gt$layout$l[idx])
+    sizes <- if (dim == "h") gt$heights[pos] else gt$widths[pos]
+    sum(as.numeric(grid::convertUnit(sizes, "pt")))
+  }
+
+  d <- data.frame(x = 1:3, y = 1:3)
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    theme_my(base_size = 16)
+  # Relabelling an already faceted panel takes the branch that writes the strip
+  # text element into the theme, the way the composite plot builders do.
+  panel <- fmt_strip(fmt_strip(base, label = "Dependence plot"), label = "Group A")
+
+  strip_y <- ggplot2::calc_element("strip.text.y.right",
+                                   ggplot2::theme_get() + panel$theme)
+  expect_equal(as.numeric(grid::convertUnit(strip_y$margin, "pt"))[c(2, 4)], c(3, 3))
+
+  grid <- patchwork::wrap_plots(list(panel, panel, panel, panel), nrow = 2)
+  headed <- fmt_strip2(grid, top_label = c("Left", "Right"),
+                       right_label = c("Top row", "Bottom row"))
+
+  expect_equal(band(headed[[4]], "^strip-r", "w"),
+               band(headed[[1]], "^strip-t", "h"))
+})
+
+
 test_that("fmt_strip2 protects native facet panels and statistics", {
   d <- data.frame(x = 1, y = c(0, 2, 100, 102), g = rep(c("A", "B"), each = 2))
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
