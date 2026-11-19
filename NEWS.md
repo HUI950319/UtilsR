@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` encodes ordinary logical and compact integer ranges without hashing every observation.
+
 * `plt_alluvial()` reuses counting keys when observed facet and category pairs already follow display order.
 
 * `plt_dist()` assigns formatted bar labels directly when all segments pass the label threshold.

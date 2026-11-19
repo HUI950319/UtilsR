@@ -265,6 +265,18 @@ fct_to_combine.default <- function(..., sep = " & ") {
     if (is.factor(v)) {
       return(list(codes = as.integer(v), labels = levels(v)))
     }
+    if (is.logical(v) && !is.object(v)) {
+      return(list(codes = v + 1L, labels = c("FALSE", "TRUE")))
+    }
+    if (is.integer(v) && !is.object(v) && length(v) > 1024L) {
+      lower <- suppressWarnings(min(v, na.rm = TRUE))
+      if (is.finite(lower)) {
+        upper <- max(v, na.rm = TRUE)
+        if (as.double(upper) - lower < 4096L) {
+          return(list(codes = v - lower + 1L, labels = as.character(seq.int(lower, upper))))
+        }
+      }
+    }
     # Keep value identity separate from potentially rounded display labels.
     values <- vctrs::vec_unique(v)
     # Base ordering interprets integer64 storage as doubles, including NaN.

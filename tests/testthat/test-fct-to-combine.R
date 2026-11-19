@@ -605,3 +605,22 @@ test_that("distinct factor combinations reuse their row positions", {
   expect_identical(as.character(out), paste(a, b, sep = ":"))
   expect_identical(levels(out), as.vector(t(outer(letters[1:8], 1:6, paste, sep = ":"))))
 })
+
+test_that("plain combination columns avoid a second value dictionary lookup", {
+  x <- rep(c(-4L, 9L, 2L, 9L, NA_integer_), 1024L)
+  y <- rep(c("z", "a", "", "B", "z"), 1024L)
+  z <- rep(c(FALSE, TRUE), 2560L)
+  expected <- fct_to_combine(x, y, z, sep = "|")
+  expected_missing <- fct_to_combine(x, y, I(z), sep = "|")
+  original <- vctrs::vec_match
+  local_mocked_bindings(vec_match = function(needles, haystack, ...) {
+    if (!is.object(needles) && length(needles) > 3000L && (is.integer(needles) || is.logical(needles)))
+      stop("matched all plain combination values after obtaining their keys")
+    original(needles, haystack, ...)
+  }, .package = "vctrs")
+  expect_identical(fct_to_combine(x, y, z, sep = "|"), expected)
+  expect_identical(fct_to_combine(x, y, I(z), sep = "|"), expected_missing)
+  expect_identical(as.character(fct_to_combine(c(-.Machine$integer.max, 2L, .Machine$integer.max),
+                                               c(TRUE, TRUE, NA))),
+                   c("-2147483647 & TRUE", "2 & TRUE", NA_character_))
+})
