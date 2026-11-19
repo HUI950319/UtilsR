@@ -514,8 +514,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     } else if (!is.object(x) && is.null(dim(x)) &&
                typeof(x) %in% c("character", "integer", "double") &&
                !isTRUE(getOption("dplyr.legacy_locale"))) {
-      valid <- .get_levels(x, complete = !anyNA(x))
-      n <- tabulate(match(x, valid), length(valid))
+      if (is.numeric(x)) {
+        ids <- vctrs::vec_group_id(x)
+        counts <- tabulate(ids, attr(ids, "n"))
+        values <- x[!duplicated(ids)]
+        observed <- order(values, na.last = NA, method = "radix")
+        valid <- values[observed]
+        n <- counts[observed]
+      } else {
+        valid <- .get_levels(x, complete = !anyNA(x))
+        n <- tabulate(match(x, valid), length(valid))
+      }
       missing_n <- length(x) - sum(n)
     } else {
       tab <- dplyr::count(tibble::tibble(value = x), .data$value)

@@ -1764,3 +1764,16 @@ test_that("logical frequency listings count boolean values without matching obse
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("numeric frequency listings count grouped values without rematching observations", {
+  d <- data.frame(integer = rep(c(106L, -5L, 3L, 3L, NA_integer_), 14L),
+    score = rep(c(-Inf, -0, 0, 1.5, Inf, NaN, NA_real_), 10L))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (is.numeric(x) && identical(substitute(table), quote(valid)))
+      stop("rematched numeric observations to their frequency keys")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})
