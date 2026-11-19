@@ -1900,3 +1900,16 @@ test_that("integer category labels do not scan exact integer keys", {
   environment(fn) <- env
   expect_identical(fn(x), x)
 })
+
+test_that("scatter grouping reuses factor codes for an identical level dictionary", {
+  f <- ordered(c("b", NA, "a", "b"), levels = c("b", "a", "unused"))
+  names(f) <- letters[1:4]
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(current_levels)) && identical(x, table))
+      stop("rematched an identical scatter factor dictionary")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(f, levels(f)), f)
+  expect_identical(fn(f, c("a", "b")), .scatter_group_factor(f, c("a", "b")))
+})

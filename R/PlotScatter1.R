@@ -549,7 +549,8 @@ PlotScatter1 <- function(
     ordinary <- identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))
     if (ordinary && !anyNA(current_levels) &&
         !anyDuplicated(labels)) {
-      codes <- match(current_levels, labels)[as.integer(value)]
+      codes <- if (identical(current_levels, labels)) as.integer(value) else
+        match(current_levels, labels)[as.integer(value)]
       names(codes) <- names(value)
       return(structure(codes, levels = labels, class = class(value)))
     }

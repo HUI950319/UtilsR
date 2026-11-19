@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared scatter grouping reuses existing codes when an ordinary factor already has the requested levels.
+
 * `impute_na_knn()` skips range-based numerical stabilisation checks for ordinary integer columns.
 
 * Numeric frequency listings in `lv()` group observations once before sorting the displayed values.
