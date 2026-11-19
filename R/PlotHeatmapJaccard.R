@@ -319,7 +319,11 @@ PlotHeatmapJaccard <- function(
     } else {
       membership <- if (is.list(feature_values)) do.call(c, unname(top_sets)) else
         unlist(top_sets, use.names = FALSE)
-      duplicated(membership) | duplicated(membership, fromLast = TRUE)
+      if (typeof(membership) %in% c("integer", "double")) {
+        vctrs::vec_duplicate_detect(membership)
+      } else {
+        duplicated(membership) | duplicated(membership, fromLast = TRUE)
+      }
     }
     if (!is.null(first_at) || !all(shared)) {
       end <- cumsum(set_sizes)

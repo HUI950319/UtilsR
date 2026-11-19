@@ -1107,3 +1107,18 @@ test_that("sparse Jaccard pair counts avoid hashing the encoded pairs twice", {
   expect_equal(unname(out[1L, 1:4]), c(1, .6, 1/7, 0))
   expect_identical(out, PlotHeatmapJaccard(d, "g", "item", return_type = "data"))
 })
+
+test_that("numeric Jaccard filtering detects all shared values in one pass", {
+  d <- data.frame(g = rep(LETTERS[1:8], each = 5L),
+    item = c(rbind(rep(c(-0, 0), 4L), rep(c(2, 3), each = 4L), 10:17,
+                   c(Inf, 21:27), c(NA, NaN, 30:35))))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(duplicated = function(x, ..., fromLast = FALSE) {
+    if (identical(substitute(x), quote(membership)) && fromLast)
+      stop("scanned numeric Jaccard memberships twice for duplicates")
+    base::duplicated(x, ..., fromLast = fromLast)
+  }), parent = environment(fn))
+  expected <- PlotHeatmapJaccard(d, "g", "item", return_type = "data")
+  expect_identical(fn(d, "g", "item", return_type = "data"), expected)
+  expect_equal(unname(expected[1L, 2:3]), c(1/3, 2/7))
+})

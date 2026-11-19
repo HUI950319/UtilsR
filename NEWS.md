@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard filtering detects duplicate ordinary integer and double features without two directional scans.
+
 * Sparse Jaccard calculations count pair keys through matrix positions when there are enough overlaps to justify the lookup.
 
 * One-way categorical plots with `keep_empty = FALSE` create rows only for observed categories.
