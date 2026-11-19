@@ -1047,3 +1047,16 @@ test_that("sorted dumbbell endpoints keep identity-ranked rows without subsettin
   top <- fn(d, sort_by = "end", sort_descending = FALSE, top_n = 2L, legend_pos = "none")
   expect_identical(rownames(top[["data"]]), tail(rownames(d), 2L))
 })
+
+test_that("integer64 means keeping missing values reuse the complete sample length", {
+  skip_if_not_installed("bit64")
+  fn <- .mean_plot_values
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(value)) && inherits(x, "integer64")) stop("recounted already checked integer64 missing values")
+    base::is.na(x)
+  }), parent = environment(fn))
+  x <- bit64::as.integer64(c("9007199254740993", "-9007199254740992"))
+  expect_identical(fn(x, na.rm = FALSE), .5)
+  expect_identical(fn(c(x, bit64::NA_integer64_), na.rm = FALSE), NA_real_)
+  expect_identical(fn(x[0L], na.rm = FALSE), NaN)
+})
