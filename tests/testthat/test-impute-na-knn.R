@@ -941,3 +941,19 @@ test_that("integer KNN predictors skip numeric range stabilisation work", {
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("KNN checks double infinities with scalar extrema", {
+  value <- c(0, 2, NA_real_, 3, 5)
+  d <- data.frame(value = value, aux = c(0, 1, 2, 3, 4))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(is.infinite = function(x) {
+    if (identical(x, value)) stop("allocated a KNN infinity mask for plain values")
+    base::is.infinite(x)
+  }), parent = environment(fn))
+  skip_if_not_installed("VIM")
+  expect_identical(fn(d, k = 1L), impute_na_knn(d, k = 1L))
+  d$value[1L] <- Inf
+  expect_error(fn(d, k = 1L), "finite numeric observations")
+  d$value[1L] <- -Inf
+  expect_error(fn(d, k = 1L), "finite numeric observations")
+})

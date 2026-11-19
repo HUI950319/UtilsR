@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN uses scalar extrema to validate ordinary numeric columns with no infinite observations.
+
 * Continuous bar limits reuse the extrema of complete outcomes when combining intervals.
 
 * Continuous pairwise t tests avoid concatenating two complete samples when checking their numeric scale.
