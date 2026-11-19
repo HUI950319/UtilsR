@@ -354,9 +354,10 @@ stat_ci_parse <- function(x,
         value
       }
     },
-    ci_star = ifelse(valid,
-      stat_pval(ci_str, add_star_p = pval, map_signif = map_signif),
-      x),
+    ci_star = {
+      starred <- stat_pval(ci_str, add_star_p = pval, map_signif = map_signif)
+      if (all_valid) starred else ifelse(valid, starred, x)
+    },
     p_star = ifelse(valid,
       stat_pval(pval, map_signif = map_signif),
       NA_character_)

@@ -1202,3 +1202,17 @@ test_that("fully matched interval and probability text uses complete computed ro
                      stat_ci_parse(value, exp = FALSE, output = "ci_p"))
   }
 })
+
+test_that("complete starred confidence intervals keep the formatted labels directly", {
+  x <- c(a = "1.10 (0.90, 1.30)", b = "-1.1 (-2.0, -.2)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(valid)) && all(test))
+      stop("allocated a selection vector for complete starred intervals")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  for (value in list(x, c(x, absent = NA_character_))) {
+    expect_identical(fn(value, exp = FALSE, output = "ci_star"),
+                     stat_ci_parse(value, exp = FALSE, output = "ci_star"))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse(output = "ci_star")` directly returns styled interval labels when all rows are valid.
+
 * Complete `stat_ci_parse(output = "ci_p")` results use the computed intervals and probabilities directly.
 
 * `stat_ci_parse()` reuses the same complete-row check through interval formatting and probability output.
