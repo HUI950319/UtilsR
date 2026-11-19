@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence-interval extraction keeps its normalised text vector when every row has a capture.
+
 * `stat_pval()` uses validated nonnegative probabilities directly when detecting values that round to zero.
 
 * Continuous dot summaries preserve their existing row data when count keys already follow display order.

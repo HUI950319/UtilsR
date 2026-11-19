@@ -423,7 +423,7 @@ stat_ci_parse <- function(x,
   }
   starts <- attr(matched, "capture.start")
   lengths <- attr(matched, "capture.length")
-  text <- xs[hit]
+  text <- if (length(hit) == n) xs else xs[hit]
   g <- lapply(seq_len(6L), function(k) {
     first <- starts[hit, k]
     substring(text, first, first + lengths[hit, k] - 1L)

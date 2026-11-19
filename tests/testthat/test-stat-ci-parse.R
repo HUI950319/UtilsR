@@ -1155,3 +1155,17 @@ test_that("automatic CI diagnostics scan logarithmic votes once", {
   expect_identical(do.call(fn, a), do.call(.ci_scale, a))
   expect_identical(scanned, 1L)
 })
+
+test_that("complete interval captures reuse their original normalized text", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(xs)) && identical(substitute(i), quote(hit)) &&
+        length(i) == length(x)) stop("copied fully matched interval text")
+    if (missing(i)) return(base::"["(x, , ...))
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  x <- c(" +1.00 [0.5, 2.0]", "\u22123.1 (\u22124.5; \u22122)", "2.1 (1.9 to 4.5)*")
+  expect_identical(fn(x), .ci_extract(x))
+  expect_identical(fn(c(x, NA, "missing", "2 [1, 3)")),
+                   .ci_extract(c(x, NA, "missing", "2 [1, 3)")))
+})
