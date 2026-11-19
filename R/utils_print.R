@@ -517,9 +517,14 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       op[bounded] <- sub(paste0("(?s)^(", bound, ").*$"), "\\1", bound_text, perl = TRUE)
       decimal[bounded] <- sub(paste0("^", bound, "[\\h\\v]*"), "", bound_text, perl = TRUE)
     }
-    exponent <- suppressWarnings(as.numeric(ifelse(grepl("[eE]", decimal),
-      sub("^.*[eE]", "", decimal), "0")))
-    mantissa <- sub("[eE].*$", "", decimal)
+    exponent <- numeric(length(decimal))
+    mantissa <- decimal
+    scientific <- which(grepl("[eE]", decimal))
+    if (length(scientific)) {
+      text <- decimal[scientific]
+      exponent[scientific] <- suppressWarnings(as.numeric(sub("^.*[eE]", "", text)))
+      mantissa[scientific] <- sub("[eE].*$", "", text)
+    }
     negative <- grepl("^-", mantissa)
     mantissa <- sub("^[+-]", "", mantissa)
     places <- ifelse(grepl(".", mantissa, fixed = TRUE),

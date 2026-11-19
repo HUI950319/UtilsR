@@ -2209,3 +2209,16 @@ test_that("console sparklines use a single maximum per bin count vector", {
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
   expect_identical(calls, 1L)
 })
+
+test_that("decimal console p values skip irrelevant scientific text substitutions", {
+  withr::local_options(cli.num_colors = 1L)
+  fn <- ._p_cells
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (pattern %in% c("^.*[eE]", "[eE].*$") && any(!grepl("[eE]", x)))
+      stop("parsed every console p value as scientific notation")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  values <- c(".049", "0.05", "< 1e-3", ">=2E-3", "missing", "<0.001", NA, "0e20000")
+  expect_identical(fn(values), ._p_cells(values))
+  expect_identical(fn(values[1:2]), c(".049*", "0.05"))
+})
