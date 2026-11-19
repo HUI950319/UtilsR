@@ -1162,7 +1162,7 @@ test_that("gradient butterfly shapes use observed factor codes", {
   }
 })
 
-test_that("unfilled butterfly panels decode side labels once", {
+test_that("unfilled butterfly panels avoid decoding every side label", {
   d <- data.frame(item = rep(c("a", "b"), each = 6L), value = 1:12,
                   side = factor(rep(c("r", "l"), 6L), levels = c("l", "unused", "r")))
   draw <- function(fn) fn(d, stat.by = "item", value.by = "value",
@@ -1180,7 +1180,7 @@ test_that("unfilled butterfly panels decode side labels once", {
   }
   environment(fn) <- env
   actual <- draw(fn)
-  expect_identical(decodes, 1L)
+  expect_identical(decodes, 0L)
   for (i in seq_along(expected)) {
     expect_identical(ggplot2::ggplot_build(actual[[i]])$data,
                      ggplot2::ggplot_build(expected[[i]])$data)
@@ -1362,4 +1362,23 @@ test_that("wide butterfly preparation reuses ordinary category codes", {
   environment(fn) <- env
   draw <- function(f) suppressMessages(f(d, "category", "score", "group", type = "box"))
   expect_identical(lapply(draw(fn), function(p) p$data), lapply(draw(PlotButterfly2), function(p) p$data))
+})
+
+test_that("butterfly distribution wings reuse factor codes in appearance order", {
+  d <- data.frame(feature = rep(c("a", "b"), 6L), score = 1:12, fill = "one",
+    wing = ordered(rep(c("R", "L"), each = 6L), levels = c("L", "R", "unused")))
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(x, d[["wing"]])) stop("decoded every butterfly wing label")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  for (fill in list(NULL, "fill")) {
+    draw <- function(f) suppressMessages(f(d, "feature", "score", "wing", fill.by = fill, type = "box"))
+    actual <- draw(fn)
+    expected <- draw(PlotButterfly2)
+    expect_identical(lapply(actual, function(p) p[["data"]]), lapply(expected, function(p) p[["data"]]))
+    expect_identical(vapply(actual, function(p) p[["labels"]][["title"]], character(1)), c("R", "L"))
+  }
+  d[["wing"]] <- factor(c(rep(c("R", "L"), each = 5L), NA, NA), exclude = NULL)
+  expect_error(fn(d, "feature", "score", "wing", type = "box"), "group.by.*missing")
 })

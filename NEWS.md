@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` uses ordinary factor codes to select wing rows and decodes only the two displayed group labels.
+
 * `plt_na()` collects per-column missing counts without a temporary list of scalar totals.
 
 * Categorical background bands validate ordinary factor codes and decode only the displayed background groups.

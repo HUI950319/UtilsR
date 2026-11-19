@@ -256,8 +256,11 @@ PlotButterfly2 <- function(
   }
 
   # ---- Two groups ----
-  group <- as.character(data[[group.by]])
-  groups <- unique(group)
+  group <- data[[group.by]]
+  factor_group <- identical(class(group), "factor") || identical(class(group), c("ordered", "factor"))
+  wing_codes <- if (factor_group) as.integer(group) else as.character(group)
+  observed <- unique(wing_codes)
+  groups <- if (factor_group) base::levels(group)[observed] else observed
   if (anyNA(groups)) cli::cli_abort("{.arg group.by} must not contain missing group values.")
   if (length(groups) != 2L)
     cli::cli_abort("{.arg group.by} must have exactly 2 levels, got {length(groups)}.")
@@ -270,8 +273,8 @@ PlotButterfly2 <- function(
   # ==================================================================
   if (is.null(fill.by) && !is_beeswarm) {
     category <- data[[stat.by]]
-    left <- which(group == groups[1L])
-    right <- which(group == groups[2L])
+    left <- which(wing_codes == observed[1L])
+    right <- which(wing_codes == observed[2L])
     if (identical(class(category), "factor") || identical(class(category), c("ordered", "factor"))) {
       categories <- levels(category)
       codes <- as.integer(category)
@@ -586,8 +589,13 @@ PlotButterfly2 <- function(
   }
 
   # ---- Build left & right ----
-  df_left  <- data[data[[group.by]] == groups[1], ]
-  df_right <- data[data[[group.by]] == groups[2], ]
+  if (factor_group) {
+    df_left <- data[wing_codes == observed[1L], ]
+    df_right <- data[wing_codes == observed[2L], ]
+  } else {
+    df_left <- data[data[[group.by]] == groups[1L], ]
+    df_right <- data[data[[group.by]] == groups[2L], ]
+  }
 
   p_left <- .build_side(df_left,  negate = TRUE,  show_y = FALSE,
                         panel_title = left.title,
