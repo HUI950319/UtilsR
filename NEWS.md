@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console swatches determine seven- or nine-character HEX label width from the decoded palette rather than measuring each rendered label.
+
 * Confidence-interval extraction keeps its normalised text vector when every row has a capture.
 
 * `stat_pval()` uses validated nonnegative probabilities directly when detecting values that round to zero.

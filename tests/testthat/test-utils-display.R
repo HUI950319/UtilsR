@@ -1449,3 +1449,15 @@ test_that("repeated console colours reuse their first swatch index", {
                      capture.output(show_color(x, rev = reverse)))
   }
 })
+
+test_that("console swatch width comes from decoded alpha instead of all labels", {
+  withr::local_options(cli.num_colors = 1L, width = 21L)
+  fn <- show_color
+  environment(fn) <- list2env(list(nchar = function(x, ...) {
+    if (identical(substitute(x), quote(hex))) stop("measured every hexadecimal swatch label")
+    base::nchar(x, ...)
+  }), parent = environment(fn))
+  for (values in list(character(), c("black", "white"), c("#00000000", "#FFFFFF", "red"))) {
+    expect_identical(capture.output(fn(values)), capture.output(show_color(values)))
+  }
+})

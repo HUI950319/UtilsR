@@ -834,7 +834,7 @@ show_color <- function(x, rev = FALSE) {
   }
 
   width <- console_width()
-  label_width <- max(nchar(hex, type = "width"), 7L)
+  label_width <- if (any(rgba[4L, ] < 255L)) 9L else 7L
   padding <- max(0L, min(2L, width - label_width))
   left_pad <- if (padding >= 1L) " " else ""
   right_pad <- if (padding == 2L) " " else ""
