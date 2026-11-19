@@ -2446,3 +2446,16 @@ test_that("continuous dot count order keeps already sorted group rows", {
     expect_identical(fn(d[rows, ], c("x", "v")), .con_dot_counts(d[rows, ], c("x", "v")))
   }
 })
+
+test_that("bar intervals keep a split list with no empty partitions", {
+  x <- c(2, 6, 4, 2, 6, 4)
+  g <- ordered(rep(c("b", "a"), each = 3L))
+  fn <- .con_bar_range
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (is.list(x) && is.logical(i) && all(i)) stop("sliced a list of wholly observed groups")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, g), c(0, 6))
+  levels(g) <- c("a", "b", "unused")
+  expect_identical(fn(x, g), c(0, 6))
+})

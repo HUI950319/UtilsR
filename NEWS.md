@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous bar limit calculation keeps the original split list when all declared factor groups are observed.
+
 * `check_na()` collects both per-column metrics in one typed pass and reuses their positions.
 
 * Significance map validation checks minimum and maximum thresholds without copying the map to calculate a range.

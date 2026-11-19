@@ -1268,7 +1268,8 @@ plt_con <- function(data,
     missing <- anyNA(groups)
     if (!missing && nlevels(groups) <= length(groups)) {
       by_group <- split(values, groups)
-      by_group[lengths(by_group) > 0L]
+      observed <- lengths(by_group) > 0L
+      if (all(observed)) by_group else by_group[observed]
     } else split(values, if (missing) addNA(groups) else groups, drop = TRUE)
   } else {
     split(values, match(groups, unique(groups)))
