@@ -1087,3 +1087,23 @@ test_that("sparse Jaccard pair keys directly recover matrix indices", {
   expect_equal(out["A", "C"], .2)
   expect_equal(out["A", "D"], 0)
 })
+
+test_that("sparse Jaccard pair counts avoid hashing the encoded pairs twice", {
+  groups <- sprintf("G%02d", 1:24)
+  d <- do.call(rbind, lapply(seq_along(groups), function(i) {
+    data.frame(g = groups[[i]], item = c(
+      paste0("triple", (i - 1L) %/% 3L, "_", 1:60),
+      paste0("pair-x", (i - 1L) %/% 2L, "_", 1:60),
+      paste0("pair-y", (i - 1L) %/% 2L, "_", 1:60),
+      paste0("local", i, "_", 1:60)))
+  }))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(keys)) && identical(substitute(table), quote(pairs)))
+      stop("matched sparse Jaccard pairs after grouping them")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  out <- fn(d, "g", "item", return_type = "data")
+  expect_equal(unname(out[1L, 1:4]), c(1, .6, 1/7, 0))
+  expect_identical(out, PlotHeatmapJaccard(d, "g", "item", return_type = "data"))
+})

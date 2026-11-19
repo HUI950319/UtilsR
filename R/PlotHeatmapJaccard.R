@@ -292,8 +292,15 @@ PlotHeatmapJaccard <- function(
         j <- c(j, groups[repeated[match(first[extra], first)]])
       }
       keys <- i + (j - 1) * n_ct
-      pairs <- unique(keys)
-      counts <- tabulate(match(keys, pairs), nbins = length(pairs))
+      slots <- as.double(n_ct) * n_ct
+      if (slots <= .Machine$integer.max && slots <= length(keys)) {
+        counts <- tabulate(keys, nbins = slots)
+        pairs <- which(counts > 0L)
+        counts <- counts[pairs]
+      } else {
+        pairs <- unique(keys)
+        counts <- tabulate(match(keys, pairs), nbins = length(pairs))
+      }
       i <- (pairs - 1) %% n_ct + 1
       j <- (pairs - 1) %/% n_ct + 1
       values <- counts / (set_sizes[i] + set_sizes[j] - counts)

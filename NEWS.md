@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse Jaccard calculations count pair keys through matrix positions when there are enough overlaps to justify the lookup.
+
 * One-way categorical plots with `keep_empty = FALSE` create rows only for observed categories.
 
 * `PlotButterfly2()` uses ordinary factor codes to select wing rows and decodes only the two displayed group labels.
