@@ -955,3 +955,16 @@ test_that("P-value boundary trimming visits both ends in one pass", {
   }), parent = environment(fn))
   expect_identical(fn(x), expected)
 })
+
+test_that("validated ordinary p values do not need an absolute-value copy", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(format_x)) && !is.object(x))
+      stop("allocated absolute values for validated probabilities")
+    base::abs(x)
+  }), parent = environment(fn))
+  x <- c(-0, .00045, .0005, .00051, .01, .05, .5, 1, NA_real_, NaN)
+  for (input in list(x, I(x), c("-0", "<.001", ".007", "0.0005", NA_character_))) {
+    for (mode in c("pvalue", "stars")) expect_identical(fn(input, mode = mode), stat_pval(input, mode = mode))
+  }
+})

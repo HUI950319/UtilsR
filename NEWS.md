@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` uses validated nonnegative probabilities directly when detecting values that round to zero.
+
 * Continuous dot summaries preserve their existing row data when count keys already follow display order.
 
 * `pr_table()` checks ordinary integer highlight positions directly while retaining fractional and nonfinite validation for doubles.
