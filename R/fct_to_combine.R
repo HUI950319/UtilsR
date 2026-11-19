@@ -324,9 +324,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
-  positions <- integer(length(ord))
-  positions[ord] <- seq_along(ord)
-  result <- positions[ids]
+  if (is.unsorted(ord)) {
+    positions <- integer(length(ord))
+    positions[ord] <- seq_along(ord)
+    result <- positions[ids]
+  } else {
+    result <- as.integer(ids)
+  }
   if (!is.null(complete_rows)) {
     full <- rep.int(NA_integer_, n)
     full[complete_rows] <- result

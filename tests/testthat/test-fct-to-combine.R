@@ -624,3 +624,18 @@ test_that("plain combination columns avoid a second value dictionary lookup", {
                                                c(TRUE, TRUE, NA))),
                    c("-2147483647 & TRUE", "2 & TRUE", NA_character_))
 })
+
+test_that("ordered factor combinations retain their counting codes", {
+  x <- factor(c("b", "b", "a", "a", NA), levels = c("b", "a"))
+  y <- factor(c("z", "z", "z", "y", "y"), levels = c("z", "y"))
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list(integer = function(length = 0L) {
+    if (identical(substitute(length), quote(length(ord))) &&
+        !is.unsorted(get("ord", envir = parent.frame())))
+      stop("allocated an inverse permutation for already ordered combinations")
+    base::integer(length)
+  }), parent = environment(fn))
+  expect_identical(fn(x, y), fct_to_combine(x, y))
+  expect_identical(as.character(fn(x, y)), c("b & z", "b & z", "a & z", "a & y", NA_character_))
+  expect_identical(fn(rev(x), rev(y)), fct_to_combine(rev(x), rev(y)))
+})

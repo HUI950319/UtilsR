@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` retains the grouped codes directly when they already follow factor-level order.
+
 * `lv()` finds special-value highlights on category rows and checks explicit missing factor labels only among those candidates.
 
 * `PlotRankCor()` checks constant and complete paired columns through their bounds before allocating row masks.
