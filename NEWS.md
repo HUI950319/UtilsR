@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` preserves a plain data frame when its full row ranking is already in order.
+
 * Numeric dumbbell insets reuse their existing range for significance bracket placement.
 
 * `PlotDumbbell()` promotes ordinary integer endpoints directly when the paired endpoint uses `integer64`.

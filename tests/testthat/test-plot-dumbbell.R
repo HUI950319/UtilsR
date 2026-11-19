@@ -1030,3 +1030,20 @@ test_that("dumbbell inset annotations use the upper numeric range endpoint", {
   expect_identical(ggplot2::ggplot_build(draw(fn))$data,
                    ggplot2::ggplot_build(draw(.build_dumbbell_inset))$data)
 })
+
+test_that("sorted dumbbell endpoints keep identity-ranked rows without subsetting", {
+  d <- data.frame(start = 1:8, end = c(2L, 3L, 4L, 7L, 7L, 9L, 12L, NA_integer_),
+    category = letters[1:8], row.names = paste0("r", 1:8))
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list(print = function(x, ...) invisible(x),
+    "[" = function(x, i, ...) {
+      if (!missing(i) && is.data.frame(x) && identical(substitute(i), quote(ord)) &&
+          identical(i, seq_len(nrow(x)))) stop("recopied all identity-ranked dumbbell rows")
+      if (missing(i)) return(base::"["(x, , ...))
+      base::"["(x, i, ...)
+    }), parent = environment(fn))
+  all_rows <- fn(d, sort_by = "end", sort_descending = FALSE, legend_pos = "none")
+  expect_identical(rownames(all_rows[["data"]]), rownames(d))
+  top <- fn(d, sort_by = "end", sort_descending = FALSE, top_n = 2L, legend_pos = "none")
+  expect_identical(rownames(top[["data"]]), tail(rownames(d), 2L))
+})
