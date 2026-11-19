@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` finds complete numeric axis bounds directly and retains the finite-value fallback for incomplete axes.
+
 * Pearson correlation preparation checks ordinary numeric endpoints without a full finiteness mask.
 
 * Typed scatter grouping skips missing-label restoration when its combined category values are complete.

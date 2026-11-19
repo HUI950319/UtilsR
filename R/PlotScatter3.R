@@ -268,7 +268,14 @@ PlotScatter3 <- function(
 
   # ---- Auto-calculate axis_limits and axis_breaks from data ----
   if (is.null(axis_limits)) {
-    data_range <- suppressWarnings(range(data[[x]], data[[y]], finite = TRUE))
+    first <- data[[x]]
+    second <- data[[y]]
+    data_range <- if (!is.object(first) && !is.object(second)) {
+      c(min(first, second), max(first, second))
+    }
+    if (is.null(data_range) || any(!is.finite(data_range))) {
+      data_range <- suppressWarnings(range(first, second, finite = TRUE))
+    }
     if (any(!is.finite(data_range)))
       stop("Automatic axis limits require finite coordinates.", call. = FALSE)
     axis_limits <- c(floor(data_range[1]), ceiling(data_range[2]))

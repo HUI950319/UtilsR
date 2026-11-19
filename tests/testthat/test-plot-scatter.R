@@ -1953,3 +1953,20 @@ test_that("ordinary Pearson input uses extrema instead of a vector finite mask",
   y[5L] <- NA_real_
   expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
 })
+
+test_that("complete paired scatter coordinates avoid constructing a joined range input", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(x = c(-2, 0, 1.5, 3), y = c(-1, 2, 2.5, 4), group = c("A", "B", "A", "B"))
+  fn <- PlotScatter3
+  environment(fn) <- list2env(list(range = function(..., na.rm = FALSE, finite = FALSE) {
+    args <- list(...)
+    if (length(args) == 2L && all(lengths(args) == 4L) && all(is.finite(unlist(args))))
+      stop("joined both paired scatter axes for automatic limits")
+    base::range(..., na.rm = na.rm, finite = finite)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, x = "x", y = "y", group = "group",
+    cor_method = "none", test_method = "none"))
+  a <- draw(fn)
+  b <- draw(PlotScatter3)
+  expect_identical(a[[1L]]$scales$get_scales("x")$limits, b[[1L]]$scales$get_scales("x")$limits)
+})
