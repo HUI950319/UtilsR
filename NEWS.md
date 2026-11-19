@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse categorical tables reuse unique paired factor codes and their unit counts.
+
 * KNN uses scalar extrema to validate ordinary numeric columns with no infinite observations.
 
 * Continuous bar limits reuse the extrema of complete outcomes when combining intervals.

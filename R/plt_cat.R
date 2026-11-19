@@ -905,14 +905,22 @@ plt_cat <- function(data,
       group_code <- group_code[keep]
     }
     ids <- vctrs::vec_group_id(data.frame(stat_code, group_code))
-    first <- !duplicated(ids)
-    order_at <- order(group_code[first], stat_code[first])
-    i <- stat_code[first][order_at]
-    j <- group_code[first][order_at]
+    distinct <- attr(ids, "n")
+    if (distinct == length(ids)) {
+      counts <- rep.int(1L, distinct)
+    } else {
+      first <- !duplicated(ids)
+      stat_code <- stat_code[first]
+      group_code <- group_code[first]
+      counts <- tabulate(ids, distinct)
+    }
+    order_at <- order(group_code, stat_code)
+    i <- stat_code[order_at]
+    j <- group_code[order_at]
     df <- data.frame(
       stat_var = structure(i, levels = levels(data[[stat.by]]), class = "factor"),
       group_var = structure(j, levels = levels(data[[group.by]]), class = "factor"),
-      n = tabulate(ids, attr(ids, "n"))[order_at]
+      n = counts[order_at]
     )
     if (stat == "percent") {
       totals <- rowsum(as.double(df$n), j, reorder = FALSE)

@@ -2109,3 +2109,18 @@ test_that("complete chord tables preserve their matrix axis names directly", {
   expect_identical(colnames(seen), c("c", "d"))
   expect_equal(unname(seen), matrix(c(1L, 1L, 1L, 0L), 2L))
 })
+
+test_that("unique sparse category pairs retain their codes without recounting", {
+  d <- data.frame(s = factor(c("c", "a", "c", "b"), levels = c("b", "a", "c", "unused")),
+                  g = factor(c("B", "A", "A", "B"), levels = c("A", "B", "unused")))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (length(bin) == 4L && identical(attr(bin, "n"), 4L)) stop("recounted unique sparse category keys")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  for (stat in c("count", "percent")) {
+    expect_identical(fn(d, "s", "g", stat), .prepare_cat_data(d, "s", "g", stat))
+    repeated <- rbind(d, d[1L, ])
+    expect_identical(fn(repeated, "s", "g", stat), .prepare_cat_data(repeated, "s", "g", stat))
+  }
+})
