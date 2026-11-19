@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI scaling checks raw endpoint finiteness on the candidate intervals that require numerical rescaling.
+
 * Interval parsers count decimal digits on dotted mantissas while retaining the precision of scientific notation.
 
 * `stat_ci_parse(output = "ci_star")` directly returns styled interval labels when all rows are valid.

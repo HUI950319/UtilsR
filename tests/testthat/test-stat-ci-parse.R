@@ -1228,3 +1228,17 @@ test_that("undotted interval mantissas bypass fractional precision substitutions
   expect_identical(fn(x), .ci_extract(x))
   expect_identical(fn(x)[["digits"]], c(0, 0, 3, 10, 2))
 })
+
+test_that("routine linear interval scoring checks only instability candidates", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(est)) && length(x) > 10L)
+      stop("scanned every CI estimate for the overflow fallback")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  x <- c(seq_len(30L), 0, NA_real_)
+  lo <- c(seq_len(30L) - 1, -1.7e308, NA_real_)
+  hi <- c(seq_len(30L) + 1, 1.7e308, NA_real_)
+  args <- list(x, lo, hi, matrix(.005, length(x), 3L), FALSE, !is.na(x))
+  expect_identical(do.call(fn, args), do.call(.ci_scale, args))
+})

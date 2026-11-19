@@ -505,8 +505,10 @@ stat_ci_parse <- function(x,
     span <- hi - lo
     a_lin <- abs((hi - est) - (est - lo)) / span
     r_lin <- (ul / 2 + uh / 2 + ue) / span
-    wide <- which(ok & is.finite(est) & is.finite(lo) & is.finite(hi) &
-                    (!is.finite(span) | !is.finite(a_lin) | !is.finite(r_lin)))
+    wide <- which(ok & (!is.finite(span) | !is.finite(a_lin) | !is.finite(r_lin)))
+    if (length(wide)) {
+      wide <- wide[is.finite(est[wide]) & is.finite(lo[wide]) & is.finite(hi[wide])]
+    }
     if (length(wide)) {
       magnitude <- pmax(abs(est[wide]), abs(lo[wide]), abs(hi[wide]))
       e <- est[wide] / magnitude; l <- lo[wide] / magnitude; h <- hi[wide] / magnitude
