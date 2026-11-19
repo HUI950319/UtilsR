@@ -1251,7 +1251,7 @@ plt_con <- function(data,
   centre <- mean(x)
   spread <- if (length(x) > 1L) stats::sd(x) else NaN
   if (length(x) > 1L && (!is.finite(spread) ||
-      (spread == 0 && any(x != x[1L])) ||
+      (spread == 0 && (if (is.object(x)) any(x != x[1L]) else min(x) != max(x))) ||
       (spread > 0 && spread < sqrt(.Machine$double.xmin))) && all(is.finite(x))) {
     midpoint <- min(x) / 2 + max(x) / 2
     shifted <- x - midpoint

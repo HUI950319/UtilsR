@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous zero-variance interval calculation skips the full equality vector for ordinary constant samples.
+
 * Continuous bar limit calculation keeps the original split list when all declared factor groups are observed.
 
 * `check_na()` collects both per-column metrics in one typed pass and reuses their positions.

@@ -2459,3 +2459,16 @@ test_that("bar intervals keep a split list with no empty partitions", {
   levels(g) <- c("a", "b", "unused")
   expect_identical(fn(x, g), c(0, 6))
 })
+
+test_that("constant continuous intervals avoid constructing a value-by-value difference mask", {
+  x <- rep(4, 40L)
+  fn <- .con_mean_sd
+  environment(fn) <- list2env(list("!=" = function(e1, e2) {
+    if (identical(e1, x)) stop("allocated the zero variance comparison mask")
+    base::"!="(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(x), data.frame(y = 4, ymin = 4, ymax = 4))
+  tiny <- c(0, 3e-200, 6e-200)
+  expected <- data.frame(y = 3e-200, ymin = 0, ymax = 6e-200)
+  expect_equal(fn(tiny) / 1e-200, expected / 1e-200)
+})
