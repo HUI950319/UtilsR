@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The shared plot time-label helper only builds collision masks when formatted labels actually repeat.
+
 * Positional `fct_cat()` ordering appends unmatched level indices without comparing the level text again.
 
 * Numeric factor conversion reuses group codes when observations repeat extensively and retains distinct close values.

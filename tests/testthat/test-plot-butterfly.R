@@ -1382,3 +1382,16 @@ test_that("butterfly distribution wings reuse factor codes in appearance order",
   d[["wing"]] <- factor(c(rep(c("R", "L"), each = 5L), NA, NA), exclude = NULL)
   expect_error(fn(d, "feature", "score", "wing", type = "box"), "group.by.*missing")
 })
+
+test_that("unique time labels skip bidirectional collision masks", {
+  fn <- .butterfly_category_labels
+  d <- rep(as.Date("2020-01-01") + (1:5), 12L)
+  t <- as.POSIXct("2020-01-01", tz = "UTC") + c(.1, .2, 1)
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(labels)) && !anyDuplicated(x))
+      stop("built a duplicate mask for unique time display labels")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d), d)
+  expect_identical(fn(t), .butterfly_category_labels(t))
+})

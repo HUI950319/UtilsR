@@ -650,8 +650,8 @@ PlotButterfly <- function(
       identical(class(value), c("POSIXlt", "POSIXt")) ||
       identical(class(value), "difftime") || class(value)[1L] %in% c("Duration", "Period", "Interval")
     labels <- if (ordinary_time) as.character(value[at]) else as.character(value)[at]
+    if (!anyDuplicated(labels)) return(value)
     collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
-    if (!any(collision)) return(value)
     labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
     return(labels[match(key, distinct)])
   }
