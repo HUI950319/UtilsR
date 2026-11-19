@@ -1022,3 +1022,15 @@ test_that("rasterization skips device creation for direct tables without panels"
   expect_identical(grDevices::dev.cur(), device)
   expect_error(fn(gt, 72, c(1, 1), NULL, "in", "transparent"), "number of panels")
 })
+
+test_that("text-only raster panels preserve vector viewport without measuring it", {
+  g <- grid::grobTree(grid::textGrob("annotation", name = "text"),
+    vp = grid::viewport(width = .5, height = .5))
+  fn <- .rasterize_panel_grob
+  environment(fn) <- list2env(list(local = function(...) {
+    stop("measured a raster viewport for a text-only panel")
+  }), parent = environment(fn))
+  result <- fn(g, 1, 1, 96, "in", "transparent")
+  expect_identical(result[["vp"]], g[["vp"]])
+  expect_identical(result[["children"]][["text"]], g[["children"]][["text"]])
+})

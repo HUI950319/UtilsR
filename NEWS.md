@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterisation leaves vector-only panels without measuring a bitmap viewport.
+
 * Sparse factor summaries avoid hashing the complete row codes twice when many factor levels are unused.
 
 * `PlotScatter3()` finds complete numeric axis bounds directly and retains the finite-value fallback for incomplete axes.
