@@ -1032,3 +1032,25 @@ test_that("Sankey node paths drop matrix dimensions without character coercion",
     expect_identical(fn(data, stages), .sankey_path_rows(data, stages))
   }
 })
+
+test_that("dense Sankey stages reuse code positions with distinct missing observations", {
+  skip_if_not_installed("ggsankey")
+  x <- structure(rep(c(1L, 2L, 1L, 4L), 4L),
+    levels = c("one", NA_character_, "unused", "two"), class = "factor")
+  d <- data.frame(a = x, b = factor(rep(c("A", "B"), 8L)))
+  fn <- plt_sankey
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(table), quote(observed)) && !anyNA(x))
+      stop("rematched complete Sankey stage observations to their original codes")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  draw <- function(f, rev) suppressMessages(f(d, c("a", "b"), show_text = "none",
+    reverse_levels = rev, theme_use = ggplot2::theme_minimal())[["data"]])
+  for (rev in c(TRUE, FALSE)) {
+    out <- draw(fn, rev)
+    expect_identical(out, draw(plt_sankey, rev))
+    expect_identical(length(unique(out[["node"]][seq(1L, 8L, by = 2L)])), 3L)
+  }
+  d[["a"]][3L] <- NA
+  expect_identical(draw(fn, TRUE), draw(plt_sankey, TRUE))
+})

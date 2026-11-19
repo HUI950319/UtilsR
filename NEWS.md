@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` uses a compact lookup for dense stage levels and preserves explicit NA levels separately from missing observations.
+
 * Console swatches determine seven- or nine-character HEX label width from the decoded palette rather than measuring each rendered label.
 
 * Confidence-interval extraction keeps its normalised text vector when every row has a capture.
