@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` avoids checking every finite number for fractional digits when `digits = 0`.
+
 * Console P-value cells parse scientific exponents only on rows that use scientific notation.
 
 * `fct_to_combine()` encodes ordinary logical and compact integer ranges without hashing every observation.

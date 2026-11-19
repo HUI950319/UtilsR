@@ -2222,3 +2222,15 @@ test_that("decimal console p values skip irrelevant scientific text substitution
   expect_identical(fn(values), ._p_cells(values))
   expect_identical(fn(values[1:2]), c(".049*", "0.05"))
 })
+
+test_that("zero-decimal console display skips probing whole-number equality", {
+  withr::local_options(cli.num_colors = 1L)
+  d <- data.frame(name = letters[1:5], estimate = c(-.00002, 0, 2.5, NA, 15.75))
+  fn <- pr_table
+  environment(fn) <- list2env(list(round = function(x, ...) {
+    if (identical(substitute(x), quote(fin)))
+      stop("rounded every number to infer explicitly zero decimals")
+    base::round(x, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d, digits = 0L)), capture.output(pr_table(d, digits = 0L)))
+})

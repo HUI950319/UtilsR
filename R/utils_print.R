@@ -719,7 +719,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
       finite <- is.finite(v)
       fin <- if (all(finite)) v else v[finite]
-      d <- if (all(fin == round(fin))) 0L else digits
+      d <- if (digits == 0L || all(fin == round(fin))) 0L else digits
       # 0.0003 would print as 0.00: give the column two significant digits.
       if (d > 0L) {
         tiny <- abs(fin[fin != 0])
