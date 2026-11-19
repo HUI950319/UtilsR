@@ -1303,3 +1303,18 @@ test_that("ordered rank pivots retain already sorted rows", {
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("unique rank correlation group labels skip collision sorting", {
+  d <- data.frame(feature = rep(letters[1:4], 4L),
+    method = rep(c("first", "second"), each = 4L, times = 2L),
+    score = rep(c(4, 2, 1, 3, 1, 3, 2, 4), 2L),
+    group = rep(c("right", "left"), each = 8L))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(order = function(..., na.last = TRUE, decreasing = FALSE, method = "auto") {
+    if (identical(as.list(substitute(list(...)))[-1L], list(quote(missing_group))))
+      stop("disambiguated an already unique rank group dictionary")
+    base::order(..., na.last = na.last, decreasing = decreasing, method = method)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, "feature", "score", group.by = "group", method.by = "method")[["data"]])
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

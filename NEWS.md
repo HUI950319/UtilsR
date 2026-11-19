@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` preserves unique group labels directly and computes collision suffixes only when needed.
+
 * The shared `integer64` mean helper checks missing values once when `na.rm = FALSE`.
 
 * `PlotHeatmapJaccard()` avoids row-sized missing-value masks for complete ordinary factors and plain vectors.

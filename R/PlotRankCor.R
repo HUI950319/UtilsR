@@ -280,12 +280,14 @@ PlotRankCor <- function(
     group_keys <- group_values[!duplicated(group_id)]
     group_labels <- as.character(group_keys)
     missing_group <- is.na(group_keys) | is.na(group_labels)
-    group_labels[missing_group] <- "<NA>"
-    # Resolve labels only after identifying exact groups. Reserve existing
-    # labels before generating suffixes for missing groups.
-    label_order <- order(missing_group)
-    group_labels[label_order] <- make.unique(group_labels[label_order])
-    if (!is.factor(group_values) || any(missing_group)) {
+    has_missing <- any(missing_group)
+    if (has_missing) group_labels[missing_group] <- "<NA>"
+    if (anyDuplicated(group_labels)) {
+      # Reserve existing labels before generating suffixes for missing groups.
+      label_order <- order(missing_group)
+      group_labels[label_order] <- make.unique(group_labels[label_order])
+    }
+    if (!is.factor(group_values) || has_missing) {
       if (group.by %in% c(stat.by, value.by, method.by, size_by, alpha_by))
         group.by_internal <- tail(make.unique(c(names(data), group.by)), 1L)
       data[[group.by_internal]] <- group_labels[group_id]
