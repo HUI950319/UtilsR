@@ -331,8 +331,8 @@
     counts <- table(from, to, useNA = "ifany")
     matrix(counts, ncol = ncol(counts), dimnames = dimnames(counts))
   }
-  colnames(m)[is.na(colnames(m))] <- "NA"
-  rownames(m)[is.na(rownames(m))] <- "NA"
+  if (anyNA(colnames(m))) colnames(m)[is.na(colnames(m))] <- "NA"
+  if (anyNA(rownames(m))) rownames(m)[is.na(rownames(m))] <- "NA"
 
   all_sectors <- unique(c(rownames(m), colnames(m)))
   sector_cols <- stats::setNames(cols[match(all_sectors, names(cols))], all_sectors)

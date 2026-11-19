@@ -2091,3 +2091,21 @@ test_that("dense categorical axes compact unused levels by code", {
   expect_identical(fn(x), droplevels(x))
   expect_identical(fn(x[1:3]), droplevels(x[1:3]))
 })
+
+test_that("complete chord tables preserve their matrix axis names directly", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(a = factor(c("a", "b", "a")), b = factor(c("c", "c", "d")))
+  fn <- .plt_cat_chord
+  environment(fn) <- list2env(list("colnames<-" = function(x, value) {
+    if (identical(colnames(x), value)) stop("reassigned complete chord matrix column names")
+    base::"colnames<-"(x, value)
+  }), parent = environment(fn))
+  seen <- NULL
+  local_mocked_bindings(chordDiagram = function(x, ...) { seen <<- x }, .package = "circlize")
+  grDevices::pdf(NULL)
+  withr::defer(grDevices::dev.off())
+  fn(d, names(d), c(a = "red", b = "blue", c = "green", d = "grey"))
+  expect_identical(rownames(seen), c("a", "b"))
+  expect_identical(colnames(seen), c("c", "d"))
+  expect_equal(unname(seen), matrix(c(1L, 1L, 1L, 0L), 2L))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical chord plots only update the matrix axis labels when missing labels are present.
+
 * Sankey path reshaping removes the node matrix dimensions directly after binding stages.
 
 * `fmt_point()` skips per-group sampling callbacks when every stratum is already within the requested size.
