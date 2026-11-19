@@ -1002,3 +1002,18 @@ test_that("repeated numeric factors group observations once and keep precise lev
   expect_identical(length(levels(expected)), 5L)
   expect_identical(as.integer(expected)[1:8], c(1L, 2L, 2L, 3L, 4L, 5L, NA_integer_, NA_integer_))
 })
+
+test_that("positional factor reordering appends other levels by their index", {
+  x <- structure(c(3L, NA_integer_, 2L, 4L, 1L), levels = c("B", NA_character_, "", "C"),
+    class = c("ordered", "factor"))
+  names(x) <- letters[1:5]
+  fn <- fct_cat
+  environment(fn) <- list2env(list(setdiff = function(x, y) {
+    if (identical(substitute(x), quote(cur)))
+      stop("rematched factor labels after resolving positional selectors")
+    base::setdiff(x, y)
+  }), parent = environment(fn))
+  expect_identical(fn(x, 4L, 2L), fct_cat(x, 4L, 2L))
+  expect_identical(levels(fn(x, 4L, 2L)), c("C", NA_character_, "B", ""))
+  expect_error(fn(x, 1L, 1L), "duplicated")
+})

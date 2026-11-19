@@ -228,7 +228,11 @@ fct_cat <- function(x, ...,
     } else {
       indices <- lapply(dots, .check_integer_index,
                         arg_name = "reorder index", n_levels = length(cur))
-      new_order <- cur[unlist(indices, use.names = FALSE)]
+      indices <- unlist(indices, use.names = FALSE)
+      if (anyDuplicated(indices)) cli::cli_abort("Reorder levels must not be duplicated.")
+      remaining <- rep.int(TRUE, length(cur))
+      remaining[indices] <- FALSE
+      return(.relevel_factor(x, cur[c(indices, which(remaining))]))
     }
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
