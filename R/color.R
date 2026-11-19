@@ -561,15 +561,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         if (length(unique_x) < length(x) / 2) {
           positions <- match(x, unique_x)
           mapping <- .pal_numeric_positions(unique_x, reverse)
+          complete <- all(mapping$placed)
           return(lapply(palette, function(cols) {
-            .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
+            .pal_apply_positions(cols, mapping, alpha, size = length(x), complete = complete)[positions]
           }))
         }
       }
     }
     if (length(palette) > 1L && is.numeric(x)) {
       mapping <- .pal_numeric_positions(x, reverse)
-      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
+      complete <- all(mapping$placed)
+      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha, complete = complete))
     }
     levels <- if (!is.null(x) && !is.numeric(x)) .pal_discrete_levels(x) else NULL
     return(lapply(palette, .pal_apply,
@@ -710,12 +712,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
 #' @keywords internal
 #' @noRd
-.pal_apply_positions <- function(cols, mapping, alpha, size = length(mapping$placed)) {
+.pal_apply_positions <- function(cols, mapping, alpha, size = length(mapping$placed),
+                                 complete = all(mapping$placed)) {
   n <- length(mapping$placed)
   if (!length(mapping$at)) return(rep(NA_character_, n))
   colours <- .pal_ramp(cols, mapping$at, alpha, size)
   if (!is.null(mapping$index)) colours <- colours[mapping$index]
-  if (all(mapping$placed)) return(if (length(colours) == n) colours else rep_len(colours, n))
+  if (complete) return(if (length(colours) == n) colours else rep_len(colours, n))
   out <- rep(NA_character_, n)
   out[mapping$placed] <- colours
   out

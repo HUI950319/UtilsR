@@ -3249,3 +3249,14 @@ test_that("uncapped continuous source palettes skip rounded index construction",
   expect_equal(fn(201L, 1L, TRUE), 101L)
   expect_identical(letters[fn(8L, 9L, TRUE)], letters[1:8])
 })
+
+test_that("numeric palette lists check complete placement once for all colours", {
+  pal <- list(first = c("black", "white"), second = c("#0011FF80", "red"))
+  fn <- .pal_apply_positions
+  environment(fn) <- list2env(list(all = function(...) stop("rescanned mapped positions for each numeric palette")),
+    parent = environment(fn))
+  values <- list(seq(-2, 2, length.out = 200L), c(-1, NA, 1, Inf), rep(2, 20L))
+  expected <- lapply(values, function(x) pal_get(pal, x = x))
+  local_mocked_bindings(.pal_apply_positions = fn, .package = "UtilsR")
+  for (i in seq_along(values)) expect_identical(pal_get(pal, x = values[[i]]), expected[[i]])
+})
