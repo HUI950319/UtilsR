@@ -1789,3 +1789,18 @@ test_that("inspection distributions reuse numeric endpoints for binning", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("inspection special highlighting scopes explicit missing checks to candidates", {
+  d <- data.frame(category = factor(c("Unknown", "ok", NA, NA, "ok", "N/A"), exclude = NULL),
+    other = c("ok", "", "Missing", "ok", "plain", NA), score = 1:6)
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(logical = function(length = 0L) {
+    if (identical(substitute(length), quote(nrow(body))))
+      stop("allocated a full report mask for special highlights")
+    base::logical(length)
+  }), parent = environment(fn))
+  actual <- capture_reports(fn(d))[[2L]]
+  expected <- capture_reports(lv(d))[[2L]]
+  expect_identical(filled_labels(actual, "#BBDEFB"), filled_labels(expected, "#BBDEFB"))
+  expect_setequal(filled_labels(actual, "#BBDEFB"), c("Unknown", "N/A", "(blank)", "Missing"))
+})

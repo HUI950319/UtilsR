@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` finds special-value highlights on category rows and checks explicit missing factor labels only among those candidates.
+
 * `PlotRankCor()` checks constant and complete paired columns through their bounds before allocating row masks.
 
 * `stat_ci_parse()` preserves parsed-row flags directly when scale validation finds no invalid intervals.

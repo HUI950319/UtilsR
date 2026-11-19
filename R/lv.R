@@ -688,17 +688,21 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     body <- gt_tbl$`_data`
     rows_missing <- which(body$row_type == "missing")
-    levels <- which(body$row_type == "level")
-    special <- logical(nrow(body))
-    special[levels] <- .is_special_value(as.character(body$label[levels]))
-    for (var in unique(body$variable[which(special)])) {
-      original <- analysis_data[[var]]
-      if (is.factor(original) && anyNA(levels(original))) {
-        label <- levels(.label_na_level(original))[is.na(levels(original))]
-        special[body$variable == var & body$label %in% label] <- FALSE
+    level_rows <- which(body$row_type == "level")
+    rows_special <- level_rows[which(.is_special_value(as.character(body$label[level_rows])))]
+    if (length(rows_special)) {
+      variables <- body$variable[rows_special]
+      labels <- body$label[rows_special]
+      keep <- rep.int(TRUE, length(rows_special))
+      for (var in unique(variables)) {
+        original <- analysis_data[[var]]
+        if (is.factor(original) && anyNA(levels(original))) {
+          label <- levels(.label_na_level(original))[is.na(levels(original))]
+          keep[variables == var & labels %in% label] <- FALSE
+        }
       }
+      rows_special <- rows_special[keep]
     }
-    rows_special <- which(special)
 
     if (length(rows_missing) > 0) {
       gt_tbl <- gt_tbl %>%
