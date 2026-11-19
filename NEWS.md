@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` reuses the selected wide keys when each feature and group pair already occurs once.
+
 * `plt_dist()` validates named colour mappings against visible character categories without rebuilding a missing-value subset.
 
 * `stat_ci_parse()` checks for malformed text only if any interval failed to parse.

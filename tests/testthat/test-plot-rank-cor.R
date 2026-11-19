@@ -1332,3 +1332,15 @@ test_that("full rank correlation pairs use scalar finite and constant checks", {
   draw <- function(f) capture.output(p <- suppressMessages(f(d, "feature", "score", method.by = "method")))
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("distinct rank-correlation feature pairs reuse the wide keys", {
+  d <- data.frame(feature = letters[1:6], method = rep(c("M1", "M2"), each = 3L), score = 1:6)
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(pair_id)) && attr(x, "n") == length(x))
+      stop("deduplicated already distinct rank-correlation pairs")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, "feature", "score", method.by = "method")[["data"]])
+  expect_identical(draw(fn), draw(PlotRankCor))
+})
