@@ -374,10 +374,21 @@ fct_cat <- function(x, ...,
                      class = "factor"))
   }
   if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x))) {
-    distinct <- sort(unique(x), na.last = NA)
+    if (.pal_use_unique(x)) {
+      ids <- vctrs::vec_group_id(x)
+      keys <- x[!duplicated(ids)]
+      order_at <- order(keys, na.last = NA)
+      positions <- rep.int(NA_integer_, length(keys))
+      positions[order_at] <- seq_along(order_at)
+      distinct <- keys[order_at]
+      codes <- positions[ids]
+    } else {
+      distinct <- sort(unique(x), na.last = NA)
+      codes <- match(x, distinct)
+    }
     labels <- as.character(distinct)
     if (anyDuplicated(labels)) labels <- sprintf("%.17g", distinct)
-    return(structure(match(x, distinct), names = names(x), levels = labels, class = "factor"))
+    return(structure(codes, names = names(x), levels = labels, class = "factor"))
   }
   factor(x)
 }

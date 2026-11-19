@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric factor conversion reuses group codes when observations repeat extensively and retains distinct close values.
+
 * `PlotCircleLollipop()` drops unused sector levels through the shared factor code compaction.
 
 * `PlotCircleLollipop()` builds default nonfactor sectors from the group codes it already computed.

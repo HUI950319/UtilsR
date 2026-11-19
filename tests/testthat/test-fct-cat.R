@@ -988,3 +988,17 @@ test_that("numeric factor reorder skips checking validated names", {
   expect_error(fn(x, c(4L, 4L)), "duplicated")
   expect_error(fn(x, 5L), "between")
 })
+
+test_that("repeated numeric factors group observations once and keep precise levels", {
+  x <- rep(c(-Inf, 0, -0, 1, 1 + .Machine$double.eps, Inf, NA_real_, NaN), 1024L)
+  names(x) <- paste0("r", seq_along(x))
+  fn <- .as_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) > 4000L) stop("hashed the complete repeated numeric factor values twice")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expected <- .as_factor(x)
+  expect_identical(fn(x), expected)
+  expect_identical(length(levels(expected)), 5L)
+  expect_identical(as.integer(expected)[1:8], c(1L, 2L, 2L, 3L, 4L, 5L, NA_integer_, NA_integer_))
+})
