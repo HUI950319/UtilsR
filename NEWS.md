@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse(exp = FALSE)` computes only the linear confidence-interval diagnostics.
+
 * Colour previews use the existing contrast calculation with fewer transforms for mixed light and dark colours.
 
 * Discrete colour mapping preserves complete factor levels and unique labels without allocating a missing-value mask.

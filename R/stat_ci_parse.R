@@ -488,12 +488,6 @@ stat_ci_parse <- function(x,
   invalid <- valid & (lo >= hi | est < lo - (ue / 2 + ul / 2) |
                         est > hi + (ue / 2 + uh / 2))
   ok <- valid & !invalid
-  pos <- ok & lo > 0 & est > 0
-  if (isTRUE(exp)) {
-    invalid <- invalid | (ok & !pos)
-    ok <- pos
-  }
-
   if (!isTRUE(exp)) {
     # Compare the two half-widths before subtracting to preserve small differences.
     span <- hi - lo
@@ -513,6 +507,11 @@ stat_ci_parse <- function(x,
     return(list(is_exp = rep(FALSE, length(est)), invalid = invalid,
                 ambiguous = rep(FALSE, length(est)),
                 asymmetric = ok & a_lin - r_lin > 0.2))
+  }
+  pos <- ok & lo > 0 & est > 0
+  if (isTRUE(exp)) {
+    invalid <- invalid | (ok & !pos)
+    ok <- pos
   }
   a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
   log_ratio <- function(a, b) {

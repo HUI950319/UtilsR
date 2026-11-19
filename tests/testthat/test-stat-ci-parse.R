@@ -1084,3 +1084,17 @@ test_that("CI P-value stars keep invalid and missing intervals without remasking
   expect_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE), "invalid")
   expect_identical(out, stat_pval(p, map_signif = c("***" = .001, "**" = .01, "*" = .05)))
 })
+
+test_that("forced linear confidence intervals skip logarithmic eligibility", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(">" = function(x, y) {
+    if (identical(substitute(x), quote(lo)) && identical(y, 0))
+      stop("computed logarithmic eligibility for linear intervals")
+    base::">"(x, y)
+  }), parent = environment(fn))
+  unit <- matrix(.01, 4L, 3L)
+  expect_identical(fn(c(-3, .5, 2, NA), c(-4, .1, 3, NA), c(-2, 1, 4, NA),
+                      unit, FALSE, c(TRUE, TRUE, TRUE, FALSE)),
+                   list(is_exp = rep(FALSE, 4L), invalid = c(FALSE, FALSE, TRUE, FALSE),
+                        ambiguous = rep(FALSE, 4L), asymmetric = rep(FALSE, 4L)))
+})
