@@ -345,3 +345,16 @@ test_that("gtable bounds keep a compact set of panel positions", {
   d$name[c(156L, 279L)] <- "none"
   expect_identical(fn(d), .grob_panel_bounds(d))
 })
+
+test_that("gtable panel bounds scan ordinary and area names together", {
+  layout <- data.frame(name = c("panel-2-3", "panel-area", "background", "panel-notes"),
+    t = c(2L, 1L, 1L, 1L), b = c(3L, 4L, 100L, 99L),
+    l = c(2L, 2L, 1L, 1L), r = c(3L, 5L, 120L, 105L))
+  fn <- .grob_panel_bounds
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (identical(table, "panel-area")) stop("tested panel-area names separately")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  expect_identical(fn(layout), c(t = 1L, b = 4L, l = 2L, r = 5L))
+  expect_identical(fn(layout[4L, ]), c(t = 1L, b = 99L, l = 1L, r = 105L))
+})

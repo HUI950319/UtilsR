@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grob layout helpers recognise ordinary panel names and panel areas in the same pass.
+
 * `fmt_flatten()` passes ordinary cells to patchwork without first creating a list of one-element lists.
 
 * Panel rasterisation uses single-cell measurements directly and sums spans only for panels covering multiple cells.
