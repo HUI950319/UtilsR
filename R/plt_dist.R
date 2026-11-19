@@ -459,6 +459,8 @@ plt_dist <- function(data,
       labels[.factor_tally(fill_values)$codes]
     } else if (is.factor(fill_values)) {
       levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
+    } else if (is.character(fill_values) && !is.object(fill_values)) {
+      unique(fill_values)
     } else {
       unique(as.character(fill_values[!is.na(fill_values)]))
     }

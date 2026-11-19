@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_dist()` validates named colour mappings against visible character categories without rebuilding a missing-value subset.
+
 * `stat_ci_parse()` checks for malformed text only if any interval failed to parse.
 
 * Categorical chord plots only update the matrix axis labels when missing labels are present.

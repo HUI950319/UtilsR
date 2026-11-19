@@ -1034,3 +1034,17 @@ test_that("fully visible distribution bars directly receive their formatted text
   expect_identical(draw(fn, 0), draw(plt_dist, 0))
   expect_identical(sum(is.na(draw(plt_dist, .5)[[".lab"]])), 2L)
 })
+
+test_that("named distribution palettes reuse filtered character categories", {
+  d <- data.frame(x = c("a", "b", "a", "b", "a"), fill = c("", "two", "two", "", NA))
+  fn <- plt_dist
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(fill_values)) && is.character(x) && is.logical(i))
+      stop("sliced complete distribution fill observations for colour validation")
+    if (missing(i)) return(base::"["(x, , ...))
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  cols <- setNames(c("red", "blue"), c("", "two"))
+  draw <- function(f) suppressMessages(f(d, c("x", "fill"), type = "bar", color = cols)[["data"]])
+  expect_identical(draw(fn), draw(plt_dist))
+})
