@@ -1160,3 +1160,19 @@ test_that("point sampling preserves complete factor strata without recoding miss
   d[["group"]][1L] <- NA
   expect_identical(fn(d, mapping, 2L, 481L), .fmt_point_sample(d, mapping, 2L, 481L))
 })
+
+test_that("point sampling retains all rows directly when every stratum fits", {
+  d <- data.frame(row = seq_len(15L), group = ordered(rep(c("b", "a", "c"), 5L),
+    levels = c("c", "b", "unused", "a")))
+  map <- ggplot2::aes(group = group)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(rows)) && identical(names(formals(FUN)), "indices") &&
+        all(lengths(X) <= 5L))
+      stop("called the sampler for every group already within the cap")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, map, 5L, 11L), .fmt_point_sample(d, map, 5L, 11L))
+  d[["group"]][1:4] <- "a"
+  expect_identical(fn(d, map, 3L, 11L), .fmt_point_sample(d, map, 3L, 11L))
+})

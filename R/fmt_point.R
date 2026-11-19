@@ -544,10 +544,12 @@ fmt_point <- function(plot,
       index <- order(keys)
       rows <- stats::setNames(groups$loc[index], keys[index])
     }
-    rows <- lapply(rows, function(indices) {
-      if (length(indices) <= sample_n) indices else
+    large <- which(lengths(rows) > sample_n)
+    if (length(large)) {
+      rows[large] <- lapply(rows[large], function(indices) {
         indices[sample.int(length(indices), sample_n)]
-    })
+      })
+    }
     if (any(vapply(data, is.matrix, logical(1)))) {
       # Bind only sampled rows, retaining native matrix class/dimname semantics.
       data <- do.call(rbind, lapply(rows, function(indices) data[indices, , drop = FALSE]))

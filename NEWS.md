@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` skips per-group sampling callbacks when every stratum is already within the requested size.
+
 * `fmt_point()` retains complete ordinary factor strata without applying missing-level recoding.
 
 * `fct_to_combine()` retains the grouped codes directly when they already follow factor-level order.
