@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Colour previews use the existing contrast calculation with fewer transforms for mixed light and dark colours.
+
 * Discrete colour mapping preserves complete factor levels and unique labels without allocating a missing-value mask.
 
 * `plt_upset()` orders intersection counts without allocating a vector of negated counts.

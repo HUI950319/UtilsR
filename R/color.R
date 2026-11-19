@@ -1959,7 +1959,12 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     v <- rgba[i, ] / 255
     # Preview tiles are drawn on white; contrast uses the composited colour.
     if (length(alpha)) v[translucent] <- v[translucent] * alpha + 1 - alpha
-    ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
+    low <- v <= 0.03928
+    if (all(low)) return(v / 12.92)
+    if (!any(low)) return(((v + 0.055) / 1.055)^2.4)
+    v[low] <- v[low] / 12.92
+    v[!low] <- ((v[!low] + 0.055) / 1.055)^2.4
+    v
   }
   luminance <- 0.2126 * channel(1L) + 0.7152 * channel(2L) + 0.0722 * channel(3L)
   fg_colors <- ifelse(luminance > 0.179, "#000000", "#FFFFFF")

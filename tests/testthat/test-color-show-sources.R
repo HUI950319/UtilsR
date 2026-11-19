@@ -3194,3 +3194,23 @@ test_that("discrete palette labels reuse a complete factor dictionary", {
   expect_identical(fn(factor(c("x", NA), levels = c("x", "y", NA), exclude = NULL)),
                    c("x", "y"))
 })
+
+test_that("palette contrast transforms only the appropriate channel values", {
+  colors <- c("#000000", "#FFFFFF", "#EE000060", "#222222FA", "#121212", "#AADDBB")
+  fn <- .pal_show_colors
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(v <= 0.03928)))
+      stop("computed a contrast transform for both channel groups")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  old_contrast <- function(x) {
+    rgba <- grDevices::col2rgb(x, alpha = TRUE) / 255
+    rgb <- rgba[1:3, , drop = FALSE] * rep(rgba[4, ], each = 3L) +
+      1 - rep(rgba[4, ], each = 3L)
+    linear <- ifelse(rgb <= 0.03928, rgb / 12.92, ((rgb + 0.055) / 1.055)^2.4)
+    ifelse(drop(c(0.2126, 0.7152, 0.0722) %*% linear) > 0.179, "#000000", "#FFFFFF")
+  }
+  for (cols in list(colors, "#000000", "#FFFFFF", rep("#A0A0A0C0", 10L))) {
+    expect_identical(fn(cols, max_colors = 50L)[["data"]][["fg"]], old_contrast(cols))
+  }
+})
