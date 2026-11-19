@@ -524,10 +524,13 @@ stat_ci_parse <- function(x,
     out[!close] <- log(a[!close]) - log(b[!close])
     out
   }
-  w <- log_ratio(hi[pos], lo[pos])
-  a_log[pos] <- abs(log_ratio(hi[pos], est[pos]) - log_ratio(est[pos], lo[pos])) / w
-  r_log[pos] <- (ul[pos] / lo[pos] / 2 + uh[pos] / hi[pos] / 2 +
-                   ue[pos] / est[pos]) / w
+  lower <- lo[pos]
+  estimate <- est[pos]
+  upper <- hi[pos]
+  w <- log_ratio(upper, lower)
+  a_log[pos] <- abs(log_ratio(upper, estimate) - log_ratio(estimate, lower)) / w
+  r_log[pos] <- (ul[pos] / lower / 2 + uh[pos] / upper / 2 +
+                   ue[pos] / estimate) / w
 
   if (identical(exp, "auto")) {
     # A scale is decided only when its asymmetry beats the other's by more

@@ -1098,3 +1098,19 @@ test_that("forced linear confidence intervals skip logarithmic eligibility", {
                    list(is_exp = rep(FALSE, 4L), invalid = c(FALSE, FALSE, TRUE, FALSE),
                         ambiguous = rep(FALSE, 4L), asymmetric = rep(FALSE, 4L)))
 })
+
+test_that("log confidence interval scoring extracts each positive endpoint once", {
+  fn <- .ci_scale
+  hits <- 0L
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(hi)) && identical(substitute(i), quote(pos))) {
+      hits <<- hits + 1L
+      if (hits > 1L) stop("extracted positive endpoints more than once")
+    }
+    if (missing(i)) return(base::"["(x, , ...))
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  args <- list(c(.5, 1, -3, 1.25), c(.125, .9, -5, .1), c(2, 1.1, -1, 16),
+               matrix(.001, 4L, 3L), "auto", rep(TRUE, 4L))
+  expect_identical(do.call(fn, args), do.call(.ci_scale, args))
+})
