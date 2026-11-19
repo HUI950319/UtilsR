@@ -3228,3 +3228,13 @@ test_that("valid palette lists skip selecting invalid colours", {
   expect_error(fn(palette = list(first = "bad-colour", second = "blue"), x = 1:2),
                "bad-colour")
 })
+
+test_that("full continuous swatch previews keep their existing indices", {
+  x <- structure(c(lo = "#000000", mid = "#6699CC80", hi = "#FFFFFF"), type = "continuous")
+  fn <- .pal_resize
+  environment(fn) <- list2env(list(seq.int = function(...) {
+    stop("rebuilt indices for a complete continuous palette")
+  }), parent = environment(fn))
+  expect_identical(fn(x, 3L), x)
+  expect_identical(fn(x, 1L, total = 3L), x[2L] |> structure(type = "continuous"))
+})

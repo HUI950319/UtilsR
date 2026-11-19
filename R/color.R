@@ -841,7 +841,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   if (continuous && total > length(cols)) {
     at <- if (n == 1L) 0.5 else seq.int(0, 1, length.out = n)
     out <- .pal_apply(cols, x = at)
-  } else if (!continuous && n == length(cols) && total == n && !is.object(cols)) {
+  } else if (n == length(cols) && total == n && !is.object(cols)) {
     out <- stats::setNames(as.character(cols), names(cols))
   } else if (total <= length(cols)) {
     indices <- if (continuous) {

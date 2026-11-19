@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous palette previews reuse all existing swatches when the requested size matches the original.
+
 * `PlotRank()` removes the existing suffix forms in one pass while preserving their precedence.
 
 * The `lv()` console uses one range per working vector to place distribution bins.
