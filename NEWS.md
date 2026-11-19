@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` preserves parsed-row flags directly when scale validation finds no invalid intervals.
+
 * `pr_table()` avoids checking every finite number for fractional digits when `digits = 0`.
 
 * Console P-value cells parse scientific exponents only on rows that use scientific notation.

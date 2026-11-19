@@ -1114,3 +1114,16 @@ test_that("log confidence interval scoring extracts each positive endpoint once"
                matrix(.001, 4L, 3L), "auto", rep(TRUE, 4L))
   expect_identical(do.call(fn, args), do.call(.ci_scale, args))
 })
+
+test_that("valid confidence intervals keep their existing eligibility mask", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("!" = function(x) {
+    if (identical(deparse(substitute(x)), "scale$invalid") && !any(x))
+      stop("rebuilt CI eligibility with an empty invalidity mask")
+    base::"!"(x)
+  }), parent = environment(fn))
+  data <- c("0.50 (0.25-0.75)", "-1.0 (-2.0,-0.0)", NA_character_)
+  expect_identical(fn(data, exp = FALSE), stat_ci_parse(data, exp = FALSE))
+  expect_warning(out <- fn(c(data, "9 (2, 3)"), exp = FALSE), "invalid")
+  expect_identical(out[4L], "9 (2, 3)")
+})

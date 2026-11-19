@@ -177,9 +177,9 @@ stat_ci_parse <- function(x,
     scale <- .ci_scale(est, lo, hi, parsed$unit, exp, valid)
     is_exp <- scale$is_exp
     asym <- scale$asymmetric
-    valid <- valid & !scale$invalid
     n_bad <- sum(scale$invalid)
     if (n_bad > 0L) {
+      valid <- valid & !scale$invalid
       cli::cli_warn("{n_bad} interval{?s} {?is/are} invalid (estimate outside the bounds, zero width, or a bound <= 0 under {.code exp = TRUE}) and {?was/were} returned as-is.")
     }
     n_amb <- sum(scale$ambiguous)
