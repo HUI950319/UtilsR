@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` skips range-based numerical stabilisation checks for ordinary integer columns.
+
 * Numeric frequency listings in `lv()` group observations once before sorting the displayed values.
 
 * `show_color()` groups repeated hexadecimal swatches once before expanding the rendered labels.

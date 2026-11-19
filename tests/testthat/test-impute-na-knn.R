@@ -930,3 +930,14 @@ test_that("complete KNN results do not allocate a final missing mask", {
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1, verbose = FALSE), expected)
 })
+
+test_that("integer KNN predictors skip numeric range stabilisation work", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(query = c(-1, 0, 1, NA, 4), predictor = c(0L, 4L, 9L, 10L, 20L))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    if (identical(x, d[["predictor"]])) stop("measured a range for an ordinary integer KNN predictor")
+    base::range(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})

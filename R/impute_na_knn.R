@@ -298,7 +298,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     backend_centers <- rep(0, ncol(backend_data))
     for (j in seq_along(backend_data)) {
       values <- backend_data[[j]]
-      if (!is.numeric(values)) next
+      if (!is.numeric(values) || (is.integer(values) && !is.object(values))) next
       bounds <- range(values, na.rm = TRUE)
       span <- diff(as.double(bounds))
       if (all(is.finite(bounds)) && !is.finite(span)) {
