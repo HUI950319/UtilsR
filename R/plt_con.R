@@ -1579,6 +1579,7 @@ plt_con <- function(data,
   # Reshape only the rows used by the continuous layers.
   n <- nrow(data)
   rows <- lapply(data[stat.by], function(value) {
+    if (!is.object(value) && is.finite(min(value)) && is.finite(max(value))) return(NULL)
     finite <- is.finite(value)
     if (all(finite)) NULL else which(finite)
   })

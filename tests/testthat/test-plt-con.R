@@ -2401,3 +2401,16 @@ test_that("complete paired tests do not slice both observation vectors", {
   x[1L] <- NA
   expect_identical(compare(x, y, paired = TRUE), .con_pairwise_test("t.test")(x, y, paired = TRUE))
 })
+
+test_that("stacked numeric features check their bounds before allocating row masks", {
+  d <- data.frame(x = c(3L, 1L, 8L, 4L), z = c(NA, Inf, 91, 92), g = c("B", "A", "B", "A"))
+  fn <- .plt_con_stacked
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(x, d[["x"]])) stop("allocated a row mask for a complete stacked feature")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  out <- con_plot(d, c("x", "z"), group.by = "g", type = "box", stack = TRUE)
+  expect_identical(out[["data"]][["value"]], c(3, 1, 8, 4, 91, 92))
+  expect_identical(rownames(out[["data"]]), c("1", "2", "3", "4", "7", "8"))
+})
