@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` retains complete ordinary factor strata without applying missing-level recoding.
+
 * `fct_to_combine()` retains the grouped codes directly when they already follow factor-level order.
 
 * `lv()` finds special-value highlights on category rows and checks explicit missing factor labels only among those candidates.

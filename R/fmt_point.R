@@ -526,6 +526,8 @@ fmt_point <- function(plot,
         values <- values[order(as.factor(values), na.last = TRUE)]
         x <- match(x, values)
       }
+      if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+          !anyNA(unclass(x))) return(x)
       addNA(as.factor(x), ifany = TRUE)
     })
     if (length(strata) == 1L) {

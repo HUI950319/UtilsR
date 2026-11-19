@@ -1146,3 +1146,17 @@ test_that("unconverted shapes keep their names without replacement", {
     expect_identical(fn(value), .shape_convert(value))
   }
 })
+
+test_that("point sampling preserves complete factor strata without recoding missing levels", {
+  d <- data.frame(row = 1:15, group = ordered(rep(c("b", "a", "c"), 5L),
+    levels = c("c", "b", "unused", "a")))
+  mapping <- ggplot2::aes(group = group)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(addNA = function(x, ...) {
+    if (is.factor(x) && !anyNA(x)) stop("recoded a complete point sampling stratum")
+    base::addNA(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, mapping, 2L, 481L), .fmt_point_sample(d, mapping, 2L, 481L))
+  d[["group"]][1L] <- NA
+  expect_identical(fn(d, mapping, 2L, 481L), .fmt_point_sample(d, mapping, 2L, 481L))
+})
