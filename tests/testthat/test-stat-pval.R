@@ -968,3 +968,16 @@ test_that("validated ordinary p values do not need an absolute-value copy", {
     for (mode in c("pvalue", "stars")) expect_identical(fn(input, mode = mode), stat_pval(input, mode = mode))
   }
 })
+
+test_that("decimal significance maps avoid selecting an unchanged threshold dictionary", {
+  map <- setNames(seq(0, 1, length.out = 400L), paste0("s", seq_len(400L)))
+  fn <- stat_pval
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(x, map)) stop("subselected a unique significance dictionary")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  x <- c("0.0011", "0.03", "0", "0.05000000000000001", "0.912", NA)
+  for (thresholds in list(map, c(map[1L], map))) {
+    expect_identical(fn(x, map_signif = thresholds), stat_pval(x, map_signif = thresholds))
+  }
+})

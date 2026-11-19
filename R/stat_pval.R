@@ -139,7 +139,7 @@ stat_pval <- function(x,
       for (i in rev(seq_along(map))) out[observed & pvals <= map[[i]]] <- names(map)[[i]]
       return(out)
     }
-    map <- map[!duplicated(map)]
+    if (anyDuplicated(map)) map <- map[!duplicated(map)]
     index <- findInterval(pvals, map, left.open = TRUE) + 1L
     tied <- which(!is.na(pvals) & pvals == unname(map[index]))
     decimal <- function(text) {

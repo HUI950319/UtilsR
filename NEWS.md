@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Decimal P-value formatting removes duplicate significance thresholds only when they occur.
+
 * CI scaling checks raw endpoint finiteness on the candidate intervals that require numerical rescaling.
 
 * Interval parsers count decimal digits on dotted mantissas while retaining the precision of scientific notation.
