@@ -675,8 +675,14 @@ PlotScatter1 <- function(
   }
   if (pearson) {
     normalize <- function(value) {
-      if (!length(value) || !all(is.finite(value))) return(value)
-      bounds <- range(value)
+      if (!length(value)) return(value)
+      if (!is.object(value)) {
+        bounds <- c(min(value), max(value))
+        if (!all(is.finite(bounds))) return(value)
+      } else {
+        if (!all(is.finite(value))) return(value)
+        bounds <- range(value)
+      }
       center <- bounds[1L] / 2 + bounds[2L] / 2
       scale <- max(abs(bounds - center))
       if (scale > 0 && (scale < sqrt(.Machine$double.xmin) ||

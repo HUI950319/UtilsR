@@ -1940,3 +1940,16 @@ test_that("complete typed scatter groups avoid selecting nonexistent missing lab
     expect_identical(fn(values), .scatter_group_factor(values))
   }
 })
+
+test_that("ordinary Pearson input uses extrema instead of a vector finite mask", {
+  x <- (1:80) * 1e-180
+  y <- (1:80 + cos(1:80)) * 1e-180
+  fn <- .scatter_cor_test
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (length(x) > 2L) stop("allocated a Pearson coordinate finiteness mask")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
+  y[5L] <- NA_real_
+  expect_identical(fn(x, y, "pearson"), .scatter_cor_test(x, y, "pearson"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pearson correlation preparation checks ordinary numeric endpoints without a full finiteness mask.
+
 * Typed scatter grouping skips missing-label restoration when its combined category values are complete.
 
 * Shared scatter grouping obtains the first-seen levels and codes together for complete character, integer and logical groups.
