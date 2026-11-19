@@ -2234,3 +2234,18 @@ test_that("zero-decimal console display skips probing whole-number equality", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d, digits = 0L)), capture.output(pr_table(d, digits = 0L)))
 })
+
+test_that("integer console table highlights need no floating-point validation", {
+  withr::local_options(cli.num_colors = 1L)
+  d <- data.frame(label = letters[1:6], score = c(3, 4, 2, 1, NA, 8))
+  fn <- pr_table
+  environment(fn) <- list2env(list(trunc = function(x, ...) {
+    if (is.integer(x) && identical(substitute(x), quote(highlight)))
+      stop("rounded integer console highlight positions")
+    base::trunc(x, ...)
+  }), parent = environment(fn))
+  at <- c(0L, 3L, 6L, 100L, 3L)
+  expect_identical(capture.output(fn(d, highlight = at)), capture.output(pr_table(d, highlight = at)))
+  expect_error(fn(d, highlight = -1L), "non-negative whole row")
+  expect_error(fn(d, highlight = 1.25), "non-negative whole row")
+})

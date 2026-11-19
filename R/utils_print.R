@@ -664,8 +664,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (!is.null(highlight) &&
       (!(is.numeric(highlight) || is.logical(highlight)) || is.object(highlight) ||
        !is.null(dim(highlight)) || anyNA(highlight) ||
-       (is.numeric(highlight) && any(!is.finite(highlight) | highlight < 0 |
-                                     highlight != trunc(highlight))))) {
+       (is.integer(highlight) && any(highlight < 0L)) ||
+       (is.double(highlight) && any(!is.finite(highlight) | highlight < 0 |
+                                    highlight != trunc(highlight))))) {
     cli::cli_abort("{.arg highlight} must be non-negative whole row numbers or a logical vector, without missing values.")
   }
   miss <- setdiff(p_col, names(data))

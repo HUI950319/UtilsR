@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` checks ordinary integer highlight positions directly while retaining fractional and nonfinite validation for doubles.
+
 * `check_size()` validates integer object indices by missingness and bounds without rounding them.
 
 * CI scale selection reuses the presence of logarithmic votes when assigning undecided intervals.
