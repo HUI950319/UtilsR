@@ -2079,3 +2079,15 @@ test_that("one-way categorical summaries drop unused counts before making a fram
     expect_identical(fn(d[0L, , drop = FALSE], "cat", NULL, stat), .prepare_cat_data(d[0L, , drop = FALSE], "cat", NULL, stat))
   }
 })
+
+test_that("dense categorical axes compact unused levels by code", {
+  x <- ordered(rep(c("b", NA, "d", "b"), 20L), levels = letters[1:5])
+  names(x) <- paste0("r", seq_along(x))
+  fn <- .cat_axis_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) > 20L) stop("matched each dense categorical axis observation")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), droplevels(x))
+  expect_identical(fn(x[1:3]), droplevels(x[1:3]))
+})

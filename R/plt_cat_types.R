@@ -34,8 +34,15 @@
     tally <- .factor_tally(value)
     observed <- tally$codes
     labels <- levels(value)
-    codes <- if (length(observed) == length(labels)) tally$row_codes else
-      match(tally$row_codes, observed)
+    if (length(observed) == length(labels)) {
+      codes <- tally$row_codes
+    } else if (length(labels) <= length(value)) {
+      positions <- rep.int(NA_integer_, length(labels))
+      positions[observed] <- seq_along(observed)
+      codes <- positions[tally$row_codes]
+    } else {
+      codes <- match(tally$row_codes, observed)
+    }
     names(codes) <- names(value)
     return(structure(codes, levels = labels[observed], class = class(value)))
   }

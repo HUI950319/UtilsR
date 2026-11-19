@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical axes with unused levels use a direct code lookup when the dictionary fits within the observations.
+
 * Unfaceted `plt_alluvial()` computes count-scaled gaps from one observed maximum.
 
 * `pal_get()` shares the complete-position check across palettes applied to the same numeric values.
