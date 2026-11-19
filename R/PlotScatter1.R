@@ -556,6 +556,14 @@ PlotScatter1 <- function(
     }
     return(factor(value, levels = levels))
   }
+  if (missing(levels) && !is.object(value) && is.null(dim(value)) &&
+      typeof(value) %in% c("character", "integer", "logical") && !anyNA(value)) {
+    ids <- vctrs::vec_group_id(value)
+    codes <- as.integer(ids)
+    names(codes) <- names(value)
+    labels <- as.character(value[!duplicated(ids)])
+    return(structure(codes, levels = labels, class = "factor"))
+  }
   if (!is.object(value) && !is.object(levels) &&
       typeof(value) %in% c("character", "integer", "logical") &&
       identical(typeof(value), typeof(levels))) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared scatter grouping obtains the first-seen levels and codes together for complete character, integer and logical groups.
+
 * Shared scatter grouping reuses existing codes when an ordinary factor already has the requested levels.
 
 * `impute_na_knn()` skips range-based numerical stabilisation checks for ordinary integer columns.

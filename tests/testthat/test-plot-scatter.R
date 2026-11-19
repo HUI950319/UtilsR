@@ -1913,3 +1913,17 @@ test_that("scatter grouping reuses factor codes for an identical level dictionar
   expect_identical(fn(f, levels(f)), f)
   expect_identical(fn(f, c("a", "b")), .scatter_group_factor(f, c("a", "b")))
 })
+
+test_that("complete default scatter groups keep first occurrence codes without rematching", {
+  x <- c(third = "z", first = "a", empty = "", repeated = "z")
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(value)) && length(x) == 4L && !anyNA(x))
+      stop("rematched all observations to default scatter groups")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  for (values in list(x, c(3L, -1L, 10L, 3L), c(TRUE, FALSE, TRUE, FALSE), character())) {
+    expect_identical(fn(values), .scatter_group_factor(values))
+  }
+  expect_identical(fn(c(x, NA)), .scatter_group_factor(c(x, NA)))
+})
