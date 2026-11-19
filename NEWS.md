@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unfaceted `plt_alluvial()` computes count-scaled gaps from one observed maximum.
+
 * `pal_get()` shares the complete-position check across palettes applied to the same numeric values.
 
 * Uncapped source palette previews use the original sequence of swatch indices.

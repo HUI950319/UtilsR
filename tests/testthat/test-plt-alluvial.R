@@ -1362,3 +1362,16 @@ test_that("unfaceted alluvial counts use category codes alone for pair grouping"
   }, .package = "vctrs")
   expect_identical(suppressMessages(plt_alluvial(d, "a", "b"))$data, expected)
 })
+
+test_that("unfaceted count gaps do not allocate a per-facet summary", {
+  d <- data.frame(category = c("a", "b", "b", "b", "c", "c"),
+    group = rep(c("left", "right"), 3L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(tapply = function(...) {
+    stop("grouped alluvial gap heights by a constant facet")
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, "category", "group", y_type = "count",
+    stratum_args = list(gap = .1))[["data"]])
+  expect_identical(draw(fn), draw(plt_alluvial))
+  expect_equal(draw(fn)[[".y"]][draw(fn)[[".is_gap"]]], rep(.3, 3L))
+})
