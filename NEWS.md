@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Typed scatter grouping skips missing-label restoration when its combined category values are complete.
+
 * Shared scatter grouping obtains the first-seen levels and codes together for complete character, integer and logical groups.
 
 * Shared scatter grouping reuses existing codes when an ordinary factor already has the requested levels.

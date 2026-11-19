@@ -605,7 +605,8 @@ PlotScatter1 <- function(
   if (is.null(combined)) return(factor(value, levels = levels))
   label_values <- if (inherits(combined, "haven_labelled")) vctrs::vec_data(combined) else combined
   labels <- as.character(.butterfly_category_labels(label_values))
-  labels[is.na(combined)] <- as.character(combined)[is.na(combined)]
+  missing_values <- is.na(combined)
+  if (any(missing_values)) labels[missing_values] <- as.character(combined)[missing_values]
   level_labels <- if (is.character(levels)) levels else labels[length(value) + seq_along(levels)]
   labels <- labels[seq_along(value)]
   if (identical(labels, as.character(value)) && identical(level_labels, as.character(levels))) {

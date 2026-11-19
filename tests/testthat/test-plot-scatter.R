@@ -1927,3 +1927,16 @@ test_that("complete default scatter groups keep first occurrence codes without r
   }
   expect_identical(fn(c(x, NA)), .scatter_group_factor(c(x, NA)))
 })
+
+test_that("complete typed scatter groups avoid selecting nonexistent missing labels", {
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(i), quote(is.na(combined))) && !any(i))
+      stop("selected nonexistent missing typed scatter labels")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  d <- as.Date("2026-01-01") + c(3, 1, 3, 2)
+  for (values in list(d, c(d, NA))) {
+    expect_identical(fn(values), .scatter_group_factor(values))
+  }
+})
