@@ -2530,3 +2530,20 @@ test_that("pairwise t tests find complete sample bounds without range dispatch",
   x[1L] <- NA_real_
   expect_identical(pair(x, y, paired = TRUE), reference(x, y, paired = TRUE))
 })
+
+test_that("bar ranges use scalar bounds for complete outcomes", {
+  x <- c(2, 6, 4, 2, 6, 4)
+  group <- factor(rep(c("b", "a"), each = 3L))
+  fn <- .con_bar_range
+  env <- list2env(list(range = function(values, ...) {
+    if (identical(values, x)) stop("recomputed the finite range of complete bar outcomes")
+    base::range(values, ...)
+  }), parent = environment(fn))
+  finite_bounds <- .con_finite_bounds
+  environment(finite_bounds) <- env
+  env$.con_finite_bounds <- finite_bounds
+  environment(fn) <- env
+  expect_identical(fn(x, group), c(0, 6))
+  expect_identical(fn(replace(x, 1L, NA_real_), group),
+                   .con_bar_range(replace(x, 1L, NA_real_), group))
+})

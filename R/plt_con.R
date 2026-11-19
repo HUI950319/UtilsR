@@ -1302,7 +1302,7 @@ plt_con <- function(data,
     interval <- .con_mean_sd(v)
     c(interval$ymin, interval$ymax)
   }), use.names = FALSE)
-  observed_range <- if (!is.object(values)) suppressWarnings(range(values, finite = TRUE)) else values
+  observed_range <- if (!is.object(values)) suppressWarnings(.con_finite_bounds(values)) else values
   range(c(0, observed_range, intervals), finite = TRUE)
 }
 
