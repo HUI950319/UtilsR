@@ -597,9 +597,13 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       all_subplots <- named_cells
     }
   }
-  plot_objects <- unlist(lapply(all_subplots, function(cell) {
-    c(list(cell$plot), cell$insets)
-  }), recursive = FALSE, use.names = FALSE)
+  if (any(vapply(all_subplots, function(cell) length(cell$insets) > 0L, logical(1)))) {
+    plot_objects <- unlist(lapply(all_subplots, function(cell) {
+      c(list(cell$plot), cell$insets)
+    }), recursive = FALSE, use.names = FALSE)
+  } else {
+    plot_objects <- unname(lapply(all_subplots, "[[", "plot"))
+  }
   layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
   # As in wrap_plots(), axis titles follow an explicit `axes` unless given.
   if ("axes" %in% names(dots) && !"axis_titles" %in% names(dots)) {

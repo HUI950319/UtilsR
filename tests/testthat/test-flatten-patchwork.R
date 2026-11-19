@@ -458,3 +458,17 @@ test_that("flatten validates layout controls before reading plot children", {
   expect_error(fmt_flatten(stop("plot was evaluated"), bogus = 2), "Unknown layout control")
   expect_error(fmt_flatten(stop("plot was evaluated"), 2), "named layout controls")
 })
+
+test_that("flattening ordinary patchwork cells avoids wrapping every cell in a list", {
+  p <- ggplot2::ggplot() + ggplot2::ggtitle("first")
+  q <- ggplot2::ggplot() + ggplot2::ggtitle("second")
+  fn <- fmt_flatten
+  environment(fn) <- list2env(list(unlist = function(x, recursive = TRUE, use.names = TRUE) {
+    if (!recursive && !use.names && all(lengths(x) == 1L))
+      stop("wrapped ordinary patchwork cells in one-element lists")
+    base::unlist(x, recursive = recursive, use.names = use.names)
+  }), parent = environment(fn))
+  result <- fn(list(B = q, A = p), design = "AB")
+  expect_identical(vapply(seq_along(result), function(i) result[[i]]$labels$title, character(1)),
+                   c("first", "second"))
+})

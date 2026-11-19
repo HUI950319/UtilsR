@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` passes ordinary cells to patchwork without first creating a list of one-element lists.
+
 * Panel rasterisation uses single-cell measurements directly and sums spans only for panels covering multiple cells.
 
 * Panel rasterisation leaves vector-only panels without measuring a bitmap viewport.
