@@ -358,3 +358,16 @@ test_that("gtable panel bounds scan ordinary and area names together", {
   expect_identical(fn(layout), c(t = 1L, b = 4L, l = 2L, r = 5L))
   expect_identical(fn(layout[4L, ]), c(t = 1L, b = 99L, l = 1L, r = 105L))
 })
+
+test_that("mixed noncompound units need no nested operand inspection", {
+  ordinary <- grid::unit.c(grid::unit(1, "cm"), grid::unit(.25, "npc"))
+  expect_true(inherits(ordinary, "unit_v2"))
+  fn <- .grob_finite_unit
+  environment(fn) <- list2env(list(unclass = function(x) {
+    if (identical(x, ordinary)) stop("disassembled noncompound grid layout units")
+    base::unclass(x)
+  }), parent = environment(fn))
+  expect_true(fn(ordinary))
+  expect_false(fn(grid::unit(Inf, "cm")))
+  expect_true(fn(grid::unit(1, "cm") + grid::unit(.25, "npc")))
+})

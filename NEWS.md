@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grob validation only inspects nested unit operands when a layout actually contains compound units.
+
 * Grob layout helpers recognise ordinary panel names and panel areas in the same pass.
 
 * `fmt_flatten()` passes ordinary cells to patchwork without first creating a list of one-element lists.

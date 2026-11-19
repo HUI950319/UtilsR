@@ -562,6 +562,7 @@ grob_to_gg <- function(grob, ...) {
   if (!inherits(value, "unit_v2")) return(TRUE)
   # Compound units store their operands separately from the numeric coefficient.
   compound <- which(grid::unitType(value) %in% c("sum", "min", "max"))
+  if (!length(compound)) return(TRUE)
   all(vapply(unclass(value)[compound], function(part) {
     all(vapply(part[[2L]], .grob_finite_unit, logical(1)))
   }, logical(1)))
