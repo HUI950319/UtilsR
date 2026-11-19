@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete colour mapping preserves complete factor levels and unique labels without allocating a missing-value mask.
+
 * `plt_upset()` orders intersection counts without allocating a vector of negated counts.
 
 * `plt_upset()` checks the time classes of a selector once across all selected columns.

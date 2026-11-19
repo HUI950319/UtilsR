@@ -3182,3 +3182,15 @@ test_that("numeric palette lists share coordinates for protected numeric vectors
   expect_identical(pal_get(palettes, x = values, alpha = .4, reverse = TRUE), expected)
   expect_equal(count, 1L)
 })
+
+test_that("discrete palette labels reuse a complete factor dictionary", {
+  labels <- paste0("level", seq_len(2000L))
+  fn <- .pal_discrete_levels
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(x, labels)) stop("masked a complete factor dictionary")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(factor(character(), levels = labels)), labels)
+  expect_identical(fn(factor(c("x", NA), levels = c("x", "y", NA), exclude = NULL)),
+                   c("x", "y"))
+})
