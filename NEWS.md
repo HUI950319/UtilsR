@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse factor summaries avoid hashing the complete row codes twice when many factor levels are unused.
+
 * `PlotScatter3()` finds complete numeric axis bounds directly and retains the finite-value fallback for incomplete axes.
 
 * Pearson correlation preparation checks ordinary numeric endpoints without a full finiteness mask.

@@ -324,9 +324,16 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   k <- nlevels(x)
   row_codes <- as.integer(x)
   if (k > length(x)) {
-    observed <- sort(unique(row_codes), na.last = NA)
-    return(list(codes = observed, counts = tabulate(match(row_codes, observed), nbins = length(observed)),
-                row_codes = row_codes))
+    if (length(row_codes) < 1024L) {
+      observed <- sort(unique(row_codes), na.last = NA)
+      return(list(codes = observed, counts = tabulate(match(row_codes, observed), nbins = length(observed)),
+                  row_codes = row_codes))
+    }
+    ids <- vctrs::vec_group_id(row_codes)
+    observed <- row_codes[!duplicated(ids)]
+    counts <- tabulate(ids, nbins = length(observed))
+    order_at <- order(observed, na.last = NA)
+    return(list(codes = observed[order_at], counts = counts[order_at], row_codes = row_codes))
   }
   counts <- tabulate(row_codes, nbins = k)
   observed <- which(counts > 0L)

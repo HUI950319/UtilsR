@@ -870,3 +870,17 @@ test_that("complete factors skip missing masks with marker detection disabled", 
   expected <- capture_gt_data(do.call(check_na, args))
   expect_identical(capture_gt_data(do.call(fn, args)), expected)
 })
+
+test_that("sparse factor tallies group codes once while preserving explicit NA levels", {
+  values <- structure(rep(c(20L, 5L, 20L, NA_integer_, 5001L, 5L), 512L),
+    levels = c(as.character(seq_len(5000L)), NA_character_), class = "factor")
+  fn <- .factor_tally
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(row_codes)) && length(x) > 1024L) stop("rematched sparse factor observations to their observed codes")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expected <- list(codes = c(5L, 20L, 5001L), counts = c(1024L, 1024L, 512L),
+    row_codes = as.integer(values))
+  expect_identical(fn(values), expected)
+  expect_identical(fn(values[0L]), .factor_tally(values[0L]))
+})
