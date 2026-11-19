@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Interval parsers count decimal digits on dotted mantissas while retaining the precision of scientific notation.
+
 * `stat_ci_parse(output = "ci_star")` directly returns styled interval labels when all rows are valid.
 
 * Complete `stat_ci_parse(output = "ci_p")` results use the computed intervals and probabilities directly.

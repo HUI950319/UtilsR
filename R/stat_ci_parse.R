@@ -462,7 +462,11 @@ stat_ci_parse <- function(x,
       ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
       s[scientific] <- sub("[eE].*$", "", s[scientific])
     }
-    nchar(sub("^[-+]?\\d*\\.?", "", s, perl = TRUE)) - ex
+    dotted <- which(grepl(".", s, fixed = TRUE))
+    if (length(dotted)) {
+      ex[dotted] <- ex[dotted] - nchar(sub("^[-+]?\\d*\\.?", "", s[dotted], perl = TRUE))
+    }
+    -ex + 0
   })
   d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
   unit[hit, ] <- 10^-do.call(cbind, dec)

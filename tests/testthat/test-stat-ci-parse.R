@@ -1216,3 +1216,15 @@ test_that("complete starred confidence intervals keep the formatted labels direc
                      stat_ci_parse(value, exp = FALSE, output = "ci_star"))
   }
 })
+
+test_that("undotted interval mantissas bypass fractional precision substitutions", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (identical(pattern, "^[-+]?\\d*\\.?") && any(!grepl(".", x, fixed = TRUE)))
+      stop("searched undotted interval tokens for decimal digits")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  x <- c("1 (0, 2)", "1e2 (50, 2e2)", "+.5 (0.120, 1.)", "1E-10 (0, 2e-10)", NA)
+  expect_identical(fn(x), .ci_extract(x))
+  expect_identical(fn(x)[["digits"]], c(0, 0, 3, 10, 2))
+})
