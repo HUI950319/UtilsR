@@ -1375,3 +1375,18 @@ test_that("unfaceted count gaps do not allocate a per-facet summary", {
   expect_identical(draw(fn), draw(plt_alluvial))
   expect_equal(draw(fn)[[".y"]][draw(fn)[[".is_gap"]]], rep(.3, 3L))
 })
+
+test_that("alluvial pairs already in display order retain their original keys", {
+  d <- data.frame(category = factor(rep(c("a", "b", "c"), each = 4L)),
+    group = rep(c("left", "right"), 6L), panel = factor(rep(c("first", "second"), each = 2L, times = 3L)))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(integer = function(length = 0L) {
+    if (identical(substitute(length), quote(length(pair_order))) &&
+        !is.unsorted(get("pair_order", envir = parent.frame())))
+      stop("rebuilt counting keys for already ordered alluvial pairs")
+    base::integer(length)
+  }), parent = environment(fn))
+  draw <- function(f, data) suppressMessages(f(data, "category", "group", facet = "panel")[["data"]])
+  expect_identical(draw(fn, d), draw(plt_alluvial, d))
+  expect_identical(draw(fn, d[12:1, ]), draw(plt_alluvial, d[12:1, ]))
+})
