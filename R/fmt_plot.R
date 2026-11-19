@@ -1850,6 +1850,39 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
   .fmt_strip_child(strip, draw_labels = draw, .fmt_strip_rich_dimensions = TRUE)
 }
 
+# Padding between a strip label and the edges of its band.
+.strip_pad <- 2
+
+# Strip labels are centred on their text box, not on the inked glyphs, so a
+# label with a descender ("Dependence plot") rides low in its band while one
+# without ("Classical") rides high. Measured at 600 dpi on 16 pt bold labels,
+# the same in both strip directions: 1.44 pt low with a descender, 0.18 pt high
+# without. The device metrics available while a plot is built are rounded to
+# whole points, too coarse for that correction, so the descending glyphs are
+# recognised from the label and the shift is a fraction of the font size.
+.strip_optical_shift <- function(label, size = 11) {
+  if (!is.character(label) || !length(label)) return(0)
+  size * if (any(grepl("[gjpqy,;@_()]", label))) 0.090 else -0.011
+}
+
+# Padding of a strip label, shifted by `shift` towards the top of its glyphs:
+# up for an x strip, and right for the rotated label of a y strip. The two
+# paddings always add up to `2 * pad`, so the band keeps its thickness.
+.strip_text_margin <- function(shift = 0, axis = "x", pad = .strip_pad) {
+  if (identical(axis, "y"))
+    ggplot2::margin(t = 0, r = pad - shift, b = 0, l = pad + shift, unit = "pt")
+  else
+    ggplot2::margin(t = pad - shift, r = 0, b = pad + shift, l = 0, unit = "pt")
+}
+
+# Font size a plot gives its strip labels, since the shift is measured in points.
+.strip_text_size <- function(plot, side = "strip.text.x.top") {
+  size <- tryCatch(ggplot2::calc_element(side, ggplot2::theme_get() + plot$theme)$size,
+                   error = function(e) NULL)
+  if (!inherits(size, "rel") && is.numeric(size) && length(size) == 1L &&
+      is.finite(size)) size else 11
+}
+
 # ggh4x themed / nested strip with its text and fills cleared.
 .fmt_strip_blank_given <- function(parent) {
   given <- parent$given_elements
@@ -2159,16 +2192,13 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   if (!is.null(label_color)) label_color <- rep_len(label_color, n)
   if (!is.null(label_fill))  label_fill  <- rep_len(label_fill, n)
 
-  # A y strip is rotated, so the padding across its band is left / right; the
-  # top / bottom padding of an x strip would run along the label instead.
-  centered_strip_text <- function(colour, face = "bold", axis = "x") {
+  centered_strip_text <- function(colour, face = "bold", axis = "x", shift = 0) {
     ggplot2::element_text(
       colour = colour,
       face = face,
       hjust = 0.5,
       vjust = 0.5,
-      margin = if (identical(axis, "y")) ggplot2::margin(r = 3, l = 3, unit = "pt")
-               else ggplot2::margin(t = 3, b = 3, unit = "pt")
+      margin = .strip_text_margin(shift, axis)
     )
   }
 
@@ -2182,19 +2212,20 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     if (inherits(background, "element_blank")) "transparent" else NULL
   }
 
-  create_strip <- function(lc, lf, border = NULL) {
+  create_strip <- function(lc, lf, border = NULL, shift = 0) {
     if (!is.null(lf)) {
       ggh4x::strip_themed(
         background_x = ggh4x::elem_list_rect(fill = lf, colour = border),
-        text_x = list(centered_strip_text(lc, face = if (is.null(lc)) NULL else "bold"))
+        text_x = list(centered_strip_text(lc, face = if (is.null(lc)) NULL else "bold",
+                                          shift = shift))
       )
     } else if (!is.null(lc)) {
       ggh4x::strip_themed(
-        text_x = list(centered_strip_text(lc))
+        text_x = list(centered_strip_text(lc, shift = shift))
       )
     } else {
       ggh4x::strip_themed(
-        text_x = list(centered_strip_text(NULL, face = NULL))
+        text_x = list(centered_strip_text(NULL, face = NULL, shift = shift))
       )
     }
   }
@@ -2238,8 +2269,13 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       strip_theme <- list()
       lc_val <- if (is.null(label_color)) NULL else label_color[i]
       strip_face <- if (is.null(lc_val)) NULL else "bold"
-      text_element <- centered_strip_text(lc_val, face = strip_face)
-      text_element_y <- centered_strip_text(lc_val, face = strip_face, axis = "y")
+      # Without `label` the facet keeps labels this function never sees.
+      strip_shift <- if (relabel && length(facet_vars) > 0)
+        .strip_optical_shift(if (n == 1L) label else label[i],
+                             .strip_text_size(plots[[i]])) else 0
+      text_element <- centered_strip_text(lc_val, face = strip_face, shift = strip_shift)
+      text_element_y <- centered_strip_text(lc_val, face = strip_face, axis = "y",
+                                            shift = strip_shift)
       slots <- c("strip.text", "strip.text.x", "strip.text.y", hidden_elements[1:4])
       if (is.null(base_theme)) base_theme <- ggplot2::theme_get()
       rich_text <- function(element) {
@@ -2311,7 +2347,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       cur_strip <- create_strip(
         lc = if (!is.null(label_color)) label_color[i] else NULL,
         lf = if (!is.null(label_fill))  label_fill[i]  else NULL,
-        border = border_colour(plots[[i]])
+        border = border_colour(plots[[i]]),
+        shift = .strip_optical_shift(label[i], .strip_text_size(plots[[i]]))
       )
       facet_formula <- ggplot2::vars(.strip_label. = !!label[i])
       facet <- ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
@@ -2666,15 +2703,24 @@ fmt_strip2 <- function(plot,
       inherited <- given_text[[axis]]
       side <- if (axis == "text_x") "strip.text.x.top" else "strip.text.y.right"
       resolved <- ggplot2::calc_element(side, base_theme + p$theme)
+      # The headers carry labels of their own, so they are padded here rather
+      # than keeping the padding the panel's own strip was given.
+      header_margin <- .strip_text_margin(
+        .strip_optical_shift(if (axis == "text_x") top_label[grid_col] else right_label[grid_row],
+                             .strip_text_size(p, side)),
+        if (axis == "text_x") "x" else "y"
+      )
       if (!length(inherited) && inherits(resolved, "element_text") &&
           !identical(class(resolved), standard_text_class)) {
         if (!is.null(colour)) resolved$colour <- colour
         resolved$face <- "bold"
+        resolved$margin <- header_margin
         p$theme[[side]] <<- resolved
         rich_header <<- TRUE
         return(NULL)
       }
-      elements <- ggh4x::elem_list_text(colour = colour, face = "bold")
+      elements <- ggh4x::elem_list_text(colour = colour, face = "bold",
+                                        margin = list(header_margin))
       if (length(inherited) && !inherits(inherited[[1L]], "element_blank")) {
         elements <- lapply(elements, function(element) {
           ggplot2::merge_element(element, inherited[[1L]])

@@ -36,17 +36,19 @@ test_that("fmt_strip centers strip text", {
 
   expect_equal(strip_text[["hjust"]], 0.5)
   expect_equal(strip_text[["vjust"]], 0.5)
-  expect_equal(as.numeric(strip_text[["margin"]])[c(1, 3)], c(3, 3))
+  # "Centered" has no descender, so its padding leans down around 2 pt
+  strip_margin <- as.numeric(strip_text[["margin"]])[c(1, 3)]
+  expect_equal(sum(strip_margin), 2 * .strip_pad)
+  expect_gt(strip_margin[1], strip_margin[2])
 
   p_facet <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
   out_facet <- fmt_strip(p_facet, label = "Centered")
 
   expect_equal(out_facet$theme$strip.text[["hjust"]], 0.5)
   expect_equal(out_facet$theme$strip.text[["vjust"]], 0.5)
-  expect_equal(
-    as.numeric(out_facet$theme$strip.text[["margin"]])[c(1, 3)],
-    c(3, 3)
-  )
+  facet_margin <- as.numeric(out_facet$theme$strip.text[["margin"]])[c(1, 3)]
+  expect_equal(sum(facet_margin), 2 * .strip_pad)
+  expect_gt(facet_margin[1], facet_margin[2])
 })
 
 test_that("fmt_strip maps label vectors within a single faceted plot", {
@@ -528,9 +530,11 @@ test_that("fmt_strip pads rotated strips across the band", {
   # text element into the theme, the way the composite plot builders do.
   panel <- fmt_strip(fmt_strip(base, label = "Dependence plot"), label = "Group A")
 
+  # "Group A" has a descender, so its 2 pt padding leans towards the glyph tops
   strip_y <- ggplot2::calc_element("strip.text.y.right",
                                    ggplot2::theme_get() + panel$theme)
-  expect_equal(as.numeric(grid::convertUnit(strip_y$margin, "pt"))[c(2, 4)], c(3, 3))
+  expect_equal(as.numeric(grid::convertUnit(strip_y$margin, "pt"))[c(2, 4)],
+               c(0.56, 3.44), tolerance = 1e-6)
 
   grid <- patchwork::wrap_plots(list(panel, panel, panel, panel), nrow = 2)
   headed <- fmt_strip2(grid, top_label = c("Left", "Right"),
@@ -538,6 +542,32 @@ test_that("fmt_strip pads rotated strips across the band", {
 
   expect_equal(band(headed[[4]], "^strip-r", "w"),
                band(headed[[1]], "^strip-t", "h"))
+})
+
+
+test_that("strip headers shift their labels to centre the inked glyphs", {
+  d <- data.frame(x = 1:3, y = 1:3)
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    theme_my(base_size = 16)
+  grid <- patchwork::wrap_plots(list(base, base, base, base), nrow = 2)
+  headed <- fmt_strip2(grid, top_label = c("Classical", "Age group"),
+                       right_label = c("Tumor size", "Dependence plot"))
+  element_margin <- function(plot, field) {
+    element <- plot$facet$strip$given_elements[[field]][[1L]]
+    as.numeric(grid::convertUnit(element$margin, "pt"))
+  }
+
+  # Top headers: "Age group" descends, so it moves up; "Classical" moves down.
+  expect_equal(element_margin(headed[[1]], "text_x")[c(1, 3)],
+               c(2.176, 1.824), tolerance = 1e-6)
+  expect_equal(element_margin(headed[[2]], "text_x")[c(1, 3)],
+               c(0.56, 3.44), tolerance = 1e-6)
+
+  # Right headers are rotated, so the same shift runs left to right.
+  expect_equal(element_margin(headed[[2]], "text_y")[c(2, 4)],
+               c(2.176, 1.824), tolerance = 1e-6)
+  expect_equal(element_margin(headed[[4]], "text_y")[c(2, 4)],
+               c(0.56, 3.44), tolerance = 1e-6)
 })
 
 
