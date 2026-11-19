@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` checks for malformed text only if any interval failed to parse.
+
 * Categorical chord plots only update the matrix axis labels when missing labels are present.
 
 * Sankey path reshaping removes the node matrix dimensions directly after binding stages.

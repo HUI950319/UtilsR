@@ -1127,3 +1127,15 @@ test_that("valid confidence intervals keep their existing eligibility mask", {
   expect_warning(out <- fn(c(data, "9 (2, 3)"), exp = FALSE), "invalid")
   expect_identical(out[4L], "9 (2, 3)")
 })
+
+test_that("fully parsed confidence interval input bypasses malformed-row inspection", {
+  x <- c("1.5 (1.0, 2.0)", "-2.0 [-2.5; -1.5]")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(.ci_unparsed_count = function(text) {
+    if (!length(text)) stop("inspected nonexistent malformed confidence intervals")
+    .ci_unparsed_count(text)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = FALSE, output = "p"), stat_ci_parse(x, exp = FALSE, output = "p"))
+  expect_warning(out <- fn(c(x, "unparsed", NA), exp = FALSE, output = "p"), "1 element")
+  expect_identical(out[3:4], rep(NA_real_, 2L))
+})

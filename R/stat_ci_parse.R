@@ -163,9 +163,11 @@ stat_ci_parse <- function(x,
   if (!is.null(digits)) d[] <- as.integer(digits)
 
   # Warn about unparseable elements (NA and "" pass through silently)
-  n_fail <- .ci_unparsed_count(x[!valid])
-  if (n_fail > 0L) {
-    cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+  if (!all(valid)) {
+    n_fail <- .ci_unparsed_count(x[!valid])
+    if (n_fail > 0L) {
+      cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+    }
   }
   n_tail <- sum(parsed$trailing)
   if (n_tail > 0L) {
