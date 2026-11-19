@@ -1169,3 +1169,21 @@ test_that("complete interval captures reuse their original normalized text", {
   expect_identical(fn(c(x, NA, "missing", "2 [1, 3)")),
                    .ci_extract(c(x, NA, "missing", "2 [1, 3)")))
 })
+
+test_that("CI parsing reuses final row validity across output preparation", {
+  x <- c(a = "1.20 (0.90, 1.50)", b = "-.2 [-.4; 0.0]")
+  fn <- stat_ci_parse
+  count <- 0L
+  environment(fn) <- list2env(list(all = function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...)), quote(list(valid)))) {
+      count <<- count + 1L
+      if (count > 2L) stop("rescanned valid interval rows after the scale check")
+    }
+    base::all(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  for (value in list(x, c(x, absent = NA_character_))) {
+    count <- 0L
+    expect_identical(fn(value, exp = FALSE, output = "ci_p"),
+                     stat_ci_parse(value, exp = FALSE, output = "ci_p"))
+  }
+})

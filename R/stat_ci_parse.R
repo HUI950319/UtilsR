@@ -201,6 +201,7 @@ stat_ci_parse <- function(x,
     return(out)
   }
 
+  all_valid <- all(valid)
   adjust <- !is.null(level) && level != .95
   if (!is.null(level) && is.null(digits)) d <- pmax(d, 1L)
   if (output != "ci" || adjust) {
@@ -283,14 +284,14 @@ stat_ci_parse <- function(x,
     if (output != "ci") {
       z <- ifelse(e_s == 0, 0, e_s / se)
       pval <- 2 * pnorm(-abs(z))
-      if (!all(valid)) pval[!valid] <- NA_real_
+      if (!all_valid) pval[!valid] <- NA_real_
       underflow <- which(pval == 0 & is.finite(z))
       if (length(underflow)) pval[underflow] <- exp(log(2) + pnorm(-abs(z[underflow]), log.p = TRUE))
     }
   }
 
   # --- Rebuild the CI string in its original bracket/separator style ---
-  d[!valid] <- 0L
+  if (!all_valid) d[!valid] <- 0L
   if (any(!is.finite(d) | d < 0 | d > 8190L)) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
@@ -329,10 +330,10 @@ stat_ci_parse <- function(x,
     .format_once(v, d)
   }
   ci_str <- x
-  if (all(valid)) {
+  if (all_valid) {
     ci_str <- paste0(fmt(est, d), " ", parsed$open, fmt(lo, d), parsed$sep,
                      fmt(hi, d), parsed$close)
-  } else if (any(valid)) {
+  } else {
     precision <- d[valid]
     ci_str[valid] <- paste0(fmt(est[valid], precision), " ", parsed$open[valid],
                            fmt(lo[valid], precision), parsed$sep[valid],

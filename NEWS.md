@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` reuses the same complete-row check through interval formatting and probability output.
+
 * `plt_sankey()` uses a compact lookup for dense stage levels and preserves explicit NA levels separately from missing observations.
 
 * Console swatches determine seven- or nine-character HEX label width from the decoded palette rather than measuring each rendered label.
