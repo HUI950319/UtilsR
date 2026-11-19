@@ -335,3 +335,15 @@ test_that("complete high precision CI and SD inputs skip full vector slicing", {
     expect_identical(do.call(fn, args), do.call(stat_ci, args))
   }
 })
+
+test_that("complete interval formatting avoids scanning an empty invalid subset", {
+  x <- c(low = "-1.5 (-2.5, -0.5)", high = "2.3 [1.01 to 4.54]")
+  fn <- stat_ci
+  environment(fn) <- list2env(list(.ci_unparsed_count = function(x) {
+    if (!length(x)) stop("inspected an empty malformed interval subset")
+    .ci_unparsed_count(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), stat_ci(x))
+  expect_warning(out <- fn(c(x, "text", NA_character_, " ")), "1 element")
+  expect_identical(unname(out[3:5]), c("text", NA_character_, " "))
+})

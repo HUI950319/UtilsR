@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` skips unparseable-text diagnostics when all supplied intervals were recognised.
+
 * `fct_num()` labels bins with ordinary integer and double labels without rebuilding the cut points.
 
 * `PlotRankCor()` preserves unique group labels directly and computes collision suffixes only when needed.

@@ -156,9 +156,12 @@ stat_ci <- function(x, y = NULL, z = NULL,
     .check_precision(d, est, lo, hi)
 
     # Warn about unparseable elements
-    n_fail <- .ci_unparsed_count(x[!valid])
-    if (n_fail > 0L) {
-      cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+    complete <- all(valid)
+    if (!complete) {
+      n_fail <- .ci_unparsed_count(x[!valid])
+      if (n_fail > 0L) {
+        cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+      }
     }
     n_tail <- sum(parsed$trailing)
     if (n_tail > 0L) {
@@ -167,7 +170,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
 
     # Format mixed precisions in one vectorized call.
     template <- "%.*f %s%.*f%s%.*f%s"
-    if (all(valid)) {
+    if (complete) {
       out <- .format_values(template, d, est, bp[1], d, lo, sep, d, hi, bp[2])
     } else {
       out <- x
