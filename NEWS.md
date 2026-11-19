@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Significance map validation checks minimum and maximum thresholds without copying the map to calculate a range.
+
 * Decimal P-value formatting removes duplicate significance thresholds only when they occur.
 
 * CI scaling checks raw endpoint finiteness on the candidate intervals that require numerical rescaling.

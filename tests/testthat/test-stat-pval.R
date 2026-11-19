@@ -981,3 +981,13 @@ test_that("decimal significance maps avoid selecting an unchanged threshold dict
     expect_identical(fn(x, map_signif = thresholds), stat_pval(x, map_signif = thresholds))
   }
 })
+
+test_that("significance map bounds need no temporary range vector input", {
+  fn <- .validate_signif_map
+  environment(fn) <- list2env(list(range = function(...) stop("copied significance thresholds to calculate their range")),
+    parent = environment(fn))
+  map <- setNames(seq(0, 1, length.out = 1024L), seq_len(1024L))
+  expect_identical(fn(map), NULL)
+  expect_error(fn(c(map, bad = Inf)), "map_signif")
+  expect_error(fn(c(map, bad = -1e-9)), "map_signif")
+})

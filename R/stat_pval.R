@@ -365,8 +365,7 @@ stat_pval <- function(x,
   if (valid_storage && !length(map)) return(invisible(NULL))
   valid_names <- !is.null(names(map)) && !anyNA(names(map))
   if (valid_storage && valid_names && !anyNA(map)) {
-    bounds <- range(map)
-    if (bounds[1L] >= 0 && bounds[2L] <= 1) return(invisible(NULL))
+    if (min(map) >= 0 && max(map) <= 1) return(invisible(NULL))
   }
   cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
 }
