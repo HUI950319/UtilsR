@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot summaries preserve their existing row data when count keys already follow display order.
+
 * `pr_table()` checks ordinary integer highlight positions directly while retaining fractional and nonfinite validation for doubles.
 
 * `check_size()` validates integer object indices by missingness and bounds without rounding them.

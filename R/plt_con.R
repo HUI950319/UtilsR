@@ -826,7 +826,8 @@ plt_con <- function(data,
     }
     match(x, unique(x))
   })
-  counts <- counts[do.call(order, rev(order_keys)), , drop = FALSE]
+  order_at <- do.call(order, rev(order_keys))
+  if (is.unsorted(order_at)) counts <- counts[order_at, , drop = FALSE]
   rownames(counts) <- NULL
   counts
 }

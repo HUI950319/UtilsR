@@ -2429,3 +2429,20 @@ test_that("complete stacked plots avoid intermediate frames for each feature", {
   local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
   expect_identical(draw()[["data"]], expected)
 })
+
+test_that("continuous dot count order keeps already sorted group rows", {
+  d <- data.frame(x = factor(rep(c("a", "a", "b", "b"), 2L)),
+    v = rep(c(1, 3), each = 4L), row.names = paste0("n", 1:8))
+  fn <- .con_dot_counts
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && is.data.frame(x) &&
+        identical(deparse(substitute(i)), "do.call(order, rev(order_keys))") &&
+        identical(i, seq_len(nrow(x))))
+      stop("copied a dot count table already in key order")
+    if (missing(i)) return(base::"["(x, , ...))
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  for (rows in list(1:8, c(1:2, 5:6, 3:4, 7:8))) {
+    expect_identical(fn(d[rows, ], c("x", "v")), .con_dot_counts(d[rows, ], c("x", "v")))
+  }
+})
