@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_bg()` now discovers ordinary categorical levels without constructing a factor of the full data length.
+
 * Built histogram-overlay plots restore their original facet when all distribution layers have been removed.
 
 * The console frequency listing uses the declared factor labels directly when all its levels are represented.

@@ -5214,7 +5214,14 @@ fmt_bg <- function(plot,
       return(p)
     }
     if (!deferred && !has_observations) return(p)
-    lvs <- if (is.factor(axis_values)) levels(droplevels(axis_values)) else levels(factor(axis_values))
+    lvs <- if (identical(class(axis_values), "factor") ||
+               identical(class(axis_values), c("ordered", "factor"))) {
+      levels(axis_values)[.factor_tally(axis_values)$codes]
+    } else if (is.factor(axis_values)) {
+      levels(droplevels(axis_values))
+    } else {
+      levels(factor(if (is.object(axis_values)) axis_values else unique(axis_values)))
+    }
     bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis,
                               facet_columns = .plot_facet_columns(p))
     p$layers <- c(list(bg_layer), Filter(function(layer) {

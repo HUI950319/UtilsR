@@ -644,3 +644,24 @@ test_that("finite background stripe positions keep their complete vectors", {
   expect_identical(actual$layout, expected$layout)
   expect_length(actual$grobs, length(expected$grobs))
 })
+
+test_that("background category level discovery avoids refactoring rows", {
+  fn <- fmt_bg
+  vals <- rep(c("C", "A", "B", NA), 50L)
+  inputs <- list(vals, ordered(vals, levels = c("B", "A", "C", "unused")),
+    rep(c(TRUE, FALSE, NA), 80L), addNA(factor(vals)))
+  env <- list2env(list(factor = function(x, ...) {
+    if (length(x) > 10L) stop("rebuilt full background category factors")
+    base::factor(x, ...)
+  }, droplevels = function(x, ...) {
+    if (length(x) > 10L) stop("rebuilt full background category factors")
+    base::droplevels(x, ...)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_bg <- fn
+  for (x in inputs) {
+    p <- ggplot2::ggplot(data.frame(x = x, y = seq_along(x)), ggplot2::aes(x, y)) +
+      ggplot2::geom_point()
+    expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
+  }
+})
