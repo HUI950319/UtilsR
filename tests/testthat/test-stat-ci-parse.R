@@ -1314,3 +1314,18 @@ test_that("asymmetric confidence width does not scan stable endpoint vectors", {
   expect_identical(suppressWarnings(fn(extreme, exp = FALSE, output = "p")),
     suppressWarnings(stat_ci_parse(extreme, exp = FALSE, output = "p")))
 })
+
+test_that("confidence probability underflow recovery only checks zero candidates", {
+  input <- rep(c("0.2 (-0.4, 0.8)", "0.8 (0.6, 1.0)"), 60L)
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(z)) && length(x) == 120L)
+      stop("checked finite z values for every confidence interval")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(input, exp = FALSE, output = "p"),
+    stat_ci_parse(input, exp = FALSE, output = "p"))
+  extreme <- append(input[1:2], "3.90 (3.70, 4.10)")
+  expect_identical(fn(extreme, exp = FALSE, output = "p"),
+    stat_ci_parse(extreme, exp = FALSE, output = "p"))
+})
