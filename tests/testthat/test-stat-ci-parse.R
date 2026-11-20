@@ -1364,3 +1364,17 @@ test_that("confidence formatting validates detected precision from its extrema",
   }), parent = environment(fn))
   expect_identical(fn(d, exp = FALSE), stat_ci_parse(d, exp = FALSE))
 })
+
+test_that("confidence conversion reuses stable trial endpoints", {
+  input <- rep(c("2.00 (1.20, 2.80)", "4.00 (1.00, 4.10)"), 50L)
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(yes), quote(e_s - (e_s - l_s) * ratio)))
+      stop("recomputed all adjusted confidence endpoints")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  run <- function(f, x, level) suppressWarnings(f(x, exp = FALSE, level = level, output = "ci_p"))
+  expect_identical(run(fn, input, 0.90), run(stat_ci_parse, input, 0.90))
+  wide <- c(input[1:2], "1.00e308 (-1.00e308, 1.20e308)")
+  expect_identical(run(fn, wide, 0.99), run(stat_ci_parse, wide, 0.99))
+})

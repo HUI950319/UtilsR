@@ -255,9 +255,19 @@ stat_ci_parse <- function(x,
       z_new <- if (level < sqrt(.Machine$double.eps)) sqrt(pi / 2) * level else
         qnorm((1 - level) / 2, lower.tail = FALSE)
       ratio <- z_new / z95
-      unstable <- unstable |
-        !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |
-        !is.finite(e_s + ifelse(asym, (h_s - e_s) * ratio, z_new * se))
+      adjusted_bounds <- function() {
+        change <- z_new * se
+        lo <- e_s - change
+        hi <- e_s + change
+        if (length(asymmetric_rows)) {
+          rows <- asymmetric_rows
+          lo[rows] <- e_s[rows] - (e_s[rows] - l_s[rows]) * ratio
+          hi[rows] <- e_s[rows] + (h_s[rows] - e_s[rows]) * ratio
+        }
+        list(lower = lo, upper = hi)
+      }
+      adjusted <- adjusted_bounds()
+      unstable <- unstable | !is.finite(adjusted$lower) | !is.finite(adjusted$upper)
     }
     rescale <- which(valid & !is_exp & unstable)
     if (length(rescale)) {
@@ -276,8 +286,9 @@ stat_ci_parse <- function(x,
     # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
     if (!is.null(level)) {
       if (level != .95) {
-        l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
-        h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
+        if (length(rescale)) adjusted <- adjusted_bounds()
+        l_s <- adjusted$lower
+        h_s <- adjusted$upper
         if (all_valid && !any(is_exp)) {
           lo <- l_s * work_scale
           hi <- h_s * work_scale

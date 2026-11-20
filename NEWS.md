@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence-level conversion retains the endpoints it first checks and recomputes them only after numerical rescaling.
+
 * Hex-only console color previews skip per-color numeric-index flags while retaining full invalid-color diagnostics.
 
 * `pal_get()` returns a scalar success for fully valid colour vectors and expands flags only for diagnostics.
