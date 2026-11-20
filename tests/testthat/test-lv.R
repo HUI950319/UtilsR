@@ -1829,3 +1829,17 @@ test_that("lv sorted distinct observations are reused in summary levels", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("numeric lv frequencies preserve unit counts for unique values", {
+  d <- data.frame(value = c(4.25, 1.25, 0.25, NA_real_, 5.25))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (identical(substitute(bin), quote(ids)) && length(bin) == 5L &&
+        identical(attr(bin, "n"), 5L)) stop("retallied unique inspection frequencies")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+  d$value[1L] <- d$value[2L]
+  expect_identical(draw(fn), draw(lv))
+})

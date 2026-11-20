@@ -518,11 +518,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                !isTRUE(getOption("dplyr.legacy_locale"))) {
       if (is.numeric(x)) {
         ids <- vctrs::vec_group_id(x)
-        counts <- tabulate(ids, attr(ids, "n"))
-        values <- x[!duplicated(ids)]
+        distinct <- attr(ids, "n")
+        unique_rows <- distinct == length(x)
+        values <- if (unique_rows) x else x[!duplicated(ids)]
         observed <- order(values, na.last = NA, method = "radix")
         valid <- values[observed]
-        n <- counts[observed]
+        n <- if (unique_rows) rep.int(1L, length(observed)) else tabulate(ids, distinct)[observed]
       } else {
         valid <- .get_levels(x, complete = !anyNA(x))
         n <- tabulate(match(x, valid), length(valid))
