@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value star annotation uses interval search for ordinary numeric AsIs storage and preserves names and missing values.
+
 * Reference lines reuse the prepared data and mappings for ordinary Date coordinates while retaining separate layer objects.
 
 * P-value star formatting compares one copy of repeated threshold text while retaining the exact decimal boundary.

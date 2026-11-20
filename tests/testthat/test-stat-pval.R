@@ -1051,3 +1051,16 @@ test_that("identical threshold strings share decimal comparison work", {
   x[1:3] <- c("0.001000000000000000001", "0.000999999999999999999", "0.001")
   expect_identical(fn(x), stat_pval(x))
 })
+
+test_that("AsIs numeric P-value star selection uses threshold indexing", {
+  x <- letters[1:6]
+  p <- I(c(.001, .02, NA, NaN, .05, .2))
+  f <- stat_pval
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.character(x) && length(x) == length(p) && is.logical(i) && value %in% c("*", "**", "***", "."))
+      stop("assigned P-value stars separately for each AsIs threshold")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  expect_identical(f(x, add_star_p = p), stat_pval(x, add_star_p = p))
+  expect_identical(f(setNames(x, x), add_star_p = p), stat_pval(setNames(x, x), add_star_p = p))
+})
