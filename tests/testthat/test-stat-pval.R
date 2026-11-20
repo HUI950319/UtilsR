@@ -1002,3 +1002,15 @@ test_that("plain P-value validation avoids rebuilding a numeric range", {
   expect_error(f(c(.5, -Inf)), "finite P-values")
   expect_error(f("1.1"), "finite P-values")
 })
+
+test_that("ordinary P value text skips an empty missing token update", {
+  f <- stat_pval
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.character(x) && identical(value, NA_character_) && is.logical(i) && !any(i))
+      stop("assigned an empty P-value missing token selection")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  for (x in list(c("<0.001", "0.02", "1"), c("0.02", "NA", "NaN", "0.9"))) {
+    expect_identical(f(x), stat_pval(x))
+  }
+})
