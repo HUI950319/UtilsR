@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette plots and console swatches share the channel transform and evaluate it only for the applicable values.
+
 * Console swatches group shared composited backgrounds in one key lookup while retaining all HEX labels.
 
 * Console colour previews reuse opaque RGB bytes and composite only translucent swatches.

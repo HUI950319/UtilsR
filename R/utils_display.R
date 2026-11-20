@@ -841,8 +841,8 @@ show_color <- function(x, rev = FALSE) {
 
   # Compute relative luminance (WCAG formula) for contrast
   .luminance <- function(r, g, b) {
-    lin <- function(v) ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
-    0.2126 * lin(r / 255) + 0.7152 * lin(g / 255) + 0.0722 * lin(b / 255)
+    0.2126 * .pal_linear_channel(r / 255) + 0.7152 * .pal_linear_channel(g / 255) +
+      0.0722 * .pal_linear_channel(b / 255)
   }
 
   # Let cli pick the depth the terminal actually reports. Pinning `colors` to

@@ -1511,3 +1511,17 @@ test_that("composited console swatches group preview positions once", {
     expect_identical(capture.output(f(cols, rev = TRUE)), capture.output(show_color(cols, rev = TRUE)))
   }
 })
+
+test_that("console swatch contrast avoids calculating both transforms per channel", {
+  x <- c("black", "#00000000", "#7F7F7F", "#222222", "#10AAC2", "#CE200080")
+  f <- show_color
+  environment(f) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(v <= 0.03928)))
+      stop("calculated both transformations for console channels")
+    base::ifelse(test, yes, no)
+  }), parent = environment(f))
+  for (depth in c(16L, 256L, 16777216L)) {
+    withr::local_options(cli.num_colors = depth)
+    expect_identical(capture.output(f(x)), capture.output(show_color(x)))
+  }
+})
