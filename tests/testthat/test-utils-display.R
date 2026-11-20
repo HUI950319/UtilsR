@@ -1498,3 +1498,16 @@ test_that("opaque console swatches reuse decoded RGB bytes", {
     })
   }
 })
+
+test_that("composited console swatches group preview positions once", {
+  cols <- c("#FEFEFE00", "#00000000", "#FFFFFF", "#004488", "#00110000")
+  f <- show_color
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(preview))) stop("rematched composited swatch colour keys")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  for (depth in c(16L, 256L, 16777216L)) {
+    withr::local_options(cli.num_colors = depth)
+    expect_identical(capture.output(f(cols, rev = TRUE)), capture.output(show_color(cols, rev = TRUE)))
+  }
+})

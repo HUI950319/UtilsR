@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console swatches group shared composited backgrounds in one key lookup while retaining all HEX labels.
+
 * Console colour previews reuse opaque RGB bytes and composite only translucent swatches.
 
 * Console swatches check validity on distinct colours and expand masks only for an error report.

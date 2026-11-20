@@ -938,7 +938,7 @@ show_color <- function(x, rev = FALSE) {
     }
     if (anyDuplicated(preview)) {
       # Share backgrounds after compositing, retaining every original HEX label.
-      groups <- split(seq_along(ids), match(preview, unique(preview)))
+      groups <- vctrs::vec_group_loc(preview)$loc
       styled <- character(length(ids))
       for (position in groups) styled[position] <- style_group(position)
     } else {
