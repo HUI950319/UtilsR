@@ -1563,7 +1563,8 @@ fmt_ref <- function(plot,
         do.call(geom, args, envir = baseenv())
       }))
     }
-    if (!is.object(values) && !is.null(reference_args[[axis]])) {
+    cacheable <- !is.object(values) || identical(class(values), "Date")
+    if (cacheable && !is.null(reference_args[[axis]])) {
       return(list(do.call(geom, reference_args[[axis]], envir = baseenv())))
     }
     data <- data.frame(.fmt_ref_intercept = values,
@@ -1582,7 +1583,7 @@ fmt_ref <- function(plot,
       mapping[[aesthetic]] <- rlang::quo_set_env(mapping[[aesthetic]], rlang::base_env())
     }
     args <- c(list(data = data, mapping = mapping, show.legend = FALSE), dots)
-    if (!is.object(values)) reference_args[[axis]] <<- args
+    if (cacheable) reference_args[[axis]] <<- args
     list(do.call(geom, args, envir = baseenv()))
   }
 

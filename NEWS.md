@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines reuse the prepared data and mappings for ordinary Date coordinates while retaining separate layer objects.
+
 * P-value star formatting compares one copy of repeated threshold text while retaining the exact decimal boundary.
 
 * System checks reject ambiguous memory reports containing duplicate free column headings.

@@ -540,3 +540,25 @@ test_that("reference lines preserve dynamically selected facet levels", {
     expect_setequal(unlist(lapply(built$data[-1L], function(layer) layer$xintercept)), c(2, 4))
   }
 })
+
+test_that("ordinary Date reference lines share batch data across subplots", {
+  d <- data.frame(date = as.Date("2020-01-01") + 0:6, score = 7:1)
+  pos <- d$date[c(2L, 4L, 6L)]
+  charts <- lapply(1:3, function(i) ggplot2::ggplot(d, ggplot2::aes(date, score)) +
+                    ggplot2::geom_point())
+  f <- fmt_ref
+  calls <- 0L
+  environment(f) <- list2env(list(data.frame = function(...) {
+    data <- base::data.frame(...)
+    if (".fmt_ref_intercept" %in% names(data) && inherits(data$.fmt_ref_intercept, "Date")) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("rebuilt ordinary Date reference line data for a sibling plot")
+    }
+    data
+  }), parent = environment(f))
+  out <- f(charts, x = pos, color = c("red", "blue"))
+  want <- fmt_ref(charts, x = pos, color = c("red", "blue"))
+  draw <- function(p) ggplot2::layer_data(p, 2L)
+  expect_identical(lapply(out, draw), lapply(want, draw))
+  expect_false(identical(out[[1L]]$layers[[2L]], out[[2L]]$layers[[2L]]))
+})
