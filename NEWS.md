@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Automatic factor binning calculates extrema directly once the numeric storage has been normalized.
+
 * Factor level index checks reuse scalar bounds for plain validated positions.
 
 * Numeric frequency listings use unit counts when each numeric value is distinct.

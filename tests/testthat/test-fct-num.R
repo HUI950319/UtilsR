@@ -238,16 +238,21 @@ test_that("wrapped numeric values retain subnormal bin membership", {
 test_that("equal-width bins reuse the validated plain range", {
   fn <- fct_num
   env <- new.env(parent = environment(fn))
-  env$min <- function(x, ...) {
-    if (length(x) == 500L) stop("rescanned the numeric range")
-    base::min(x, ...)
+  calls <- c(min = 0L, max = 0L)
+  observe <- function(name, extreme) function(x, ...) {
+    if (length(x) == 500L) calls[[name]] <<- calls[[name]] + 1L
+    extreme(x, ...)
   }
+  env$min <- observe("min", base::min)
+  env$max <- observe("max", base::max)
   environment(fn) <- env
   values <- seq(0, 5, length.out = 500)
-  expected <- fct_num(values, nbins = 5, type = "equal")
-  expect_identical(fn(values, nbins = 5, type = "equal"), expected)
-  expect_identical(fn(c(values[-1L], NA), nbins = 5, type = "equal"),
-                   fct_num(c(values[-1L], NA), nbins = 5, type = "equal"))
+  for (input in list(values, c(values[-1L], NA))) {
+    expected <- fct_num(input, nbins = 5, type = "equal")
+    calls[] <- 0L
+    expect_identical(fn(input, nbins = 5, type = "equal"), expected)
+    expect_identical(calls, c(min = 1L, max = 1L))
+  }
 })
 
 test_that("ordered fixed cut points skip the extra sort", {
@@ -386,4 +391,16 @@ test_that("plain numeric bin labels reuse bin codes and keep merged levels", {
   for (labels in list(c(1L, 3L, NA_integer_, 1L), c(-0, 1.5, Inf, NaN), c(1, 2, 3, 4))) {
     expect_identical(fn(x, knots, labels), cut(x, knots, labels = labels, include.lowest = TRUE))
   }
+})
+
+test_that("automatic factor bins use numeric endpoint summaries", {
+  d <- c(-8.1, 4.4, NA_real_, 0, 15)
+  f <- fct_num
+  environment(f) <- list2env(list(range = function(x, ...) {
+    if (identical(substitute(x), quote(numeric_x))) stop("rebuilt the full range of automatic bin values")
+    base::range(x, ...)
+  }), parent = environment(f))
+  expect_identical(f(d, nbins = 2L, type = "equal"), fct_num(d, nbins = 2L, type = "equal"))
+  expect_identical(f(d, nbins = 2L), fct_num(d, nbins = 2L))
+  expect_identical(f(1:12, nbins = 3L), fct_num(1:12, nbins = 3L))
 })
