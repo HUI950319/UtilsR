@@ -404,3 +404,17 @@ test_that("automatic factor bins use numeric endpoint summaries", {
   expect_identical(f(d, nbins = 2L), fct_num(d, nbins = 2L))
   expect_identical(f(1:12, nbins = 3L), fct_num(1:12, nbins = 3L))
 })
+
+test_that("quantile bins keep distinct breakpoints without deduplication", {
+  fn <- fct_num
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(bin_breaks)) && !anyDuplicated(x))
+      stop("deduplicated distinct quantile breakpoints")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  values <- c(seq_len(120L), NA_integer_)
+  expect_identical(fn(values, nbins = 10L), fct_num(values, nbins = 10L))
+  tied <- c(rep(0, 100), rep(1, 20), 2)
+  expect_warning(observed <- fn(tied, nbins = 5L), "Ties in quantiles")
+  expect_identical(observed, suppressWarnings(fct_num(tied, nbins = 5L)))
+})

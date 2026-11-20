@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` keeps the original quantile breakpoint vector when adjacent cut points are distinct.
+
 * `pr_tree()` now constructs positional labels only for unnamed items in a mixed-named list.
 
 * UpSet membership coding initializes a complete first set directly, avoiding a row-sized assignment.
