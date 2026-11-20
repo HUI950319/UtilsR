@@ -489,6 +489,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     values <- vctrs::vec_unique(x[observed])
     index <- vctrs::vec_match(x, values)
     distinct <- labels[match(seq_along(values), index)]
+    if (!anyDuplicated(distinct)) return(labels)
     collision <- duplicated(distinct) | duplicated(distinct, fromLast = TRUE)
     if (any(collision)) {
       key <- .cat_time_key(values)

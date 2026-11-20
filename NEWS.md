@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` now skips collision masks when the distinct formatted labels already identify their values.
+
 * Factor tallies avoid constructing a logical mask when every level has an observed code.
 
 * Large sparse factors with unique row codes reuse the input codes after grouping and create one count per observed level.

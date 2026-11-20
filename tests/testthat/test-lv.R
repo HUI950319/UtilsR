@@ -1900,3 +1900,13 @@ test_that("dense factor tallies enumerate all observed levels directly", {
   expect_identical(fn(x[-2L]), .factor_tally(x[-2L]))
   expect_identical(fn(factor()), .factor_tally(factor()))
 })
+
+test_that("unambiguous inspection labels skip duplicate masks", {
+  d <- data.frame(x = c(1, 1, 3, 6, NA_real_))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(distinct))) stop("built collision masks for unambiguous labels")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d, count = x)), capture.output(lv(d, count = x)))
+})
