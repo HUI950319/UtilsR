@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked rose labels use grouped integer counts directly for their outer radius.
+
 * Distribution plots avoid hashing typed category keys twice when choosing representative display values.
 
 * P-value star annotation supports expression vectors without evaluating the expressions and retains missing elements.

@@ -2124,3 +2124,15 @@ test_that("unique sparse category pairs retain their codes without recounting", 
     expect_identical(fn(repeated, "s", "g", stat), .prepare_cat_data(repeated, "s", "g", stat))
   }
 })
+
+test_that("stacked integer rose labels pool counts without formula aggregation", {
+  skip_if_not_installed("geomtextpath")
+  d <- data.frame(stat_var = factor(rep(c("one", "two"), 3L)),
+                  group_var = ordered(rep(c("Zulu", "Alpha", "Beta"), each = 2L)),
+                  value = c(1L, 4L, 3L, 9L, 2L, 8L))
+  colours <- c("red", "blue")
+  expected <- .plt_cat_rose(d, colours)$layers[[2L]]$data
+  local_mocked_bindings(aggregate = function(...) stop("aggregated integer stacked rose radii"),
+                        .package = "stats")
+  expect_identical(.plt_cat_rose(d, colours)$layers[[2L]]$data, expected)
+})

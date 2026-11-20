@@ -98,6 +98,9 @@
       groups <- plotdata[["group_var"]]
       if (position != "stack" && !anyNA(groups) && !anyNA(group_labels) && length(values)) {
         radius <- max(values, na.rm = TRUE)
+      } else if (position == "stack" && is.integer(values) && !is.object(values) &&
+                 is.factor(groups) && !anyNA(groups) && !anyNA(group_labels)) {
+        radius <- max(rowsum(as.double(values), groups, reorder = FALSE, na.rm = TRUE))
       } else {
         summary <- stats::aggregate(values, by = list(groups),
           FUN = if (position == "stack") sum else max, na.rm = TRUE)
