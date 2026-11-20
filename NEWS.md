@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Boxplot overlays recognize named identity-stat and orientation selections when finding precomputed summaries.
+
 * Behind-panel insets only inspect tie order when an overlapping background may matter or a finite offset is unavailable.
 
 * Grob panel bounds use the existing layout columns directly when every layout row belongs to the panel area.

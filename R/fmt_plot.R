@@ -6119,8 +6119,11 @@ fmt_boxplot <- function(plot,
   }
   if (!("outlier.shape" %in% names(boxplot.args))) boxplot.args$outlier.shape <- NA
   boxplot.args$inherit.aes <- inherit.aes
-  identity_stat <- identical(boxplot.args[["stat"]], "identity") ||
-    inherits(boxplot.args[["stat"]], "StatIdentity")
+  stat <- boxplot.args[["stat"]]
+  orientation <- boxplot.args[["orientation"]]
+  if (is.character(orientation)) orientation <- unname(orientation)
+  identity_stat <- (is.character(stat) && identical(unname(stat), "identity")) ||
+    inherits(stat, "StatIdentity")
   keep_mapping <- identity_stat && !is.null(mapping)
   resolve_source <- !inherit.aes && (is.null(boxplot.args[["data"]]) ||
     inherits(boxplot.args[["data"]], "waiver") ||
@@ -6231,7 +6234,6 @@ fmt_boxplot <- function(plot,
         if (identity_stat && !keep_mapping) {
           available <- c(names(mapping)[!vapply(mapping, is.null, logical(1))],
                          names(args)[!vapply(args, is.null, logical(1))])
-          orientation <- boxplot.args[["orientation"]]
           vertical <- !identical(orientation, "y") &&
             all(c("x", "ymin", "lower", "middle", "upper", "ymax") %in% available)
           horizontal <- !identical(orientation, "x") &&

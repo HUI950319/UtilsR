@@ -1224,3 +1224,23 @@ test_that("identity boxplot sources respect orientation when scanning layers", {
     expect_equal(as.numeric(built[[if (orientation == "x") "middle" else "xmiddle"]]), data$mid)
   }
 })
+
+test_that("boxplot source lookup accepts named identity and orientation selectors", {
+  vertical <- data.frame(g = c("A", "B"), lo = 1:2, q1 = 3:4, mid = 5:6,
+                         q3 = 7:8, hi = 9:10)
+  horizontal <- transform(vertical, g = c("C", "D"), mid = 5:6 + .5)
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_boxplot(ggplot2::aes(x = g, ymin = lo, lower = q1, middle = mid,
+      upper = q3, ymax = hi), data = vertical, stat = "identity", orientation = "x") +
+    ggplot2::geom_boxplot(ggplot2::aes(y = g, xmin = lo, xlower = q1, xmiddle = mid,
+      xupper = q3, xmax = hi), data = horizontal, stat = "identity", orientation = "y")
+  for (direction in c("x", "y")) {
+    out <- fmt_boxplot(p, list(stat = c(source = "identity"), orientation = c(axis = direction)),
+                      inherit.aes = FALSE)
+    expected <- if (direction == "x") vertical else horizontal
+    expect_identical(out$layers[[3L]]$data, expected)
+    built <- ggplot2::layer_data(out, 3L)
+    median <- if (direction == "x") "middle" else "xmiddle"
+    expect_equal(as.numeric(built[[median]]), expected$mid)
+  }
+})
