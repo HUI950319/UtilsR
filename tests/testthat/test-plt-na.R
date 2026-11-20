@@ -639,3 +639,14 @@ test_that("missingness matrices collect observed column totals directly", {
   expect_identical(actual[["data"]], expected[["data"]])
   expect_equal(sum(actual[["data"]][["value"]]), 5)
 })
+
+test_that("missing percentage plots collect column counts without a result list", {
+  d <- data.frame(u = c(NA, 2, 3), v = c("a", NA, "c"), stable = 1:3)
+  fn <- plt_na
+  environment(fn) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(df))) stop("allocated the percentage count result list")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, output = "percentage"))
+  expect_identical(draw(fn)$data, draw(plt_na)$data)
+})

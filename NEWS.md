@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Percentage-only missingness plots collect numeric counts directly without an intermediate list.
+
 * UpSet membership uses direct integer conversion for complete ordinary integers matched against integer64 values.
 
 * UpSet membership coding combines a full set with the existing code vector in one operation.

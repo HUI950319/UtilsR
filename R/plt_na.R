@@ -116,7 +116,7 @@ plt_na <- function(
   }
 
   keep_masks <- output != "percentage"
-  missing_data <- lapply(df, function(x) {
+  column_missing <- function(x) {
     pkg <- if (inherits(x, "integer64")) "bit64" else
       if (inherits(x, "haven_labelled")) "haven" else
         if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
@@ -133,11 +133,12 @@ plt_na <- function(
     if (keep_masks) {
       if (any(mask)) mask else NULL
     } else sum(mask)
-  })
-  missing_counts <- if (keep_masks) {
-    vapply(missing_data, sum, integer(1))
+  }
+  if (keep_masks) {
+    missing_data <- lapply(df, column_missing)
+    missing_counts <- vapply(missing_data, sum, integer(1))
   } else {
-    unlist(missing_data, use.names = TRUE)
+    missing_counts <- vapply(df, column_missing, integer(1))
   }
 
   map_name <- function(x) {
