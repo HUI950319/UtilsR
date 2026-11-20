@@ -448,7 +448,7 @@ plt_upset <- function(data,
       indices <- utils::combn(n_sets, size)
       labels <- lapply(seq_len(size), function(i) display_names[indices[i, ]])
       list(
-        codes = as.integer(colSums(matrix(bits[indices], nrow = size))),
+        codes = as.integer(.colSums(bits[indices], size, ncol(indices))),
         labels = do.call(paste, c(labels, sep = "/"))
       )
     })

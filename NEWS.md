@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` sums contiguous combination bit masks without copying them into an intermediate matrix.
+
 * `PlotRankCor()` now uses the centered extrema to detect overflow and determine the normalization magnitude.
 
 * `lv()` now skips collision masks when the distinct formatted labels already identify their values.

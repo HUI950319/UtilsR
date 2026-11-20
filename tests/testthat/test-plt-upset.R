@@ -1203,3 +1203,15 @@ test_that("complete UpSet list membership is filled once", {
   expect_identical(f(d, output = "data"), plt_upset(d, output = "data"))
   expect_identical(no_calls, 1L)
 })
+
+test_that("UpSet bit columns sum without a second combination matrix", {
+  d <- data.frame(a = c(1, 0, 1, 0), b = c(0, 1, 1, 0), c = c(1, 1, 1, 0))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(matrix = function(data, ...) {
+    if (identical(substitute(data), quote(bits[indices]))) stop("constructed a second combination matrix")
+    base::matrix(data, ...)
+  }), parent = environment(fn))
+  reference <- plt_upset(d, vars = names(d), levels = 1, output = "data")
+  expect_identical(fn(d, vars = names(d), levels = 1, output = "data"), reference)
+  expect_identical(as.character(reference$intersect_group), c("a/c", "b/c", "a/b/c", "None"))
+})
