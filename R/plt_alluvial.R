@@ -528,7 +528,7 @@ plt_alluvial <- function(
   stat$.is_gap <- FALSE
 
   stat$.y <- if (y_type == "percent") {
-    stat$percent * (1 - total_gap)
+    if (total_gap == 0) stat$percent else stat$percent * (1 - total_gap)
   } else {
     stat$count
   }

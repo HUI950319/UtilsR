@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Gap-free percentage alluvial plots retain their computed shares directly as stratum heights.
+
 * Histogram and density overlays reuse their native contiguous panel indices when assigning panel-relative heights.
 
 * `fmt_bg()` now detects complete plain and ordinary factor columns without allocating a missingness vector.

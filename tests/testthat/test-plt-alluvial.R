@@ -1418,3 +1418,17 @@ test_that("alluvial all-distinct text columns keep their level vectors", {
   expect_identical(draw(fn), draw(plt_alluvial))
   expect_identical(levels(draw(fn)$.cat_var), d$cat)
 })
+
+test_that("gap free alluvial heights directly retain their shares", {
+  skip_if_not_installed("ggalluvial")
+  local_mocked_bindings(.save_sized = function(p, ...) p)
+  d <- data.frame(x = rep(letters[1:20], each = 3L), g = rep(c("one", "two", "two"), 20L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list("*" = function(e1, e2) {
+    if (identical(substitute(e1), quote(stat$percent)) && e2 == 1) stop("rescaled alluvial shares by one")
+    base::"*"(e1, e2)
+  }), parent = environment(fn))
+  run <- function(f, gap) suppressMessages(f(d, "x", "g", stratum_args = list(gap = gap)))$data
+  expect_identical(run(fn, 0), run(plt_alluvial, 0))
+  expect_identical(run(fn, 0.05), run(plt_alluvial, 0.05))
+})
