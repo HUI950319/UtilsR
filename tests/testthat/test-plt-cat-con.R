@@ -2203,3 +2203,15 @@ test_that("sparse categorical masks inspect only incomplete code columns", {
   d$g[1L] <- NA
   expect_identical(fn(d, "x", "g", "percent"), .prepare_cat_data(d, "x", "g", "percent"))
 })
+
+test_that("sparse categorical set membership retains nonmissing level codes", {
+  x <- factor(c("l5", "l8", "l5", "l1"), levels = paste0("l", 1:200))
+  fn <- .cat_set_members
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(observed)) && is.logical(i) && all(i))
+      stop("filtered a complete sparse set level dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, c("l8", "l1")), c(FALSE, TRUE, FALSE, TRUE))
+  expect_identical(fn(x[c(1:4, NA_integer_)], "l5"), c(TRUE, FALSE, TRUE, FALSE, FALSE))
+})

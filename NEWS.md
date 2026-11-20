@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse factor membership avoids filtering its level dictionary when every observed code is present.
+
 * CI parsing checks the bounds of its complete precision vector without allocating per-row comparison masks.
 
 * Distribution formatting builds collision masks and precise decimal labels only when labelled thresholds can collide.

@@ -1216,7 +1216,7 @@ plt_cat <- function(data,
     codes <- as.integer(values)
     found <- if (nlevels(values) > length(values)) {
       observed <- unique(codes)
-      observed <- observed[!is.na(observed)]
+      if (anyNA(observed)) observed <- observed[!is.na(observed)]
       (levels(values)[observed] %in% selected)[match(codes, observed)]
     } else (levels(values) %in% selected)[codes]
     if (anyNA(found)) found[is.na(found)] <- FALSE
