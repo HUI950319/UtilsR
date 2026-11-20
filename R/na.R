@@ -336,10 +336,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       return(list(codes = observed, counts = counts, row_codes = row_codes))
     }
     ids <- vctrs::vec_group_id(row_codes)
-    observed <- row_codes[!duplicated(ids)]
-    counts <- tabulate(ids, nbins = length(observed))
+    unique_rows <- attr(ids, "n") == length(row_codes)
+    observed <- if (unique_rows) row_codes else row_codes[!duplicated(ids)]
     order_at <- order(observed, na.last = NA)
-    return(list(codes = observed[order_at], counts = counts[order_at], row_codes = row_codes))
+    counts <- if (unique_rows) rep.int(1L, length(order_at)) else
+      tabulate(ids, nbins = length(observed))[order_at]
+    return(list(codes = observed[order_at], counts = counts, row_codes = row_codes))
   }
   counts <- tabulate(row_codes, nbins = k)
   observed <- which(counts > 0L)

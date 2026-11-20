@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Large sparse factors with unique row codes reuse the input codes after grouping and create one count per observed level.
+
 * Short factors with mostly unused levels and unique observed codes now build their frequency counts directly.
 
 * `fmt_point()` now detects injected row-length aesthetic vectors before sampling, including literals nested in transformations.

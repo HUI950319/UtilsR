@@ -1870,3 +1870,18 @@ test_that("unique short sparse factors do not rematch their codes", {
     counts = rep.int(1L, 3L), row_codes = as.integer(x)))
   expect_identical(fn(x[FALSE]), .factor_tally(x[FALSE]))
 })
+
+test_that("large sparse factors reuse distinct row codes", {
+  set.seed(412)
+  lev <- c(paste0("level", 1:2400), NA_character_)
+  codes <- c(sample.int(2300L, 1198L), 2401L, NA_integer_)
+  x <- structure(codes, levels = lev, class = "factor")
+  fn <- .factor_tally
+  environment(fn) <- list2env(list(duplicated = function(...) {
+    stop("collected duplicate masks for distinct sparse factor")
+  }), parent = environment(fn))
+  expect_identical(fn(x), list(codes = sort(codes), counts = rep.int(1L, 1199L),
+    row_codes = codes))
+  repeated <- x[c(seq_len(1199L), 1L)]
+  expect_identical(.factor_tally(repeated)$counts[match(codes[1L], sort(codes))], 2L)
+})
