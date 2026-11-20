@@ -2152,3 +2152,15 @@ test_that("complete categorical axes retain ordinary factor storage", {
   attr(x, "label") <- "stage"
   expect_identical(f(x), .cat_axis_factor(x))
 })
+
+test_that("single category per subgroup skips sparse denominator construction", {
+  d <- data.frame(x = factor(rep(c("a", "b", "c"), c(20, 8, 15))),
+    g = factor(rep(c("first", "second", "last"), c(20, 8, 15)),
+      levels = c("first", "unused", "second", "last")))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(rowsum = function(...) stop("summed singleton categorical groups")),
+    parent = environment(fn))
+  out <- fn(d, "x", "g", "percent")
+  expect_identical(out, .prepare_cat_data(d, "x", "g", "percent"))
+  expect_identical(out$value, rep(100, 3L))
+})
