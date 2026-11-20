@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric `lv()` listings retain complete finite values and their extrema without an observation-length finiteness mask.
+
 * Automatic paired comparison diagnostics check the extrema of the observed group counts.
 
 * `fmt_com()` assigns ordinary paired comparison IDs in one grouping pass.

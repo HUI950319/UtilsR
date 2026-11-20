@@ -1934,3 +1934,15 @@ test_that("complete numeric inspection labels reuse row group codes", {
   out <- suppressMessages(lv(d, count = c(x, g)))
   expect_identical(out, d)
 })
+
+test_that("complete inspection listings skip finiteness masks for measurements", {
+  d <- data.frame(value = seq(-10, 12, length.out = 200L))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(values)) && identical(x, d$value))
+      stop("allocated a finiteness mask for a complete inspection column")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(capture.output(suppressMessages(fn(d))),
+    capture.output(suppressMessages(lv(d))))
+})

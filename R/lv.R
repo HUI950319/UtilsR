@@ -596,15 +596,16 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # (integer64, labelled) as plain doubles.
       observed <- if (!is.object(col_data) && !anyNA(col_data)) col_data else col_data[!is.na(col_data)]
       values <- suppressWarnings(as.numeric(observed))
-      finite <- is.finite(values)
-      x <- if (all(finite)) values else values[finite]
+      bounds <- c(min(values), max(values))
+      complete <- all(is.finite(bounds))
+      x <- if (complete) values else values[is.finite(values)]
       shape <- x
       if (inherits(col_data, "integer64")) {
         shape <- .spread_values(observed, values)
         shape <- shape[is.finite(shape)]
       }
       spread <- sd(shape)
-      bounds <- range(shape)
+      if (!complete || inherits(col_data, "integer64")) bounds <- range(shape)
       span <- bounds[2L] - bounds[1L]
       if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
         shape <- (shape - bounds[1L]) / span
