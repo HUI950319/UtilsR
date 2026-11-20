@@ -2263,3 +2263,17 @@ test_that("complete numeric sparkline values skip full finite masks", {
   d$value[1:3] <- c(NA_real_, -Inf, Inf)
   expect_identical(draw(fn), draw(pr_spark))
 })
+
+test_that("complete console table columns skip finite row masks", {
+  d <- data.frame(value = c(-1.01, 3.15, 0, 4.2, 2.001))
+  fn <- pr_table
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(x, d$value) && identical(substitute(x), quote(v)) && !anyNA(x) && all(base::is.finite(x)))
+      stop("allocated a finite mask for a complete console table column")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(f(d, n = NULL, width = 60))
+  expect_identical(draw(fn), draw(pr_table))
+  d$value[2L] <- Inf
+  expect_identical(draw(fn), draw(pr_table))
+})

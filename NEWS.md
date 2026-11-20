@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables keep complete finite numeric columns without creating row masks.
+
 * Variable inspection preserves the existing factor level vector when every level is present.
 
 * Numeric sparklines skip combined missing and finite masks for complete ordinary numeric columns.
