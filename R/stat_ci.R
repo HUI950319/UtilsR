@@ -154,6 +154,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     d   <- digits %||% parsed$digits
     valid <- parsed$valid
     .check_precision(d, est, lo, hi)
+    if (length(d) > 1L && min(d) == max(d)) d <- d[[1L]]
 
     # Warn about unparseable elements
     complete <- all(valid)

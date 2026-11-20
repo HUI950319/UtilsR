@@ -347,3 +347,15 @@ test_that("complete interval formatting avoids scanning an empty invalid subset"
   expect_warning(out <- fn(c(x, "text", NA_character_, " ")), "1 element")
   expect_identical(unname(out[3:5]), c("text", NA_character_, " "))
 })
+
+test_that("character confidence intervals use scalar uniform precision", {
+  x <- rep(c("0.10 (0.01, 0.20)", "0.12 (0.08, 0.27)"), 550L)
+  expected <- stat_ci(x)
+  f <- stat_ci
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(args)) && identical(substitute(i), quote(varying)) &&
+        length(i) > 3L) stop("grouped a repeated CI precision column")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(x), expected)
+})
