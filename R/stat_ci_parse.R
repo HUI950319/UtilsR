@@ -252,8 +252,12 @@ stat_ci_parse <- function(x,
         !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |
         !is.finite(e_s + ifelse(asym, (h_s - e_s) * ratio, z_new * se))
     }
-    rescale <- valid & !is_exp & unstable & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
-    if (any(rescale)) {
+    rescale <- which(valid & !is_exp & unstable)
+    if (length(rescale)) {
+      finite <- is.finite(e_s[rescale]) & is.finite(l_s[rescale]) & is.finite(h_s[rescale])
+      rescale <- rescale[finite]
+    }
+    if (length(rescale)) {
       work_scale <- rep(1, length(est))
       work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
       e_s[rescale] <- e_s[rescale] / work_scale[rescale]

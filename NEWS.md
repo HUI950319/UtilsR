@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI inference inspects finite endpoints only for candidate rows requiring numerical rescaling.
+
 * Stacked distributions use a share of one when each axis and facet group has exactly one segment.
 
 * Continuous comparison validation uses the existing ordinary unclassed group keys when they contain no missing values.

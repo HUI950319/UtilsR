@@ -1242,3 +1242,18 @@ test_that("routine linear interval scoring checks only instability candidates", 
   args <- list(x, lo, hi, matrix(.005, length(x), 3L), FALSE, !is.na(x))
   expect_identical(do.call(fn, args), do.call(.ci_scale, args))
 })
+
+test_that("linear CI rescaling checks only candidate rows", {
+  v <- c("2.3 (1.3, 3.3)", "3.1 (2.5, 3.7)", "-1.1 (-2.1, -0.1)")
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(e_s)) && length(x) == length(v))
+      stop("scanned every confidence interval for rescaling finiteness")
+    base::is.finite(x)
+  }), parent = environment(f))
+  expect_identical(f(v, output = "p", exp = FALSE),
+                   stat_ci_parse(v, output = "p", exp = FALSE))
+  extreme <- c(v, "5e307 (-1.1e308, 1.7e308)")
+  expect_identical(suppressWarnings(f(extreme, output = "p", exp = FALSE)),
+                   suppressWarnings(stat_ci_parse(extreme, output = "p", exp = FALSE)))
+})
