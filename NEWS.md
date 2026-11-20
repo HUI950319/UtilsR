@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric scatter group conversion only constructs a replacement level index when one of the level labels is missing.
+
 * Paired scatter histograms retain the original difference vector when every value is visible.
 
 * UpSet data output retains all declared region levels and skips count sorting when no rows belong to any combination.

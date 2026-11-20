@@ -2021,3 +2021,16 @@ test_that("complete in-window scatter differences avoid an extra histogram slice
   expect_s3_class(fn(d, test_method = "none", cor_method = "none",
     show_refline = FALSE, hist_bins = 3L, hist_x_limits = c(-1, 1)), "patchwork")
 })
+
+test_that("numeric scatter groups keep the complete level label sequence", {
+  x <- c(a = 1.1, b = 3.8, c = NA_real_, d = 2.6)
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(level_labels)) && is.logical(i) && all(i))
+      stop("rebuilt numeric scatter labels with no omitted levels")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  for (v in list(c(3.8, 1.1, 2.6), c(3.8, NA_real_, 2.6))) {
+    expect_identical(fn(x, levels = v), .scatter_group_factor(x, levels = v))
+  }
+})

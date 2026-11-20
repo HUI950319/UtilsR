@@ -583,10 +583,13 @@ PlotScatter1 <- function(
     level_labels <- if (default_levels) labels else labels[length(observed) + seq_along(levels)]
     if (!anyDuplicated(level_labels)) {
       codes <- match(value, levels)
-      kept <- !is.na(level_labels)
-      if (!all(kept)) codes <- match(codes, which(kept))
+      if (anyNA(level_labels)) {
+        kept <- !is.na(level_labels)
+        codes <- match(codes, which(kept))
+        level_labels <- level_labels[kept]
+      }
       names(codes) <- names(value)
-      return(structure(codes, levels = level_labels[kept], class = "factor"))
+      return(structure(codes, levels = level_labels, class = "factor"))
     }
   }
   if (inherits(value, "haven_labelled_spss")) value <- .scatter_axis_values(value)
