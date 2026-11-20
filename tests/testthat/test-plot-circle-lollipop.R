@@ -1583,3 +1583,16 @@ test_that("circular numeric scores check infinity with scalar extrema", {
   d$value[] <- NA_real_
   expect_error(draw(f), "at least one finite score")
 })
+
+test_that("circular distinct ordinary groups avoid duplicate masks", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("z", "a", "q", "d"), name = letters[1:4], value = c(1, 6, 3, 7))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(group_ids))) stop("built a duplicate mask for distinct circular groups")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  run <- function(f) suppressMessages(f(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+  expect_identical(run(fn), run(PlotCircleLollipop))
+})

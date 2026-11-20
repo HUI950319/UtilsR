@@ -246,8 +246,10 @@ PlotCircleLollipop <- function(
   duration_groups <- inherits(group_input, "Duration")
   if (!is.object(group_input) && is.null(dim(group_input)) &&
       (is.character(group_input) || is.numeric(group_input) || is.logical(group_input))) {
-    group_ids <- as.integer(vctrs::vec_group_id(group_input))
-    group_values <- group_input[!duplicated(group_ids)]
+    ids <- vctrs::vec_group_id(group_input)
+    group_ids <- as.integer(ids)
+    group_values <- if (attr(ids, "n") == length(group_input)) group_input else
+      group_input[!duplicated(group_ids)]
     group_keys <- group_values
   } else {
     group_values <- vctrs::vec_unique(group_input)
