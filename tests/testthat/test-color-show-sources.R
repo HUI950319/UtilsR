@@ -3067,7 +3067,7 @@ test_that("repeated palette keys keep their lookup when scaling stays distinct",
     base::match(x, table, ...)
   }
   environment(fn) <- env
-  expected <- list(placed = rep(TRUE, length(x)), at = c(1, .5, 0),
+  expected <- list(n = length(x), placed = NULL, at = c(1, .5, 0),
     index = rep(1:3, 600L))
   expect_identical(fn(x, TRUE), expected)
   tied <- rep(c(1e-100, 2e-100, 1e100), 600L)
@@ -3325,4 +3325,21 @@ test_that("fully named palette previews reuse their label vector", {
   expect_identical(f(cols, max_colors = 10L)$data, .pal_show_colors(cols, max_colors = 10L)$data)
   names(cols)[2L] <- " "
   expect_identical(f(cols, max_colors = 10L)$data, .pal_show_colors(cols, max_colors = 10L)$data)
+})
+
+test_that("finite numeric palettes avoid allocating placement masks", {
+  x <- seq(-2, 5, length.out = 2500L)
+  fn <- .pal_numeric_positions
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(values)) && length(x) == 2500L)
+      stop("allocated a mask for complete palette input")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  cols <- c("#FF000080", "white", "blue")
+  expect_identical(.pal_apply_positions(cols, fn(x, FALSE), 0.7),
+    pal_get(cols, x = x, alpha = 0.7))
+  for (values in list(c(Inf, NA, 6, 8), numeric(), rep(2, 100L))) {
+    expect_identical(.pal_apply_positions(cols, fn(values, TRUE), 1),
+      pal_get(cols, x = values, reverse = TRUE))
+  }
 })

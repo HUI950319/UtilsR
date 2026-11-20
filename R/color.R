@@ -561,17 +561,15 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         if (length(unique_x) < length(x) / 2) {
           positions <- match(x, unique_x)
           mapping <- .pal_numeric_positions(unique_x, reverse)
-          complete <- all(mapping$placed)
           return(lapply(palette, function(cols) {
-            .pal_apply_positions(cols, mapping, alpha, size = length(x), complete = complete)[positions]
+            .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
           }))
         }
       }
     }
     if (length(palette) > 1L && is.numeric(x)) {
       mapping <- .pal_numeric_positions(x, reverse)
-      complete <- all(mapping$placed)
-      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha, complete = complete))
+      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
     }
     levels <- if (!is.null(x) && !is.numeric(x)) .pal_discrete_levels(x) else NULL
     return(lapply(palette, .pal_apply,
@@ -670,16 +668,19 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_numeric_positions <- function(x, reverse) {
   values <- .pal_numeric_values(x)
-  placed <- is.finite(values)
-  if (!all(placed)) values <- values[placed]
-  if (!length(values)) {
-    return(list(placed = placed, at = numeric(), index = NULL))
-  }
-
+  n <- length(values)
+  if (!n) return(list(n = n, placed = NULL, at = numeric(), index = NULL))
   ends <- c(min(values), max(values))
+  placed <- NULL
+  if (!all(is.finite(ends))) {
+    placed <- is.finite(values)
+    values <- values[placed]
+    if (!length(values)) return(list(n = n, placed = placed, at = numeric(), index = NULL))
+    ends <- c(min(values), max(values))
+  }
   if (ends[[1L]] == ends[[2L]]) {
     # A single midpoint colour recycles across the finite positions.
-    return(list(placed = placed, at = 0.5, index = NULL))
+    return(list(n = n, placed = placed, at = 0.5, index = NULL))
   }
   lookup <- NULL
   if (.pal_use_unique(values)) {
@@ -707,18 +708,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       at <- unique_at
     }
   }
-  list(placed = placed, at = at, index = index)
+  list(n = n, placed = placed, at = at, index = index)
 }
 
 #' @keywords internal
 #' @noRd
-.pal_apply_positions <- function(cols, mapping, alpha, size = length(mapping$placed),
-                                 complete = all(mapping$placed)) {
-  n <- length(mapping$placed)
+.pal_apply_positions <- function(cols, mapping, alpha, size = mapping$n) {
+  n <- mapping$n
   if (!length(mapping$at)) return(rep(NA_character_, n))
   colours <- .pal_ramp(cols, mapping$at, alpha, size)
   if (!is.null(mapping$index)) colours <- colours[mapping$index]
-  if (complete) return(if (length(colours) == n) colours else rep_len(colours, n))
+  if (is.null(mapping$placed)) return(if (length(colours) == n) colours else rep_len(colours, n))
   out <- rep(NA_character_, n)
   out[mapping$placed] <- colours
   out
@@ -734,7 +734,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (length(cols) == 1L) {
       placed <- is.finite(.pal_numeric_values(x))
       at <- if (any(placed)) 0 else numeric()
-      return(.pal_apply_positions(cols, list(placed = placed, at = at, index = NULL), alpha))
+      return(.pal_apply_positions(cols, list(n = length(placed), placed = placed, at = at, index = NULL), alpha))
     }
     return(.pal_apply_positions(cols, .pal_numeric_positions(x, reverse), alpha))
   }
