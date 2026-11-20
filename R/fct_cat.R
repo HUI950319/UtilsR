@@ -412,8 +412,7 @@ fct_cat <- function(x, ...,
   }
   if (!length(x)) return(integer())
   if (!is.object(x)) {
-    bounds <- range(x)
-    if (bounds[1L] >= 1 && bounds[2L] <= n_levels) return(as.integer(x))
+    if (min(x) >= 1 && max(x) <= n_levels) return(as.integer(x))
   }
   oob <- x < 1 | x > n_levels
   if (any(oob)) {

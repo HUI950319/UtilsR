@@ -1017,3 +1017,13 @@ test_that("positional factor reordering appends other levels by their index", {
   expect_identical(levels(fn(x, 4L, 2L)), c("C", NA_character_, "B", ""))
   expect_error(fn(x, 1L, 1L), "duplicated")
 })
+
+test_that("factor index bounds use scalar extrema", {
+  fn <- .check_integer_index
+  environment(fn) <- list2env(list(range = function(...) stop("rebuilt a range for valid factor positions")),
+                             parent = environment(fn))
+  expect_identical(fn(c(1, 4, 3), "positions", 4L), c(1L, 4L, 3L))
+  expect_identical(fn(integer(), "positions", 4L), integer())
+  expect_error(fn(c(1L, 8L), "positions", 4L), "must be between")
+  expect_error(fn(c(1, Inf), "positions", 4L), "finite integer")
+})

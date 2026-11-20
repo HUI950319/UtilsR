@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor level index checks reuse scalar bounds for plain validated positions.
+
 * Numeric frequency listings use unit counts when each numeric value is distinct.
 
 * Variable inspection uses complete strictly increasing numeric columns without building another unique and sorted copy.
