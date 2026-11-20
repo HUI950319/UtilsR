@@ -561,7 +561,7 @@ PlotScatter1 <- function(
     ids <- vctrs::vec_group_id(value)
     codes <- as.integer(ids)
     names(codes) <- names(value)
-    labels <- as.character(value[!duplicated(ids)])
+    labels <- as.character(if (attr(ids, "n") == length(value)) value else value[!duplicated(ids)])
     return(structure(codes, levels = labels, class = "factor"))
   }
   if (!is.object(value) && !is.object(levels) &&

@@ -1985,3 +1985,14 @@ test_that("scatter marginal annotations skip filtering complete axes", {
   }
   expect_identical(draw(fn), draw(PlotScatter2))
 })
+
+test_that("unique inferred scatter groups retain their original value sequence", {
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(ids))) stop("built duplicate masks for unique scatter groups")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  for (x in list(c(c = "c", b = "b", a = "a"), c(z = 40L, y = 10L, x = -3L), c(TRUE, FALSE))) {
+    expect_identical(fn(x), factor(x, levels = unique(x)))
+  }
+})
