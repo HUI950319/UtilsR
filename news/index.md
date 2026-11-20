@@ -2,6 +2,308 @@
 
 ## UtilsR 0.6.23
 
+- Sankey diagrams assign caption codes directly when every caption is
+  distinct.
+
+- Rank-correlation scaling shares the completeness result with centering
+  and avoids masks on complete ordinary scores.
+
+- Object size reports format byte, KB, MB and GB labels with one call
+  using the same thresholds.
+
+- Axis formatting validates ordinary integer plot selections without
+  allocating whole-number comparison vectors.
+
+- Model notices identify ordinary logical and binary integer outcomes
+  without enumerating their observed values.
+
+- UpSet data output fills wholly observed sets directly without
+  initializing and replacing their entire membership vector.
+
+- Patchwork flattening avoids recursively wrapping every element of an
+  already flat unnamed graphics list.
+
+- Layer rasterization returns the original plot or container when no
+  layers required rasterizing.
+
+- Categorical axes reuse complete factor vectors when their only
+  attributes are the supported factor metadata.
+
+- Distribution labels skip constructing a visible-row index at a zero
+  threshold.
+
+- P-value star annotation uses interval search for ordinary numeric AsIs
+  storage and preserves names and missing values.
+
+- Reference lines reuse the prepared data and mappings for ordinary Date
+  coordinates while retaining separate layer objects.
+
+- P-value star formatting compares one copy of repeated threshold text
+  while retaining the exact decimal boundary.
+
+- System checks reject ambiguous memory reports containing duplicate
+  free column headings.
+
+- Object size reports avoid rebuilding a data frame whose rows are
+  already in size order.
+
+- Factor group naming starts from the requested positions when the
+  entire group list is unnamed.
+
+- Factor combination encoding keeps its existing value dictionary when
+  ordinary values are already in display order.
+
+- Factor combination ordering reuses the original code columns for fully
+  distinct observation tuples.
+
+- Confidence interval releveling writes adjusted linear endpoints
+  without selecting a logarithmic branch when every row is valid and
+  linear.
+
+- Confidence interval standard error calculation checks and rescales
+  finite endpoints only where the initial calculation overflows.
+
+- CI P-value inference avoids a full conditional result vector and still
+  maps zero estimates to a zero standard score.
+
+- CI inference inspects finite endpoints only for candidate rows
+  requiring numerical rescaling.
+
+- Stacked distributions use a share of one when each axis and facet
+  group has exactly one segment.
+
+- Continuous comparison validation uses the existing ordinary unclassed
+  group keys when they contain no missing values.
+
+- Continuous pairwise ANOVA checks ordinary complete outcomes without
+  constructing a distinct-value vector.
+
+- Pairwise comparisons use observed factor codes without looking up
+  every unused factor level.
+
+- Stacked rose labels use grouped integer counts directly for their
+  outer radius.
+
+- Distribution plots avoid hashing typed category keys twice when
+  choosing representative display values.
+
+- P-value star annotation supports expression vectors without evaluating
+  the expressions and retains missing elements.
+
+- Fully named swatch palettes use the supplied label vector without
+  replacing every generated HEX label.
+
+- Alpha adjustment only replaces the literal transparent colour when it
+  is present.
+
+- Character confidence intervals use a scalar precision value when all
+  parsed rows share it.
+
+- Textual P-value checks reuse complete unbounded values without
+  gathering a full index vector.
+
+- P-value parsing substitutes textual missing markers only when they
+  occur.
+
+- P-value validation uses scalar extrema for ordinary numeric vectors
+  and keeps class-specific missingness handling.
+
+- Reference lines avoid private style columns when facets look up their
+  column names dynamically.
+
+- Boxplot overlays find explicit bare column symbols in layer data while
+  preserving mappings to caller values.
+
+- Boxplot overlays recognize named identity-stat and orientation
+  selections when finding precomputed summaries.
+
+- Behind-panel insets only inspect tie order when an overlapping
+  background may matter or a finite offset is unavailable.
+
+- Grob panel bounds use the existing layout columns directly when every
+  layout row belongs to the panel area.
+
+- Grob coordinate validation checks finite simple units directly and
+  retains recursion for compound units.
+
+- Rasterization detects base grid text grobs by type before checking
+  fallback text and label names.
+
+- Panel size resolution avoids duplicate masks and remapping for
+  distinct multi-cell spans.
+
+- Panel rasterization retains planned child tables when every nested
+  table contains panels.
+
+- Panel rasterization reuses the existing child list when already in
+  draw order and only filters empty grobs when present.
+
+- Discrete palette mapping reuses deduplicated ordinary character labels
+  without a second uniqueness scan.
+
+- Equal-size named and positional palette requests keep the original
+  stops before alpha adjustment.
+
+- Palette plots and console swatches share the channel transform and
+  evaluate it only for the applicable values.
+
+- Console swatches group shared composited backgrounds in one key lookup
+  while retaining all HEX labels.
+
+- Console colour previews reuse opaque RGB bytes and composite only
+  translucent swatches.
+
+- Console swatches check validity on distinct colours and expand masks
+  only for an error report.
+
+- Missingness plots keep display keys directly when mapped labels are
+  unique.
+
+- Dumbbell integer differences use scalar endpoint extrema to check
+  whether subtraction can overflow.
+
+- KNN reuses the ordinary double column extrema from validation when
+  preparing backend distance calculations.
+
+- Percentage-only missingness plots collect numeric counts directly
+  without an intermediate list.
+
+- UpSet membership uses direct integer conversion for complete ordinary
+  integers matched against integer64 values.
+
+- UpSet membership coding combines a full set with the existing code
+  vector in one operation.
+
+- Alluvial character categories reuse their original level order when
+  every value is unique.
+
+- Alluvial data preparation keeps existing category and facet rows when
+  each combination occurs once.
+
+- Factor recoding avoids compressing the new level IDs when all output
+  levels occur.
+
+- Binary factor recoding reuses its sparse level tally when collapsing
+  reference and other categories.
+
+- Scatter marginal annotations reuse complete coordinate ranges and
+  preserve the fallback for nonfinite observations.
+
+- Circular lollipop score validation uses scalar bounds and skips
+  complete-column row masks.
+
+- Circular lollipop scaling takes the bounds of complete normalized
+  group scores directly.
+
+- Circular lollipop plots build collision masks only when display labels
+  collide.
+
+- Sparse Jaccard similarities use one grouping of encoded pair keys and
+  retain unit counts for one-off pairs.
+
+- Dumbbell axes keep factor codes when all levels occur in their
+  existing order.
+
+- Plot summaries use the length of complete integer64 vectors when
+  calculating means.
+
+- Console tables keep complete finite numeric columns without creating
+  row masks.
+
+- Variable inspection preserves the existing factor level vector when
+  every level is present.
+
+- Numeric sparklines skip combined missing and finite masks for complete
+  ordinary numeric columns.
+
+- Automatic factor binning calculates extrema directly once the numeric
+  storage has been normalized.
+
+- Factor level index checks reuse scalar bounds for plain validated
+  positions.
+
+- Numeric frequency listings use unit counts when each numeric value is
+  distinct.
+
+- Variable inspection uses complete strictly increasing numeric columns
+  without building another unique and sorted copy.
+
+- Variable inspection avoids a full finite-value mask when standard
+  deviations need no extreme-value correction.
+
+- Data quality summaries order full column counts without first copying
+  all columns.
+
+- Group-scaled rank plots use the extrema of cleaned ordinary score
+  vectors.
+
+- Single-stratum point sampling keeps the already complete split list.
+
+- Point sampling recognizes base get calls that reference external
+  observation vectors and retains data-column lookups.
+
+- Point sampling uses the sorted distinct numeric strata directly when
+  no missing group codes are present.
+
+- Rank correlation centering reuses the complete score vector when every
+  score is finite.
+
+- Numeric palettes obtain finite position bounds directly from their
+  extrema.
+
+- Factor tallies keep the complete count vector when every declared
+  level occurs.
+
+- Sparse categorical tables reuse unique paired factor codes and their
+  unit counts.
+
+- KNN uses scalar extrema to validate ordinary numeric columns with no
+  infinite observations.
+
+- Continuous bar limits reuse the extrema of complete outcomes when
+  combining intervals.
+
+- Continuous pairwise t tests avoid concatenating two complete samples
+  when checking their numeric scale.
+
+- Continuous ANOVA and shared y-axis limits use scalar extrema for
+  complete outcomes.
+
+- Shared continuous y-axis limits reuse complete finite columns and
+  their matching group rows.
+
+- Continuous zero-variance interval calculation skips the full equality
+  vector for ordinary constant samples.
+
+- Continuous bar limit calculation keeps the original split list when
+  all declared factor groups are observed.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  collects both per-column metrics in one typed pass and reuses their
+  positions.
+
+- Significance map validation checks minimum and maximum thresholds
+  without copying the map to calculate a range.
+
+- Decimal P-value formatting removes duplicate significance thresholds
+  only when they occur.
+
+- CI scaling checks raw endpoint finiteness on the candidate intervals
+  that require numerical rescaling.
+
+- Interval parsers count decimal digits on dotted mantissas while
+  retaining the precision of scientific notation.
+
+- `stat_ci_parse(output = "ci_star")` directly returns styled interval
+  labels when all rows are valid.
+
+- Complete `stat_ci_parse(output = "ci_p")` results use the computed
+  intervals and probabilities directly.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  reuses the same complete-row check through interval formatting and
+  probability output.
+
 - [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
   uses a compact lookup for dense stage levels and preserves explicit NA
   levels separately from missing observations.
