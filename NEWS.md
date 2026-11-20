@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution formatting builds collision masks and precise decimal labels only when labelled thresholds can collide.
+
 * Sparse categorical tables build row masks only for factor columns that contain missing codes.
 
 * Axis tiles and text labels retain their complete color vectors without an empty replacement.

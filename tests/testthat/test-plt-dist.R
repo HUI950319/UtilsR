@@ -1102,3 +1102,15 @@ test_that("distribution palettes keep complete factor level dictionaries", {
   expect_identical(fn(d, c("x", "g"), color = color)$data,
     plt_dist(d, c("x", "g"), color = color)$data)
 })
+
+test_that("unambiguous labelled distribution categories avoid duplicate masks", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(c("A", "B"), 6L),
+    g = haven::labelled(rep(c(0.1, 1.4, 3.9), 4L), labels = c(Low = 0.1)))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(keys))) stop("computed labelled category collisions with distinct decimals")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, c("x", "g"))$data, plt_dist(d, c("x", "g"))$data)
+})

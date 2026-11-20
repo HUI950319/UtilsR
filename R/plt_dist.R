@@ -411,9 +411,11 @@ plt_dist <- function(data,
       labels <- labels[!is.na(labels)]
       unlabelled <- sort(setdiff(unique(raw), unname(labels)))
       keys <- as.character(c(labels, unlabelled))
-      display <- as.character(unlabelled)
-      collision <- tail(duplicated(keys) | duplicated(keys, fromLast = TRUE), length(unlabelled))
+      collision <- if (anyDuplicated(keys)) {
+        tail(duplicated(keys) | duplicated(keys, fromLast = TRUE), length(unlabelled))
+      }
       if (any(collision)) {
+        display <- as.character(unlabelled)
         display[collision] <- sprintf("%.17g", unlabelled[collision])
         values <- c(labels, stats::setNames(unlabelled, display))
         values <- values[order(values)]
