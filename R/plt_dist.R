@@ -565,9 +565,10 @@ plt_dist <- function(data,
     label_text <- NULL
     if (label_args$style != "none") {
       proportions <- plotdata[[prop_name]]
-      visible <- which(proportions >= label_args$min_pct)
-      if (length(visible)) {
-        complete <- length(visible) == nrow(plotdata)
+      complete <- label_args$min_pct == 0
+      visible <- if (!complete) which(proportions >= label_args$min_pct)
+      if (complete || length(visible)) {
+        complete <- complete || length(visible) == nrow(plotdata)
         if (label_args$style != "percent") {
           counts <- scales::comma(if (complete) counts else counts[visible], accuracy = 1)
         }

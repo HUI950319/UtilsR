@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution labels skip constructing a visible-row index at a zero threshold.
+
 * P-value star annotation uses interval search for ordinary numeric AsIs storage and preserves names and missing values.
 
 * Reference lines reuse the prepared data and mappings for ordinary Date coordinates while retaining separate layer objects.

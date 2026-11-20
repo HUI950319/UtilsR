@@ -1075,3 +1075,16 @@ test_that("single-segment distributions do not pool group totals", {
   expect_identical(draw(f), draw(plt_dist))
   expect_identical(draw(f)$prop, rep(1, 6L))
 })
+
+test_that("zero threshold distribution labels reuse all stack rows", {
+  d <- data.frame(x = c("a", "a", "b", "b", "a"), z = c("X", "Y", "X", "Y", "Y"))
+  f <- plt_dist
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(proportions >= label_args$min_pct)) && all(x))
+      stop("collected every visible distribution label index")
+    base::which(x, ...)
+  }), parent = environment(f))
+  draw <- function(fn) suppressMessages(fn(d, c("x", "z"), type = "bar",
+                                         label_args = list(min_pct = 0)))$data
+  expect_identical(draw(f), draw(plt_dist))
+})
