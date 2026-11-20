@@ -1405,3 +1405,16 @@ test_that("alluvial distinct category and facet pairs skip duplicate row filters
   d <- rbind(d, d[1L, ])
   expect_identical(draw(fn), draw(plt_alluvial))
 })
+
+test_that("alluvial all-distinct text columns keep their level vectors", {
+  d <- data.frame(cat = c("b", "a", "c", "d"), g = rep(c("x", "y"), 2L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(codes)) && length(x) == attr(x, "n"))
+      stop("built duplicate flags for unique alluvial text values")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, "cat", "g"))$data
+  expect_identical(draw(fn), draw(plt_alluvial))
+  expect_identical(levels(draw(fn)$.cat_var), d$cat)
+})

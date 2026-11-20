@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial character categories reuse their original level order when every value is unique.
+
 * Alluvial data preparation keeps existing category and facet rows when each combination occurs once.
 
 * Factor recoding avoids compressing the new level IDs when all output levels occur.

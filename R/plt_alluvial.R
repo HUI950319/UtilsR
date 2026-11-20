@@ -457,7 +457,8 @@ plt_alluvial <- function(
     }
     if (is.character(value) && !is.object(value)) {
       codes <- vctrs::vec_group_id(value)
-      return(structure(as.integer(codes), levels = unname(value[!duplicated(codes)]), class = "factor"))
+      value_levels <- if (attr(codes, "n") == length(value)) value else value[!duplicated(codes)]
+      return(structure(as.integer(codes), levels = unname(value_levels), class = "factor"))
     }
     value_chr <- as.character(value)
     if (is.factor(value)) {
