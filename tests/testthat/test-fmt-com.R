@@ -935,3 +935,16 @@ test_that("ordinary paired IDs reuse first occurrence group codes", {
     method.args = list(paired = TRUE, id = "id")))$data
   expect_identical(run(fn), run(fmt_com))
 })
+
+test_that("equal paired comparison counts skip deduplicating group sizes", {
+  d <- data.frame(g = rep(c("A", "B"), each = 4L), y = c(1, 3, 4, 7, 2, 6, 5, 10))
+  make <- function(d) ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_boxplot()
+  fn <- fmt_com
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(n[n > 0L]))) stop("collected distinct counts for equal paired groups")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  run <- function(f, d) ggplot2::ggplot_build(f(make(d), method = "t.test", method.args = list(paired = TRUE)))$data
+  expect_identical(run(fn, d), run(fmt_com, d))
+  expect_error(run(fn, d[-1L, ]), "unequal original sizes")
+})

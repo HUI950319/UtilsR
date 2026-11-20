@@ -4701,7 +4701,8 @@ fmt_com <- function(plot,
             sizes <- n[match(pair, names(n))]
             all(!is.na(sizes) & sizes > 0L) && sizes[1L] != sizes[2L]
           }, logical(1))))
-          length(unique(n[n > 0L])) > 1L
+          observed <- n[n > 0L]
+          length(observed) > 1L && min(observed) != max(observed)
         }, logical(1))
         if (any(unequal)) cli::cli_abort("Paired groups have unequal original sizes; supply method.args$id.")
         comparison_codes <- as.integer(factor(comparison_values))
