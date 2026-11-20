@@ -3387,3 +3387,16 @@ test_that("uniform luminance branches skip per-swatch cutoff masks", {
   for (x in list(rep(c(0, 0.03), 200L), seq(0.25, 0.8, length.out = 400L),
                  c(0, 0.8), numeric())) expect_identical(fn(x), .pal_linear_channel(x))
 })
+
+test_that("single stop palettes skip complete placement masks", {
+  cols <- "#11779980"
+  fn <- .pal_apply
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (length(x) == 1500L) stop("created complete placement flags for a single color")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  x <- seq(-1, 1, length.out = 1500L)
+  expect_identical(fn(cols, x = x, alpha = .9), pal_get(cols, x = x, alpha = .9))
+  expect_identical(fn(cols, x = c(-1, 0, NA, Inf), reverse = TRUE),
+    pal_get(cols, x = c(-1, 0, NA, Inf), reverse = TRUE))
+})
