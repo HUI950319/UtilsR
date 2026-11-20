@@ -1244,3 +1244,18 @@ test_that("boxplot source lookup accepts named identity and orientation selector
     expect_equal(as.numeric(built[[median]]), expected$mid)
   }
 })
+
+test_that("bare boxplot column mappings select their data layer", {
+  d1 <- data.frame(g = rep(c("A", "B"), each = 5L), r = 1:10)
+  d2 <- data.frame(g = d1$g, measurement = 11:20)
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_point(ggplot2::aes(g, r), data = d1) +
+    ggplot2::geom_point(ggplot2::aes(g, measurement), data = d2)
+  out <- fmt_boxplot(p, list(mapping = ggplot2::aes(y = measurement)), inherit.aes = FALSE)
+  expect_identical(out$layers[[3L]]$data, d2)
+  expect_equal(ggplot2::layer_data(out, 3L)$middle, c(13, 18))
+  external <- seq(21, 30)
+  out <- fmt_boxplot(p, list(mapping = ggplot2::aes(y = external)), inherit.aes = FALSE)
+  expect_identical(out$layers[[3L]]$data, d1)
+  expect_equal(ggplot2::layer_data(out, 3L)$middle, c(23, 28))
+})

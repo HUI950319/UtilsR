@@ -6172,11 +6172,16 @@ fmt_boxplot <- function(plot,
     if (resolve_source) {
       resolved <- NULL
       requested_columns <- character()
+      layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
+        "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
       if (is.null(args[["data"]])) {
+        source_names <- unique(c(names(p$data), unlist(lapply(layers, function(layer) {
+          if (is.data.frame(layer$data)) names(layer$data)
+        }), use.names = FALSE)))
         for (axis in intersect(positions, names(mapping))) {
           expr <- rlang::get_expr(mapping[[axis]])
           column <- if (is.symbol(expr)) {
-            intersect(as.character(expr), names(p$data))
+            intersect(as.character(expr), source_names)
           } else if (is.call(expr) && length(expr) == 3L && identical(expr[[2L]], quote(.data))) {
             if (identical(expr[[1L]], quote(`[[`)) && is.character(expr[[3L]])) expr[[3L]] else
               if (identical(expr[[1L]], quote(`$`)) && is.symbol(expr[[3L]])) as.character(expr[[3L]])
@@ -6184,8 +6189,6 @@ fmt_boxplot <- function(plot,
           requested_columns <- c(requested_columns, column)
         }
       }
-      layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
-        "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
       blank <- vapply(layers, function(layer) inherits(layer$geom, "GeomBlank"), logical(1))
       parent_used <- !length(layers) || any(vapply(layers[!blank], function(layer) {
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
