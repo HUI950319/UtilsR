@@ -1176,3 +1176,17 @@ test_that("point sampling retains all rows directly when every stratum fits", {
   d[["group"]][1:4] <- "a"
   expect_identical(fn(d, map, 3L, 11L), .fmt_point_sample(d, map, 3L, 11L))
 })
+
+test_that("complete numeric point sampling strata keep their sorted distinct order", {
+  d <- data.frame(x = seq_len(30L), y = 31:60, g = rep(c(1, -1, 0, Inf, -Inf), 6L))
+  mapping <- ggplot2::aes(x, y, group = g)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(as.factor = function(x) {
+    if (is.double(x) && length(x) == 5L && !anyNA(x)) stop("refactored sorted complete numeric strata")
+    base::as.factor(x)
+  }), parent = environment(fn))
+  draw <- function(f) f(d, mapping, sample_n = 2L, seed = 917L)
+  expect_identical(draw(fn), draw(.fmt_point_sample))
+  d$g[1:2] <- c(NA_real_, NaN)
+  expect_identical(draw(fn), draw(.fmt_point_sample))
+})
