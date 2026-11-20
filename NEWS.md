@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness plots keep display keys directly when mapped labels are unique.
+
 * Dumbbell integer differences use scalar endpoint extrema to check whether subtraction can overflow.
 
 * KNN reuses the ordinary double column extrema from validation when preparing backend distance calculations.

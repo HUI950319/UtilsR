@@ -173,7 +173,7 @@ plt_na <- function(
   ordering <- order(counts, decreasing = sort == "desc")
   ordered_names <- names(counts)[ordering]
   display_labels <- map_name(ordered_names)
-  variable_levels <- make.unique(display_labels)
+  variable_levels <- if (anyDuplicated(display_labels)) make.unique(display_labels) else display_labels
   names(display_labels) <- variable_levels
   variable_keys <- stats::setNames(variable_levels, ordered_names)
 

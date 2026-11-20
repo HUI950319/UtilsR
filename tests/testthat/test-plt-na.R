@@ -650,3 +650,15 @@ test_that("missing percentage plots collect column counts without a result list"
   draw <- function(f) suppressMessages(f(d, output = "percentage"))
   expect_identical(draw(fn)$data, draw(plt_na)$data)
 })
+
+test_that("noncolliding missing labels keep their original keys", {
+  d <- data.frame(a = c(NA, 2, 3, NA), b = c(1, NA, 3, 4))
+  fn <- plt_na
+  environment(fn) <- list2env(list(make.unique = function(names, ...) {
+    if (!anyDuplicated(names)) stop("disambiguated distinct missingness labels")
+    base::make.unique(names, ...)
+  }), parent = environment(fn))
+  draw <- function(f, keys) suppressMessages(f(d, name.map = keys, output = "percentage"))$data
+  expect_identical(draw(fn, c(a = "x", b = "y")), draw(plt_na, c(a = "x", b = "y")))
+  expect_identical(draw(fn, c(a = "same", b = "same")), draw(plt_na, c(a = "same", b = "same")))
+})
