@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous pairwise ANOVA checks ordinary complete outcomes without constructing a distinct-value vector.
+
 * Pairwise comparisons use observed factor codes without looking up every unused factor level.
 
 * Stacked rose labels use grouped integer counts directly for their outer radius.

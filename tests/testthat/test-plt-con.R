@@ -2567,3 +2567,16 @@ test_that("sparse continuous comparison data uses the existing level tally", {
   expect_identical(result$p, draw(.con_comparisons)$p)
   expect_equal(result$p[[1L]], stats::t.test(x[1:5], x[6:10])$p.value)
 })
+
+test_that("complete pairwise ANOVA outcomes skip the distinct-value scan", {
+  gen <- .con_pairwise_test
+  environment(gen) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(dat[["value"]]))) stop("collected distinct pairwise ANOVA outcomes")
+    base::unique(x, ...)
+  }), parent = environment(gen))
+  f <- gen("anova")
+  expect_identical(f(c(1, 3, 4), c(2, 5, 9)), .con_pairwise_test("anova")(c(1, 3, 4), c(2, 5, 9)))
+  expect_error(f(rep(2, 4), rep(2, 4)), "constant")
+  expect_identical(f(c(1e200, 2e200, 4e200), c(5e200, 7e200, 8e200)),
+                   .con_pairwise_test("anova")(c(1e200, 2e200, 4e200), c(5e200, 7e200, 8e200)))
+})
