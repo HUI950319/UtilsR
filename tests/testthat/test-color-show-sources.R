@@ -3366,3 +3366,13 @@ test_that("valid palette colors need no per entry success flags", {
   expect_identical(fn(list(one = cols, two = rev(cols))), pal_get(list(one = cols, two = rev(cols))))
   expect_error(fn(c("red", "not-a-colour", "blue")), "not-a-colour")
 })
+
+test_that("unnamed palette previews recycle an absent name flag", {
+  x <- c("tomato", "#AAFFFF", "navy")
+  fn <- .pal_show_colors
+  environment(fn) <- list2env(list(rep.int = function(x, times) {
+    if (identical(x, FALSE)) stop("allocated names flags for an unnamed palette preview")
+    base::rep.int(x, times)
+  }), parent = environment(fn))
+  expect_identical(fn(x, max_colors = 12L)$data, .pal_show_colors(x, max_colors = 12L)$data)
+})

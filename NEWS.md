@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews reuse one unnamed flag when every swatch lacks a name.
+
 * `stat_ci()` validates complete precision entries through their range before any exceptional byte-width checks.
 
 * Numeric `lv()` listings retain complete finite values and their extrema without an observation-length finiteness mask.

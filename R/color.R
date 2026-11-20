@@ -1966,7 +1966,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   rgba <- unname(grDevices::col2rgb(colors, alpha = TRUE))
   hex <- .pal_hex(colors, rgba)
 
-  has_name <- if (is.null(color_names)) rep.int(FALSE, n) else
+  has_name <- if (is.null(color_names)) FALSE else
     !is.na(color_names) & nzchar(trimws(color_names, whitespace = "[\\h\\v]"))
   named <- all(has_name)
   labels <- if (named) color_names else hex
