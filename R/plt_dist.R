@@ -553,8 +553,12 @@ plt_dist <- function(data,
     plotdata <- tibble::as_tibble(plotdata)
     group_id <- vctrs::vec_group_id(plotdata[c(x_var, facet)])
     counts <- plotdata[[count_name]]
-    totals <- unname(rowsum(as.double(counts), group_id, reorder = FALSE)[, 1L])
-    plotdata[[prop_name]] <- counts / totals[group_id]
+    plotdata[[prop_name]] <- if (attr(group_id, "n") == length(counts)) {
+      rep.int(1, length(counts))
+    } else {
+      totals <- unname(rowsum(as.double(counts), group_id, reorder = FALSE)[, 1L])
+      counts / totals[group_id]
+    }
 
     # Label text per `label_args$style`; segments below `min_pct` get NA
     # labels, which are dropped when drawn without changing the stacking.

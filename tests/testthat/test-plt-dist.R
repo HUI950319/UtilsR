@@ -1063,3 +1063,15 @@ test_that("typed distribution category keys retain their first observations", {
   d <- rbind(d, d[1:2, ])
   expect_identical(draw(f, d), draw(plt_dist, d))
 })
+
+test_that("single-segment distributions do not pool group totals", {
+  d <- data.frame(x = rep(c("a", "b", "c"), each = 4L),
+                  z = rep(c("X", "Y", "X"), each = 4L),
+                  facet = rep(rep(c("first", "second"), each = 2L), 3L))
+  f <- plt_dist
+  environment(f) <- list2env(list(rowsum = function(...) stop("pooled group totals for unique stack segments")),
+                             parent = environment(f))
+  draw <- function(fn) suppressMessages(fn(d, c("x", "z"), type = "bar", facet = "facet"))$data
+  expect_identical(draw(f), draw(plt_dist))
+  expect_identical(draw(f)$prop, rep(1, 6L))
+})
