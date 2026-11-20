@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence text formatting only rewrites values when rounding actually yields zero.
+
 * Confidence interval parsing checks finite test statistics only where the ordinary tail probability is zero.
 
 * `fmt_flatten()` validates integer selectors and their sign combinations without creating bounds masks.

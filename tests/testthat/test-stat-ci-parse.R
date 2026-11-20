@@ -1329,3 +1329,15 @@ test_that("confidence probability underflow recovery only checks zero candidates
   expect_identical(fn(extreme, exp = FALSE, output = "p"),
     stat_ci_parse(extreme, exp = FALSE, output = "p"))
 })
+
+test_that("nonzero interval values avoid empty signed zero replacement", {
+  d <- c("1.2 (0.4, 2.6)", "2.3 (0.4, 4.0)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(value, 0) && is.double(x) && !length(i))
+      stop("assigned zero to an empty interval selection")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(d), stat_ci_parse(d))
+  expect_identical(fn("-0.0001 (-2, 4)", digits = 2), "0.00 (-2.00, 4.00)")
+})

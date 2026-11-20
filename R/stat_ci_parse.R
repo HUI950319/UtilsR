@@ -323,7 +323,8 @@ stat_ci_parse <- function(x,
   }
   .format_once <- function(v, d) {
     v <- round(v, d)
-    v[which(v == 0)] <- 0             # -0 would print as "-0.00"
+    zero <- which(v == 0)
+    if (length(zero)) v[zero] <- 0    # -0 would print as "-0.00"
     if (any(d > 7881L)) {
       at <- which(is.finite(v) & d > 7881L)
       widths <- nchar(sprintf("%.0f", trunc(v[at])))
