@@ -2580,3 +2580,18 @@ test_that("complete pairwise ANOVA outcomes skip the distinct-value scan", {
   expect_identical(f(c(1e200, 2e200, 4e200), c(5e200, 7e200, 8e200)),
                    .con_pairwise_test("anova")(c(1e200, 2e200, 4e200), c(5e200, 7e200, 8e200)))
 })
+
+test_that("plain complete comparison groups skip missing row selection", {
+  g <- rep(c("A", "B"), each = 6L)
+  y <- c(1:6, 4:9)
+  f <- .con_comparisons
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(groups)) && is.logical(i) && length(i) == length(g) && all(i))
+      stop("sliced a complete continuous comparison group")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  draw <- function(fn) attr(fn(list(c("A", "B")), g, "score", y, "t.test"), ".con_test_cache")[[1L]]$p.value
+  expect_identical(draw(f), draw(.con_comparisons))
+  g[2L] <- NA_character_
+  expect_identical(draw(f), draw(.con_comparisons))
+})
