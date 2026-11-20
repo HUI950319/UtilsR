@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial data preparation keeps existing category and facet rows when each combination occurs once.
+
 * Factor recoding avoids compressing the new level IDs when all output levels occur.
 
 * Binary factor recoding reuses its sparse level tally when collapsing reference and other categories.

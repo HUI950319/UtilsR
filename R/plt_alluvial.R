@@ -502,7 +502,9 @@ plt_alluvial <- function(
   if (n_strata + as.double(n_pairs) * n_gaps >= 2^31) {
     cli::cli_abort("The alluvial stratum grid must contain fewer than 2^31 cells. Reduce the number of categories or groups.")
   }
-  pairs <- plot_input[!duplicated(pair_id), pair_columns]
+  unique_pairs <- n_pairs == length(pair_id)
+  pairs <- if (unique_pairs) plot_input[pair_columns] else
+    plot_input[!duplicated(pair_id), pair_columns]
   pair_order <- order(pairs$.cat_var, pairs$.facet)
   if (is.unsorted(pair_order)) {
     pairs <- pairs[pair_order, , drop = FALSE]
@@ -519,7 +521,7 @@ plt_alluvial <- function(
     .group = structure(rep(seq_len(n_groups), each = n_pairs),
                        levels = group_levels, class = "factor"),
     count = tabulate(count_id, n_pairs * n_groups),
-    group_total = rep.int(tabulate(pair_id, n_pairs), n_groups)
+    group_total = if (unique_pairs) rep.int(1L, n_strata) else rep.int(tabulate(pair_id, n_pairs), n_groups)
   )
   stat$percent <- stat$count / stat$group_total
   stat$.is_gap <- FALSE

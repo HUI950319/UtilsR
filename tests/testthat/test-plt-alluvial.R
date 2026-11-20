@@ -1390,3 +1390,18 @@ test_that("alluvial pairs already in display order retain their original keys", 
   expect_identical(draw(fn, d), draw(plt_alluvial, d))
   expect_identical(draw(fn, d[12:1, ]), draw(plt_alluvial, d[12:1, ]))
 })
+
+test_that("alluvial distinct category and facet pairs skip duplicate row filters", {
+  d <- data.frame(cat = factor(letters[1:6]), g = rep(c("I", "II"), 3L),
+                  facet = rep(c("A", "B", "C"), 2L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(pair_id)) && length(x) == attr(x, "n"))
+      stop("filtered distinct alluvial stratum keys again")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) suppressMessages(f(d, "cat", "g", facet = "facet"))$data
+  expect_identical(draw(fn), draw(plt_alluvial))
+  d <- rbind(d, d[1L, ])
+  expect_identical(draw(fn), draw(plt_alluvial))
+})
