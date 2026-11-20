@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor tallies avoid constructing a logical mask when every level has an observed code.
+
 * Large sparse factors with unique row codes reuse the input codes after grouping and create one count per observed level.
 
 * Short factors with mostly unused levels and unique observed codes now build their frequency counts directly.

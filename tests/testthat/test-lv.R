@@ -1885,3 +1885,18 @@ test_that("large sparse factors reuse distinct row codes", {
   repeated <- x[c(seq_len(1199L), 1L)]
   expect_identical(.factor_tally(repeated)$counts[match(codes[1L], sort(codes))], 2L)
 })
+
+test_that("dense factor tallies enumerate all observed levels directly", {
+  lvls <- c(paste0("id", 1:1023), NA_character_)
+  x <- structure(c(1024:1, NA_integer_, 43L), levels = lvls, class = "factor")
+  fn <- .factor_tally
+  environment(fn) <- list2env(list(which = function(x, ...) {
+    if (length(x) && all(x)) stop("collected nonzero positions for a fully observed factor")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  expected <- c(rep.int(1L, 42L), 2L, rep.int(1L, 981L))
+  expect_identical(fn(x)$codes, seq_len(1024L))
+  expect_identical(fn(x)$counts, expected)
+  expect_identical(fn(x[-2L]), .factor_tally(x[-2L]))
+  expect_identical(fn(factor()), .factor_tally(factor()))
+})
