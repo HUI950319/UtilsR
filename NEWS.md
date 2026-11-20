@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling recognizes base get calls that reference external observation vectors and retains data-column lookups.
+
 * Point sampling uses the sorted distinct numeric strata directly when no missing group codes are present.
 
 * Rank correlation centering reuses the complete score vector when every score is finite.

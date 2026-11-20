@@ -1190,3 +1190,18 @@ test_that("complete numeric point sampling strata keep their sorted distinct ord
   d$g[1:2] <- c(NA_real_, NaN)
   expect_identical(draw(fn), draw(.fmt_point_sample))
 })
+
+test_that("point sampling distinguishes literal lookups of external and data vectors", {
+  d <- data.frame(x = seq_len(12L), y = 13:24, g = rep(c("a", "b"), 6L))
+  external <- d$g
+  draw <- function(mapping) fmt_point(ggplot2::ggplot(d, mapping), sample_n = 2L)
+  expect_error(draw(ggplot2::aes(x, y, colour = get("external"))),
+               "Sampling cannot align external row vectors")
+  expect_error(draw(ggplot2::aes(x, y, colour = base::get(x = "external"))),
+               "Sampling cannot align external row vectors")
+  columns <- draw(ggplot2::aes(x, y, colour = get("g")))
+  expect_equal(nrow(ggplot2::layer_data(columns)), 4L)
+  get <- function(x) "custom"
+  scalar <- draw(ggplot2::aes(x, y, colour = get("external")))
+  expect_equal(nrow(ggplot2::layer_data(scalar)), 2L)
+})
