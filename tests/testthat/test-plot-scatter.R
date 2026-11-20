@@ -1996,3 +1996,15 @@ test_that("unique inferred scatter groups retain their original value sequence",
     expect_identical(fn(x), factor(x, levels = unique(x)))
   }
 })
+
+test_that("factor scatter groups reuse complete label dictionaries", {
+  x <- ordered(c("a", "b", "a", NA), levels = c("a", "b"))
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(labels)) && identical(substitute(i), quote(!is.na(labels))) && all(i))
+      stop("filtered a complete factor level dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, c("b", "a")), .scatter_group_factor(x, c("b", "a")))
+  expect_identical(fn(x, c("b", "a", NA)), .scatter_group_factor(x, c("b", "a", NA)))
+})

@@ -545,7 +545,7 @@ PlotScatter1 <- function(
   if (is.factor(value)) {
     current_levels <- base::levels(value)
     labels <- as.character(levels)
-    labels <- labels[!is.na(labels)]
+    if (anyNA(labels)) labels <- labels[!is.na(labels)]
     ordinary <- identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))
     if (ordinary && !anyNA(current_levels) &&
         !anyDuplicated(labels)) {

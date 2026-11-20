@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter grouping skips level-label filtering for factor dictionaries without missing names.
+
 * Scatter group inference retains a unique plain column in first-observed order without slicing it through a duplicate mask.
 
 * `fmt_his()` uses the effective x mapping from the source layer when the plot has no global data.
