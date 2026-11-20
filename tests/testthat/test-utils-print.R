@@ -2303,3 +2303,13 @@ test_that("atomic tree previews skip formatting absent names", {
   }), parent = environment(fn))
   expect_identical(fn(d$elements), ._obj_desc(d$elements))
 })
+
+test_that("constant numeric sparklines avoid rematching one bin", {
+  d <- data.frame(x = rep(8, 6000L))
+  fn <- pr_spark
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) == 6000L && identical(table, 8)) stop("rematched every value of a constant sparkline")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})

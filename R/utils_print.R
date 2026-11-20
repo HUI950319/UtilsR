@@ -1333,6 +1333,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
 
   # equal-width bins, or one per value for few whole numbers
   bin <- function(x) {
+    rng <- c(min(x), max(x))
+    if (rng[1L] == rng[2L]) return(length(x))
     probe <- x[seq_len(min(length(x), bins + 1))]
     if (all(probe == round(probe))) {
       u <- unique(probe)
@@ -1344,8 +1346,6 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         }
       }
     }
-    rng <- range(x)
-    if (rng[1] == rng[2]) return(length(x))
     span <- rng[2L] - rng[1L]
     if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
       x <- (x - rng[1L]) / span

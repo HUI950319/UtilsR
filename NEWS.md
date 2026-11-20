@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` counts constant observations without hashing each measurement into a singleton bin.
+
 * `lv()` records both distinct numeric values and their positions in one grouping pass when all values are present.
 
 * `check_na()` and `lv()` reuse the marker count for distinct ordinary character observations.
