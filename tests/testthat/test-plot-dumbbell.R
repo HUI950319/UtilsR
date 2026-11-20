@@ -1060,3 +1060,18 @@ test_that("integer64 means keeping missing values reuse the complete sample leng
   expect_identical(fn(c(x, bit64::NA_integer64_), na.rm = FALSE), NA_real_)
   expect_identical(fn(x[0L], na.rm = FALSE), NaN)
 })
+
+test_that("integer64 plotting means keep complete counts without an NA mask", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740993", "-9007199254740992", "5"))
+  f <- .mean_plot_values
+  environment(f) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(value)) && !anyNA(x))
+      stop("allocated a complete integer64 mean missing mask")
+    base::is.na(x)
+  }), parent = environment(f))
+  expect_identical(f(x), 2)
+  x[3L] <- NA
+  expect_identical(f(x), .5)
+  expect_identical(f(x, na.rm = FALSE), NA_real_)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot summaries use the length of complete integer64 vectors when calculating means.
+
 * Console tables keep complete finite numeric columns without creating row masks.
 
 * Variable inspection preserves the existing factor level vector when every level is present.
