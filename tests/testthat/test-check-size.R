@@ -616,3 +616,16 @@ test_that("object size formatting selects labels in one vector operation", {
   }), parent = environment(f))
   expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
 })
+
+test_that("object size selectors check bounds without row sized masks", {
+  e <- list2env(list(a = 1L, b = 1:5, c = 1:20), parent = emptyenv())
+  fn <- check_size
+  environment(fn) <- list2env(list("<" = function(e1, e2) {
+    if (identical(substitute(e1), quote(obj))) stop("allocated a lower bound mask for size indices")
+    base::"<"(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(c(2L, 1L, 3L), envir = e)[["_data"]],
+    check_size(c(2L, 1L, 3L), envir = e)[["_data"]])
+  expect_error(fn(c(1L, 4L), envir = e), "indices must be finite")
+  expect_error(fn(c(0L, 3L), envir = e), "indices must be finite")
+})

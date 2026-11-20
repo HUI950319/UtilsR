@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` validates the bounds of a numeric selection from its extrema instead of creating per-index comparison masks.
+
 * Trained discrete backgrounds only replace colors for an actual missing category.
 
 * `fmt_bg()` now lets explicit discrete limits define the stripes when the data contain no observed categories.
