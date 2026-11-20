@@ -1400,3 +1400,20 @@ test_that("rank correlation centering reuses finite extrema", {
   d$value[c(1L, 11L)] <- c(-1.6e308, 1.6e308)
   expect_identical(run(fn, d), run(PlotRankCor, d))
 })
+
+test_that("rank correlation complete groups do not repeat missingness checks", {
+  d <- data.frame(item = rep(letters[1:8], each = 2L), method = rep(c("x", "y"), 8L),
+    score = c(1, 2, 3, 2, 4, 2, 6, 2, 7, 2, 9, 2, 10, 2, 11, 2))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) == 8L)
+      stop("allocated a complete scaled missingness mask")
+    base::is.na(x)
+  }), parent = environment(fn))
+  run <- function(f) {
+    invisible(capture.output(p <- suppressMessages(f(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "minmax", scale_y = "zscore", show.label = FALSE))))
+    p$data
+  }
+  expect_identical(run(fn), run(PlotRankCor))
+})

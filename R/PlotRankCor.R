@@ -455,20 +455,21 @@ PlotRankCor <- function(
     switch(method,
       "none"   = x,
       "minmax" = {
-        if (all(is.na(x))) return(x)
-        rng <- range(x, na.rm = TRUE)
+        if (!complete && all(is.na(x))) return(x)
+        rng <- if (complete) c(min(x), max(x)) else range(x, na.rm = TRUE)
         if (rng[2] == rng[1]) {
-          x[!is.na(x)] <- 0
+          if (complete) x[] <- 0 else x[!is.na(x)] <- 0
           return(x)
         }
         (x - rng[1]) / (rng[2] - rng[1])
       },
       "zscore" = {
-        if (sum(!is.na(x)) < 2L) return(rep(NA_real_, length(x)))
+        n <- if (complete) length(x) else sum(!is.na(x))
+        if (n < 2L) return(rep(NA_real_, length(x)))
         mu <- mean(x, na.rm = TRUE)
         sd_val <- stats::sd(x, na.rm = TRUE)
         if (sd_val == 0) {
-          x[!is.na(x)] <- 0
+          if (complete) x[] <- 0 else x[!is.na(x)] <- 0
           return(x)
         }
         (x - mu) / sd_val

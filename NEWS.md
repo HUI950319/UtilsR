@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation scaling uses known complete-group sizes and extrema without recreating missingness masks.
+
 * Paired integer64 difference recovery checks source values only at missing result positions when endpoint lengths agree.
 
 * Jaccard similarity uses the occupied group positions to write its diagonal without recreating the coverage mask.
