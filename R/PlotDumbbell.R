@@ -286,8 +286,9 @@ PlotDumbbell <- function(
     delta_values <- .dumbbell_integer64_difference(end_values, start_values)
   } else if (is.integer(start_values) && is.integer(end_values) &&
              !is.object(start_values) && !is.object(end_values)) {
-    bounds <- suppressWarnings(range(start_values, end_values, na.rm = TRUE))
-    if (diff(as.double(bounds)) <= .Machine$integer.max) {
+    low <- suppressWarnings(min(start_values, end_values, na.rm = TRUE))
+    high <- suppressWarnings(max(start_values, end_values, na.rm = TRUE))
+    if (as.double(high) - as.double(low) <= .Machine$integer.max) {
       delta_values <- end_values - start_values
     } else {
       delta_values <- as.double(end_values) - as.double(start_values)

@@ -1094,3 +1094,24 @@ test_that("dumbbell factor axes keep codes when the level order is already corre
   d$category <- ordered(d$category, levels = c("C", "B", "A", "unused"))
   expect_identical(draw(fn), draw(PlotDumbbell))
 })
+
+test_that("dumbbell integer endpoints check scalar combined bounds", {
+  d <- data.frame(start = 1:4, end = c(8L, 4L, 3L, 9L), category = letters[1:4])
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list(range = function(...) {
+    args <- as.list(substitute(list(...)))[-1L]
+    if (identical(args, list(quote(start_values), quote(end_values), na.rm = TRUE)))
+      stop("combined complete integer endpoint columns")
+    base::range(...)
+  }), parent = environment(fn))
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d, sort_by = "none"))))
+    p$data
+  }
+  expect_identical(draw(fn), draw(PlotDumbbell))
+  d$start[1L] <- 2100000000L
+  d$end[1L] <- -2100000000L
+  d$end[2L] <- NA_integer_
+  expect_identical(suppressWarnings(draw(fn)), suppressWarnings(draw(PlotDumbbell)))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell integer differences use scalar endpoint extrema to check whether subtraction can overflow.
+
 * KNN reuses the ordinary double column extrema from validation when preparing backend distance calculations.
 
 * Percentage-only missingness plots collect numeric counts directly without an intermediate list.
