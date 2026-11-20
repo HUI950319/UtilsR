@@ -225,18 +225,20 @@ PlotCircleLollipop <- function(
       stop(sprintf("Column '%s' must contain numeric scores or missing values.", value_col),
            call. = FALSE)
     }
-    if (any(is.infinite(numeric_values))) {
+    lower <- suppressWarnings(min(numeric_values, na.rm = TRUE))
+    upper <- suppressWarnings(max(numeric_values, na.rm = TRUE))
+    if (lower == -Inf || upper == Inf) {
       stop(sprintf("Column '%s' must contain finite scores or missing values.", value_col),
+           call. = FALSE)
+    }
+    if (nrow(data) > 0L && lower == Inf) {
+      stop(sprintf("Column '%s' must contain at least one finite score.", value_col),
            call. = FALSE)
     }
     numeric_values
   }
   numeric_values <- parse_scores(data[[value_col]])
   integer64_scores <- inherits(data[[value_col]], "integer64")
-  if (nrow(data) > 0L && !any(is.finite(numeric_values))) {
-    stop(sprintf("Column '%s' must contain at least one finite score.", value_col),
-         call. = FALSE)
-  }
 
   # ---- Preserve group identity when character labels coincide ----
   group_input <- data[[group_col]]

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop score validation uses scalar bounds and skips complete-column row masks.
+
 * Circular lollipop scaling takes the bounds of complete normalized group scores directly.
 
 * Circular lollipop plots build collision masks only when display labels collide.
