@@ -575,7 +575,11 @@ plt_upset <- function(data,
   if (length(sets)) codes[sets[[1L]]] <- bits[[1L]]
   for (i in seq_along(sets)[-1L]) {
     rows <- sets[[i]]
-    if (length(rows)) codes[rows] <- bitwOr(codes[rows], bits[i])
+    if (length(rows) == n && identical(rows, seq_len(n))) {
+      codes <- bitwOr(codes, bits[i])
+    } else if (length(rows)) {
+      codes[rows] <- bitwOr(codes[rows], bits[i])
+    }
   }
   codes
 }

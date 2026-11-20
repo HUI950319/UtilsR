@@ -1161,3 +1161,15 @@ test_that("UpSet uses shared factor codes with explicit missing levels", {
   groups <- fn(df, vars = c("a", "b"), levels = query, output = "data")
   expect_identical(as.character(groups[["intersect_group"]]), c("b", "a", "None", "None"))
 })
+
+test_that("full UpSet sets combine bits without reindexing every row", {
+  fn <- .upset_row_codes
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(codes)) && length(i) == length(x) &&
+        identical(i, seq_along(x))) stop("gathered every existing UpSet membership code")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  sets <- list(A = c(1L, 3L), B = 1:4, C = c(2L, 4L))
+  expect_identical(fn(sets, 4L), c(3L, 6L, 3L, 6L))
+  expect_identical(fn(sets), .upset_row_codes(sets))
+})

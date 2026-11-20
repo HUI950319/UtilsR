@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet membership coding combines a full set with the existing code vector in one operation.
+
 * Alluvial character categories reuse their original level order when every value is unique.
 
 * Alluvial data preparation keeps existing category and facet rows when each combination occurs once.
