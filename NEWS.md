@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Displayed-score scaling reads the extrema of each complete plain group directly.
+
 * Repeated confidence values with uniform display precision are grouped by the single numeric vector.
 
 * Complete confidence-interval parsing retains extracted fields directly and allocates default-filled columns only for partial input.

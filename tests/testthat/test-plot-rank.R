@@ -919,3 +919,15 @@ test_that("group scaled rank plots check extrema after removing missing scores",
   expect_identical(fn(d, value_scale = "group", max_show = 2L)$data,
                    PlotRank(d, value_scale = "group", max_show = 2L)$data)
 })
+
+test_that("complete top rank scaling uses displayed scalar extrema", {
+  d <- matrix(as.double(c(8, 3, 6, 1, 5, 9, 2, 7)), ncol = 2L,
+    dimnames = list(letters[1:4], c("x", "y")))
+  fn <- PlotRank
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    if (identical(substitute(x), quote(part$Score))) stop("rebuilt an ordinary displayed ranking range")
+    base::range(x, ...)
+  }), parent = environment(fn))
+  run <- function(f) f(d, max_show = 3L, value_scale = "top_n", return_type = "data")
+  expect_identical(run(fn), run(PlotRank))
+})

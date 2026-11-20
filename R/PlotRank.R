@@ -280,7 +280,11 @@ PlotRank <- function(
       plot_df$Score <- as.double(unlist(values, use.names = FALSE))
     }
   } else if (value_scale == "top_n" && !is.object(plot_df$Score)) {
-    values <- lapply(all_df, function(part) scale_scores(part$Score, range(part$Score, na.rm = TRUE)))
+    values <- lapply(all_df, function(part) {
+      scores <- part$Score
+      bounds <- c(min(scores, na.rm = TRUE), max(scores, na.rm = TRUE))
+      scale_scores(scores, bounds)
+    })
     plot_df$Score <- unlist(values, use.names = FALSE)
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
