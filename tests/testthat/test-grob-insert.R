@@ -436,3 +436,15 @@ test_that("first inset names skip all layout coordinate scans", {
   added <- grob_insert(out, grid::pointsGrob(), align_to = "full")
   expect_identical(added$layout$name, c("panel", "inset", "inset.1"))
 })
+
+test_that("simple grid coordinates avoid classifying compound units", {
+  f <- .grob_finite_unit
+  native <- grid::unitType
+  local_mocked_bindings(unitType = function(x, ...) {
+    if (inherits(x, "simpleUnit")) stop("classified a simple grid unit as a possible compound")
+    native(x, ...)
+  }, .package = "grid")
+  expect_true(f(grid::unit(c(1, 2), "in")))
+  expect_false(f(grid::unit(Inf, "npc")))
+  expect_true(f(grid::unit(1, "npc") + grid::unit(1, "cm")))
+})

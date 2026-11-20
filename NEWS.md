@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grob coordinate validation checks finite simple units directly and retains recursion for compound units.
+
 * Rasterization detects base grid text grobs by type before checking fallback text and label names.
 
 * Panel size resolution avoids duplicate masks and remapping for distinct multi-cell spans.
