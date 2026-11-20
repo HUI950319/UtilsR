@@ -2,6 +2,342 @@
 
 ## UtilsR 0.6.23
 
+- Single-color palettes reuse a compact mapping for complete numeric
+  observations.
+
+- Continuous grouped summaries compute the rescaling magnitude from the
+  shifted endpoints without allocating absolute-value vectors.
+
+- Console P-value formatting reuses the known validity of its numeric
+  inputs for below-threshold text.
+
+- Palette preview luminance computes an elementwise mask only when
+  channel values straddle the linear cutoff.
+
+- Missingness plots reuse the calculated source-column index for their
+  summary rows and displayed category keys.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  validates ordinary numeric cut points from their extrema and continues
+  to use class-specific finiteness methods.
+
+- Point shape conversion matches native numeric symbols directly and
+  avoids interpreting a nearby fractional value as a supported integer
+  symbol.
+
+- Numeric scatter group conversion only constructs a replacement level
+  index when one of the level labels is missing.
+
+- Paired scatter histograms retain the original difference vector when
+  every value is visible.
+
+- UpSet data output retains all declared region levels and skips count
+  sorting when no rows belong to any combination.
+
+- Sankey node labels skip a second proportion lookup when all visible
+  nodes meet the zero threshold.
+
+- Sankey stages reuse their factor dictionary and count visible labels
+  without a missing-name mask when every name is present.
+
+- Unfaceted alluvial plots use the observed factor codes as their final
+  category positions and skip hashing or resorting a facet/category
+  table.
+
+- Panel rasterization classifies each child once and reuses that result
+  for passthrough and run segmentation.
+
+- Comparison bracket layout indexes observations by context once before
+  evaluating the displayed pair families.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  retains both the factor codes and their level names when the plotted
+  order matches the declared order.
+
+- Continuous bar summaries reuse ordinary factor group identities when
+  pooling feature ranges.
+
+- Exact numeric category labels skip rematching a value vector that
+  already consists of distinct values.
+
+- Panel rasterization leaves a native-order tree of visible vector
+  annotations intact when no raster background is needed.
+
+- Rank correlations pass previously validated pairs directly to
+  centering without checking their original extrema again.
+
+- Displayed-score scaling reads the extrema of each complete plain group
+  directly.
+
+- Repeated confidence values with uniform display precision are grouped
+  by the single numeric vector.
+
+- Complete confidence-interval parsing retains extracted fields directly
+  and allocates default-filled columns only for partial input.
+
+- Stacked-distribution text formats a uniform percentage once and
+  recycles that label to the displayed segments.
+
+- Numeric frequency listings keep the existing order of complete, sorted
+  unique values.
+
+- Palette previews reuse one unnamed flag when every swatch lacks a
+  name.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  validates complete precision entries through their range before any
+  exceptional byte-width checks.
+
+- Numeric [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  listings retain complete finite values and their extrema without an
+  observation-length finiteness mask.
+
+- Automatic paired comparison diagnostics check the extrema of the
+  observed group counts.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  assigns ordinary paired comparison IDs in one grouping pass.
+
+- Confidence-level conversion retains the endpoints it first checks and
+  recomputes them only after numerical rescaling.
+
+- Hex-only console color previews skip per-color numeric-index flags
+  while retaining full invalid-color diagnostics.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  returns a scalar success for fully valid colour vectors and expands
+  flags only for diagnostics.
+
+- Sparse factor membership avoids filtering its level dictionary when
+  every observed code is present.
+
+- CI parsing checks the bounds of its complete precision vector without
+  allocating per-row comparison masks.
+
+- Distribution formatting builds collision masks and precise decimal
+  labels only when labelled thresholds can collide.
+
+- Sparse categorical tables build row masks only for factor columns that
+  contain missing codes.
+
+- Axis tiles and text labels retain their complete color vectors without
+  an empty replacement.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  reuses a sorted, distinct selection of object names without
+  deduplicating and sorting it again.
+
+- Palette repetition detection no longer scans vectors that are too
+  short for duplicate reuse to be beneficial.
+
+- Mixed-scale confidence intervals now evaluate the tight-log-interval
+  condition on exponentiated rows only.
+
+- Stratified point sampling retains the existing group list when its
+  keys are already in legacy lexical order.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  uses a column-free placeholder so dynamically named facets cannot see
+  a synthetic grouping value.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  keeps its factor tally as the bin heights when every factor level is
+  observed.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  counts constant observations without hashing each measurement into a
+  singleton bin.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) records
+  both distinct numeric values and their positions in one grouping pass
+  when all values are present.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) reuse
+  the marker count for distinct ordinary character observations.
+
+- Confidence text formatting only rewrites values when rounding actually
+  yields zero.
+
+- Confidence interval parsing checks finite test statistics only where
+  the ordinary tail probability is zero.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  validates integer selectors and their sign combinations without
+  creating bounds masks.
+
+- Distribution color validation can reuse all declared factor labels
+  when they are observed.
+
+- Sparse categorical summaries reuse lexicographically ordered codes and
+  counts without gathering them again.
+
+- Dense categorical percentage tables use their known count-grid layout
+  to compute group totals without splitting rows.
+
+- Sparse categorical percentage tables assign 100% directly when each
+  represented subgroup has one observed category.
+
+- Fully finite palette mappings now store their length and omit the
+  row-sized placement mask.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  validates the bounds of a numeric selection from its extrema instead
+  of creating per-index comparison masks.
+
+- Trained discrete backgrounds only replace colors for an actual missing
+  category.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  now lets explicit discrete limits define the stripes when the data
+  contain no observed categories.
+
+- Alluvial preparation checks the minimum level count before allocating
+  a coverage mask for incomplete factors.
+
+- Single-key continuous dot summaries keep the encounter order produced
+  by counting and skip a second key grouping.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  keeps an already distinct ordinary grouping column in first-observed
+  order.
+
+- Rank correlation scaling uses known complete-group sizes and extrema
+  without recreating missingness masks.
+
+- Paired integer64 difference recovery checks source values only at
+  missing result positions when endpoint lengths agree.
+
+- Jaccard similarity uses the occupied group positions to write its
+  diagonal without recreating the coverage mask.
+
+- Jaccard row grouping skips a dictionary match when factor levels
+  already equal the requested group sequence.
+
+- Panel raster sizing checks the extrema of measured widths or heights
+  without allocating full comparison masks.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  selects the names of incomplete columns directly from its existing
+  missing counts.
+
+- Alluvial labels at the zero threshold use the nonempty stratum counts
+  directly.
+
+- Gap-free percentage alluvial plots retain their computed shares
+  directly as stratum heights.
+
+- Histogram and density overlays reuse their native contiguous panel
+  indices when assigning panel-relative heights.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  now detects complete plain and ordinary factor columns without
+  allocating a missingness vector.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  now discovers ordinary categorical levels without constructing a
+  factor of the full data length.
+
+- Built histogram-overlay plots restore their original facet when all
+  distribution layers have been removed.
+
+- The console frequency listing uses the declared factor labels directly
+  when all its levels are represented.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  creates a row-length bound mask only when at least one input has a
+  comparison prefix.
+
+- `plt_upset(output = "data")` skips counting nonempty regions a second
+  time for the unused plot.
+
+- Special-marker counting uses complete factor dictionaries directly and
+  clears matches only for actual missing level names.
+
+- The missing-value counter used by
+  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  returns zero for a complete ordinary factor straight from its codes.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  preserves the native break order for dodging and overlap checks on its
+  axis labels.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  now keeps the native axis line cap at the selected breaks while
+  drawing tiles across the trained categories.
+
+- Atomic previews in
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  escape and style the names attached to displayed values with a
+  nonempty name.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  now accepts a named scalar `"axis"` guide as ggplot2 does.
+
+- A fully observed single-factor combination reuses the declared levels
+  and only substitutes actual missing-level labels.
+
+- Factor recoding uses its level coverage guarantee directly when every
+  source level occurs.
+
+- KNN imputation constructs its exact integer64 bounds once per call
+  when integer64 columns are present.
+
+- Scatter grouping skips level-label filtering for factor dictionaries
+  without missing names.
+
+- Scatter group inference retains a unique plain column in
+  first-observed order without slicing it through a duplicate mask.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  uses the effective x mapping from the source layer when the plot has
+  no global data.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  now compares each distinct spelling of a repeated decimal tie with its
+  cutoff once.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  now checks endpoint finiteness only where the asymmetric half width
+  needs overflow handling.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  keeps the original quantile breakpoint vector when adjacent cut points
+  are distinct.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  now constructs positional labels only for unnamed items in a
+  mixed-named list.
+
+- UpSet membership coding initializes a complete first set directly,
+  avoiding a row-sized assignment.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  sums contiguous combination bit masks without copying them into an
+  intermediate matrix.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  now uses the centered extrema to detect overflow and determine the
+  normalization magnitude.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) now skips
+  collision masks when the distinct formatted labels already identify
+  their values.
+
+- Factor tallies avoid constructing a logical mask when every level has
+  an observed code.
+
+- Large sparse factors with unique row codes reuse the input codes after
+  grouping and create one count per observed level.
+
+- Short factors with mostly unused levels and unique observed codes now
+  build their frequency counts directly.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  now detects injected row-length aesthetic vectors before sampling,
+  including literals nested in transformations.
+
 - Sankey diagrams assign caption codes directly when every caption is
   distinct.
 

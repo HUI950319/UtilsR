@@ -133,7 +133,7 @@ Ignored when the specification resolves to a theme object.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="st">"theme_bw"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt; List of 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt;List of 144</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ line                            : &lt;ggplot2::element_line&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.5</span>
@@ -162,7 +162,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : num 0.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : logi FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ title                           : &lt;ggplot2::element_text&gt;</span>
@@ -210,7 +211,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill       : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ spacing                         : 'simpleUnit' num 5.5points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; num [1:4] 5.5 5.5 5.5 5.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 5.5points 5.5points 5.5points 5.5points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ aspect.ratio                    : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title                      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x                    : &lt;ggplot2::element_text&gt;</span>
@@ -225,7 +227,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 2.75 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 2.75points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.top                : &lt;ggplot2::element_text&gt;</span>
@@ -240,7 +243,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 2.75 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 2.75points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.bottom             : NULL</span>
@@ -256,7 +260,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.75 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.75points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.left               : NULL</span>
@@ -272,7 +277,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 2.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 2.75points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text                       : &lt;ggplot2::element_text&gt;</span>
@@ -302,7 +308,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 2.2 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 2.2points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.top                 : &lt;ggplot2::element_text&gt;</span>
@@ -317,7 +324,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 2.2 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 2.2points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.bottom              : NULL</span>
@@ -333,7 +341,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.2 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.2points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.left                : NULL</span>
@@ -349,7 +358,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 2.2points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.theta                 : NULL</span>
@@ -365,7 +375,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.2 0 2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.2points 0points 2.2points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                      : &lt;ggplot2::element_line&gt;</span>
@@ -485,10 +496,11 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.right      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.inside     : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [list output truncated]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr "gg"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ complete: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ validate: logi TRUE</span>
 <span class="r-in"><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="st">"theme_km"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt; List of 68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt;List of 68</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ line                      : &lt;ggplot2::element_line&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : Named chr "#000000"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "names")= chr "axisColor"</span>
@@ -521,7 +533,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : num 0.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : logi FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title                : &lt;ggplot2::element_text&gt;</span>
@@ -552,7 +565,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 12 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 12points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.top          : &lt;ggplot2::element_text&gt;</span>
@@ -567,7 +581,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 12 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 12points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y              : &lt;ggplot2::element_text&gt;</span>
@@ -582,7 +597,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 12 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 12points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.right        : &lt;ggplot2::element_text&gt;</span>
@@ -597,7 +613,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 12points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text                 : &lt;ggplot2::element_text&gt;</span>
@@ -628,7 +645,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 4 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 4points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.top           : &lt;ggplot2::element_text&gt;</span>
@@ -643,7 +661,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 4 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 4points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y               : &lt;ggplot2::element_text&gt;</span>
@@ -658,7 +677,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.5 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.5points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.right         : &lt;ggplot2::element_text&gt;</span>
@@ -673,7 +693,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 2.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 2.5points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                : &lt;ggplot2::element_line&gt;</span>
@@ -697,7 +718,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.x               : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.y               : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.background         : &lt;ggplot2::element_blank&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.margin             : &lt;ggplot2::margin&gt; num [1:4] 10 10 10 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.margin             : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 10points 10points 10points 10points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.spacing            : 'simpleUnit' num 20points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.spacing.x          : NULL</span>
@@ -742,7 +764,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.direction          : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification      : chr "center"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.box                : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.box.margin         : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.box.margin         : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0cm 0cm 0cm 0cm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.box.background     : &lt;ggplot2::element_blank&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.box.spacing        : 'simpleUnit' num 20points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
@@ -795,7 +818,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 20 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 20points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.title.position       : chr "panel"</span>
@@ -811,7 +835,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 10 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 10points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.caption              : &lt;ggplot2::element_text&gt;</span>
@@ -826,7 +851,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 10 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 10points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.caption.position     : chr "panel"</span>
@@ -846,7 +872,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.tag.position         : chr "topleft"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.margin               : &lt;ggplot2::margin&gt; num [1:4] 10 10 10 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ plot.margin               : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 10points 10points 10points 10points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ strip.background          : &lt;ggplot2::element_rect&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill         : chr "grey85"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "grey20"</span>
@@ -868,7 +895,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 13.3 8 13.3 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 13.3points 8points 13.3points 8points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ strip.text.x              : &lt;ggplot2::element_text&gt;</span>
@@ -883,7 +911,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 6.67 0 6.67 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 6.67points 0points 6.67points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ strip.text.y              : &lt;ggplot2::element_text&gt;</span>
@@ -898,7 +927,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 6.67 0 6.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 6.67points 0points 6.67points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ strip.text.y.left         : &lt;ggplot2::element_text&gt;</span>
@@ -922,10 +952,11 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ prism.ticks.length        : 'simpleUnit' num 4points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr "gg"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ complete: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ validate: logi TRUE</span>
 <span class="r-in"><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt; List of 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt;List of 144</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ line                            : &lt;ggplot2::element_line&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.545</span>
@@ -954,7 +985,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : num 0.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : logi FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ title                           : &lt;ggplot2::element_text&gt;</span>
@@ -1002,7 +1034,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill       : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ spacing                         : 'simpleUnit' num 6points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; num [1:4] 6 6 6 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 6points 6points 6points 6points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ aspect.ratio                    : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title                      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x                    : &lt;ggplot2::element_text&gt;</span>
@@ -1017,7 +1050,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 3 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 3points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.top                : &lt;ggplot2::element_text&gt;</span>
@@ -1032,7 +1066,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 3 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 3points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.bottom             : NULL</span>
@@ -1048,7 +1083,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 3 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 3points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.left               : NULL</span>
@@ -1064,7 +1100,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 3points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text                       : &lt;ggplot2::element_text&gt;</span>
@@ -1094,7 +1131,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 2.4 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 2.4points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.top                 : &lt;ggplot2::element_text&gt;</span>
@@ -1109,7 +1147,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 2.4 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 2.4points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.bottom              : NULL</span>
@@ -1125,7 +1164,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.4 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.4points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.left                : NULL</span>
@@ -1141,7 +1181,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 2.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 2.4points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.theta                 : NULL</span>
@@ -1157,7 +1198,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.4 0 2.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 2.4points 0points 2.4points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                      : &lt;ggplot2::element_line&gt;</span>
@@ -1277,10 +1319,11 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.right      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.inside     : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [list output truncated]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr "gg"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ complete: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ validate: logi TRUE</span>
 <span class="r-in"><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt; List of 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt;List of 144</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ line                            : &lt;ggplot2::element_line&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.727</span>
@@ -1309,7 +1352,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : num 0.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : logi FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ title                           : &lt;ggplot2::element_text&gt;</span>
@@ -1357,7 +1401,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill       : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ spacing                         : 'simpleUnit' num 8points</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; num [1:4] 8 8 8 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 8points 8points 8points 8points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ aspect.ratio                    : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title                      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x                    : &lt;ggplot2::element_text&gt;</span>
@@ -1372,7 +1417,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 4 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 4points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.top                : &lt;ggplot2::element_text&gt;</span>
@@ -1387,7 +1433,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 4 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 4points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.bottom             : NULL</span>
@@ -1403,7 +1450,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 4 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 4points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.left               : NULL</span>
@@ -1419,7 +1467,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 4points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text                       : &lt;ggplot2::element_text&gt;</span>
@@ -1449,7 +1498,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 3.2 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 3.2points 0points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.top                 : &lt;ggplot2::element_text&gt;</span>
@@ -1464,7 +1514,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 3.2 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 3.2points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.bottom              : NULL</span>
@@ -1480,7 +1531,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 3.2 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 3.2points 0points 0points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.left                : NULL</span>
@@ -1496,7 +1548,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 3.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 0points 0points 3.2points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.theta                 : NULL</span>
@@ -1512,7 +1565,8 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 3.2 0 3.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; 'simpleUnit' num [1:4] 0points 3.2points 0points 3.2points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. - attr(*, "unit")= int 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                      : &lt;ggplot2::element_line&gt;</span>
@@ -1632,6 +1686,7 @@ Ignored when the specification resolves to a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.right      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.inside     : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [list output truncated]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr "gg"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ complete: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ validate: logi TRUE</span>
 <span class="r-in"><span></span></span>

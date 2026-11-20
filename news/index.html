@@ -50,7 +50,107 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Sankey diagrams assign caption codes directly when every caption is distinct.</p></li>
+<ul><li><p>Single-color palettes reuse a compact mapping for complete numeric observations.</p></li>
+<li><p>Continuous grouped summaries compute the rescaling magnitude from the shifted endpoints without allocating absolute-value vectors.</p></li>
+<li><p>Console P-value formatting reuses the known validity of its numeric inputs for below-threshold text.</p></li>
+<li><p>Palette preview luminance computes an elementwise mask only when channel values straddle the linear cutoff.</p></li>
+<li><p>Missingness plots reuse the calculated source-column index for their summary rows and displayed category keys.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> validates ordinary numeric cut points from their extrema and continues to use class-specific finiteness methods.</p></li>
+<li><p>Point shape conversion matches native numeric symbols directly and avoids interpreting a nearby fractional value as a supported integer symbol.</p></li>
+<li><p>Numeric scatter group conversion only constructs a replacement level index when one of the level labels is missing.</p></li>
+<li><p>Paired scatter histograms retain the original difference vector when every value is visible.</p></li>
+<li><p>UpSet data output retains all declared region levels and skips count sorting when no rows belong to any combination.</p></li>
+<li><p>Sankey node labels skip a second proportion lookup when all visible nodes meet the zero threshold.</p></li>
+<li><p>Sankey stages reuse their factor dictionary and count visible labels without a missing-name mask when every name is present.</p></li>
+<li><p>Unfaceted alluvial plots use the observed factor codes as their final category positions and skip hashing or resorting a facet/category table.</p></li>
+<li><p>Panel rasterization classifies each child once and reuses that result for passthrough and run segmentation.</p></li>
+<li><p>Comparison bracket layout indexes observations by context once before evaluating the displayed pair families.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> retains both the factor codes and their level names when the plotted order matches the declared order.</p></li>
+<li><p>Continuous bar summaries reuse ordinary factor group identities when pooling feature ranges.</p></li>
+<li><p>Exact numeric category labels skip rematching a value vector that already consists of distinct values.</p></li>
+<li><p>Panel rasterization leaves a native-order tree of visible vector annotations intact when no raster background is needed.</p></li>
+<li><p>Rank correlations pass previously validated pairs directly to centering without checking their original extrema again.</p></li>
+<li><p>Displayed-score scaling reads the extrema of each complete plain group directly.</p></li>
+<li><p>Repeated confidence values with uniform display precision are grouped by the single numeric vector.</p></li>
+<li><p>Complete confidence-interval parsing retains extracted fields directly and allocates default-filled columns only for partial input.</p></li>
+<li><p>Stacked-distribution text formats a uniform percentage once and recycles that label to the displayed segments.</p></li>
+<li><p>Numeric frequency listings keep the existing order of complete, sorted unique values.</p></li>
+<li><p>Palette previews reuse one unnamed flag when every swatch lacks a name.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> validates complete precision entries through their range before any exceptional byte-width checks.</p></li>
+<li><p>Numeric <code><a href="../reference/lv.html">lv()</a></code> listings retain complete finite values and their extrema without an observation-length finiteness mask.</p></li>
+<li><p>Automatic paired comparison diagnostics check the extrema of the observed group counts.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> assigns ordinary paired comparison IDs in one grouping pass.</p></li>
+<li><p>Confidence-level conversion retains the endpoints it first checks and recomputes them only after numerical rescaling.</p></li>
+<li><p>Hex-only console color previews skip per-color numeric-index flags while retaining full invalid-color diagnostics.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> returns a scalar success for fully valid colour vectors and expands flags only for diagnostics.</p></li>
+<li><p>Sparse factor membership avoids filtering its level dictionary when every observed code is present.</p></li>
+<li><p>CI parsing checks the bounds of its complete precision vector without allocating per-row comparison masks.</p></li>
+<li><p>Distribution formatting builds collision masks and precise decimal labels only when labelled thresholds can collide.</p></li>
+<li><p>Sparse categorical tables build row masks only for factor columns that contain missing codes.</p></li>
+<li><p>Axis tiles and text labels retain their complete color vectors without an empty replacement.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> reuses a sorted, distinct selection of object names without deduplicating and sorting it again.</p></li>
+<li><p>Palette repetition detection no longer scans vectors that are too short for duplicate reuse to be beneficial.</p></li>
+<li><p>Mixed-scale confidence intervals now evaluate the tight-log-interval condition on exponentiated rows only.</p></li>
+<li><p>Stratified point sampling retains the existing group list when its keys are already in legacy lexical order.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> uses a column-free placeholder so dynamically named facets cannot see a synthetic grouping value.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> keeps its factor tally as the bin heights when every factor level is observed.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> counts constant observations without hashing each measurement into a singleton bin.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> records both distinct numeric values and their positions in one grouping pass when all values are present.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> and <code><a href="../reference/lv.html">lv()</a></code> reuse the marker count for distinct ordinary character observations.</p></li>
+<li><p>Confidence text formatting only rewrites values when rounding actually yields zero.</p></li>
+<li><p>Confidence interval parsing checks finite test statistics only where the ordinary tail probability is zero.</p></li>
+<li><p><code><a href="../reference/fmt_flatten.html">fmt_flatten()</a></code> validates integer selectors and their sign combinations without creating bounds masks.</p></li>
+<li><p>Distribution color validation can reuse all declared factor labels when they are observed.</p></li>
+<li><p>Sparse categorical summaries reuse lexicographically ordered codes and counts without gathering them again.</p></li>
+<li><p>Dense categorical percentage tables use their known count-grid layout to compute group totals without splitting rows.</p></li>
+<li><p>Sparse categorical percentage tables assign 100% directly when each represented subgroup has one observed category.</p></li>
+<li><p>Fully finite palette mappings now store their length and omit the row-sized placement mask.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> validates the bounds of a numeric selection from its extrema instead of creating per-index comparison masks.</p></li>
+<li><p>Trained discrete backgrounds only replace colors for an actual missing category.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> now lets explicit discrete limits define the stripes when the data contain no observed categories.</p></li>
+<li><p>Alluvial preparation checks the minimum level count before allocating a coverage mask for incomplete factors.</p></li>
+<li><p>Single-key continuous dot summaries keep the encounter order produced by counting and skip a second key grouping.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> keeps an already distinct ordinary grouping column in first-observed order.</p></li>
+<li><p>Rank correlation scaling uses known complete-group sizes and extrema without recreating missingness masks.</p></li>
+<li><p>Paired integer64 difference recovery checks source values only at missing result positions when endpoint lengths agree.</p></li>
+<li><p>Jaccard similarity uses the occupied group positions to write its diagonal without recreating the coverage mask.</p></li>
+<li><p>Jaccard row grouping skips a dictionary match when factor levels already equal the requested group sequence.</p></li>
+<li><p>Panel raster sizing checks the extrema of measured widths or heights without allocating full comparison masks.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> selects the names of incomplete columns directly from its existing missing counts.</p></li>
+<li><p>Alluvial labels at the zero threshold use the nonempty stratum counts directly.</p></li>
+<li><p>Gap-free percentage alluvial plots retain their computed shares directly as stratum heights.</p></li>
+<li><p>Histogram and density overlays reuse their native contiguous panel indices when assigning panel-relative heights.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> now detects complete plain and ordinary factor columns without allocating a missingness vector.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> now discovers ordinary categorical levels without constructing a factor of the full data length.</p></li>
+<li><p>Built histogram-overlay plots restore their original facet when all distribution layers have been removed.</p></li>
+<li><p>The console frequency listing uses the declared factor labels directly when all its levels are represented.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> creates a row-length bound mask only when at least one input has a comparison prefix.</p></li>
+<li><p><code>plt_upset(output = "data")</code> skips counting nonempty regions a second time for the unused plot.</p></li>
+<li><p>Special-marker counting uses complete factor dictionaries directly and clears matches only for actual missing level names.</p></li>
+<li><p>The missing-value counter used by <code><a href="../reference/check_na.html">check_na()</a></code> and <code><a href="../reference/lv.html">lv()</a></code> returns zero for a complete ordinary factor straight from its codes.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> preserves the native break order for dodging and overlap checks on its axis labels.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> now keeps the native axis line cap at the selected breaks while drawing tiles across the trained categories.</p></li>
+<li><p>Atomic previews in <code><a href="../reference/pr_tree.html">pr_tree()</a></code> escape and style the names attached to displayed values with a nonempty name.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> now accepts a named scalar <code>"axis"</code> guide as ggplot2 does.</p></li>
+<li><p>A fully observed single-factor combination reuses the declared levels and only substitutes actual missing-level labels.</p></li>
+<li><p>Factor recoding uses its level coverage guarantee directly when every source level occurs.</p></li>
+<li><p>KNN imputation constructs its exact integer64 bounds once per call when integer64 columns are present.</p></li>
+<li><p>Scatter grouping skips level-label filtering for factor dictionaries without missing names.</p></li>
+<li><p>Scatter group inference retains a unique plain column in first-observed order without slicing it through a duplicate mask.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> uses the effective x mapping from the source layer when the plot has no global data.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> now compares each distinct spelling of a repeated decimal tie with its cutoff once.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> now checks endpoint finiteness only where the asymmetric half width needs overflow handling.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> keeps the original quantile breakpoint vector when adjacent cut points are distinct.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> now constructs positional labels only for unnamed items in a mixed-named list.</p></li>
+<li><p>UpSet membership coding initializes a complete first set directly, avoiding a row-sized assignment.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> sums contiguous combination bit masks without copying them into an intermediate matrix.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> now uses the centered extrema to detect overflow and determine the normalization magnitude.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> now skips collision masks when the distinct formatted labels already identify their values.</p></li>
+<li><p>Factor tallies avoid constructing a logical mask when every level has an observed code.</p></li>
+<li><p>Large sparse factors with unique row codes reuse the input codes after grouping and create one count per observed level.</p></li>
+<li><p>Short factors with mostly unused levels and unique observed codes now build their frequency counts directly.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> now detects injected row-length aesthetic vectors before sampling, including literals nested in transformations.</p></li>
+<li><p>Sankey diagrams assign caption codes directly when every caption is distinct.</p></li>
 <li><p>Rank-correlation scaling shares the completeness result with centering and avoids masks on complete ordinary scores.</p></li>
 <li><p>Object size reports format byte, KB, MB and GB labels with one call using the same thresholds.</p></li>
 <li><p>Axis formatting validates ordinary integer plot selections without allocating whole-number comparison vectors.</p></li>
