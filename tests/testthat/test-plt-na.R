@@ -662,3 +662,14 @@ test_that("noncolliding missing labels keep their original keys", {
   expect_identical(draw(fn, c(a = "x", b = "y")), draw(plt_na, c(a = "x", b = "y")))
   expect_identical(draw(fn, c(a = "same", b = "same")), draw(plt_na, c(a = "same", b = "same")))
 })
+
+test_that("missingness plots select names before slicing counts", {
+  d <- data.frame(a = c(1, NA, 1), b = c(NA, 1, NA), complete = 1:3)
+  fn <- plt_na
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(missing_counts)) && is.logical(i))
+      stop("copied missingness counts just to get column names")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
+})

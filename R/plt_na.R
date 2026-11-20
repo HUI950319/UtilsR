@@ -151,7 +151,7 @@ plt_na <- function(
     mapped
   }
 
-  missing_vars <- names(missing_counts[missing_counts > 0])
+  missing_vars <- names(missing_counts)[missing_counts > 0]
   if (length(missing_vars) == 0L) {
     warning("No missing values found in the dataset.", call. = FALSE)
     return(NULL)

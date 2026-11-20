@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` selects the names of incomplete columns directly from its existing missing counts.
+
 * Alluvial labels at the zero threshold use the nonempty stratum counts directly.
 
 * Gap-free percentage alluvial plots retain their computed shares directly as stratum heights.
