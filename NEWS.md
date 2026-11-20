@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Binary factor recoding reuses its sparse level tally when collapsing reference and other categories.
+
 * Scatter marginal annotations reuse complete coordinate ranges and preserve the fallback for nonfinite observations.
 
 * Circular lollipop score validation uses scalar bounds and skips complete-column row masks.

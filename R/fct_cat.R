@@ -243,7 +243,7 @@ fct_cat <- function(x, ...,
 
 
 # ---- Internal: recode ----
-.recode_factor <- function(x, newlevels, checked_indices = FALSE) {
+.recode_factor <- function(x, newlevels, checked_indices = FALSE, tally = NULL) {
   if (length(newlevels) == 0) return(x)
 
   lvls <- levels(x)
@@ -271,7 +271,7 @@ fct_cat <- function(x, ...,
 
   mapped <- rep(names(newlevels), lengths(newlevels))
   if (length(lvls) > length(x)) {
-    tally <- .factor_tally(x)
+    if (is.null(tally)) tally <- .factor_tally(x)
     observed <- tally$codes
     groups <- match(observed, pos)
     recoded <- !is.na(groups)
@@ -312,13 +312,14 @@ fct_cat <- function(x, ...,
   if (identical(ref_name, "Oth") && length(unique(ref_idx)) < n_lvl) {
     cli::cli_abort("The reference label conflicts with {.val Oth}, the label for other levels.")
   }
-  candidate_codes <- if (n_lvl > length(x)) .factor_tally(x)$codes else seq_len(n_lvl)
+  tally <- if (n_lvl > length(x)) .factor_tally(x)
+  candidate_codes <- if (is.null(tally)) seq_len(n_lvl) else tally$codes
   other <- setdiff(candidate_codes, ref_idx)
   g <- stats::setNames(
     list(ref_idx, other),
     c(ref_name, "Oth")
   )
-  .recode_factor(x, g, checked_indices = TRUE)
+  .recode_factor(x, g, checked_indices = TRUE, tally = tally)
 }
 
 

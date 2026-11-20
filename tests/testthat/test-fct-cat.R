@@ -1027,3 +1027,17 @@ test_that("factor index bounds use scalar extrema", {
   expect_error(fn(c(1L, 8L), "positions", 4L), "must be between")
   expect_error(fn(c(1, Inf), "positions", 4L), "finite integer")
 })
+
+test_that("sparse binary factor grouping tallies observed levels once", {
+  x <- ordered(c("yes", "no", "yes", NA), levels = c("no", "yes", paste0("unused", 1:2000)))
+  expected <- fct_cat(x, ref_idx = 2L)
+  tally <- .factor_tally
+  calls <- 0L
+  local_mocked_bindings(.factor_tally = function(x) {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("tallied the same sparse binary factor twice")
+    tally(x)
+  }, .package = "UtilsR")
+  expect_identical(fct_cat(x, ref_idx = 2L), expected)
+  expect_identical(calls, 1L)
+})
