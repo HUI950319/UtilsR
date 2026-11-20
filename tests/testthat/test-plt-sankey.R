@@ -1054,3 +1054,19 @@ test_that("dense Sankey stages reuse code positions with distinct missing observ
   d[["a"]][3L] <- NA
   expect_identical(draw(fn, TRUE), draw(plt_sankey, TRUE))
 })
+
+test_that("Sankey unique node captions retain their original indices", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(first = c("a", "b", "a", "c"), next_step = c("I", "II", "I", "III"))
+  f <- plt_sankey
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(node_labels)) && !anyDuplicated(x))
+      stop("rematched unique Sankey node captions")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  draw <- function(fn) suppressMessages(fn(d, names(d), palette = "red", show_text = "name"))$data
+  expect_identical(draw(f), draw(plt_sankey))
+  d$next_step <- d$first
+  expect_identical(draw(f), draw(plt_sankey))
+})

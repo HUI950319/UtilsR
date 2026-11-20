@@ -328,8 +328,13 @@ plt_sankey <- function(data,
 
   # Set node factor levels
   plot_data$node <- factor(plot_data$node, levels = all_levels)
-  captions <- unique(unname(node_labels[!is.na(node_labels)]))
-  caption_codes <- match(node_labels, captions)
+  if (!anyNA(node_labels) && !anyDuplicated(node_labels)) {
+    captions <- unname(node_labels)
+    caption_codes <- seq_along(captions)
+  } else {
+    captions <- unique(unname(node_labels[!is.na(node_labels)]))
+    caption_codes <- match(node_labels, captions)
+  }
   plot_data$label <- structure(caption_codes[as.integer(plot_data$node)],
                                levels = captions, class = "factor")
 
