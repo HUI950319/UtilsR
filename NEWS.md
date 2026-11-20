@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Comparison bracket layout indexes observations by context once before evaluating the displayed pair families.
+
 * `PlotDumbbell()` retains both the factor codes and their level names when the plotted order matches the declared order.
 
 * Continuous bar summaries reuse ordinary factor group identities when pooling feature ranges.

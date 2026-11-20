@@ -948,3 +948,16 @@ test_that("equal paired comparison counts skip deduplicating group sizes", {
   expect_identical(run(fn, d), run(fmt_com, d))
   expect_error(run(fn, d[-1L, ]), "unequal original sizes")
 })
+
+test_that("comparison bracket layout uses one scan of each context key", {
+  d <- data.frame(x = rep(letters[1:3], each = 8L), y = rep(c(1, 2, 7, 9, 4, 5, 9, 11), 3L),
+    g = rep(c("left", "right"), each = 4L, length.out = 24L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, fill = g)) + ggplot2::geom_boxplot()
+  fn <- fmt_com
+  environment(fn) <- list2env(list("==" = function(e1, e2) {
+    if (identical(substitute(e1), quote(context))) stop("rescanned every observation for a comparison context")
+    base::"=="(e1, e2)
+  }), parent = environment(fn))
+  run <- function(f) ggplot2::ggplot_build(f(p, label.y = c(12, 13)))$data
+  expect_identical(run(fn), run(fmt_com))
+})
