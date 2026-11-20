@@ -1858,3 +1858,15 @@ test_that("lv complete factor summaries reuse their declared levels", {
   d <- d[d$stage != "I", , drop = FALSE]
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("unique short sparse factors do not rematch their codes", {
+  lev <- c(paste0("level", 1:80), NA_character_)
+  x <- structure(c(52L, NA_integer_, 81L, 7L), levels = lev, class = "factor")
+  fn <- .factor_tally
+  environment(fn) <- list2env(list(match = function(...) {
+    stop("rematched unique short factor codes")
+  }), parent = environment(fn))
+  expect_identical(fn(x), list(codes = c(7L, 52L, 81L),
+    counts = rep.int(1L, 3L), row_codes = as.integer(x)))
+  expect_identical(fn(x[FALSE]), .factor_tally(x[FALSE]))
+})

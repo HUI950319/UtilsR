@@ -329,9 +329,11 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   row_codes <- as.integer(x)
   if (k > length(x)) {
     if (length(row_codes) < 1024L) {
-      observed <- sort(unique(row_codes), na.last = NA)
-      return(list(codes = observed, counts = tabulate(match(row_codes, observed), nbins = length(observed)),
-                  row_codes = row_codes))
+      distinct <- unique(row_codes)
+      observed <- sort(distinct, na.last = NA)
+      counts <- if (length(distinct) == length(row_codes)) rep.int(1L, length(observed)) else
+        tabulate(match(row_codes, observed), nbins = length(observed))
+      return(list(codes = observed, counts = counts, row_codes = row_codes))
     }
     ids <- vctrs::vec_group_id(row_codes)
     observed <- row_codes[!duplicated(ids)]
