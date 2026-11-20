@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization classifies each child once and reuses that result for passthrough and run segmentation.
+
 * Comparison bracket layout indexes observations by context once before evaluating the displayed pair families.
 
 * `PlotDumbbell()` retains both the factor codes and their level names when the plotted order matches the declared order.

@@ -1150,3 +1150,19 @@ test_that("vector only raster panels keep their native child list", {
   }), parent = environment(fn))
   expect_identical(fn(g, 2, 1, 90, "in", "transparent"), g)
 })
+
+test_that("mixed raster panels classify vector children only once", {
+  skip_if_not_installed("ragg")
+  g <- grid::grobTree(grid::textGrob("a", name = "left"), grid::rectGrob(name = "zone"),
+    grid::textGrob("b", name = "right"))
+  fn <- .rasterize_panel_grob
+  seen <- character()
+  environment(fn) <- list2env(list(.is_text_grob = function(child, name) {
+    if (name %in% seen) stop("classified a mixed raster child twice")
+    seen <<- c(seen, name)
+    .is_text_grob(child, name)
+  }), parent = environment(fn))
+  out <- fn(g, 1.5, 1, 60, "in", "transparent")
+  expect_identical(seen, names(g$children))
+  expect_identical(length(out$children), 3L)
+})
