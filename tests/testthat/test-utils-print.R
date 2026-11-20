@@ -2323,3 +2323,17 @@ test_that("complete factor sparkline bins reuse existing counts", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("console numeric probability formatting reuses valid value flags", {
+  x <- c(0, .0004, .04999, .8, NA_real_)
+  fn <- ._p_cells
+  n <- 0L
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(v)) || identical(substitute(x), quote(num))) {
+      n <<- n + 1L
+      if (n > 1L) stop("rescanned numeric probability missingness")
+    }
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), ._p_cells(x))
+})

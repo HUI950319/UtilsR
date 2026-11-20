@@ -482,7 +482,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (numeric_input) {
     num <- v
     txt <- stat_pval(v, mode = "pvalue")
-    txt[which(!is.na(v) & v < 0.001)] <- "<0.001"
+    tiny <- which(v < 0.001)
+    if (length(tiny)) txt[tiny] <- "<0.001"
     # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
     # more decimals, so the text agrees with its colour and stars
     candidates <- which((v >= 0.0495 & v < 0.05) | (v >= 0.0095 & v < 0.01))

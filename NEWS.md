@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value formatting reuses the known validity of its numeric inputs for below-threshold text.
+
 * Palette preview luminance computes an elementwise mask only when channel values straddle the linear cutoff.
 
 * Missingness plots reuse the calculated source-column index for their summary rows and displayed category keys.
