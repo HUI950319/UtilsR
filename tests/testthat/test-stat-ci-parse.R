@@ -1257,3 +1257,16 @@ test_that("linear CI rescaling checks only candidate rows", {
   expect_identical(suppressWarnings(f(extreme, output = "p", exp = FALSE)),
                    suppressWarnings(stat_ci_parse(extreme, output = "p", exp = FALSE)))
 })
+
+test_that("confidence z scores restore null values without a conditional result vector", {
+  v <- c("0.00 (-0.3, 0.4)", "2.00 (2.0, 3.0)", "-0.4 (-0.8, 0.0)", NA_character_)
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(e_s == 0)))
+      stop("selected every confidence interval z score with ifelse")
+    base::ifelse(test, yes, no)
+  }), parent = environment(f))
+  p <- suppressWarnings(f(v, output = "p", exp = FALSE))
+  expect_identical(p, suppressWarnings(stat_ci_parse(v, output = "p", exp = FALSE)))
+  expect_identical(p[[1L]], 1)
+})

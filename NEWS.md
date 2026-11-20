@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI P-value inference avoids a full conditional result vector and still maps zero estimates to a zero standard score.
+
 * CI inference inspects finite endpoints only for candidate rows requiring numerical rescaling.
 
 * Stacked distributions use a share of one when each axis and facet group has exactly one segment.
