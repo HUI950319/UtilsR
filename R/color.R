@@ -1925,9 +1925,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 }
 
 .pal_linear_channel <- function(v) {
+  if (!length(v) || max(v) <= 0.03928) return(v / 12.92)
+  if (min(v) > 0.03928) return(((v + 0.055) / 1.055)^2.4)
   low <- v <= 0.03928
-  if (all(low)) return(v / 12.92)
-  if (!any(low)) return(((v + 0.055) / 1.055)^2.4)
   v[low] <- v[low] / 12.92
   v[!low] <- ((v[!low] + 0.055) / 1.055)^2.4
   v

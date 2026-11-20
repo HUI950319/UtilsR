@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette preview luminance computes an elementwise mask only when channel values straddle the linear cutoff.
+
 * Missingness plots reuse the calculated source-column index for their summary rows and displayed category keys.
 
 * `fct_num()` validates ordinary numeric cut points from their extrema and continues to use class-specific finiteness methods.

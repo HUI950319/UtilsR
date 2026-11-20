@@ -3376,3 +3376,14 @@ test_that("unnamed palette previews recycle an absent name flag", {
   }), parent = environment(fn))
   expect_identical(fn(x, max_colors = 12L)$data, .pal_show_colors(x, max_colors = 12L)$data)
 })
+
+test_that("uniform luminance branches skip per-swatch cutoff masks", {
+  fn <- .pal_linear_channel
+  environment(fn) <- list2env(list("<=" = function(e1, e2) {
+    if (identical(substitute(e1), quote(v)) && length(e1) > 100L)
+      stop("allocated a cutoff mask for homogeneous color channels")
+    base::"<="(e1, e2)
+  }), parent = environment(fn))
+  for (x in list(rep(c(0, 0.03), 200L), seq(0.25, 0.8, length.out = 400L),
+                 c(0, 0.8), numeric())) expect_identical(fn(x), .pal_linear_channel(x))
+})
