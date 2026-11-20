@@ -572,6 +572,9 @@ grob_to_gg <- function(grob, ...) {
   index <- grep("^(panel(-[0-9]+)*|panel-area)$", layout$name)
   if (!length(index)) index <- grep("panel", layout$name)
   if (!length(index)) stop("Cannot find the panel area in 'plot'.", call. = FALSE)
+  if (length(index) == nrow(layout)) {
+    return(c(t = min(layout$t), b = max(layout$b), l = min(layout$l), r = max(layout$r)))
+  }
   c(t = min(layout$t[index]), b = max(layout$b[index]),
     l = min(layout$l[index]), r = max(layout$r[index]))
 }

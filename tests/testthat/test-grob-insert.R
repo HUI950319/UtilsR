@@ -448,3 +448,17 @@ test_that("simple grid coordinates avoid classifying compound units", {
   expect_false(f(grid::unit(Inf, "npc")))
   expect_true(f(grid::unit(1, "npc") + grid::unit(1, "cm")))
 })
+
+test_that("grob panel bounds keep wholly panel layout columns", {
+  layout <- data.frame(name = paste0("panel-", 1:4), t = 1:4, b = 1:4,
+                       l = c(4L, 2L, 1L, 4L), r = c(4L, 2L, 1L, 5L))
+  f <- .grob_panel_bounds
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(i), quote(index)) && identical(i, seq_along(x)))
+      stop("sliced a complete grob panel layout column")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(layout), c(t = 1L, b = 4L, l = 1L, r = 5L))
+  layout$name[3L] <- "guide-box"
+  expect_identical(f(layout), .grob_panel_bounds(layout))
+})
