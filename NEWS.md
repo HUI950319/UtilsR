@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey stages reuse their factor dictionary and count visible labels without a missing-name mask when every name is present.
+
 * Unfaceted alluvial plots use the observed factor codes as their final category positions and skip hashing or resorting a facet/category table.
 
 * Panel rasterization classifies each child once and reuses that result for passthrough and run segmentation.

@@ -291,8 +291,10 @@ plt_sankey <- function(data,
       counts <- c(counts, missing)
     }
     # Work with codes so an explicit NA level remains separate from missing rows.
-    names_at <- levels(value)[observed]
-    observed_levels[i] <- sum(!is.na(names_at))
+    names_at <- if (!reverse_levels && !missing && length(observed) == nlevels(value)) {
+      levels(value)
+    } else levels(value)[observed]
+    observed_levels[i] <- if (anyNA(names_at)) sum(!is.na(names_at)) else length(names_at)
     proportion <- counts / total
     pct <- if (label_style %in% c("all", "all_wrap", "pct")) {
       scales::percent(proportion, accuracy = label_args$pct_accuracy)

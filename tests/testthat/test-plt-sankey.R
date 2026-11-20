@@ -1070,3 +1070,19 @@ test_that("Sankey unique node captions retain their original indices", {
   d$next_step <- d$first
   expect_identical(draw(f), draw(plt_sankey))
 })
+
+test_that("complete Sankey stages retain their original level names", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = factor(rep(c("A", "B", "C"), 4L)),
+    b = ordered(rep(c("I", "II", "III"), 4L)))
+  fn <- plt_sankey
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(levels(value))) &&
+        identical(substitute(i), quote(observed)) && !is.unsorted(i))
+      stop("sliced a complete Sankey caption dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  run <- function(f) suppressMessages(f(d, names(d), palette = "red", show_text = "none",
+    reverse_levels = FALSE, theme_use = ggplot2::theme_minimal()))$data
+  expect_identical(run(fn), run(plt_sankey))
+})
