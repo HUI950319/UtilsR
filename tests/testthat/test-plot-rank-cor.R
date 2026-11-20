@@ -1417,3 +1417,23 @@ test_that("rank correlation complete groups do not repeat missingness checks", {
   }
   expect_identical(run(fn), run(PlotRankCor))
 })
+
+test_that("finite rank correlation pairs do not repeat original extrema scans", {
+  d <- data.frame(item = rep(letters[1:6], each = 2), method = rep(c("x", "y"), 6),
+    score = c(1, 2, 4, 3, 5, 5, 7, 6, 9, 8, 10, 7))
+  fn <- PlotRankCor
+  n <- 0L
+  environment(fn) <- list2env(list(min = function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...))[[2L]], quote(x))) {
+      n <<- n + 1L
+      if (n > 1L) stop("rescanned paired rank values during centering")
+    }
+    base::min(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  run <- function(f) {
+    invisible(capture.output(p <- f(d, "item", "score", method.by = "method",
+      use_rank = FALSE, show.label = FALSE)))
+    p$data
+  }
+  expect_identical(run(fn), run(PlotRankCor))
+})

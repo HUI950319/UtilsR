@@ -514,8 +514,8 @@ PlotRankCor <- function(
       return(c(NA_real_, NA_real_))
     }
     if (!use_rank) {
-      x <- .center_scale_vec(x)
-      y <- .center_scale_vec(y)
+      x <- .center_scale_vec(x, complete = TRUE)
+      y <- .center_scale_vec(y, complete = TRUE)
     }
     ct <- stats::cor.test(x, y, method = cor_method, exact = FALSE)
     c(ct$estimate, ct$p.value)
