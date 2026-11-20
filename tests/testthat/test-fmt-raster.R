@@ -1099,3 +1099,15 @@ test_that("raster measurement skips deduplication for unique spans", {
                user_val = NULL, units = "cm", cell_sizes = 1:12 / 7)
   expect_identical(do.call(f, args), do.call(.resolve_panel_size, args))
 })
+
+test_that("native text grobs skip regular expression dispatch", {
+  f <- .is_text_grob
+  environment(f) <- list2env(list(grepl = function(pattern, x, ...) {
+    if ("text" %in% x) stop("classified a native grid text grob by regex")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(f))
+  child <- grid::textGrob("keep", name = "custom")
+  expect_true(f(child, child$name))
+  expect_true(f(grid::grobTree(child, name = "wrapper"), "wrapper"))
+  expect_false(f(grid::rectGrob(name = "rectangle"), "rectangle"))
+})

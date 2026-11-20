@@ -743,6 +743,7 @@ fmt_raster <- function(
 # --- Detect whether a panel child is a text/label grob ---
 #' @noRd
 .is_text_grob <- function(child, child_nm) {
+  if (inherits(child, "text")) return(TRUE)
   if (any(grepl("text|label", c(child_nm, class(child)), ignore.case = TRUE))) {
     return(TRUE)
   }
