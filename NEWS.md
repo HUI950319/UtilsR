@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric frequency listings keep the existing order of complete, sorted unique values.
+
 * Palette previews reuse one unnamed flag when every swatch lacks a name.
 
 * `stat_ci()` validates complete precision entries through their range before any exceptional byte-width checks.

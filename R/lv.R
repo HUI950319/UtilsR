@@ -532,7 +532,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         distinct <- attr(ids, "n")
         unique_rows <- distinct == length(x)
         values <- if (unique_rows) x else x[!duplicated(ids)]
-        observed <- order(values, na.last = NA, method = "radix")
+        observed <- if (!anyNA(values) && !is.unsorted(values)) seq_along(values) else
+          order(values, na.last = NA, method = "radix")
         valid <- values[observed]
         n <- if (unique_rows) rep.int(1L, length(observed)) else tabulate(ids, distinct)[observed]
       } else {

@@ -1946,3 +1946,14 @@ test_that("complete inspection listings skip finiteness masks for measurements",
   expect_identical(capture.output(suppressMessages(fn(d))),
     capture.output(suppressMessages(lv(d))))
 })
+
+test_that("complete ordinary numeric inspection values keep their sorted sequence", {
+  d <- data.frame(x = 1:9)
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(order = function(..., na.last = TRUE, decreasing = FALSE, method = "auto") {
+    if (identical(substitute(list(...))[[2L]], quote(values)))
+      stop("gathered a full sorted inspection frequency permutation")
+    base::order(..., na.last = na.last, decreasing = decreasing, method = method)
+  }), parent = environment(fn))
+  expect_identical(capture.output(suppressMessages(fn(d))), capture.output(suppressMessages(lv(d))))
+})
