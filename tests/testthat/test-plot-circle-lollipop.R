@@ -1528,3 +1528,28 @@ test_that("distinct circular group labels skip duplicate masks", {
   }), parent = environment(f))
   expect_identical(draw(f), draw(PlotCircleLollipop))
 })
+
+test_that("circular complete scores use scalar group extrema", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 3L), name = letters[1:6],
+                  value = c(.0, .2, 1, 1, 1.5, 3))
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  draw <- function(f, ...) {
+    observed <<- numeric()
+    f(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE, ...)
+    observed
+  }
+  f <- PlotCircleLollipop
+  environment(f) <- list2env(list(range = function(x, ...) {
+    if (identical(substitute(x), quote(x))) stop("rebuilt a range for complete circular scores")
+    base::range(x, ...)
+  }), parent = environment(f))
+  expect_identical(draw(f, value_scale = "group"), c(0, .2, 1, 0, .25, 1))
+  expect_identical(draw(f, value_scale = "top_n"), draw(PlotCircleLollipop, value_scale = "top_n"))
+})

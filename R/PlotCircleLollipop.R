@@ -351,7 +351,7 @@ PlotCircleLollipop <- function(
     (x - mn) / span
   }
   score_range <- function(x) {
-    if (length(x) && !anyNA(x)) return(range(x))
+    if (length(x) && !anyNA(x)) return(c(min(x), max(x)))
     if (all(is.na(x))) c(NA_real_, NA_real_) else range(x, na.rm = TRUE)
   }
   scale_integer64 <- function(x, reference = x) {
