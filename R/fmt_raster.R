@@ -278,9 +278,11 @@ fmt_raster <- function(
     children <- lapply(gt$grobs[nested], plan_panels)
     counts <- vapply(children, `[[`, integer(1), "count")
     keep <- counts > 0L
-    nested <- nested[keep]
-    children <- children[keep]
-    counts <- counts[keep]
+    if (!all(keep)) {
+      nested <- nested[keep]
+      children <- children[keep]
+      counts <- counts[keep]
+    }
     if (!length(nested)) {
       return(list(indices = indices, nested = nested, children = children,
         positions = seq_along(indices), offsets = integer(), count = length(indices)))

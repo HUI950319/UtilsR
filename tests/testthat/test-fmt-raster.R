@@ -1068,3 +1068,19 @@ test_that("raster children in native draw order reuse their list", {
   g$childrenOrder <- rev(g$childrenOrder)
   expect_identical(unname(draw(f, g)), unname(draw(.rasterize_panel_grob, g)))
 })
+
+test_that("raster recursion keeps already complete nested plans", {
+  skip_if_not_installed("ragg")
+  leaf <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  leaf <- gtable::gtable_add_grob(leaf, grid::rectGrob(), 1L, 1L, name = "panel", clip = "on")
+  root <- gtable::gtable(grid::unit(c(1, 1), "in"), grid::unit(1, "in"))
+  root <- gtable::gtable_add_grob(root, list(leaf, leaf), 1L, 1:2, name = c("left", "right"))
+  f <- .fmt_raster_ragg
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(nested)) && is.logical(i) && length(i) && all(i))
+      stop("filtered a complete nested raster plan")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(f))
+  result <- f(root, dpi = 20L, width = NULL, height = NULL, units = "in", bg = "transparent")
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(result), "rastergrob"), 2L)
+})
