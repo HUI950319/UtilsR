@@ -377,6 +377,10 @@ PlotScatter2 <- function(
   if (!is.null(annot_text)) {
     if (is.null(annot_pos)) {
       finite_range <- function(z) {
+        if (length(z) && !is.object(z)) {
+          bounds <- c(min(z), max(z))
+          if (all(is.finite(bounds))) return(bounds)
+        }
         z <- z[is.finite(z)]
         if (length(z)) range(z) else c(0, 1)
       }

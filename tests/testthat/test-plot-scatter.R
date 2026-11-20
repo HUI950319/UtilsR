@@ -1970,3 +1970,18 @@ test_that("complete paired scatter coordinates avoid constructing a joined range
   b <- draw(PlotScatter3)
   expect_identical(a[[1L]]$scales$get_scales("x")$limits, b[[1L]]$scales$get_scales("x")$limits)
 })
+
+test_that("scatter marginal annotations skip filtering complete axes", {
+  d <- data.frame(x = seq(-1, 3, length.out = 12L), y = c(29:23, 50:46), g = rep(c("A", "B"), each = 6L))
+  fn <- PlotScatter2
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(z)) && !missing(i) && is.logical(i) && all(i))
+      stop("filtered complete scatter annotation coordinates")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  draw <- function(f) {
+    p <- f(d, "x", "y", "g", annot_text = "result")
+    p[[1L]]$layers[[length(p[[1L]]$layers)]]$data
+  }
+  expect_identical(draw(fn), draw(PlotScatter2))
+})

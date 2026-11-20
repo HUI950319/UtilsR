@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter marginal annotations reuse complete coordinate ranges and preserve the fallback for nonfinite observations.
+
 * Circular lollipop score validation uses scalar bounds and skips complete-column row masks.
 
 * Circular lollipop scaling takes the bounds of complete normalized group scores directly.
