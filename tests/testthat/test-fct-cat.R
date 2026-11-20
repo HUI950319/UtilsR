@@ -1041,3 +1041,18 @@ test_that("sparse binary factor grouping tallies observed levels once", {
   expect_identical(fct_cat(x, ref_idx = 2L), expected)
   expect_identical(calls, 1L)
 })
+
+test_that("complete recoded factors retain their mapped level indices", {
+  x <- ordered(c("b", "a", "c", "b", NA), levels = c("a", "b", "c"))
+  groups <- list(any = c(2L, 3L), ref = 1L)
+  fn <- .recode_factor
+  environment(fn) <- list2env(list(cumsum = function(x) {
+    if (identical(substitute(x), quote(used)) && all(x))
+      stop("compressed level IDs with no unused output levels")
+    base::cumsum(x)
+  }), parent = environment(fn))
+  draw <- function(f, values) f(values, groups, checked_indices = TRUE)
+  expect_identical(draw(fn, x), draw(.recode_factor, x))
+  y <- x[is.na(x) | x == "a"]
+  expect_identical(draw(fn, y), draw(.recode_factor, y))
+})

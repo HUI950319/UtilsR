@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor recoding avoids compressing the new level IDs when all output levels occur.
+
 * Binary factor recoding reuses its sparse level tally when collapsing reference and other categories.
 
 * Scatter marginal annotations reuse complete coordinate ranges and preserve the fallback for nonfinite observations.
