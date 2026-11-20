@@ -750,7 +750,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     lvs <- discrete_levels %||% .pal_discrete_levels(x)
     n_lvs <- length(lvs)
     if (n_lvs <= length(cols)) {
-      out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
+      stops <- if (n_lvs == length(cols) && !is.object(cols)) cols else cols[seq_len(n_lvs)]
+      out <- stats::setNames(stops, lvs)
     } else {
       out <- stats::setNames(ramp(n_lvs), lvs)
       alpha <- 1
@@ -758,7 +759,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   } else if (!is.null(n)) {
     # --- Return n colours ---
     if (n <= length(cols)) {
-      out <- cols[seq_len(n)]
+      out <- if (n == length(cols) && !is.object(cols)) cols else cols[seq_len(n)]
     } else {
       out <- ramp(n)
       alpha <- 1

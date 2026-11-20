@@ -3273,3 +3273,19 @@ test_that("numeric palette bounds use scalar extrema", {
     expect_identical(fn(rep(4, 10), reverse), .pal_numeric_positions(rep(4, 10), reverse))
   }
 })
+
+test_that("full-size palette assignments reuse the original colour vector", {
+  cols <- c(first = "red", alpha = "#00FF0080", last = "blue")
+  f <- .pal_apply
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(x, cols) && identical(i, seq_along(x)))
+      stop("sliced every palette stop for a full-size request")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  for (op in c(1, .5)) {
+    expect_identical(f(cols, n = 3, reverse = TRUE, alpha = op),
+                     .pal_apply(cols, n = 3, reverse = TRUE, alpha = op))
+    expect_identical(f(cols, x = letters[1:3], alpha = op),
+                     .pal_apply(cols, x = letters[1:3], alpha = op))
+  }
+})
