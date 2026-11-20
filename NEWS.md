@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` reuses a sorted, distinct selection of object names without deduplicating and sorting it again.
+
 * Palette repetition detection no longer scans vectors that are too short for duplicate reuse to be beneficial.
 
 * Mixed-scale confidence intervals now evaluate the tight-log-interval condition on exponentiated rows only.

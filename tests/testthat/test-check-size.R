@@ -629,3 +629,16 @@ test_that("object size selectors check bounds without row sized masks", {
   expect_error(fn(c(1L, 4L), envir = e), "indices must be finite")
   expect_error(fn(c(0L, 3L), envir = e), "indices must be finite")
 })
+
+test_that("sorted unique explicit size selections skip duplicate collection", {
+  e <- list2env(list(a = 1, b = 1:10, c = 1:200), parent = emptyenv())
+  fn <- check_size
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(objects)) && !is.unsorted(x, strictly = TRUE))
+      stop("deduplicated sorted distinct size selectors")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  for (x in list(c("a", "b", "c"), c("c", "b", "a", "b"))) {
+    expect_identical(fn(x, envir = e)[["_data"]], check_size(x, envir = e)[["_data"]])
+  }
+})

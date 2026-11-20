@@ -156,7 +156,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   if (!is.null(pattern) || ...length() == 0L) {
     objects <- sort(objects)
   } else {
-    objects <- sort(unique(objects))
+    if (is.unsorted(objects, strictly = TRUE)) objects <- sort(unique(objects))
     if (is.null(all_objects) && length(objects) > 1024L) {
       all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
     }
