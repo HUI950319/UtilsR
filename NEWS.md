@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The missing-value counter used by `check_na()` and `lv()` returns zero for a complete ordinary factor straight from its codes.
+
 * `fmt_axisTile()` preserves the native break order for dodging and overlap checks on its axis labels.
 
 * `fmt_axisTile()` now keeps the native axis line cap at the selected breaks while drawing tiles across the trained categories.

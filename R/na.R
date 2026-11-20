@@ -291,7 +291,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     cli::cli_abort("Inspecting integer64 columns requires the {.pkg bit64} package.")
   }
   if (is.expression(x)) x <- as.list(x)
-  if (!is.object(x) && !anyNA(x)) return(0L)
+  ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+  if ((!is.object(x) && !anyNA(x)) || (ordinary_factor && !anyNA(unclass(x)))) return(0L)
   sum(is.na(x))
 }
 

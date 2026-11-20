@@ -923,3 +923,14 @@ test_that("complete quality summaries order their original count vectors", {
   expect_identical(capture_gt_data(fn(d, show_all = TRUE)),
                    capture_gt_data(check_na(d, show_all = TRUE)))
 })
+
+test_that("complete ordinary factors short circuit missing-value counts", {
+  x <- structure(c(1L, 2L, 1L), levels = c("observation", NA_character_), class = c("ordered", "factor"))
+  fn <- .count_missing_values
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (is.factor(x) && !anyNA(unclass(x))) stop("allocated a complete factor missing mask")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), 0L)
+  expect_identical(fn(c(x, NA)), 1L)
+})
