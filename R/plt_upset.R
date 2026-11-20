@@ -458,7 +458,6 @@ plt_upset <- function(data,
     row_codes <- .upset_row_codes(set_list, nrow(data))
     row_keys <- row_codes + 1L
     counts <- tabulate(row_keys, nbins = length(group_names))
-    nintersects <- sum(counts[-1L] > 0L)
     region_order <- order(counts[codes + 1L], decreasing = TRUE, method = "radix")
     ordered <- c(region_order, length(group_names))
     level_codes <- integer(length(group_names))
@@ -467,6 +466,7 @@ plt_upset <- function(data,
     grp_data$intersect_group <- structure(level_codes[row_keys],
                                           levels = group_names[ordered], class = "factor")
     if (output == "data") return(grp_data)
+    nintersects <- sum(counts[-1L] > 0L)
   }
 
   set_keys <- sprintf("set%0*d", nchar(length(set_list)),

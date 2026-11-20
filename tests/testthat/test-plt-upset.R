@@ -1228,3 +1228,15 @@ test_that("full first UpSet set initializes its row codes directly", {
   sets$a <- c(1L, 2L, 50L)
   expect_identical(fn(sets), .upset_row_codes(sets))
 })
+
+test_that("UpSet grouped data skip counting plotted regions", {
+  d <- data.frame(x = c(1L, 0L, 1L), y = c(1L, 1L, 0L))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(sum = function(...) {
+    if (any(grepl("counts[-1L]", deparse(substitute(list(...))), fixed = TRUE)))
+      stop("counted intersections for unrequested UpSet panels")
+    base::sum(...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, vars = names(d), levels = 1, output = "data"),
+                   plt_upset(d, vars = names(d), levels = 1, output = "data"))
+})

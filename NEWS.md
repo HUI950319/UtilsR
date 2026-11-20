@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` skips counting nonempty regions a second time for the unused plot.
+
 * Special-marker counting uses complete factor dictionaries directly and clears matches only for actual missing level names.
 
 * The missing-value counter used by `check_na()` and `lv()` returns zero for a complete ordinary factor straight from its codes.
