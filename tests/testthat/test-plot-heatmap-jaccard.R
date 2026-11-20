@@ -1169,3 +1169,14 @@ test_that("identical Jaccard group dictionaries reuse factor codes", {
   expect_identical(fn(d, group_levels = c("A", "B", "C"), return_type = "data"),
     PlotHeatmapJaccard(d, group_levels = c("A", "B", "C"), return_type = "data"))
 })
+
+test_that("Jaccard diagonal uses its occupied group positions", {
+  d <- data.frame(cell_type = rep(c("A", "B", "C"), 2L), gene = c("a", "b", "c", "z", "z", "z"))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list("diag<-" = function(x, value) {
+    stop("wrote the Jaccard diagonal from a second coverage vector")
+  }), parent = environment(fn))
+  group <- c("C", "A", "absent", "B")
+  expect_identical(fn(d, group_levels = group, return_type = "data"),
+    PlotHeatmapJaccard(d, group_levels = group, return_type = "data"))
+})

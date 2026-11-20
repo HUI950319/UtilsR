@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard similarity uses the occupied group positions to write its diagonal without recreating the coverage mask.
+
 * Jaccard row grouping skips a dictionary match when factor levels already equal the requested group sequence.
 
 * Panel raster sizing checks the extrema of measured widths or heights without allocating full comparison masks.

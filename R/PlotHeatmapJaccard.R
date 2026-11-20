@@ -278,8 +278,8 @@ PlotHeatmapJaccard <- function(
   # ---- 3. Compute pairwise Jaccard similarity ----
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
                  dimnames = list(ct_labels, ct_labels))
-  diag(jmat) <- as.double(set_sizes > 0L)
   occupied <- which(set_sizes > 0L)
+  jmat[cbind(occupied, occupied)] <- 1
   first_at <- NULL
   sparse_pairs <- length(occupied) > 16L && !typed_features && is.atomic(feature_values)
   if (sparse_pairs) {
