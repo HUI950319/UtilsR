@@ -934,3 +934,16 @@ test_that("complete ordinary factors short circuit missing-value counts", {
   expect_identical(fn(x), 0L)
   expect_identical(fn(c(x, NA)), 1L)
 })
+
+test_that("special-value factor counts reuse whole level names", {
+  values <- c("unknown", "not applicable", "known", "Another", NA_character_)
+  x <- structure(rep(1:5, 12L), levels = values, class = "factor")
+  fn <- .count_special_values
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(levels(x)))) stop("copied a complete special factor dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), 24)
+  expect_identical(fn(x, special = "known"), 24)
+  expect_identical(fn(x, special = ".*"), 48)
+})

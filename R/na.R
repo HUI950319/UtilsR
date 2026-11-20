@@ -310,7 +310,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   if (!is.null(special) && length(special) == 0L) return(0)
   if (is.factor(x)) {
     tally <- tally %||% .factor_tally(x)
-    u <- levels(x)[tally$codes]
+    u <- levels(x)
+    if (length(tally$codes) != length(u)) u <- u[tally$codes]
     n <- tally$counts
   } else {
     u <- distinct %||% unique(x)
@@ -319,9 +320,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     if (length(markers) == length(u)) return(length(x) + 0)
     return(sum(x %in% markers) + 0)
   }
-  missing <- is.na(u)
   hit <- .is_special_value(u, special)
-  sum(n[hit & !missing]) + 0
+  if (anyNA(u)) hit[is.na(u)] <- FALSE
+  sum(n[hit]) + 0
 }
 
 # Count observed factor codes in level order, including a coded NA level.
