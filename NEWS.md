@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Fully named swatch palettes use the supplied label vector without replacing every generated HEX label.
+
 * Alpha adjustment only replaces the literal transparent colour when it is present.
 
 * Character confidence intervals use a scalar precision value when all parsed rows share it.

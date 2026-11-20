@@ -3313,3 +3313,16 @@ test_that("palette alpha skips an empty transparent substitution", {
     expect_identical(f(cols, alpha = .5), .pal_apply(cols, alpha = .5))
   }
 })
+
+test_that("fully named palette previews reuse their label vector", {
+  cols <- c(warm = "#FF602080", cool = "#050A90", ink = "black")
+  f <- .pal_show_colors
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(value, names(cols)) && is.logical(i) && all(i))
+      stop("overwrote every label with a supplied palette name")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  expect_identical(f(cols, max_colors = 10L)$data, .pal_show_colors(cols, max_colors = 10L)$data)
+  names(cols)[2L] <- " "
+  expect_identical(f(cols, max_colors = 10L)$data, .pal_show_colors(cols, max_colors = 10L)$data)
+})

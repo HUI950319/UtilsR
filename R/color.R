@@ -1965,8 +1965,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 
   has_name <- if (is.null(color_names)) rep.int(FALSE, n) else
     !is.na(color_names) & nzchar(trimws(color_names, whitespace = "[\\h\\v]"))
-  labels <- hex
-  if (any(has_name)) labels[has_name] <- color_names[has_name]
+  named <- all(has_name)
+  labels <- if (named) color_names else hex
+  if (!named && any(has_name)) labels[has_name] <- color_names[has_name]
 
   # Compute luminance for text contrast
   translucent <- rgba[4L, ] != 255L
