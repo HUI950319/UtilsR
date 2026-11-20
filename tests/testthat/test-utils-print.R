@@ -2249,3 +2249,17 @@ test_that("integer console table highlights need no floating-point validation", 
   expect_error(fn(d, highlight = -1L), "non-negative whole row")
   expect_error(fn(d, highlight = 1.25), "non-negative whole row")
 })
+
+test_that("complete numeric sparkline values skip full finite masks", {
+  d <- data.frame(value = seq(-2.3, 6.7, length.out = 120L))
+  fn <- pr_spark
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(num)) && identical(x, d$value) &&
+        !anyNA(x) && all(base::is.finite(x))) stop("allocated a finite mask for complete sparkline values")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(f(d))
+  expect_identical(draw(fn), draw(pr_spark))
+  d$value[1:3] <- c(NA_real_, -Inf, Inf)
+  expect_identical(draw(fn), draw(pr_spark))
+})

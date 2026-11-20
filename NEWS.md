@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric sparklines skip combined missing and finite masks for complete ordinary numeric columns.
+
 * Automatic factor binning calculates extrema directly once the numeric storage has been normalized.
 
 * Factor level index checks reuse scalar bounds for plain validated positions.
