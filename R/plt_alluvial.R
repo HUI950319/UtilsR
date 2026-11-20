@@ -535,7 +535,8 @@ plt_alluvial <- function(
 
   stat$.label <- NA_character_
   show_label <- if (label_args$style != "none") {
-    which(stat$count > 0 & stat$percent >= label_args$min_pct)
+    if (label_args$min_pct == 0) which(stat$count > 0) else
+      which(stat$count > 0 & stat$percent >= label_args$min_pct)
   }
   if (length(show_label)) {
     style <- label_args$style

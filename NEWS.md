@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial labels at the zero threshold use the nonempty stratum counts directly.
+
 * Gap-free percentage alluvial plots retain their computed shares directly as stratum heights.
 
 * Histogram and density overlays reuse their native contiguous panel indices when assigning panel-relative heights.

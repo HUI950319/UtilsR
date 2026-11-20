@@ -1432,3 +1432,19 @@ test_that("gap free alluvial heights directly retain their shares", {
   expect_identical(run(fn, 0), run(plt_alluvial, 0))
   expect_identical(run(fn, 0.05), run(plt_alluvial, 0.05))
 })
+
+test_that("zero threshold alluvial labels skip the share condition", {
+  skip_if_not_installed("ggalluvial")
+  local_mocked_bindings(.save_sized = function(p, ...) p)
+  d <- data.frame(x = rep(letters[1:20], each = 3L), g = rep(c("one", "two", "two"), 20L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(">=" = function(e1, e2) {
+    if (identical(substitute(e1), quote(stat$percent)) && e2 == 0)
+      stop("checked every share against a zero threshold")
+    base::">="(e1, e2)
+  }), parent = environment(fn))
+  run <- function(f, threshold) suppressMessages(f(d, "x", "g",
+    label_args = list(min_pct = threshold)))$data
+  expect_identical(run(fn, 0), run(plt_alluvial, 0))
+  expect_identical(run(fn, 0.40), run(plt_alluvial, 0.40))
+})
