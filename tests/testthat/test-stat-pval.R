@@ -991,3 +991,14 @@ test_that("significance map bounds need no temporary range vector input", {
   expect_error(fn(c(map, bad = Inf)), "map_signif")
   expect_error(fn(c(map, bad = -1e-9)), "map_signif")
 })
+
+test_that("plain P-value validation avoids rebuilding a numeric range", {
+  f <- stat_pval
+  environment(f) <- list2env(list(range = function(...) stop("recomputed the range of plain P-value inputs")),
+                             parent = environment(f))
+  for (x in list(c(a = .01, b = NA_real_, c = .2, d = 1), c(NA_real_, NaN), numeric())) {
+    expect_identical(f(x), stat_pval(x))
+  }
+  expect_error(f(c(.5, -Inf)), "finite P-values")
+  expect_error(f("1.1"), "finite P-values")
+})

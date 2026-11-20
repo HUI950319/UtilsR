@@ -114,8 +114,7 @@ stat_pval <- function(x,
 
   .validate_p <- function(p, arg) {
     invalid <- if (!is.object(p)) {
-      bounds <- suppressWarnings(range(p, na.rm = TRUE))
-      bounds[[1L]] < 0 || bounds[[2L]] > 1
+      suppressWarnings(min(p, na.rm = TRUE) < 0 || max(p, na.rm = TRUE) > 1)
     } else any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))
     if (invalid) {
       cli::cli_abort("{.arg {arg}} must contain finite P-values between 0 and 1, or missing values.")

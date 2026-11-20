@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value validation uses scalar extrema for ordinary numeric vectors and keeps class-specific missingness handling.
+
 * Reference lines avoid private style columns when facets look up their column names dynamically.
 
 * Boxplot overlays find explicit bare column symbols in layer data while preserving mappings to caller values.
