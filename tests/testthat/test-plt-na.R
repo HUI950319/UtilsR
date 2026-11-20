@@ -673,3 +673,18 @@ test_that("missingness plots select names before slicing counts", {
   }), parent = environment(fn))
   expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
 })
+
+test_that("missingness summary row codes compute source positions only once", {
+  d <- data.frame(a = c(1, NA, NA), b = c(NA, 1, 3), c = c(NA_real_, NA_real_, NA_real_))
+  n <- 0L
+  fn <- plt_na
+  environment(fn) <- list2env(list("%/%" = function(e1, e2) {
+    if (identical(substitute(e1), quote((included + 1))) ||
+        identical(substitute(e1), quote(included + 1))) {
+      n <<- n + 1L
+      if (n > 1L) stop("recomputed missingness column positions")
+    }
+    base::"%/%"(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
+})

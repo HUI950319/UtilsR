@@ -162,8 +162,9 @@ plt_na <- function(
   numbers <- as.vector(rbind(n_rows - counts, counts))
   included <- which(numbers > 0)
   numbers <- numbers[included]
+  columns <- (included + 1) %/% 2
   missing_summary <- tibble::tibble(
-    name = names(counts)[(included + 1) %/% 2],
+    name = names(counts)[columns],
     isna = included %% 2L == 0L,
     num = numbers,
     total = n_rows,
@@ -179,7 +180,7 @@ plt_na <- function(
 
   codes <- integer(length(ordering))
   codes[ordering] <- seq_along(ordering)
-  missing_summary$label <- structure(codes[(included + 1) %/% 2],
+  missing_summary$label <- structure(codes[columns],
                                      levels = variable_levels, class = "factor")
 
   .plt_na_plot(
