@@ -1156,3 +1156,16 @@ test_that("sparse Jaccard similarities count pairs from one key grouping", {
   expect_identical(draw(fn), draw(PlotHeatmapJaccard))
   expect_equal(draw(fn)["G01", "G02"], .5)
 })
+
+test_that("identical Jaccard group dictionaries reuse factor codes", {
+  d <- data.frame(cell_type = ordered(rep(c("A", "B", "C"), 8L), levels = c("A", "B", "C")),
+    gene = rep(letters[1:8], each = 3L))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(levels(keys))))
+      stop("rematched the matching Jaccard level dictionary")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, group_levels = c("A", "B", "C"), return_type = "data"),
+    PlotHeatmapJaccard(d, group_levels = c("A", "B", "C"), return_type = "data"))
+})

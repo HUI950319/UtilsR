@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard row grouping skips a dictionary match when factor levels already equal the requested group sequence.
+
 * Panel raster sizing checks the extrema of measured widths or heights without allocating full comparison masks.
 
 * `plt_na()` selects the names of incomplete columns directly from its existing missing counts.

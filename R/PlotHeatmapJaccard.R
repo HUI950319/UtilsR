@@ -228,7 +228,8 @@ PlotHeatmapJaccard <- function(
     ids <- if (integer64_groups || time_groups) {
       vctrs::vec_match(keys, labels)
     } else if (factor_groups) {
-      match(levels(keys), labels)[as.integer(keys)]
+      if (identical(levels(keys), labels)) as.integer(keys) else
+        match(levels(keys), labels)[as.integer(keys)]
     } else {
       match(keys, labels)
     }
