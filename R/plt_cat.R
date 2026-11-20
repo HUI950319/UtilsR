@@ -915,12 +915,17 @@ plt_cat <- function(data,
       counts <- tabulate(ids, distinct)
     }
     order_at <- order(group_code, stat_code)
-    i <- stat_code[order_at]
-    j <- group_code[order_at]
+    if (is.unsorted(order_at)) {
+      stat_code <- stat_code[order_at]
+      group_code <- group_code[order_at]
+      counts <- counts[order_at]
+    }
+    i <- stat_code
+    j <- group_code
     df <- data.frame(
       stat_var = structure(i, levels = levels(data[[stat.by]]), class = "factor"),
       group_var = structure(j, levels = levels(data[[group.by]]), class = "factor"),
-      n = counts[order_at]
+      n = counts
     )
     if (stat == "percent") {
       df$value <- if (!length(j)) logical() else if (!anyDuplicated(j)) {

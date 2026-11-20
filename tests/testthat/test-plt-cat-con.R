@@ -2175,3 +2175,17 @@ test_that("dense categorical percentages sum contiguous support columns", {
   expect_identical(fn(d, "x", "g", "percent", keep_empty = TRUE), expected)
   expect_identical(expected$value[9:12], rep(0, 4L))
 })
+
+test_that("sorted sparse categorical cells retain their counted order", {
+  d <- data.frame(x = factor(c("a", "a", "b", "c", "d")), g = factor(c(1L, 1L, 1L, 2L, 2L)))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(i), quote(order_at)) && !is.unsorted(i))
+      stop("reindexed already ordered categorical cells")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  for (rows in list(seq_len(5L), rev(seq_len(5L)))) {
+    ref <- d[rows, , drop = FALSE]
+    expect_identical(fn(ref, "x", "g", "count"), .prepare_cat_data(ref, "x", "g", "count"))
+  }
+})

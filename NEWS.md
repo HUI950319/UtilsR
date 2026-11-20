@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse categorical summaries reuse lexicographically ordered codes and counts without gathering them again.
+
 * Dense categorical percentage tables use their known count-grid layout to compute group totals without splitting rows.
 
 * Sparse categorical percentage tables assign 100% directly when each represented subgroup has one observed category.
