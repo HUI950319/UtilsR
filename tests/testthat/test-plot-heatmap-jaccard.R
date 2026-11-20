@@ -1137,3 +1137,22 @@ test_that("complete Jaccard factors skip allocating a row missingness mask", {
     dimnames = list(levels(d[["g"]]), levels(d[["g"]])))
   expect_identical(actual, expected)
 })
+
+test_that("sparse Jaccard similarities count pairs from one key grouping", {
+  groups <- sprintf("G%02d", seq_len(30L))
+  links <- paste0("link", seq_len(30L))
+  d <- data.frame(g = rep(groups, each = 2L),
+                  item = as.vector(rbind(links, c(links[30L], links[-30L]))))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(keys)) && identical(substitute(table), quote(pairs)))
+      stop("looked up sparse Jaccard pair keys after deduplication")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  draw <- function(f) f(d, "g", "item", return_type = "data")
+  expect_identical(draw(fn), draw(PlotHeatmapJaccard))
+  expect_equal(draw(fn)["G01", "G02"], 1/3)
+  d <- rbind(d, data.frame(g = groups[1:2], item = "shared"))
+  expect_identical(draw(fn), draw(PlotHeatmapJaccard))
+  expect_equal(draw(fn)["G01", "G02"], .5)
+})

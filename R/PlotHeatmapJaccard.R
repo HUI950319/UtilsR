@@ -304,8 +304,15 @@ PlotHeatmapJaccard <- function(
         pairs <- which(counts > 0L)
         counts <- counts[pairs]
       } else {
-        pairs <- unique(keys)
-        counts <- tabulate(match(keys, pairs), nbins = length(pairs))
+        ids <- vctrs::vec_group_id(keys)
+        distinct <- attr(ids, "n")
+        if (distinct == length(keys)) {
+          pairs <- keys
+          counts <- rep.int(1L, distinct)
+        } else {
+          pairs <- keys[!duplicated(ids)]
+          counts <- tabulate(ids, nbins = distinct)
+        }
       }
       i <- (pairs - 1) %% n_ct + 1
       j <- (pairs - 1) %/% n_ct + 1
