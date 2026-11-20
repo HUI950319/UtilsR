@@ -1028,3 +1028,12 @@ test_that("complete exact P-value strings validate the existing vector", {
   }
   expect_error(f(c(x, "broken")), "numeric strings")
 })
+
+test_that("P-value star annotations accept expression entries without evaluation", {
+  x <- expression(alpha, stop("do not evaluate"), NA_character_)
+  names(x) <- c("label", "call", "missing")
+  want <- c("alpha**", paste0(as.character(x)[2L], "**"), NA_character_)
+  names(want) <- names(x)
+  expect_identical(stat_pval(x, add_star_p = rep(.01, 3L)), want)
+  expect_identical(stat_pval(expression(), add_star_p = numeric()), character())
+})

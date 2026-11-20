@@ -177,7 +177,7 @@ stat_pval <- function(x,
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
     .register_integer64(x)
-    missing_x <- if (is.object(x) || anyNA(x)) is.na(x)
+    missing_x <- if (is.expression(x)) is.na(as.list(x)) else if (is.object(x) || anyNA(x)) is.na(x)
     x <- as.character(x)
     if (length(add_star_p) != length(x)) {
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")

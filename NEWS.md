@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value star annotation supports expression vectors without evaluating the expressions and retains missing elements.
+
 * Fully named swatch palettes use the supplied label vector without replacing every generated HEX label.
 
 * Alpha adjustment only replaces the literal transparent colour when it is present.
