@@ -462,3 +462,18 @@ test_that("grob panel bounds keep wholly panel layout columns", {
   layout$name[3L] <- "guide-box"
   expect_identical(f(layout), .grob_panel_bounds(layout))
 })
+
+test_that("behind insets skip tie indexing at finite background free offsets", {
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, list(grid::rectGrob(), grid::pointsGrob(.5, .5)),
+                                t = 1L, l = 1L, z = c(0, 1), name = c("panel", "symbol"))
+  f <- grob_insert
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(overlaps & layout$z == lowest)))
+      stop("collected unneeded finite inset tie indices")
+    base::which(x, ...)
+  }), parent = environment(f))
+  result <- f(gt, grid::textGrob("under"), on_top = FALSE)
+  expect_identical(result$layout$name[order(result$layout$z)], c("inset", "panel", "symbol"))
+  expect_equal(min(result$layout$z), -1)
+})

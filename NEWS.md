@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Behind-panel insets only inspect tie order when an overlapping background may matter or a finite offset is unavailable.
+
 * Grob panel bounds use the existing layout columns directly when every layout row belongs to the panel area.
 
 * Grob coordinate validation checks finite simple units directly and retains recursion for compound units.
