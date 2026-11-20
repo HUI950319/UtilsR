@@ -2136,3 +2136,19 @@ test_that("stacked integer rose labels pool counts without formula aggregation",
                         .package = "stats")
   expect_identical(.plt_cat_rose(d, colours)$layers[[2L]]$data, expected)
 })
+
+test_that("complete categorical axes retain ordinary factor storage", {
+  x <- setNames(ordered(rep(c("b", "a", "c"), 12L)), seq_len(36L))
+  check_copy <- TRUE
+  f <- .cat_axis_factor
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (check_copy && identical(substitute(x), quote(labels)) && identical(i, seq_along(x)))
+      stop("rebuilt the level vector of a complete categorical axis")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(x), .cat_axis_factor(x))
+  expect_identical(f(x[as.character(x) != "a"]), .cat_axis_factor(x[as.character(x) != "a"]))
+  check_copy <- FALSE
+  attr(x, "label") <- "stage"
+  expect_identical(f(x), .cat_axis_factor(x))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical axes reuse complete factor vectors when their only attributes are the supported factor metadata.
+
 * Distribution labels skip constructing a visible-row index at a zero threshold.
 
 * P-value star annotation uses interval search for ordinary numeric AsIs storage and preserves names and missing values.

@@ -35,6 +35,7 @@
     observed <- tally$codes
     labels <- levels(value)
     if (length(observed) == length(labels)) {
+      if (all(names(attributes(value)) %in% c("levels", "class", "names"))) return(value)
       codes <- tally$row_codes
     } else if (length(labels) <= length(value)) {
       positions <- rep.int(NA_integer_, length(labels))
