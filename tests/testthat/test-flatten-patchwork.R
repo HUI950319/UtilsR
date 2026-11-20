@@ -488,3 +488,16 @@ test_that("flat unnamed plot lists skip redundant wrappers", {
                    rep(list(ggplot2::layer_data(p)), 3L))
   expect_identical(actual[[2L]]$labels$title, "Second")
 })
+
+test_that("flattened layout indices validate from extrema", {
+  f <- fmt_flatten
+  environment(f) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(select_inds))) stop("computed absolute values for all layout indices")
+    base::abs(x)
+  }), parent = environment(f))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, cyl)) + ggplot2::geom_point()
+  plots <- list(p + ggplot2::ggtitle("first"), p + ggplot2::ggtitle("second"))
+  expect_identical(f(plots, select_inds = 2L)[[1L]]$labels$title, "second")
+  expect_error(f(plots, select_inds = c(1L, -2L)), "without mixing")
+  expect_error(f(plots, select_inds = 4L), "within the plot range")
+})

@@ -552,10 +552,11 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
 
   if (!is.null(select_inds)) {
     if (!is.numeric(select_inds) || is.object(select_inds) || is.complex(select_inds) ||
-        !is.null(dim(select_inds)) || any(!is.finite(select_inds)) ||
-        any(select_inds != trunc(select_inds)) ||
-        any(abs(select_inds) > length(all_subplots)) ||
-        (any(select_inds < 0) && any(select_inds > 0))) {
+        !is.null(dim(select_inds)) || anyNA(select_inds) ||
+        (length(select_inds) &&
+         (min(select_inds) < -length(all_subplots) || max(select_inds) > length(all_subplots) ||
+          (min(select_inds) < 0 && max(select_inds) > 0) ||
+          (!is.integer(select_inds) && any(select_inds != trunc(select_inds)))))) {
       cli::cli_abort("{.arg select_inds} must contain finite integer indices within the plot range, without mixing positive and negative indices.")
     }
     all_subplots <- all_subplots[select_inds]

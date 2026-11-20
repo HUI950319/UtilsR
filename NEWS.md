@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_flatten()` validates integer selectors and their sign combinations without creating bounds masks.
+
 * Distribution color validation can reuse all declared factor labels when they are observed.
 
 * Sparse categorical summaries reuse lexicographically ordered codes and counts without gathering them again.
