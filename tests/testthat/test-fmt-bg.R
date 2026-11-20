@@ -687,3 +687,16 @@ test_that("explicit discrete limits supply background stripes on missing categor
     ggplot2::scale_x_discrete(limits = c("B", "A"), na.translate = FALSE, guide = "none")
   expect_identical(bg_fills(fmt_bg(p, palcolor = bg_colors)), unname(bg_colors[c("B", "A")]))
 })
+
+test_that("complete trained background values skip missing colour replacement", {
+  p <- bg_plot()
+  fn <- fmt_bg
+  env <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(value, "grey80") && is.logical(i) && !any(i))
+      stop("replaced absent background missing categories")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_bg <- fn
+  expect_identical(bg_fills(fn(p, palcolor = bg_colors)), unname(bg_colors))
+})

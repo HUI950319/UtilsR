@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Trained discrete backgrounds only replace colors for an actual missing category.
+
 * `fmt_bg()` now lets explicit discrete limits define the stripes when the data contain no observed categories.
 
 * Alluvial preparation checks the minimum level count before allocating a coverage mask for incomplete factors.

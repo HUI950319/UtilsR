@@ -5133,7 +5133,7 @@ fmt_bg <- function(plot,
             values <- values[index]
           }
           fills <- unname(colors[match(values, names(colors))])
-          fills[is.na(values)] <- "grey80"
+          if (anyNA(values)) fills[is.na(values)] <- "grey80"
           edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
           unstable <- which(!is.finite(edges))
           if (length(unstable)) {
