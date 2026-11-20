@@ -686,8 +686,13 @@ plt_con <- function(data,
       shared_groups <- NULL
       if (type == "bar") {
         shared_values <- all_values
-        ids <- match(data[[group.by]], unique(data[[group.by]]))
-        stride <- max(ids)
+        groups <- data[[group.by]]
+        ids <- if ((identical(class(groups), "factor") ||
+                    identical(class(groups), c("ordered", "factor"))) &&
+                   !anyNA(levels(groups))) {
+          vctrs::vec_group_id(groups)
+        } else match(groups, unique(groups))
+        stride <- attr(ids, "n") %||% max(ids)
         shared_groups <- unlist(lapply(seq_along(stat.by), function(i) {
           keep <- finite_rows[[i]]
           (i - 1L) * stride + if (is.null(keep)) ids else ids[keep]

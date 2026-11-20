@@ -2606,3 +2606,18 @@ test_that("single key continuous dot counts keep their counted order", {
   expect_identical(fn(groups, "x"), .con_dot_counts(groups, "x"))
   expect_identical(fn(groups[FALSE, , drop = FALSE], "x"), .con_dot_counts(groups[FALSE, , drop = FALSE], "x"))
 })
+
+test_that("pooled continuous bar groups use an existing grouping code", {
+  d <- data.frame(g = factor(rep(c("a", "b"), each = 6L)), x = 1:12, y = 21:32)
+  fn <- plt_con
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(data[[group.by]])) &&
+        identical(substitute(table), quote(unique(data[[group.by]]))))
+      stop("rematched group levels while pooling bar ranges")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  run <- function(f) f(d, stat.by = c("x", "y"), group.by = "g", type = "bar",
+    same.y.lims = TRUE, combine = FALSE)
+  expect_identical(lapply(run(fn), function(p) p$data),
+    lapply(run(plt_con), function(p) p$data))
+})
