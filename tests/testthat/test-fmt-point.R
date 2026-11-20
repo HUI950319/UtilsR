@@ -1243,3 +1243,11 @@ test_that("point sampling reuses ordered multicolumn group partitions", {
   expect_identical(run(fn, d), run(.fmt_point_sample, d))
   expect_identical(run(fn, d[12:1, ]), run(.fmt_point_sample, d[12:1, ]))
 })
+
+test_that("numeric point shapes are not rounded by a character fallback", {
+  fractional <- 19 + 16 * .Machine$double.eps
+  expect_true(fractional > 19)
+  x <- c(19, fractional, 0, NA_real_)
+  expect_identical(.shape_convert(x), c(21, fractional, 22, NA_real_))
+  expect_identical(.shape_convert(c("19", "6", "13")), c("21", "25", "13"))
+})

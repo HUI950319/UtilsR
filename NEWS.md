@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point shape conversion matches native numeric symbols directly and avoids interpreting a nearby fractional value as a supported integer symbol.
+
 * Numeric scatter group conversion only constructs a replacement level index when one of the level labels is missing.
 
 * Paired scatter histograms retain the original difference vector when every value is visible.
