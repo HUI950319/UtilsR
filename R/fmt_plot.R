@@ -5478,7 +5478,7 @@ fmt_his <- function(plot,
         if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
             (!is.null(con_var) || !is.null(candidate))) {
           d <- layer_data
-          x_mapping <- if (empty_parent && is.null(con_var)) candidate else x_mapping %||% candidate
+          if (is.null(con_var)) x_mapping <- candidate
           break
         }
       }

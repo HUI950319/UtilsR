@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` uses the effective x mapping from the source layer when the plot has no global data.
+
 * `stat_pval()` now compares each distinct spelling of a repeated decimal tie with its cutoff once.
 
 * `stat_ci_parse()` now checks endpoint finiteness only where the asymmetric half width needs overflow handling.

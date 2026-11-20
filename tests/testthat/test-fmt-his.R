@@ -945,3 +945,14 @@ test_that("distribution overlays reuse contiguous facet row codes", {
   expected <- ggplot2::ggplot_build(fmt_his(p, binwidth = .2))$data
   expect_identical(ggplot2::ggplot_build(fn(p, binwidth = .2))$data, expected)
 })
+
+test_that("histogram layer fallback keeps its effective x mapping", {
+  d <- data.frame(actual = 1:10, y = 10:1)
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+    ggplot2::geom_point(ggplot2::aes(x = actual), data = d)
+  ref <- ggplot2::ggplot(d, ggplot2::aes(actual, y)) + ggplot2::geom_point()
+  overlay <- function(p, ...) ggplot2::layer_data(fmt_his(p, binwidth = 1, ...), 2L)
+  expect_identical(overlay(p)$count, overlay(ref)$count)
+  expect_identical(overlay(p)$x, overlay(ref)$x)
+  expect_identical(overlay(p, con_var = "actual")$x, overlay(ref)$x)
+})
