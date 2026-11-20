@@ -154,7 +154,9 @@ stat_pval <- function(x,
       cut <- map[[index[rows[1L]]]]
       candidates <- sprintf("%.*g", 1:17, cut)
       cutoff <- decimal(candidates[which(as.numeric(candidates) == cut)[1L]])
-      input <- decimal(endpoints[rows])
+      text <- endpoints[rows]
+      if (length(text) > 1L && all(text == text[[1L]])) text <- text[[1L]]
+      input <- decimal(text)
       width <- pmax(nchar(input$digits), nchar(cutoff$digits))
       a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
       b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))

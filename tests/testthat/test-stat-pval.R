@@ -1037,3 +1037,17 @@ test_that("P-value star annotations accept expression entries without evaluation
   expect_identical(stat_pval(x, add_star_p = rep(.01, 3L)), want)
   expect_identical(stat_pval(expression(), add_star_p = numeric()), character())
 })
+
+test_that("identical threshold strings share decimal comparison work", {
+  x <- rep(c("0.001", "0.100"), 40L)
+  fn <- stat_pval
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (length(x) > 1L &&
+        identical(pattern, "[eE].*$") && length(unique(x)) == 1L)
+      stop("parsed identical tied P-value decimal text repeatedly")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), stat_pval(x))
+  x[1:3] <- c("0.001000000000000000001", "0.000999999999999999999", "0.001")
+  expect_identical(fn(x), stat_pval(x))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value star formatting compares one copy of repeated threshold text while retaining the exact decimal boundary.
+
 * System checks reject ambiguous memory reports containing duplicate free column headings.
 
 * Object size reports avoid rebuilding a data frame whose rows are already in size order.
