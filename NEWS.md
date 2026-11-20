@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous grouped summaries compute the rescaling magnitude from the shifted endpoints without allocating absolute-value vectors.
+
 * Console P-value formatting reuses the known validity of its numeric inputs for below-threshold text.
 
 * Palette preview luminance computes an elementwise mask only when channel values straddle the linear cutoff.

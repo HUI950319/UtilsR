@@ -1300,7 +1300,7 @@ plt_con <- function(data,
       (spread > 0 && spread < sqrt(.Machine$double.xmin))) && all(is.finite(x))) {
     midpoint <- min(x) / 2 + max(x) / 2
     shifted <- x - midpoint
-    scale <- max(abs(shifted))
+    scale <- if (is.object(shifted)) max(abs(shifted)) else max(abs(c(min(shifted), max(shifted))))
     if (scale > 0) spread <- stats::sd(shifted / scale) * scale
   }
   data.frame(y = centre, ymin = centre - mult * spread, ymax = centre + mult * spread)

@@ -2621,3 +2621,14 @@ test_that("pooled continuous bar groups use an existing grouping code", {
   expect_identical(lapply(run(fn), function(p) p$data),
     lapply(run(plt_con), function(p) p$data))
 })
+
+test_that("extreme continuous spreads rescale from scalar extrema", {
+  x <- c(-1e155, -5e154, 1e155, 3e154)
+  fn <- .con_mean_sd
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(shifted))) stop("allocated absolute values for extreme continuous spreads")
+    base::abs(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .con_mean_sd(x))
+  expect_identical(fn(c(-1e-177, 2e-177, 3e-177)), .con_mean_sd(c(-1e-177, 2e-177, 3e-177)))
+})
