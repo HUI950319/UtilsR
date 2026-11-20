@@ -388,8 +388,11 @@ plt_sankey <- function(data,
                               class = "factor")
     label_data$label <- unname(node_labels[positions])
     label_data$y <- (label_data$ymin + label_data$ymax) / 2
-    proportion <- unname(node_pct[positions])
-    keep <- !is.na(label_data$label) & !is.na(proportion) & proportion >= label_args$min_pct
+    keep <- !is.na(label_data$label)
+    if (label_args$min_pct > 0) {
+      proportion <- unname(node_pct[positions])
+      keep <- keep & !is.na(proportion) & proportion >= label_args$min_pct
+    }
     if (!all(keep)) label_data <- label_data[keep, , drop = FALSE]
     if (nrow(label_data)) {
       label_geom <- if (label_args$box) ggplot2::geom_label else ggplot2::geom_text

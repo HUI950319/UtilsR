@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey node labels skip a second proportion lookup when all visible nodes meet the zero threshold.
+
 * Sankey stages reuse their factor dictionary and count visible labels without a missing-name mask when every name is present.
 
 * Unfaceted alluvial plots use the observed factor codes as their final category positions and skip hashing or resorting a facet/category table.

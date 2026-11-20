@@ -1086,3 +1086,17 @@ test_that("complete Sankey stages retain their original level names", {
     reverse_levels = FALSE, theme_use = ggplot2::theme_minimal()))$data
   expect_identical(run(fn), run(plt_sankey))
 })
+
+test_that("zero threshold Sankey labels skip repeated share lookup", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = rep(c("A", "B"), 8L), b = rep(c("I", "II", "II", "III"), 4L))
+  fn <- plt_sankey
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(node_pct)) && identical(substitute(i), quote(positions)))
+      stop("looked up share values for an unrestricted Sankey label")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  run <- function(f) suppressMessages(f(d, names(d), palette = "red", show_text = "name",
+    label_args = list(min_pct = 0), theme_use = ggplot2::theme_minimal()))$layers[[3L]]$data
+  expect_identical(run(fn), run(plt_sankey))
+})
