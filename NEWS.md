@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Patchwork flattening avoids recursively wrapping every element of an already flat unnamed graphics list.
+
 * Layer rasterization returns the original plot or container when no layers required rasterizing.
 
 * Categorical axes reuse complete factor vectors when their only attributes are the supported factor metadata.

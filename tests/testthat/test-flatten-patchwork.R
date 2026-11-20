@@ -472,3 +472,19 @@ test_that("flattening ordinary patchwork cells avoids wrapping every cell in a l
   expect_identical(vapply(seq_along(result), function(i) result[[i]]$labels$title, character(1)),
                    c("first", "second"))
 })
+
+test_that("flat unnamed plot lists skip redundant wrappers", {
+  d <- data.frame(x = 1:4, y = 4:1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  plots <- list(p, p + ggplot2::labs(title = "Second"), p + ggplot2::labs(title = "Third"))
+  f <- fmt_flatten
+  environment(f) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(seq_along(plot_obj))) && identical(X, seq_along(plots)))
+      stop("unwrapped every member of a flat unnamed plot list")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(f))
+  actual <- f(plots, nrow = 1)
+  expect_identical(lapply(seq_along(actual), function(i) ggplot2::layer_data(actual[[i]])),
+                   rep(list(ggplot2::layer_data(p)), 3L))
+  expect_identical(actual[[2L]]$labels$title, "Second")
+})
