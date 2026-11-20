@@ -1921,3 +1921,16 @@ test_that("inspection frequency tables reuse fully observed factor labels", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d, x)), capture.output(lv(d, x)))
 })
+
+test_that("complete numeric inspection labels reuse row group codes", {
+  d <- data.frame(x = rep(c(3.2, 1.4, 8.1, 0.2), each = 5L),
+    g = rep(c("L", "R"), length.out = 20L))
+  original <- vctrs::vec_match
+  local_mocked_bindings(vec_match = function(needles, haystack, ...) {
+    if (is.double(needles) && length(needles) == 8L && length(haystack) == 4L)
+      stop("rematched complete numeric values while labeling")
+    original(needles, haystack, ...)
+  }, .package = "vctrs")
+  out <- suppressMessages(lv(d, count = c(x, g)))
+  expect_identical(out, d)
+})

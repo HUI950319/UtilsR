@@ -485,10 +485,18 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (unique_values && !anyDuplicated(labels)) return(labels)
     if (!(is.numeric(x) || is.complex(x) ||
           inherits(x, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")))) return(labels)
-    observed <- !is.na(x)
-    values <- vctrs::vec_unique(x[observed])
-    index <- vctrs::vec_match(x, values)
-    distinct <- labels[match(seq_along(values), index)]
+    if (!is.object(x) && !anyNA(x)) {
+      index <- vctrs::vec_group_id(x)
+      first <- if (attr(index, "n") < length(x)) !duplicated(index)
+      values <- if (is.null(first)) x else x[first]
+      distinct <- if (is.null(first)) labels else labels[first]
+      observed <- TRUE
+    } else {
+      observed <- !is.na(x)
+      values <- vctrs::vec_unique(x[observed])
+      index <- vctrs::vec_match(x, values)
+      distinct <- labels[match(seq_along(values), index)]
+    }
     if (!anyDuplicated(distinct)) return(labels)
     collision <- duplicated(distinct) | duplicated(distinct, fromLast = TRUE)
     if (any(collision)) {

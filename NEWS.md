@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` records both distinct numeric values and their positions in one grouping pass when all values are present.
+
 * `check_na()` and `lv()` reuse the marker count for distinct ordinary character observations.
 
 * Confidence text formatting only rewrites values when rounding actually yields zero.
