@@ -544,7 +544,7 @@ test_that("object size captions reuse the displayed total", {
   env <- new.env(parent = environment(fn))
   sizes <- 0L
   env$sprintf <- function(fmt, ...) {
-    if (identical(fmt, "%.0f B")) sizes <<- sizes + length(list(...)[[1L]])
+    if (length(fmt) && all(fmt == "%.0f B")) sizes <<- sizes + length(list(...)[[1L]])
     base::sprintf(fmt, ...)
   }
   environment(fn) <- env
@@ -604,5 +604,15 @@ test_that("object size reports keep already ranked object rows", {
   }), parent = environment(f))
   expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
   e$c <- raw(50000L)
+  expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
+})
+
+test_that("object size formatting selects labels in one vector operation", {
+  e <- list2env(list(a = raw(900L), b = raw(15000L), c = raw(1.2e6)))
+  f <- check_size
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(unit == i))) stop("selected object size display units in a loop")
+    base::which(x, ...)
+  }), parent = environment(f))
   expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
 })

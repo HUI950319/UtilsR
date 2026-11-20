@@ -231,16 +231,10 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   # Share display units between body cells and the total subtitle. Thresholds
   # sit where a two-decimal label would round up to 1024 of the smaller unit.
   format_size <- function(size_mb) {
-    unit <- findInterval(size_mb, c(1023.5 / 1024^2, 1023.995 / 1024, 1023.995))
-    labels <- character(length(size_mb))
-    for (i in 0:3) {
-      rows <- which(unit == i)
-      if (!length(rows)) next
-      multiplier <- c(1024^2, 1024, 1, 1 / 1024)[i + 1L]
-      template <- c("%.0f B", "%.2f KB", "%.2f MB", "%.2f GB")[i + 1L]
-      labels[rows] <- sprintf(template, size_mb[rows] * multiplier)
-    }
-    labels
+    unit <- findInterval(size_mb, c(1023.5 / 1024^2, 1023.995 / 1024, 1023.995)) + 1L
+    multiplier <- c(1024^2, 1024, 1, 1 / 1024)[unit]
+    template <- c("%.0f B", "%.2f KB", "%.2f MB", "%.2f GB")[unit]
+    sprintf(template, size_mb * multiplier)
   }
   object_info <- object_info %>%
     dplyr::mutate(

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Object size reports format byte, KB, MB and GB labels with one call using the same thresholds.
+
 * Axis formatting validates ordinary integer plot selections without allocating whole-number comparison vectors.
 
 * Model notices identify ordinary logical and binary integer outcomes without enumerating their observed values.
