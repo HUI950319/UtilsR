@@ -346,7 +346,8 @@ PlotDumbbell <- function(
     complete_order <- length(observed) == nlevels(categories) && !is.unsorted(observed)
     updated <- if (complete_order) codes else match(codes, observed)
     names(updated) <- names(categories)
-    data[[y_col]] <- structure(updated, levels = levels(categories)[observed], class = class(categories))
+    display_levels <- if (complete_order) levels(categories) else levels(categories)[observed]
+    data[[y_col]] <- structure(updated, levels = display_levels, class = class(categories))
   } else {
     data[[y_col]] <- factor(categories, levels = unique(categories))
   }

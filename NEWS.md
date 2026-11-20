@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` retains both the factor codes and their level names when the plotted order matches the declared order.
+
 * Continuous bar summaries reuse ordinary factor group identities when pooling feature ranges.
 
 * Exact numeric category labels skip rematching a value vector that already consists of distinct values.

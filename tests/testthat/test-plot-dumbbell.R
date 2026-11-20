@@ -1130,3 +1130,15 @@ test_that("integer64 difference recovery visits only missing results", {
   x[1L] <- y[1L]
   expect_identical(fn(x, y), .dumbbell_integer64_difference(x, y))
 })
+
+test_that("dumbbell factor axis reuses its observed level dictionary", {
+  d <- data.frame(g = ordered(c("a", "b", "c")), x = c(1, 3, 5), y = c(2, 3, 7))
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(levels(categories))) &&
+        identical(substitute(i), quote(observed))) stop("gathered an already ordered dumbbell factor dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  run <- function(f) f(d, "x", "y", "g", sort_by = "none")$data
+  expect_identical(run(fn), run(PlotDumbbell))
+})
