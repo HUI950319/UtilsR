@@ -547,8 +547,8 @@ fmt_point <- function(plot,
       groups <- vctrs::vec_group_loc(vctrs::new_data_frame(codes))
       # Format only distinct keys, retaining legacy lexical group order.
       keys <- do.call(paste, c(unname(groups$key), sep = ":"))
-      index <- order(keys)
-      rows <- stats::setNames(groups$loc[index], keys[index])
+      rows <- stats::setNames(groups$loc, keys)
+      if (is.unsorted(keys)) rows <- rows[order(keys)]
     }
     large <- which(lengths(rows) > sample_n)
     if (length(large)) {

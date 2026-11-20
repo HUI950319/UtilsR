@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stratified point sampling retains the existing group list when its keys are already in legacy lexical order.
+
 * `fmt_bg()` uses a column-free placeholder so dynamically named facets cannot see a synthetic grouping value.
 
 * `pr_spark()` keeps its factor tally as the bin heights when every factor level is observed.

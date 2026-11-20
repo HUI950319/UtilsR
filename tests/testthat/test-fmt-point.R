@@ -1230,3 +1230,16 @@ test_that("point sampling rejects injected row vector literals", {
   sampled <- draw(ggplot2::aes(x, y, group = g, colour = !!"literal"))
   expect_equal(nrow(ggplot2::layer_data(sampled)), 4L)
 })
+
+test_that("point sampling reuses ordered multicolumn group partitions", {
+  d <- data.frame(x = 1:12, y = 1:12, f = rep(c("a", "b"), each = 3L), g = rep(c("L", "R"), each = 6L))
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(groups$loc)) && !is.unsorted(i))
+      stop("reordered existing point sampling group lists")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  run <- function(f, d) f(d, ggplot2::aes(x, y, fill = f, colour = g), 1L, 7L)
+  expect_identical(run(fn, d), run(.fmt_point_sample, d))
+  expect_identical(run(fn, d[12:1, ]), run(.fmt_point_sample, d[12:1, ]))
+})
