@@ -720,3 +720,13 @@ test_that("axis tile labels reach the native guide in explicit break order", {
   invisible(ggplot2::ggplotGrob(q))
   expect_identical(seen$order, breaks)
 })
+
+test_that("complete axis tile colors skip empty fallback assignments", {
+  fn <- .axis_tile_guide
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(value, "grey70") && is.logical(i) && !any(i)) stop("assigned unused fallback axis colors")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  local_mocked_bindings(.axis_tile_guide = fn)
+  expect_true(nrow(axis_tile_rects(ggplot2::ggplotGrob(fmt_axisTile(axis_tile_plot(), axis_tile_colors)))) > 0L)
+})

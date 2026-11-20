@@ -4040,7 +4040,7 @@ fmt_axisTile <- function(plot,
         values <- values[keep]
       }
       fill <- unname(settings$colors[as.character(values)])
-      fill[is.na(fill)] <- "grey70"
+      if (anyNA(fill)) fill[is.na(fill)] <- "grey70"
       position <- (low + high) / 2
       width <- high - low
       tile <- grid::rectGrob(
@@ -4072,7 +4072,7 @@ fmt_axisTile <- function(plot,
       if (settings$mode != "text" || !settings$show_text || !nrow(key) ||
           isTRUE(elements$fmt_colour_override)) return(labels)
       fill <- unname(settings$colors[as.character(key$.value)])
-      fill[is.na(fill)] <- settings$text_color %||% elements$text$colour
+      if (anyNA(fill)) fill[is.na(fill)] <- settings$text_color %||% elements$text$colour
       index_at <- function(positions) {
         index <- match(positions, key[[params$aes]])
         for (i in which(is.na(index))) {
