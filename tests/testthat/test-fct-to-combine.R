@@ -652,3 +652,17 @@ test_that("all distinct factor tuples sort without gathering complete columns", 
   expect_identical(f(a, b), fct_to_combine(a, b))
   expect_identical(f(c(a, a), c(b, b)), fct_to_combine(c(a, a), c(b, b)))
 })
+
+test_that("factor combination keeps sorted ordinary value dictionaries", {
+  a <- rep(c("a", "b", "c"), each = 5L)
+  b <- rep(c(1.1, 4.4, 7.7, 8.8, 9.9), 3L)
+  f <- fct_to_combine.default
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(values)) && identical(substitute(i), quote(ord)) &&
+        !is.object(x) && identical(i, seq_along(x)))
+      stop("gathered an already sorted combination value dictionary")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(a, b), fct_to_combine(a, b))
+  expect_identical(f(rev(a), rev(b)), fct_to_combine(rev(a), rev(b)))
+})

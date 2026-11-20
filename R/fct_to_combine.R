@@ -281,7 +281,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     values <- vctrs::vec_unique(v)
     # Base ordering interprets integer64 storage as doubles, including NaN.
     ord <- if (inherits(v, "integer64")) bit64::order.integer64(values) else order(values)
-    values <- values[ord]
+    if (is.object(values) || is.unsorted(ord)) values <- values[ord]
     list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
   if (!early_filter) {
