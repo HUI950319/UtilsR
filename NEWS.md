@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN reuses the ordinary double column extrema from validation when preparing backend distance calculations.
+
 * Percentage-only missingness plots collect numeric counts directly without an intermediate list.
 
 * UpSet membership uses direct integer conversion for complete ordinary integers matched against integer64 values.

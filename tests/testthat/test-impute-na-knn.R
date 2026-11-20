@@ -957,3 +957,17 @@ test_that("KNN checks double infinities with scalar extrema", {
   d$value[1L] <- -Inf
   expect_error(fn(d, k = 1L), "finite numeric observations")
 })
+
+test_that("KNN backend preparation reuses validated numeric extrema", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(target = c(2, 4, NA_real_, 9), depth = c(0.3, 0.4, 0.9, 1.1))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    if (identical(substitute(x), quote(values)) && is.double(x) && !is.object(x))
+      stop("recomputed a validated KNN double range")
+    base::range(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+  d$depth <- d$depth + 1e10
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})

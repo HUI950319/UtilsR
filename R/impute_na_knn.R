@@ -207,10 +207,16 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), codes)]
   }
 
-  non_finite <- vapply(data_for_impute, function(x) {
-    if (!is.numeric(x) || (is.integer(x) && !is.object(x))) return(FALSE)
-    if (!is.object(x)) suppressWarnings(min(x, na.rm = TRUE) == -Inf ||
-      max(x, na.rm = TRUE) == Inf) else any(!is.finite(x) & !is.na(x))
+  numeric_bounds <- lapply(data_for_impute, function(x) {
+    if (is.double(x) && !is.object(x)) {
+      suppressWarnings(c(min(x, na.rm = TRUE), max(x, na.rm = TRUE)))
+    }
+  })
+  non_finite <- vapply(seq_along(data_for_impute), function(i) {
+    bounds <- numeric_bounds[[i]]
+    if (!is.null(bounds)) return(bounds[1L] == -Inf || bounds[2L] == Inf)
+    x <- data_for_impute[[i]]
+    is.object(x) && is.numeric(x) && any(!is.finite(x) & !is.na(x))
   }, logical(1))
   if (any(non_finite)) {
     cli::cli_abort("KNN requires finite numeric observations; infinite values found in {.val {names(data_for_impute)[non_finite]}}.")
@@ -300,7 +306,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     for (j in seq_along(backend_data)) {
       values <- backend_data[[j]]
       if (!is.numeric(values) || (is.integer(values) && !is.object(values))) next
-      bounds <- range(values, na.rm = TRUE)
+      bounds <- numeric_bounds[[j]]
+      if (is.null(bounds) || !all(is.finite(bounds))) bounds <- range(values, na.rm = TRUE)
       span <- diff(as.double(bounds))
       if (all(is.finite(bounds)) && !is.finite(span)) {
         backend_scales[j] <- max(abs(bounds))
