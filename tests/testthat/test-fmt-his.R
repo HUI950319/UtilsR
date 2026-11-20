@@ -970,3 +970,18 @@ test_that("removing built distribution layers restores facet training", {
   expect_identical(actual$data[[2L]]$x, expected$data[[2L]]$x)
   expect_identical(actual$data[[2L]]$y, expected$data[[2L]]$y)
 })
+
+test_that("overlay height adjustment uses contiguous panel positions directly", {
+  d <- data.frame(x = rep(1:10, 4L), y = 1:40, g = rep(letters[1:4], each = 10L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() + ggplot2::facet_wrap(~g)
+  fn <- fmt_his
+  env <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(panel)) && identical(substitute(table), quote(panels)))
+      stop("rematched contiguous overlay panel positions")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_his <- fn
+  expect_identical(ggplot2::layer_data(fn(p, binwidth = 1), 2L),
+    ggplot2::layer_data(fmt_his(p, binwidth = 1), 2L))
+})
