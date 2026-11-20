@@ -1910,3 +1910,14 @@ test_that("unambiguous inspection labels skip duplicate masks", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d, count = x)), capture.output(lv(d, count = x)))
 })
+
+test_that("inspection frequency tables reuse fully observed factor labels", {
+  d <- data.frame(x = ordered(c("a", "b", "c", "a", NA), levels = c("c", "b", "a")))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(levels(x))) && identical(substitute(i), quote(tally$codes)))
+      stop("gathered a full frequency level vector")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d, x)), capture.output(lv(d, x)))
+})

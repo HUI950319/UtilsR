@@ -506,7 +506,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     x <- .label_na_level(x)
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
       tally <- .factor_tally(x)
-      valid <- levels(x)[tally$codes]
+      valid <- levels(x)
+      if (length(tally$codes) != length(valid)) valid <- valid[tally$codes]
       n <- tally$counts
       missing_n <- length(x) - sum(n)
     } else if (is.logical(x) && !is.object(x) && is.null(dim(x))) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The console frequency listing uses the declared factor labels directly when all its levels are represented.
+
 * `stat_pval()` creates a row-length bound mask only when at least one input has a comparison prefix.
 
 * `plt_upset(output = "data")` skips counting nonempty regions a second time for the unused plot.
