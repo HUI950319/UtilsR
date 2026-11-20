@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console swatches check validity on distinct colours and expand masks only for an error report.
+
 * Missingness plots keep display keys directly when mapped labels are unique.
 
 * Dumbbell integer differences use scalar endpoint extrema to check whether subtraction can overflow.

@@ -782,10 +782,6 @@ show_color <- function(x, rev = FALSE) {
   if (any(non_hex)) {
     numeric_index[non_hex] <- !is.na(suppressWarnings(as.numeric(colours[non_hex])))
   }
-  if (!is.null(lookup)) {
-    bad_encoding <- bad_encoding[lookup]
-    numeric_index <- numeric_index[lookup]
-  }
   # Parse labels together, retaining alpha; inspect values only after failure.
   hex <- if (any(numeric_index | bad_encoding)) NULL else {
     tryCatch({
@@ -795,6 +791,10 @@ show_color <- function(x, rev = FALSE) {
     }, error = function(e) NULL)
   }
   if (is.null(hex)) {
+    if (!is.null(lookup)) {
+      bad_encoding <- bad_encoding[lookup]
+      numeric_index <- numeric_index[lookup]
+    }
     to_check <- unique(x[!bad_encoding])
     if (length(to_check) <= 256L) {
       valid <- vapply(to_check, function(col) {

@@ -1461,3 +1461,21 @@ test_that("console swatch width comes from decoded alpha instead of all labels",
     expect_identical(capture.output(fn(values)), capture.output(show_color(values)))
   }
 })
+
+test_that("valid repeated colour swatches avoid expanding validation masks", {
+  withr::local_options(cli.num_colors = 1L)
+  cols <- rep(c("red", "#10101080", "blue"), 402L)
+  allow_invalid <- FALSE
+  f <- show_color
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(bad_encoding)) && !missing(i) && length(i) == length(cols) &&
+        is.integer(i) && !allow_invalid) stop("expanded the success-path colour validation mask")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(capture.output(f(cols)), capture.output(show_color(cols)))
+  allow_invalid <- TRUE
+  cols[11L] <- "not a palette colour"
+  expected <- tryCatch(show_color(cols), error = conditionMessage)
+  actual <- tryCatch(f(cols), error = conditionMessage)
+  expect_identical(actual, expected)
+})
