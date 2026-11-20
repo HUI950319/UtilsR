@@ -863,12 +863,18 @@ show_color <- function(x, rev = FALSE) {
     source <- if (rev) length(hex) - ids + 1L else ids
     if (!is.null(lookup)) source <- lookup[source]
     rgba <- rgba[, source, drop = FALSE]
-    a <- rgba[4L, ] / 255
-    preview <- grDevices::rgb(rgba[1L, ] * a + 255 * (1 - a),
-                             rgba[2L, ] * a + 255 * (1 - a),
-                             rgba[3L, ] * a + 255 * (1 - a),
-                             maxColorValue = 255)
-    preview_rgb <- grDevices::col2rgb(preview)
+    preview <- hex[ids]
+    preview_rgb <- rgba[1:3, , drop = FALSE]
+    translucent <- rgba[4L, ] < 255L
+    if (any(translucent)) {
+      a <- rgba[4L, translucent] / 255
+      preview[translucent] <- grDevices::rgb(
+        rgba[1L, translucent] * a + 255 * (1 - a),
+        rgba[2L, translucent] * a + 255 * (1 - a),
+        rgba[3L, translucent] * a + 255 * (1 - a), maxColorValue = 255
+      )
+      preview_rgb[, translucent] <- grDevices::col2rgb(preview[translucent])
+    }
     foreground <- list()
     if (num_colors < 16777216L) {
       # Standard xterm entries; terminal themes may override these colours.

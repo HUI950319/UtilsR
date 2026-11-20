@@ -1479,3 +1479,22 @@ test_that("valid repeated colour swatches avoid expanding validation masks", {
   actual <- tryCatch(f(cols), error = conditionMessage)
   expect_identical(actual, expected)
 })
+
+test_that("opaque console swatches reuse decoded RGB bytes", {
+  cols <- c("navy", "red", "#00AAFF", "green")
+  mixed <- c("#FF000080", "navy", "#AAAAAA00", "red")
+  rgb <- grDevices::col2rgb
+  draw <- function(x) capture.output(show_color(x, rev = TRUE))
+  for (depth in c(16L, 256L, 16777216L)) {
+    withr::local_options(cli.num_colors = depth)
+    expected <- lapply(list(cols, mixed), draw)
+    local({
+      local_mocked_bindings(col2rgb = function(col, alpha = FALSE) {
+        if (!alpha && length(col) > 1L && any(col %in% c("#000080", "#FF0000")))
+          stop("decoded composited RGB for an opaque console swatch")
+        rgb(col, alpha = alpha)
+      }, .package = "grDevices")
+      expect_identical(lapply(list(cols, mixed), draw), expected)
+    })
+  }
+})
