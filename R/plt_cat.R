@@ -899,8 +899,11 @@ plt_cat <- function(data,
       (!NA_stat || (!anyNA(data[[stat.by]]) && !anyNA(data[[group.by]])))) {
     stat_code <- as.integer(data[[stat.by]])
     group_code <- as.integer(data[[group.by]])
-    if (anyNA(stat_code) || anyNA(group_code)) {
-      keep <- !is.na(stat_code) & !is.na(group_code)
+    stat_missing <- anyNA(stat_code)
+    group_missing <- anyNA(group_code)
+    if (stat_missing || group_missing) {
+      keep <- if (stat_missing) !is.na(stat_code) else TRUE
+      if (group_missing) keep <- keep & !is.na(group_code)
       stat_code <- stat_code[keep]
       group_code <- group_code[keep]
     }

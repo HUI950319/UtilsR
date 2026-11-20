@@ -2189,3 +2189,17 @@ test_that("sorted sparse categorical cells retain their counted order", {
     expect_identical(fn(ref, "x", "g", "count"), .prepare_cat_data(ref, "x", "g", "count"))
   }
 })
+
+test_that("sparse categorical masks inspect only incomplete code columns", {
+  d <- data.frame(x = factor(c("A", NA, "B", "A", NA)),
+    g = factor(c("a", "a", "b", "b", "c")))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(group_code)) && !anyNA(x))
+      stop("scanned complete categorical codes for missing entries")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, "x", "g", "count"), .prepare_cat_data(d, "x", "g", "count"))
+  d$g[1L] <- NA
+  expect_identical(fn(d, "x", "g", "percent"), .prepare_cat_data(d, "x", "g", "percent"))
+})

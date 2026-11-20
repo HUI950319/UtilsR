@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse categorical tables build row masks only for factor columns that contain missing codes.
+
 * Axis tiles and text labels retain their complete color vectors without an empty replacement.
 
 * `check_size()` reuses a sorted, distinct selection of object names without deduplicating and sorting it again.
