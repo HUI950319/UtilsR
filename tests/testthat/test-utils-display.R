@@ -1525,3 +1525,19 @@ test_that("console swatch contrast avoids calculating both transforms per channe
     expect_identical(capture.output(f(x)), capture.output(show_color(x)))
   }
 })
+
+test_that("binary model notices skip distinct outcome hashing", {
+  n_distinct <- dplyr::n_distinct
+  local_mocked_bindings(n_distinct = function(..., na.rm = FALSE) {
+    x <- list(...)[[1L]]
+    if (is.logical(x) || (is.integer(x) && all(x %in% c(0L, 1L, NA_integer_))))
+      stop("grouped the values of a binary model outcome")
+    n_distinct(..., na.rm = na.rm)
+  }, .package = "dplyr")
+  for (out in list(c(FALSE, TRUE, NA, TRUE), c(0L, 1L, NA_integer_, 1L))) {
+    d <- data.frame(time = 4:1, event = out)
+    expect_match(testthat::capture_messages(.cat_formula(d, "age", outcome = "event")), "Cox model")
+  }
+  d <- data.frame(time = 4:1, event = c(0L, 1L, 2L, 1L))
+  expect_match(testthat::capture_messages(.cat_formula(d, "age", outcome = "event")), "CRR model")
+})

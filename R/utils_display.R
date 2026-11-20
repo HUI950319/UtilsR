@@ -447,10 +447,13 @@ console_width <- function() {
     }
     ordinary_factor <- identical(class(values), "factor") ||
       identical(class(values), c("ordered", "factor"))
-    observed <- if (ordinary_factor && !anyNA(levels(values))) {
-      length(.factor_tally(values)$codes)
-    } else dplyr::n_distinct(values, na.rm = TRUE)
-    model <- if (observed == 3L) "CRR" else "Cox"
+    binary <- !is.object(values) && is.null(dim(values)) && (is.logical(values) ||
+      (is.integer(values) && suppressWarnings(min(values, na.rm = TRUE) >= 0L &&
+        max(values, na.rm = TRUE) <= 1L)))
+    competing <- if (binary) FALSE else if (ordinary_factor && !anyNA(levels(values))) {
+      length(.factor_tally(values)$codes) == 3L
+    } else dplyr::n_distinct(values, na.rm = TRUE) == 3L
+    model <- if (competing) "CRR" else "Cox"
     formula <- sprintf("Surv(%s, %s) ~ %s", quote_names(time),
                        quote_names(outcome), rhs)
   }

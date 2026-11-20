@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Model notices identify ordinary logical and binary integer outcomes without enumerating their observed values.
+
 * UpSet data output fills wholly observed sets directly without initializing and replacing their entire membership vector.
 
 * Patchwork flattening avoids recursively wrapping every element of an already flat unnamed graphics list.
