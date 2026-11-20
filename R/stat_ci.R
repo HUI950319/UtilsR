@@ -81,7 +81,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     digits <- as.integer(digits)
   }
   .check_precision <- function(d, ...) {
-    if (any(!is.finite(d) | d < 0 | d > 8190L)) {
+    if (anyNA(d) || (length(d) && (min(d) < 0 || max(d) > 8190L))) {
       cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
     }
     if (any(d > 7881L)) {

@@ -359,3 +359,15 @@ test_that("character confidence intervals use scalar uniform precision", {
   }), parent = environment(f))
   expect_identical(f(x), expected)
 })
+
+test_that("confidence display precision needs no row-sized finite test", {
+  x <- rep(c("2.50 (1.50, 3.50)", "0.2 (-0.3, 0.7)"), 60L)
+  fn <- stat_ci
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(d)) && length(x) == 120L)
+      stop("allocated a vector of interval digit flags")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), stat_ci(x))
+  expect_identical(fn(numeric(), numeric()), character())
+})
