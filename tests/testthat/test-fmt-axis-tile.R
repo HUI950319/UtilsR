@@ -674,3 +674,15 @@ test_that("axis tile replacement does not force other guide bindings", {
   expect_identical(original$guides$guides$x$params$axis_tile$colors, c(A = "red", B = "blue"))
   expect_no_error(ggplot2::ggplotGrob(edited))
 })
+
+test_that("axis tiles accept named standard guide values", {
+  p <- axis_tile_plot()
+  reference <- fmt_axisTile(p + ggplot2::scale_x_discrete(guide = "axis"), axis_tile_colors)
+  named <- fmt_axisTile(p + ggplot2::scale_x_discrete(guide = c(config = "axis")), axis_tile_colors)
+  expect_s3_class(named$guides$guides$x, "AxisTileGuide")
+  actual <- axis_tile_rects(ggplot2::ggplotGrob(named))
+  expected <- axis_tile_rects(ggplot2::ggplotGrob(reference))
+  rownames(expected) <- NULL
+  if (!is.null(actual)) rownames(actual) <- NULL
+  expect_identical(actual, expected)
+})

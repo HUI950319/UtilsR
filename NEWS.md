@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axisTile()` now accepts a named scalar `"axis"` guide as ggplot2 does.
+
 * A fully observed single-factor combination reuses the declared levels and only substitutes actual missing-level labels.
 
 * Factor recoding uses its level coverage guarantee directly when every source level occurs.

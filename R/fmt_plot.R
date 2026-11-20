@@ -3855,7 +3855,7 @@ fmt_axisTile <- function(plot,
     scale <- p$scales$get_scales(scale_axis)
     if (is.null(original) && !is.null(scale)) original <- scale$guide
     if (!inherits(original, "GuideAxis")) {
-      if (is.null(original) || inherits(original, "waiver") || identical(original, "axis")) {
+      if (is.null(original) || inherits(original, "waiver") || identical(unname(original), "axis")) {
         original <- ggplot2::guide_axis()
       } else return(p)
     }
