@@ -1503,3 +1503,28 @@ test_that("circular sectors drop unused levels through their factor codes", {
   }), parent = environment(fn))
   expect_no_error(fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
 })
+
+test_that("distinct circular group labels skip duplicate masks", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 3L), name = letters[1:6],
+                  value = c(.0, .2, 1, 1, 1.5, 3))
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  draw <- function(f, ...) {
+    observed <<- numeric()
+    f(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE, ...)
+    observed
+  }
+  f <- PlotCircleLollipop
+  environment(f) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(group_labels)))
+      stop("allocated duplicate masks for distinct circular labels")
+    base::duplicated(x, ...)
+  }), parent = environment(f))
+  expect_identical(draw(f), draw(PlotCircleLollipop))
+})

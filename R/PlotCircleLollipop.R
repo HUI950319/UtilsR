@@ -254,8 +254,9 @@ PlotCircleLollipop <- function(
     group_ids <- vctrs::vec_match(group_input, group_keys)
   }
   group_labels <- as.character(group_values)
-  collision <- duplicated(group_labels) | duplicated(group_labels, fromLast = TRUE)
-  if (any(collision)) {
+  labels_collide <- anyDuplicated(group_labels) > 0L
+  if (labels_collide) {
+    collision <- duplicated(group_labels) | duplicated(group_labels, fromLast = TRUE)
     group_labels[collision] <- format(group_values[collision], digits = 17, trim = TRUE)
     group_labels <- make.unique(group_labels)
   }
@@ -301,7 +302,7 @@ PlotCircleLollipop <- function(
 
   # ---- Group order ----
   if (!is.null(group_levels)) {
-    if (any(collision) && !is.character(group_levels) &&
+    if (labels_collide && !is.character(group_levels) &&
         identical(class(group_levels), class(group_values))) {
       level_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_levels) else group_levels
       ids <- vctrs::vec_match(level_keys, group_keys)

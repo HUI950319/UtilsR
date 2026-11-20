@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop plots build collision masks only when display labels collide.
+
 * Sparse Jaccard similarities use one grouping of encoded pair keys and retain unit counts for one-off pairs.
 
 * Dumbbell axes keep factor codes when all levels occur in their existing order.
