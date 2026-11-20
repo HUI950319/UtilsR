@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI parsing checks the bounds of its complete precision vector without allocating per-row comparison masks.
+
 * Distribution formatting builds collision masks and precise decimal labels only when labelled thresholds can collide.
 
 * Sparse categorical tables build row masks only for factor columns that contain missing codes.

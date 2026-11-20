@@ -313,7 +313,7 @@ stat_ci_parse <- function(x,
 
   # --- Rebuild the CI string in its original bracket/separator style ---
   if (!all_valid) d[!valid] <- 0L
-  if (any(!is.finite(d) | d < 0 | d > 8190L)) {
+  if (anyNA(d) || min(d) < 0 || max(d) > 8190L) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
   # Only very high precision can require the formatted-number byte checks below.

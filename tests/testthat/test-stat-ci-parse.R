@@ -1353,3 +1353,14 @@ test_that("tight log confidence checks omit ordinary linear rows", {
   expect_identical(suppressWarnings(fn(d, output = "p")),
     suppressWarnings(stat_ci_parse(d, output = "p")))
 })
+
+test_that("confidence formatting validates detected precision from its extrema", {
+  d <- rep(c("12 (10, 14)", "0.12 (-0.31, 0.55)", "1.2 (0.5, 1.9)"), 40L)
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(d)) && length(x) == 120L)
+      stop("built a finiteness mask for confidence precision")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(d, exp = FALSE), stat_ci_parse(d, exp = FALSE))
+})
