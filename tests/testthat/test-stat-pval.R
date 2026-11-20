@@ -1076,3 +1076,15 @@ test_that("repeated mixed decimal ties compare one copy of each spelling", {
   expected <- rep(c("0.050*", "0.050", "0.050*"), 110L)
   expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0.05)), expected)
 })
+
+test_that("unbounded P-value text needs no allocated bound flags", {
+  x <- c(NA_character_, "0", "1", "0.05", "0.04", "nan")
+  x[6L] <- "NaN"
+  fn <- stat_pval
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, FALSE)) stop("allocated bound flags for unbounded text")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, mode = "stars"), stat_pval(x, mode = "stars"))
+  expect_identical(fn(x, mode = "plain"), stat_pval(x, mode = "plain"))
+})

@@ -219,7 +219,6 @@ stat_pval <- function(x,
 
   bounded <- FALSE
   x_num <- if (is.character(x)) {
-    bounded <- rep(FALSE, length(x))
     if (any(!validEnc(x) | Encoding(x) == "bytes")) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
@@ -232,6 +231,7 @@ stat_pval <- function(x,
     exact <- observed
     valid_bounds <- TRUE
     if (any(bound_rows)) {
+      bounded <- rep(FALSE, length(x))
       at <- if (is.null(present)) which(bound_rows) else present[bound_rows]
       bounded[at] <- grepl(paste0("^", prefix, number, "$"), observed[bound_rows], perl = TRUE)
       valid_bounds <- all(bounded[at])
@@ -277,7 +277,7 @@ stat_pval <- function(x,
         if (any(negative | above_one)) {
           cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
         }
-        strict <- bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE)
+        strict <- if (any(bounded)) bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE) else FALSE
         if (any(strict & ((startsWith(text[edge], "<") & zero) |
                           (startsWith(text[edge], ">") & one)))) {
           cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")

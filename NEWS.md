@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` creates a row-length bound mask only when at least one input has a comparison prefix.
+
 * `plt_upset(output = "data")` skips counting nonempty regions a second time for the unused plot.
 
 * Special-marker counting uses complete factor dictionaries directly and clears matches only for actual missing level names.
