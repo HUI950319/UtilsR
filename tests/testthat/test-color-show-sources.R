@@ -3301,3 +3301,15 @@ test_that("plain character palette levels do not rehash their labels", {
   expect_identical(f(setNames(x, seq_along(x))), f(x))
   expect_identical(f(character()), character())
 })
+
+test_that("palette alpha skips an empty transparent substitution", {
+  f <- .pal_apply
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.character(x) && identical(value, "#FFFFFF00") && is.logical(i) && !any(i))
+      stop("replaced an empty selection of transparent colour strings")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  for (cols in list(c("red", "blue"), c("red", "NA", "transparent"), "blue")) {
+    expect_identical(f(cols, alpha = .5), .pal_apply(cols, alpha = .5))
+  }
+})

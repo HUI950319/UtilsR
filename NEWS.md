@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alpha adjustment only replaces the literal transparent colour when it is present.
+
 * Character confidence intervals use a scalar precision value when all parsed rows share it.
 
 * Textual P-value checks reuse complete unbounded values without gathering a full index vector.
