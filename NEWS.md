@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` keeps its factor tally as the bin heights when every factor level is observed.
+
 * `pr_spark()` counts constant observations without hashing each measurement into a singleton bin.
 
 * `lv()` records both distinct numeric values and their positions in one grouping pass when all values are present.

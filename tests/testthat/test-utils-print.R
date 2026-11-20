@@ -2313,3 +2313,13 @@ test_that("constant numeric sparklines avoid rematching one bin", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("complete factor sparkline bins reuse existing counts", {
+  d <- data.frame(x = ordered(rep(c("c", "a", "b"), 80L), levels = c("a", "b", "c")))
+  fn <- pr_spark
+  environment(fn) <- list2env(list(integer = function(length = 0L) {
+    if (identical(substitute(length), quote(k))) stop("allocated a second vector of sparkline factor counts")
+    base::integer(length)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})

@@ -1441,6 +1441,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
           tab <- head(sort(counts, decreasing = TRUE), bins)
           length(tab) <- bins
           tab[is.na(tab)] <- 0L
+        } else if (length(counts) == k) {
+          tab <- counts
         } else {
           tab <- integer(k)
           tab[factor_tally$codes] <- counts
