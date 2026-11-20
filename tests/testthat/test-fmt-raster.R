@@ -1111,3 +1111,17 @@ test_that("native text grobs skip regular expression dispatch", {
   expect_true(f(grid::grobTree(child, name = "wrapper"), "wrapper"))
   expect_false(f(grid::rectGrob(name = "rectangle"), "rectangle"))
 })
+
+test_that("vector raster requests reuse their original plot containers", {
+  skip_if_not_installed("ggrastr")
+  d <- data.frame(x = 1:4, y = 4:1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_line()
+  f <- .fmt_raster_ggrastr
+  environment(f) <- list2env(list(.from_plot_list = function(...) {
+    stop("reassembled an unchanged vector-only raster request")
+  }), parent = environment(f))
+  plots <- list(p, p + ggplot2::labs(title = "Second"))
+  expect_identical(f(plots, dpi = 25, dev = "cairo"), plots)
+  patch <- patchwork::wrap_plots(plots, ncol = 1)
+  expect_identical(f(patch, dpi = 25, dev = "cairo"), patch)
+})

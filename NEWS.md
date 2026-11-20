@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Layer rasterization returns the original plot or container when no layers required rasterizing.
+
 * Categorical axes reuse complete factor vectors when their only attributes are the supported factor metadata.
 
 * Distribution labels skip constructing a visible-row index at a zero threshold.

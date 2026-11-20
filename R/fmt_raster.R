@@ -241,8 +241,9 @@ fmt_raster <- function(
   }
 
   info <- .to_plot_list(plot)
-  info$plots <- lapply(info$plots, raster_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+  updated <- lapply(info$plots, raster_one)
+  if (identical(updated, info$plots)) return(plot)
+  .from_plot_list(updated, info$is_patchwork, info$is_single,
                   pw_orig = info$pw_orig)
 }
 
