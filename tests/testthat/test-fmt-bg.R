@@ -665,3 +665,18 @@ test_that("background category level discovery avoids refactoring rows", {
     expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
   }
 })
+
+test_that("background recognition skips masks for complete ordinary categories", {
+  fn <- fmt_bg
+  env <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(values)) && length(x) == 180L && !anyNA(x))
+      stop("allocated a mask for complete background categories")
+    base::is.na(x)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  for (values in list(rep(c("C", "A", "B"), 60L), factor(rep(c("C", "A", "B"), 60L)))) {
+    p <- ggplot2::ggplot(data.frame(g = values, y = seq_along(values)), ggplot2::aes(g, y)) +
+      ggplot2::geom_point()
+    expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
+  }
+})

@@ -5198,7 +5198,10 @@ fmt_bg <- function(plot,
       values <- if (is.symbol(expression)) layer_data[[as.character(expression)]] else expression
       if (is.factor(values) || is.character(values) || is.logical(values)) {
         axis_values <- values
-        has_observations <- length(values) > 0L && any(!is.na(values))
+        ordinary <- !is.object(values) || identical(class(values), "factor") ||
+          identical(class(values), c("ordered", "factor"))
+        has_observations <- length(values) > 0L &&
+          ((ordinary && !anyNA(values)) || any(!is.na(values)))
         if (has_observations) break
       }
     }
