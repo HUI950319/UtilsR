@@ -1063,8 +1063,14 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       if (rows$n < max_lines) {
         take <- min(length(p), max_items + 50)
         nm <- names(p)
-        nm <- if (is.null(nm)) rep("", take) else nm[seq_len(take)]
-        nm <- ._pr_escape(ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_len(take)), nm))
+        if (is.null(nm)) {
+          nm <- sprintf("[[%d]]", seq_len(take))
+        } else {
+          nm <- nm[seq_len(take)]
+          unnamed <- which(is.na(nm) | !nzchar(nm))
+          if (length(unnamed)) nm[unnamed] <- sprintf("[[%d]]", unnamed)
+        }
+        nm <- ._pr_escape(nm)
         # Pad sibling names to the same column, up to 18 characters.
         wid <- cli::ansi_nchar(nm, type = "width")
         pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)

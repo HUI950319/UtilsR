@@ -2277,3 +2277,17 @@ test_that("complete console table columns skip finite row masks", {
   d$value[2L] <- Inf
   expect_identical(draw(fn), draw(pr_table))
 })
+
+test_that("mixed tree siblings only format missing names", {
+  value <- setNames(as.list(seq_len(30L)), paste0("col", seq_len(30L)))
+  names(value)[c(2L, 8L)] <- c("", NA_character_)
+  fn <- pr_tree
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    items <- list(...)
+    if (identical(fmt, "[[%d]]") && length(items[[1L]]) > 2L)
+      stop("formatted positions for already named siblings")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(value, max_items = 24L)),
+    capture.output(pr_tree(value, max_items = 24L)))
+})

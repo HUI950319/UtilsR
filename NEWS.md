@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` now constructs positional labels only for unnamed items in a mixed-named list.
+
 * UpSet membership coding initializes a complete first set directly, avoiding a row-sized assignment.
 
 * `plt_upset()` sums contiguous combination bit masks without copying them into an intermediate matrix.
