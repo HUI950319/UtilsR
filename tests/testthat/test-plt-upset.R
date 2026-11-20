@@ -1240,3 +1240,16 @@ test_that("UpSet grouped data skip counting plotted regions", {
   expect_identical(fn(d, vars = names(d), levels = 1, output = "data"),
                    plt_upset(d, vars = names(d), levels = 1, output = "data"))
 })
+
+test_that("empty UpSet regions use their existing combination order", {
+  d <- data.frame(A = rep.int(0L, 80L), B = rep.int(0L, 80L))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins = max(1L, bin, na.rm = TRUE)) {
+    if (identical(substitute(bin), quote(row_keys))) stop("tabulated absent UpSet intersections")
+    base::tabulate(bin, nbins)
+  }), parent = environment(fn))
+  expected <- factor(rep.int("None", 80L), levels = c("A", "B", "A/B", "None"))
+  expect_identical(fn(d, vars = names(d), levels = 1L, output = "data")$intersect_group, expected)
+  expect_identical(fn(list(A = NULL, B = NULL), output = "data"),
+    plt_upset(list(A = NULL, B = NULL), output = "data"))
+})

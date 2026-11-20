@@ -456,6 +456,11 @@ plt_upset <- function(data,
     region_names <- unlist(lapply(combinations, `[[`, "labels"), use.names = FALSE)
     group_names <- make.unique(c(region_names, "None"))
     row_codes <- .upset_row_codes(set_list, nrow(data))
+    if (output == "data" && !any(row_codes != 0L)) {
+      data$intersect_group <- structure(rep.int(length(group_names), nrow(data)),
+                                        levels = group_names, class = "factor")
+      return(data)
+    }
     row_keys <- row_codes + 1L
     counts <- tabulate(row_keys, nbins = length(group_names))
     region_order <- order(counts[codes + 1L], decreasing = TRUE, method = "radix")

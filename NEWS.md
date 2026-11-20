@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet data output retains all declared region levels and skips count sorting when no rows belong to any combination.
+
 * Sankey node labels skip a second proportion lookup when all visible nodes meet the zero threshold.
 
 * Sankey stages reuse their factor dictionary and count visible labels without a missing-name mask when every name is present.
