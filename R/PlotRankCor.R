@@ -433,12 +433,13 @@ PlotRankCor <- function(
     origin <- x[if (complete) 1L else observed[1L]]
     centered <- x - origin
     observed_centered <- if (complete) centered else centered[observed]
-    if (any(!is.finite(observed_centered))) {
-      magnitude <- max(abs(if (complete) x else x[observed]))
+    magnitude <- max(abs(range(observed_centered)))
+    if (!is.finite(magnitude)) {
+      magnitude <- max(abs(range(if (complete) x else x[observed])))
       centered <- x / magnitude - origin / magnitude
       observed_centered <- if (complete) centered else centered[observed]
+      magnitude <- max(abs(range(observed_centered)))
     }
-    magnitude <- max(abs(range(observed_centered)))
     if (magnitude > 0) centered <- centered / magnitude
     centered
   }

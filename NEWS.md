@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` now uses the centered extrema to detect overflow and determine the normalization magnitude.
+
 * `lv()` now skips collision masks when the distinct formatted labels already identify their values.
 
 * Factor tallies avoid constructing a logical mask when every level has an observed code.

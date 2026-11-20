@@ -1379,3 +1379,24 @@ test_that("rank correlation scaling reuses the complete score decision", {
   d$score[2L] <- NA
   expect_identical(draw(f), draw(PlotRankCor))
 })
+
+test_that("rank correlation centering reuses finite extrema", {
+  d <- data.frame(variable = rep(letters[1:6], each = 2L),
+    method = rep(c("x", "y"), 6L),
+    value = c(1, 2, 3, 1, 5, 3, 7, 6, 9, 4, 11, 5))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(observed_centered)))
+      stop("built a full centered finiteness vector")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  run <- function(f, d) {
+    invisible(capture.output(p <- suppressMessages(f(d, "variable", "value",
+      method.by = "method", use_rank = FALSE, scale_x = "minmax",
+      scale_y = "zscore", show.label = FALSE))))
+    p[["data"]]
+  }
+  expect_identical(run(fn, d), run(PlotRankCor, d))
+  d$value[c(1L, 11L)] <- c(-1.6e308, 1.6e308)
+  expect_identical(run(fn, d), run(PlotRankCor, d))
+})
