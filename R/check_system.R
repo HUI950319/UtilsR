@@ -220,7 +220,9 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         }
         fields <- strsplit(trimws(mem_info[row - 1L]), "\\s+")[[1L]]
         values <- strsplit(trimws(mem_info[row]), "\\s+")[[1L]][-1L]
-        if (length(fields) != length(values)) stop("Unrecognized free output.")
+        if (length(fields) != length(values) || anyDuplicated(fields)) {
+          stop("Unrecognized free output.")
+        }
         bytes <- stats::setNames(as.numeric(values), fields)
         available <- if ("available" %in% fields) bytes["available"] else
           sum(bytes[c("free", intersect(c("buff/cache", "buffers", "cached"), fields))])

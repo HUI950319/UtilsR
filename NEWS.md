@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* System checks reject ambiguous memory reports containing duplicate free column headings.
+
 * Object size reports avoid rebuilding a data frame whose rows are already in size order.
 
 * Factor group naming starts from the requested positions when the entire group list is unnamed.

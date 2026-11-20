@@ -645,3 +645,15 @@ test_that("Windows CIM metadata survives unusable memory fields", {
                                               usage_percent = 75))
   }
 })
+
+test_that("Linux memory fallback rejects duplicate heading fields", {
+  broken <- c("total total free shared buff/cache available",
+    "Mem: 8589934592 4294967296 1073741824 0 2147483648 3221225472")
+  f <- .check_system_fixture(meminfo = character(), legacy = list("free -b" = broken))
+  invisible(capture.output(result <- f(return_result = TRUE)))
+  expect_true(is.na(result$system_memory$total_gb))
+  broken[1L] <- "total used free shared buff/cache available"
+  f <- .check_system_fixture(meminfo = character(), legacy = list("free -b" = broken))
+  invisible(capture.output(result <- f(return_result = TRUE)))
+  expect_identical(result$system_memory$total_gb, 8)
+})
