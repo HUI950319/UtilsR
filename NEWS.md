@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combination ordering reuses the original code columns for fully distinct observation tuples.
+
 * Confidence interval releveling writes adjusted linear endpoints without selecting a logarithmic branch when every row is valid and linear.
 
 * Confidence interval standard error calculation checks and rescales finite endpoints only where the initial calculation overflows.

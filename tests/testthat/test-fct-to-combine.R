@@ -639,3 +639,16 @@ test_that("ordered factor combinations retain their counting codes", {
   expect_identical(as.character(fn(x, y)), c("b & z", "b & z", "a & z", "a & y", NA_character_))
   expect_identical(fn(rev(x), rev(y)), fct_to_combine(rev(x), rev(y)))
 })
+
+test_that("all distinct factor tuples sort without gathering complete columns", {
+  a <- factor(rep(c("c", "b", "a"), 4L))
+  b <- rep(4:1, each = 3L)
+  f <- fct_to_combine.default
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(v)) && identical(substitute(i), quote(first)) &&
+        identical(i, seq_along(x))) stop("gathered every distinct combination code before sorting")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(a, b), fct_to_combine(a, b))
+  expect_identical(f(c(a, a), c(b, b)), fct_to_combine(c(a, a), c(b, b)))
+})
