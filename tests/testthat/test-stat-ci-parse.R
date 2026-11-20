@@ -1341,3 +1341,15 @@ test_that("nonzero interval values avoid empty signed zero replacement", {
   expect_identical(fn(d), stat_ci_parse(d))
   expect_identical(fn("-0.0001 (-2, 4)", digits = 2), "0.00 (-2.00, 4.00)")
 })
+
+test_that("tight log confidence checks omit ordinary linear rows", {
+  d <- c(rep(c("1.2 (-1.5, 3.9)", "2.1 (-0.4, 4.6)"), 80L), "2.00 (1.00, 4.00)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(pmax = function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...))[[2L]], quote(abs(l_s - e_s))))
+      stop("compared linear confidence rows with tight log widths")
+    base::pmax(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  expect_identical(suppressWarnings(fn(d, output = "p")),
+    suppressWarnings(stat_ci_parse(d, output = "p")))
+})

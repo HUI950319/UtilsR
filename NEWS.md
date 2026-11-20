@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Mixed-scale confidence intervals now evaluate the tight-log-interval condition on exponentiated rows only.
+
 * Stratified point sampling retains the existing group list when its keys are already in legacy lexical order.
 
 * `fmt_bg()` uses a column-free placeholder so dynamically named facets cannot see a synthetic grouping value.

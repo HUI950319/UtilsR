@@ -209,12 +209,13 @@ stat_ci_parse <- function(x,
     z95 <- qnorm(0.975)
     e_s <- est; l_s <- lo; h_s <- hi
     tight <- integer()
-    if (any(is_exp)) {
-      e_s[is_exp] <- log(est[is_exp])
-      l_s[is_exp] <- log(lo[is_exp])
-      h_s[is_exp] <- log(hi[is_exp])
-      tight <- which(is_exp & pmax(abs(l_s - e_s), abs(h_s - e_s)) <
-                       sqrt(.Machine$double.eps) * pmax(1, abs(e_s)))
+    exp_rows <- which(is_exp)
+    if (length(exp_rows)) {
+      e_s[exp_rows] <- log_est <- log(est[exp_rows])
+      l_s[exp_rows] <- log_lo <- log(lo[exp_rows])
+      h_s[exp_rows] <- log_hi <- log(hi[exp_rows])
+      tight <- exp_rows[pmax(abs(log_lo - log_est), abs(log_hi - log_est)) <
+                          sqrt(.Machine$double.eps) * pmax(1, abs(log_est))]
     }
     tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
     tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
