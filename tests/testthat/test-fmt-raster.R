@@ -1125,3 +1125,17 @@ test_that("vector raster requests reuse their original plot containers", {
   patch <- patchwork::wrap_plots(plots, ncol = 1)
   expect_identical(f(patch, dpi = 25, dev = "cairo"), patch)
 })
+
+test_that("raster panel dimensions validate their extrema", {
+  gt <- gtable::gtable(widths = grid::unit(rep(1, 20L), "cm"), heights = grid::unit(1, "cm"))
+  gt$layout <- data.frame(l = 1:20, r = 1:20, t = 1L, b = 1L)
+  fn <- .resolve_panel_size
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(sizes))) stop("allocated a mask for all panel sizes")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  sizes <- seq_len(20L) / 4
+  expect_identical(fn(gt, 1:20, "width", NULL, "cm", sizes), sizes)
+  expect_error(fn(gt, 1:20, "width", NULL, "cm", replace(sizes, 2L, Inf)), "positive panel")
+  expect_error(fn(gt, 1:20, "width", NULL, "cm", replace(sizes, 2L, 0)), "positive panel")
+})

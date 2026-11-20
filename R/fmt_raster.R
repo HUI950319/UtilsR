@@ -589,7 +589,7 @@ fmt_raster <- function(
       convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
     }, numeric(1))
   }
-  if (any(!is.finite(sizes) | sizes <= 0)) {
+  if (length(sizes) && (!is.finite(max(sizes)) || min(sizes) <= 0)) {
     cli::cli_abort("Cannot resolve a positive panel {.arg {dim}}; supply it explicitly.")
   }
   sizes
