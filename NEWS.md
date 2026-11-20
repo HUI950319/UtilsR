@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution color validation can reuse all declared factor labels when they are observed.
+
 * Sparse categorical summaries reuse lexicographically ordered codes and counts without gathering them again.
 
 * Dense categorical percentage tables use their known count-grid layout to compute group totals without splitting rows.

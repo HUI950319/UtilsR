@@ -1088,3 +1088,17 @@ test_that("zero threshold distribution labels reuse all stack rows", {
                                          label_args = list(min_pct = 0)))$data
   expect_identical(draw(f), draw(plt_dist))
 })
+
+test_that("distribution palettes keep complete factor level dictionaries", {
+  d <- data.frame(x = rep(c("a", "b"), 22L),
+    g = ordered(rep(c("L", "L", "R", "R"), 11L), levels = c("R", "L")))
+  color <- c(L = "red", R = "blue")
+  fn <- plt_dist
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(i), quote(.factor_tally(fill_values)$codes)))
+      stop("sliced a complete distribution fill dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, c("x", "g"), color = color)$data,
+    plt_dist(d, c("x", "g"), color = color)$data)
+})

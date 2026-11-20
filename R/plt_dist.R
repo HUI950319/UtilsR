@@ -459,7 +459,8 @@ plt_dist <- function(data,
     needed_levels <- if (identical(class(fill_values), "factor") ||
                          identical(class(fill_values), c("ordered", "factor"))) {
       labels <- levels(fill_values)
-      labels[.factor_tally(fill_values)$codes]
+      observed <- .factor_tally(fill_values)$codes
+      if (length(observed) == length(labels)) labels else labels[observed]
     } else if (is.factor(fill_values)) {
       levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
     } else if (is.character(fill_values) && !is.object(fill_values)) {
