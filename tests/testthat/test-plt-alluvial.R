@@ -1448,3 +1448,17 @@ test_that("zero threshold alluvial labels skip the share condition", {
   expect_identical(run(fn, 0), run(plt_alluvial, 0))
   expect_identical(run(fn, 0.40), run(plt_alluvial, 0.40))
 })
+
+test_that("dense alluvial factors retain fully observed codes", {
+  skip_if_not_installed("ggalluvial")
+  local_mocked_bindings(.save_sized = function(p, ...) p)
+  d <- data.frame(x = ordered(rep(c("b", "a", "c"), 8L)), g = factor(rep(c("L", "R"), 12L)))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(tabulate(codes, length(value_levels)))))
+      stop("built alluvial factor coverage flags for complete levels")
+    base::">"(e1, e2)
+  }), parent = environment(fn))
+  run <- function(f) suppressMessages(f(d, "x", "g"))$data
+  expect_identical(run(fn), run(plt_alluvial))
+})

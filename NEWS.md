@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial preparation checks the minimum level count before allocating a coverage mask for incomplete factors.
+
 * Single-key continuous dot summaries keep the encounter order produced by counting and skip a second key grouping.
 
 * `PlotCircleLollipop()` keeps an already distinct ordinary grouping column in first-observed order.
