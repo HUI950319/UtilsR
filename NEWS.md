@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor recoding uses its level coverage guarantee directly when every source level occurs.
+
 * KNN imputation constructs its exact integer64 bounds once per call when integer64 columns are present.
 
 * Scatter grouping skips level-label filtering for factor dictionaries without missing names.

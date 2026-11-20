@@ -1068,3 +1068,16 @@ test_that("unnamed factor groups use their positions without a placeholder name 
   themed <- setNames(list(c(1L, 3L), 4L), c("selected", NA_character_))
   expect_identical(f(x, themed), fct_to_group(x, themed))
 })
+
+test_that("fully observed factor recodes skip allocation of an output coverage mask", {
+  x <- ordered(c("b", NA, "a", "a", "c"), levels = c("c", "b", "a"))
+  g <- list(early = 3L, later = c(1L, 2L))
+  fn <- .recode_factor
+  environment(fn) <- list2env(list(logical = function(length) {
+    if (identical(substitute(length), quote(base::length(new_levels))) ||
+        identical(substitute(length), quote(length(new_levels))))
+      stop("allocated recode output coverage mask")
+    base::logical(length)
+  }), parent = environment(fn))
+  expect_identical(fn(x, g, checked_indices = TRUE), fct_cat(x, groups = g))
+})

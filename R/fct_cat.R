@@ -290,11 +290,14 @@ fct_cat <- function(x, ...,
   seen[pos] <- TRUE
   new_levels <- unique(c(mapped, unname(lvls[!seen])))
   target_id <- match(target, new_levels)
-  used <- logical(length(new_levels))
-  used[target_id[.factor_tally(x)$codes]] <- TRUE
-  if (!all(used)) {
-    target_id <- cumsum(used)[target_id]
-    new_levels <- new_levels[used]
+  observed <- .factor_tally(x)$codes
+  if (length(observed) != length(lvls)) {
+    used <- logical(length(new_levels))
+    used[target_id[observed]] <- TRUE
+    if (!all(used)) {
+      target_id <- cumsum(used)[target_id]
+      new_levels <- new_levels[used]
+    }
   }
   out <- target_id[x]
   attributes(out) <- .factor_attributes(x, new_levels,
