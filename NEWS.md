@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` validates ordinary numeric cut points from their extrema and continues to use class-specific finiteness methods.
+
 * Point shape conversion matches native numeric symbols directly and avoids interpreting a nearby fractional value as a supported integer symbol.
 
 * Numeric scatter group conversion only constructs a replacement level index when one of the level labels is missing.

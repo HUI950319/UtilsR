@@ -418,3 +418,15 @@ test_that("quantile bins keep distinct breakpoints without deduplication", {
   expect_warning(observed <- fn(tied, nbins = 5L), "Ties in quantiles")
   expect_identical(observed, suppressWarnings(fct_num(tied, nbins = 5L)))
 })
+
+test_that("fixed ordinary bin thresholds avoid full comparison masks", {
+  breaks <- seq(0.5, 70.5, length.out = 71L)
+  fn <- fct_num
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(breaks)) && length(x) == 71L)
+      stop("built finiteness flags for ordinary cut points")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(1:90, breaks = breaks), fct_num(1:90, breaks = breaks))
+  expect_error(fn(1:90, breaks = c(breaks, Inf)), "finite, non-missing")
+})
