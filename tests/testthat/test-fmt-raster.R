@@ -1139,3 +1139,14 @@ test_that("raster panel dimensions validate their extrema", {
   expect_error(fn(gt, 1:20, "width", NULL, "cm", replace(sizes, 2L, Inf)), "positive panel")
   expect_error(fn(gt, 1:20, "width", NULL, "cm", replace(sizes, 2L, 0)), "positive panel")
 })
+
+test_that("vector only raster panels keep their native child list", {
+  g <- grid::grobTree(grid::textGrob("a", name = "left"),
+    grid::textGrob("b", name = "right"))
+  fn <- .rasterize_panel_grob
+  environment(fn) <- list2env(list(vector = function(mode, length = 0L) {
+    if (identical(mode, "list")) stop("allocated an output list for an unchanged vector panel")
+    base::vector(mode, length)
+  }), parent = environment(fn))
+  expect_identical(fn(g, 2, 1, 90, "in", "transparent"), g)
+})

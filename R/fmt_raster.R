@@ -610,7 +610,13 @@ fmt_raster <- function(
   # Empty grobs draw nothing: they neither become nor split a raster run.
   children <- if (native_order) g$children else g$children[ordered]
   visible <- !vapply(children, inherits, logical(1), c("zeroGrob", "null"))
-  if (!all(visible)) ordered <- ordered[visible]
+  all_visible <- all(visible)
+  if (!all_visible) ordered <- ordered[visible]
+  if (!background && native_order && all_visible &&
+      all(vapply(seq_along(children), function(i) {
+        name <- child_names[i]
+        grepl("^(grill|panel\\.border)", name) || .is_text_grob(children[[i]], name)
+      }, logical(1)))) return(g)
   # A panel background belongs below every run, including vector text.
   output <- vector("list", length(ordered) + background)
   used <- as.integer(background)

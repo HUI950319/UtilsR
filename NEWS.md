@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization leaves a native-order tree of visible vector annotations intact when no raster background is needed.
+
 * Rank correlations pass previously validated pairs directly to centering without checking their original extrema again.
 
 * Displayed-score scaling reads the extrema of each complete plain group directly.
