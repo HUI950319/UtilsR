@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Complete confidence-interval parsing retains extracted fields directly and allocates default-filled columns only for partial input.
+
 * Stacked-distribution text formats a uniform percentage once and recycles that label to the displayed segments.
 
 * Numeric frequency listings keep the existing order of complete, sorted unique values.

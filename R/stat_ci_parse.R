@@ -424,11 +424,6 @@ stat_ci_parse <- function(x,
       }))
     }
   }
-  est <- lo <- hi <- rep(NA_real_, n)
-  d <- rep(2L, n)
-  open <- close <- sep <- rep(NA_character_, n)
-  unit <- matrix(NA_real_, n, 3L)   # rounding unit of est, lower, upper
-
   # Full-width punctuation and Unicode spacing/minus (pasted from Word/PDF)
   space <- "[\\h\\v]"
   xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~",
@@ -456,9 +451,11 @@ stat_ci_parse <- function(x,
   matched <- regexpr(re, xs, perl = TRUE)
   hit <- which(matched > 0L)
   if (!length(hit)) {
-    return(list(estimate = est, lower = lo, upper = hi, digits = d,
-      open = open, sep = sep, close = close, valid = logical(n),
-      unit = unit, trailing = logical(n)))
+    empty <- rep.int(NA_real_, n)
+    text <- rep.int(NA_character_, n)
+    return(list(estimate = empty, lower = empty, upper = empty, digits = rep.int(2L, n),
+      open = text, sep = text, close = text, valid = logical(n),
+      unit = matrix(NA_real_, n, 3L), trailing = logical(n)))
   }
   starts <- attr(matched, "capture.start")
   lengths <- attr(matched, "capture.length")
@@ -482,10 +479,19 @@ stat_ci_parse <- function(x,
     has_trailing <- has_trailing[ok]
   }
 
-  est[hit] <- values[[1]]; lo[hit] <- values[[2]]
-  hi[hit] <- values[[3]]
-  open[hit] <- g[[2]]; close[hit] <- g[[6]]
-  sep[hit] <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
+  complete <- length(hit) == n
+  restore <- function(values, missing) {
+    if (complete) return(unname(values))
+    out <- rep.int(missing, n)
+    out[hit] <- values
+    out
+  }
+  est <- restore(values[[1L]], NA_real_)
+  lo <- restore(values[[2L]], NA_real_)
+  hi <- restore(values[[3L]], NA_real_)
+  open <- restore(g[[2L]], NA_character_)
+  close <- restore(g[[6L]], NA_character_)
+  separators <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
                 "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
@@ -501,13 +507,17 @@ stat_ci_parse <- function(x,
     }
     -ex + 0
   })
-  d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
-  unit[hit, ] <- 10^-do.call(cbind, dec)
+  d <- restore(pmax(dec[[1L]], dec[[2L]], dec[[3L]], 0L), 2L)
+  units <- 10^-do.call(cbind, dec)
+  unit <- if (complete) units else {
+    full <- matrix(NA_real_, n, 3L)
+    full[hit, ] <- units
+    full
+  }
 
-  trailing <- logical(n)
-  trailing[hit] <- has_trailing
+  trailing <- restore(has_trailing, FALSE)
   list(estimate = est, lower = lo, upper = hi, digits = d,
-       open = open, sep = sep, close = close, valid = !is.na(open),
+       open = open, sep = restore(separators, NA_character_), close = close, valid = !is.na(open),
        unit = unit, trailing = trailing)
 }
 

@@ -1378,3 +1378,17 @@ test_that("confidence conversion reuses stable trial endpoints", {
   wide <- c(input[1:2], "1.00e308 (-1.00e308, 1.20e308)")
   expect_identical(run(fn, wide, 0.99), run(stat_ci_parse, wide, 0.99))
 })
+
+test_that("fully parsed confidence fields avoid scattering every row", {
+  input <- setNames(c("2.0 (1.0, 3.0)", "0.10 [0.03 to 0.17]", "9 (8; 10)"), letters[1:3])
+  f <- .ci_extract
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (is.double(x) && length(x) == 3L && all(is.na(x)) && length(i) == 3L)
+      stop("scattered all parsed interval rows into preallocated columns")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  expect_identical(f(input)$estimate, c(2, .1, 9))
+  expect_identical(f(input)$open, c("(", "[", "("))
+  expect_identical(f(input)$digits, c(1, 2, 0))
+  expect_identical(f(c(input, "invalid")), .ci_extract(c(input, "invalid")))
+})
