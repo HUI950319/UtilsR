@@ -1395,3 +1395,14 @@ test_that("unique time labels skip bidirectional collision masks", {
   expect_identical(fn(d), d)
   expect_identical(fn(t), .butterfly_category_labels(t))
 })
+
+test_that("distinct numeric category labels preserve exact labels without rematching", {
+  x <- c(1 + 2*.Machine$double.eps, 1 + .Machine$double.eps, 1, NA_real_)
+  fn <- .butterfly_category_labels
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(raw))) stop("rematched distinct numeric values after formatting labels")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .butterfly_category_labels(x))
+  expect_equal(length(unique(fn(x)[1:3])), 3L)
+})

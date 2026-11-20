@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Exact numeric category labels skip rematching a value vector that already consists of distinct values.
+
 * Panel rasterization leaves a native-order tree of visible vector annotations intact when no raster background is needed.
 
 * Rank correlations pass previously validated pairs directly to centering without checking their original extrema again.

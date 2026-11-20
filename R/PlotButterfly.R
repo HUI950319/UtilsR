@@ -665,6 +665,6 @@ PlotButterfly <- function(
   labels <- if (is.complex(values)) {
     sprintf("%.17g%+.17gi", Re(values), Im(values))
   } else sprintf("%.17g", values)
-  labels[is.na(values)] <- NA_character_
-  labels[match(raw, values)]
+  if (anyNA(values)) labels[is.na(values)] <- NA_character_
+  if (is.null(dim(raw)) && length(values) == length(raw)) labels else labels[match(raw, values)]
 }
