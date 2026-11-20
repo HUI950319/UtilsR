@@ -1064,3 +1064,15 @@ test_that("AsIs numeric P-value star selection uses threshold indexing", {
   expect_identical(f(x, add_star_p = p), stat_pval(x, add_star_p = p))
   expect_identical(f(setNames(x, x), add_star_p = p), stat_pval(setNames(x, x), add_star_p = p))
 })
+
+test_that("repeated mixed decimal ties compare one copy of each spelling", {
+  x <- rep(c("0.04999999999999999999", "0.050000000000000001", "5e-2"), 110L)
+  fn <- stat_pval
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (identical(pattern, "[eE].*$") && length(x) == 330L)
+      stop("split decimal mantissas for repeated ties")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  expected <- rep(c("0.050*", "0.050", "0.050*"), 110L)
+  expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0.05)), expected)
+})

@@ -155,12 +155,20 @@ stat_pval <- function(x,
       candidates <- sprintf("%.*g", 1:17, cut)
       cutoff <- decimal(candidates[which(as.numeric(candidates) == cut)[1L]])
       text <- endpoints[rows]
-      if (length(text) > 1L && all(text == text[[1L]])) text <- text[[1L]]
+      lookup <- NULL
+      if (length(text) > 1L && all(text == text[[1L]])) {
+        text <- text[[1L]]
+      } else if (length(text) > 32L && anyDuplicated(text)) {
+        keys <- unique(text)
+        lookup <- match(text, keys)
+        text <- keys
+      }
       input <- decimal(text)
       width <- pmax(nchar(input$digits), nchar(cutoff$digits))
       a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
       b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))
       above <- input$power > cutoff$power | (input$power == cutoff$power & a > b)
+      if (!is.null(lookup)) above <- above[lookup]
       index[rows[above]] <- index[rows[above]] + 1L
     }
     stars <- c(names(map), "")[index]
