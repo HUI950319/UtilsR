@@ -198,7 +198,9 @@ PlotRank <- function(
 
   # ---- Keep original full ranges for "group" scaling ----
   if (value_scale == "group") {
-    orig_ranges <- lapply(score_list, function(v) range(v, na.rm = TRUE))
+    orig_ranges <- lapply(score_list, function(v) {
+      if (is.object(v)) range(v, na.rm = TRUE) else c(min(v), max(v))
+    })
   }
 
   # Clean the labels of displayed scores only.

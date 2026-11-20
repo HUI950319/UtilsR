@@ -908,3 +908,14 @@ test_that("ranking label cleanup preserves legacy chained suffix order", {
   out <- fn(values, max_show = length(values), return_type = "data")
   expect_identical(out[["Label"]], expected)
 })
+
+test_that("group scaled rank plots check extrema after removing missing scores", {
+  d <- c(a = 2, b = NA_real_, c = 4, d = 10)
+  fn <- PlotRank
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    if (identical(x, c(a = 2, c = 4, d = 10))) stop("dispatched range for a cleaned full rank group")
+    base::range(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, value_scale = "group", max_show = 2L)$data,
+                   PlotRank(d, value_scale = "group", max_show = 2L)$data)
+})

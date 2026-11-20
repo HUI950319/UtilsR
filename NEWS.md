@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Group-scaled rank plots use the extrema of cleaned ordinary score vectors.
+
 * Single-stratum point sampling keeps the already complete split list.
 
 * Point sampling recognizes base get calls that reference external observation vectors and retains data-column lookups.
