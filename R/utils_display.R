@@ -780,9 +780,10 @@ show_color <- function(x, rev = FALSE) {
     }
   }
   bad_encoding <- !validEnc(colours) | Encoding(colours) == "bytes"
-  numeric_index <- rep(FALSE, length(colours))
+  numeric_index <- FALSE
   non_hex <- !bad_encoding & !is.na(colours) & !startsWith(colours, "#")
   if (any(non_hex)) {
+    numeric_index <- logical(length(colours))
     numeric_index[non_hex] <- !is.na(suppressWarnings(as.numeric(colours[non_hex])))
   }
   # Parse labels together, retaining alpha; inspect values only after failure.
@@ -796,7 +797,7 @@ show_color <- function(x, rev = FALSE) {
   if (is.null(hex)) {
     if (!is.null(lookup)) {
       bad_encoding <- bad_encoding[lookup]
-      numeric_index <- numeric_index[lookup]
+      if (length(numeric_index) > 1L) numeric_index <- numeric_index[lookup]
     }
     to_check <- unique(x[!bad_encoding])
     if (length(to_check) <= 256L) {

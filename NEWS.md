@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Hex-only console color previews skip per-color numeric-index flags while retaining full invalid-color diagnostics.
+
 * `pal_get()` returns a scalar success for fully valid colour vectors and expands flags only for diagnostics.
 
 * Sparse factor membership avoids filtering its level dictionary when every observed code is present.

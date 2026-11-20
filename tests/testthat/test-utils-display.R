@@ -1541,3 +1541,14 @@ test_that("binary model notices skip distinct outcome hashing", {
   d <- data.frame(time = 4:1, event = c(0L, 1L, 2L, 1L))
   expect_match(testthat::capture_messages(.cat_formula(d, "age", outcome = "event")), "CRR model")
 })
+
+test_that("hex swatch previews skip numeric index flag allocation", {
+  x <- c("#123456", "#98765488", "#ABCDEF")
+  fn <- show_color
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, FALSE)) stop("allocated numeric palette index flags for hex swatches")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
+  expect_error(fn(c(x, "#BADHEX")), "BADHEX")
+})
