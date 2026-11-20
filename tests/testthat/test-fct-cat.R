@@ -1056,3 +1056,15 @@ test_that("complete recoded factors retain their mapped level indices", {
   y <- x[is.na(x) | x == "a"]
   expect_identical(draw(fn, y), draw(.recode_factor, y))
 })
+
+test_that("unnamed factor groups use their positions without a placeholder name vector", {
+  x <- factor(letters[1:5])
+  f <- fct_to_group
+  environment(f) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, "")) stop("built blank names for every unnamed factor group")
+    base::rep(x, ...)
+  }), parent = environment(f))
+  expect_identical(f(x, list(c(1L, 3L), 4L)), fct_to_group(x, list(c(1L, 3L), 4L)))
+  themed <- setNames(list(c(1L, 3L), 4L), c("selected", NA_character_))
+  expect_identical(f(x, themed), fct_to_group(x, themed))
+})

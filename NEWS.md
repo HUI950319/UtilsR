@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor group naming starts from the requested positions when the entire group list is unnamed.
+
 * Factor combination encoding keeps its existing value dictionary when ordinary values are already in display order.
 
 * Factor combination ordering reuses the original code columns for fully distinct observation tuples.
