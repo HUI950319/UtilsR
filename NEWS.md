@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Variable inspection preserves the existing factor level vector when every level is present.
+
 * Numeric sparklines skip combined missing and finite masks for complete ordinary numeric columns.
 
 * Automatic factor binning calculates extrema directly once the numeric storage has been normalized.

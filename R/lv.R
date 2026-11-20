@@ -402,7 +402,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     tally <- if (ordinary_factor) .factor_tally(col_data) else NULL
     if (ordinary_factor) {
       n_na <- length(col_data) - sum(tally$counts)
-      unique_values <- levels(col_data)[tally$codes]
+      lvls <- levels(col_data)
+      unique_values <- if (length(tally$codes) == length(lvls)) lvls else lvls[tally$codes]
     } else {
       n_na <- .count_missing_values(col_data)
       unique_values <- .get_levels(col_data, complete = n_na == 0L)

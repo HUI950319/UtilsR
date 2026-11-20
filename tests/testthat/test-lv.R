@@ -1843,3 +1843,18 @@ test_that("numeric lv frequencies preserve unit counts for unique values", {
   d$value[1L] <- d$value[2L]
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("lv complete factor summaries reuse their declared levels", {
+  d <- data.frame(stage = ordered(rep(c("III", "I", "II"), 4L), levels = c("I", "II", "III")))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(levels(col_data))) &&
+        identical(substitute(i), quote(tally$codes)) && length(i) == length(x))
+      stop("sliced the complete inspected level vector")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+  d <- d[d$stage != "I", , drop = FALSE]
+  expect_identical(draw(fn), draw(lv))
+})
