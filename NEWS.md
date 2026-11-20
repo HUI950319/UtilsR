@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* A fully observed single-factor combination reuses the declared levels and only substitutes actual missing-level labels.
+
 * Factor recoding uses its level coverage guarantee directly when every source level occurs.
 
 * KNN imputation constructs its exact integer64 bounds once per call when integer64 columns are present.

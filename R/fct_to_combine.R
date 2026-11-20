@@ -229,8 +229,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
       if (!n) return(structure(integer(), levels = character(), class = "factor"))
       tally <- .factor_tally(x)
       observed <- tally$codes
-      lvls <- levels(x)[observed]
-      lvls[is.na(lvls)] <- "NA"
+      all_levels <- levels(x)
+      lvls <- if (length(observed) == length(all_levels)) all_levels else all_levels[observed]
+      if (anyNA(lvls)) lvls[is.na(lvls)] <- "NA"
       if (anyDuplicated(lvls)) {
         cli::cli_abort(c(
           "Distinct combinations produce the same label.",

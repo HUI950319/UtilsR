@@ -666,3 +666,16 @@ test_that("factor combination keeps sorted ordinary value dictionaries", {
   expect_identical(f(a, b), fct_to_combine(a, b))
   expect_identical(f(rev(a), rev(b)), fct_to_combine(rev(a), rev(b)))
 })
+
+test_that("single factor combinations reuse the fully observed level dictionary", {
+  x <- ordered(rep(c("b", NA, "a"), 10L), levels = c("a", "b"))
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(levels(x))) && identical(substitute(i), quote(observed)))
+      stop("sliced a complete combined factor level dictionary")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), fct_to_combine(x))
+  na_level <- addNA(x)
+  expect_identical(fn(na_level), fct_to_combine(na_level))
+})
