@@ -1115,3 +1115,18 @@ test_that("dumbbell integer endpoints check scalar combined bounds", {
   d$end[2L] <- NA_integer_
   expect_identical(suppressWarnings(draw(fn)), suppressWarnings(draw(PlotDumbbell)))
 })
+
+test_that("integer64 difference recovery visits only missing results", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9223372036854775807", NA, rep("10", 80L)))
+  y <- bit64::as.integer64(c("-9223372036854775807", "4", rep("1", 80L)))
+  fn <- .dumbbell_integer64_difference
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if ((identical(substitute(x), quote(x)) || identical(substitute(x), quote(y))) &&
+        length(x) == 82L) stop("scanned entire endpoints for missing differences")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x, y), .dumbbell_integer64_difference(x, y))
+  x[1L] <- y[1L]
+  expect_identical(fn(x, y), .dumbbell_integer64_difference(x, y))
+})

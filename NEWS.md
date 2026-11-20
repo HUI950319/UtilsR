@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired integer64 difference recovery checks source values only at missing result positions when endpoint lengths agree.
+
 * Jaccard similarity uses the occupied group positions to write its diagonal without recreating the coverage mask.
 
 * Jaccard row grouping skips a dictionary match when factor levels already equal the requested group sequence.

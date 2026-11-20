@@ -622,8 +622,11 @@ PlotDumbbell <- function(
   }
   difference <- suppressWarnings(x - y)
   if (!anyNA(difference)) return(difference)
-  overflow <- is.na(difference) & !is.na(x) & !is.na(y)
-  if (!any(overflow)) return(difference)
+  overflow <- if (length(x) == length(y)) {
+    at <- which(is.na(difference))
+    at[!is.na(x[at]) & !is.na(y[at])]
+  } else which(is.na(difference) & !is.na(x) & !is.na(y))
+  if (!length(overflow)) return(difference)
   step <- bit64::as.integer64("4294967296")
   x <- x[overflow]
   y <- y[overflow]
