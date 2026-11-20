@@ -1344,3 +1344,19 @@ test_that("distinct rank-correlation feature pairs reuse the wide keys", {
   draw <- function(f) suppressMessages(f(d, "feature", "score", method.by = "method")[["data"]])
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("complete rank correlation centering skips finite row indices", {
+  d <- rank_cor_data()
+  d$score[4L] <- 1
+  draw <- function(fn) {
+    invisible(capture.output(p <- fn(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "zscore", scale_y = "minmax", show.label = FALSE)))
+    list(p$data, attr(p, "cor_results"))
+  }
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(is.finite(x)))) stop("collected all finite score row indices")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

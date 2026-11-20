@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation centering reuses the complete score vector when every score is finite.
+
 * Numeric palettes obtain finite position bounds directly from their extrema.
 
 * Factor tallies keep the complete count vector when every declared level occurs.

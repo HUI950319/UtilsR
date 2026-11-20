@@ -426,11 +426,11 @@ PlotRankCor <- function(
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
   .center_scale_vec <- function(x) {
-    observed <- which(is.finite(x))
-    if (!length(observed)) return(x)
-    origin <- x[observed[1L]]
+    complete <- length(x) && !is.object(x) && is.finite(min(x)) && is.finite(max(x))
+    observed <- if (!complete) which(is.finite(x))
+    if (!complete && !length(observed)) return(x)
+    origin <- x[if (complete) 1L else observed[1L]]
     centered <- x - origin
-    complete <- length(observed) == length(x)
     observed_centered <- if (complete) centered else centered[observed]
     if (any(!is.finite(observed_centered))) {
       magnitude <- max(abs(if (complete) x else x[observed]))
