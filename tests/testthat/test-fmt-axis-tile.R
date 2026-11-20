@@ -686,3 +686,20 @@ test_that("axis tiles accept named standard guide values", {
   if (!is.null(actual)) rownames(actual) <- NULL
   expect_identical(actual, expected)
 })
+
+test_that("axis tiles preserve native axis caps at selected breaks", {
+  p <- ggplot2::ggplot(data.frame(g = LETTERS[1:4], y = 1:4), ggplot2::aes(g, y)) +
+    ggplot2::geom_col() + ggplot2::scale_x_discrete(breaks = c("B", "C"), guide = ggplot2::guide_axis(cap = "both"))
+  q <- fmt_axisTile(p, c(A = "red", B = "blue", C = "green", D = "purple"))
+  scale <- ggplot2::ggplot_build(p)$layout$panel_scales_x[[1L]]
+  train <- function(guide) {
+    params <- guide$params
+    params$position <- "bottom"
+    guide$train(params = params, scale = scale, aesthetic = "x")
+  }
+  native <- train(p$scales$get_scales("x")$guide)
+  tiled <- train(q$guides$guides$x)
+  expect_identical(tiled$decor, native$decor)
+  expect_equal(nrow(tiled$key), 4L)
+  expect_equal(as.numeric(tiled$decor$x), c(2, 3))
+})

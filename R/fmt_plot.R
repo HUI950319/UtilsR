@@ -3937,6 +3937,12 @@ fmt_axisTile <- function(plot,
       full$.fmt_label <- !is.na(index)
       full
     },
+    extract_decor = function(scale, aesthetic, position, key, ...) {
+      if (!is.null(key$.fmt_label) && !all(key$.fmt_label)) {
+        key <- key[key$.fmt_label, , drop = FALSE]
+      }
+      parent$extract_decor(scale = scale, aesthetic = aesthetic, position = position, key = key, ...)
+    },
     extract_params = function(scale, params, ...) {
       params <- parent$extract_params(scale, params, ...)
       params$fmt_discrete <- scale$is_discrete()
