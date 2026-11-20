@@ -1804,3 +1804,16 @@ test_that("inspection special highlighting scopes explicit missing checks to can
   expect_identical(filled_labels(actual, "#BBDEFB"), filled_labels(expected, "#BBDEFB"))
   expect_setequal(filled_labels(actual, "#BBDEFB"), c("Unknown", "N/A", "(blank)", "Missing"))
 })
+
+test_that("ordinary lv standard deviations skip whole-column finite scans", {
+  d <- data.frame(score = seq(-3.5, 8.5, length.out = 105L))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(x, d$score) &&
+        grepl("stats::sd", paste(deparse(sys.function(-1L)), collapse = " "), fixed = TRUE))
+      stop("scanned a normal inspection deviation for finite values")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Variable inspection avoids a full finite-value mask when standard deviations need no extreme-value correction.
+
 * Data quality summaries order full column counts without first copying all columns.
 
 * Group-scaled rank plots use the extrema of cleaned ordinary score vectors.
