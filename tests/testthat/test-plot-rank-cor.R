@@ -1360,3 +1360,22 @@ test_that("complete rank correlation centering skips finite row indices", {
   }), parent = environment(fn))
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("rank correlation scaling reuses the complete score decision", {
+  d <- rank_cor_data()
+  d$score[4L] <- 1
+  f <- PlotRankCor
+  environment(f) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) == 4L && all(base::is.finite(x)))
+      stop("built a finite row mask for complete rank correlation scores")
+    base::is.finite(x)
+  }), parent = environment(f))
+  draw <- function(fn) {
+    invisible(capture.output(p <- fn(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "zscore", scale_y = "minmax", show.label = FALSE)))
+    list(p$data, attr(p, "cor_results"))
+  }
+  expect_identical(draw(f), draw(PlotRankCor))
+  d$score[2L] <- NA
+  expect_identical(draw(f), draw(PlotRankCor))
+})

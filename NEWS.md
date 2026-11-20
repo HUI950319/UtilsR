@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank-correlation scaling shares the completeness result with centering and avoids masks on complete ordinary scores.
+
 * Object size reports format byte, KB, MB and GB labels with one call using the same thresholds.
 
 * Axis formatting validates ordinary integer plot selections without allocating whole-number comparison vectors.

@@ -425,8 +425,9 @@ PlotRankCor <- function(
   rownames(rank_wide) <- NULL
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
-  .center_scale_vec <- function(x) {
-    complete <- length(x) && !is.object(x) && is.finite(min(x)) && is.finite(max(x))
+  .center_scale_vec <- function(x, complete = length(x) && !is.object(x) &&
+                                is.finite(min(x)) && is.finite(max(x))) {
+    if (!length(x)) return(x)
     observed <- if (!complete) which(is.finite(x))
     if (!complete && !length(observed)) return(x)
     origin <- x[if (complete) 1L else observed[1L]]
@@ -443,9 +444,13 @@ PlotRankCor <- function(
   }
 
   .scale_vec <- function(x, method) {
-    finite <- is.finite(x)
-    if (!all(finite)) x[!finite] <- NA_real_
-    if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x)
+    complete <- length(x) && !is.object(x) && is.finite(min(x)) && is.finite(max(x))
+    if (!complete) {
+      finite <- is.finite(x)
+      complete <- all(finite)
+      if (!complete) x[!finite] <- NA_real_
+    }
+    if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x, complete)
     switch(method,
       "none"   = x,
       "minmax" = {
