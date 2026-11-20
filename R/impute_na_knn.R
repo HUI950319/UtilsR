@@ -163,11 +163,14 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   labelled_original <- data_for_impute[labelled_cols]
   integer64_original <- data_for_impute[integer64_cols]
+  if (length(integer64_original)) {
+    limit <- bit64::as.integer64("9007199254740992")
+    lower_limit <- -limit
+  }
   for (var_name in names(integer64_original)) {
     x <- integer64_original[[var_name]]
-    limit <- bit64::as.integer64("9007199254740992")
     bounds <- range(x, na.rm = TRUE)
-    if (bounds[1L] < -limit || bounds[2L] > limit) {
+    if (bounds[1L] < lower_limit || bounds[2L] > limit) {
       cli::cli_abort("Column {.val {var_name}} contains integer64 values beyond exact double precision; convert it explicitly before KNN imputation.")
     }
     data_for_impute[[var_name]] <- suppressWarnings(as.double(x))

@@ -971,3 +971,22 @@ test_that("KNN backend preparation reuses validated numeric extrema", {
   d$depth <- d$depth + 1e10
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("KNN integer64 precision bounds are reused across columns", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("bit64")
+  d <- data.frame(x = c(1, NA, 4, 2, 3), id = bit64::as.integer64(1:5),
+    other = bit64::as.integer64(c(2, 12, 7, 0, 1)))
+  expected <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  convert <- bit64::as.integer64
+  calls <- 0L
+  local_mocked_bindings(as.integer64 = function(x, ...) {
+    if (identical(x, "9007199254740992")) {
+      calls <<- calls + 1L
+      if (calls > 1L) stop("converted the exact integer64 limit twice")
+    }
+    convert(x, ...)
+  }, .package = "bit64")
+  expect_identical(impute_na_knn(d, k = 1L, verbose = FALSE), expected)
+  expect_identical(calls, 1L)
+})
