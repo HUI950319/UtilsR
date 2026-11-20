@@ -153,12 +153,16 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }, numeric(2L), USE.NAMES = FALSE)
   missing_count <- counts[1L, ]
   special_count <- counts[2L, ]
-  rows <- if (show_all) seq_along(missing_count) else which(missing_count + special_count > 0)
+  rows <- if (show_all) {
+    order(missing_count, special_count, decreasing = TRUE)
+  } else {
+    selected <- which(missing_count + special_count > 0)
+    selected[order(missing_count[selected], special_count[selected], decreasing = TRUE)]
+  }
   if (!length(rows)) {
     pr_head("check_na", "no missing or special values found", bg = "green")
     return(invisible(NULL))
   }
-  rows <- rows[order(missing_count[rows], special_count[rows], decreasing = TRUE)]
   missing_count <- missing_count[rows]
   special_count <- special_count[rows]
   res_na <- data.frame(

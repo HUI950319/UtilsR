@@ -911,3 +911,15 @@ test_that("complete factor tallies keep their existing count vector", {
   expect_identical(fn(x), .factor_tally(x))
   expect_identical(fn(factor(character())), .factor_tally(factor(character())))
 })
+
+test_that("complete quality summaries order their original count vectors", {
+  d <- data.frame(a = c(1, NA, 3), b = c("ok", "N/A", ""), z = c(NA, NA, 3))
+  fn <- check_na
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(missing_count)) &&
+        identical(i, seq_along(x))) stop("sliced all quality counts before ordering")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(capture_gt_data(fn(d, show_all = TRUE)),
+                   capture_gt_data(check_na(d, show_all = TRUE)))
+})
