@@ -2811,14 +2811,16 @@ test_that("single-colour ramps bypass interpolation and retain alpha bytes", {
 test_that("finite palette placement keeps its original coordinate storage", {
   skip_if_not_installed("lobstr")
   fn <- .pal_numeric_positions
-  address <- NULL
-  environment(fn) <- list2env(list(range = function(x, ...) {
-    address <<- lobstr::obj_addr(x)
-    base::range(x, ...)
-  }), parent = environment(fn))
+  addresses <- character()
+  observe <- function(extreme) function(x, ...) {
+    addresses <<- c(addresses, lobstr::obj_addr(x))
+    extreme(x, ...)
+  }
+  environment(fn) <- list2env(list(min = observe(base::min), max = observe(base::max)),
+                             parent = environment(fn))
   values <- as.double(seq_len(400L))
   result <- fn(values, FALSE)
-  expect_identical(address, lobstr::obj_addr(values))
+  expect_identical(addresses, rep(lobstr::obj_addr(values), 2L))
   expect_identical(result, .pal_numeric_positions(values, FALSE))
   expect_identical(fn(c(values, NA_real_), TRUE), .pal_numeric_positions(c(values, NA_real_), TRUE))
 })
@@ -3259,4 +3261,15 @@ test_that("numeric palette lists check complete placement once for all colours",
   expected <- lapply(values, function(x) pal_get(pal, x = x))
   local_mocked_bindings(.pal_apply_positions = fn, .package = "UtilsR")
   for (i in seq_along(values)) expect_identical(pal_get(pal, x = values[[i]]), expected[[i]])
+})
+
+test_that("numeric palette bounds use scalar extrema", {
+  values <- c(-.Machine$double.xmax, -0, 0, .Machine$double.xmax, NA_real_, Inf)
+  fn <- .pal_numeric_positions
+  environment(fn) <- list2env(list(range = function(...) stop("dispatched range for finite palette coordinates")),
+                             parent = environment(fn))
+  for (reverse in c(FALSE, TRUE)) {
+    expect_identical(fn(values, reverse), .pal_numeric_positions(values, reverse))
+    expect_identical(fn(rep(4, 10), reverse), .pal_numeric_positions(rep(4, 10), reverse))
+  }
 })

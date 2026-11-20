@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric palettes obtain finite position bounds directly from their extrema.
+
 * Factor tallies keep the complete count vector when every declared level occurs.
 
 * Sparse categorical tables reuse unique paired factor codes and their unit counts.

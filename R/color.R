@@ -676,7 +676,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     return(list(placed = placed, at = numeric(), index = NULL))
   }
 
-  ends <- range(values)
+  ends <- c(min(values), max(values))
   if (ends[[1L]] == ends[[2L]]) {
     # A single midpoint colour recycles across the finite positions.
     return(list(placed = placed, at = 0.5, index = NULL))
