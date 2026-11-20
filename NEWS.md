@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter histograms retain the original difference vector when every value is visible.
+
 * UpSet data output retains all declared region levels and skips count sorting when no rows belong to any combination.
 
 * Sankey node labels skip a second proportion lookup when all visible nodes meet the zero threshold.

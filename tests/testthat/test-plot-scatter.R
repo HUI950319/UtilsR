@@ -2008,3 +2008,16 @@ test_that("factor scatter groups reuse complete label dictionaries", {
   expect_identical(fn(x, c("b", "a")), .scatter_group_factor(x, c("b", "a")))
   expect_identical(fn(x, c("b", "a", NA)), .scatter_group_factor(x, c("b", "a", NA)))
 })
+
+test_that("complete in-window scatter differences avoid an extra histogram slice", {
+  d <- data.frame(Control = 1:8, Treat = 1:8 + rep(c(-.8, -.4, .4, .8), 2L),
+    group = rep(c("A", "B"), 4L))
+  fn <- PlotScatter3
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(diff_values)) && is.logical(i) && length(i) && all(i))
+      stop("copied all visible paired histogram differences")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_s3_class(fn(d, test_method = "none", cor_method = "none",
+    show_refline = FALSE, hist_bins = 3L, hist_x_limits = c(-1, 1)), "patchwork")
+})
