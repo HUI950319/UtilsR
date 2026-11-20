@@ -601,12 +601,12 @@ fmt_raster <- function(
     g <- grid::grobTree(g)
   }
   child_names <- names(g$children)
-  ordered <- if (identical(g$childrenOrder, child_names) && !anyDuplicated(child_names)) {
-    seq_along(child_names)
-  } else match(g$childrenOrder, child_names)
+  native_order <- identical(g$childrenOrder, child_names) && !anyDuplicated(child_names)
+  ordered <- if (native_order) seq_along(child_names) else match(g$childrenOrder, child_names)
   # Empty grobs draw nothing: they neither become nor split a raster run.
-  ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),
-                             c("zeroGrob", "null"))]
+  children <- if (native_order) g$children else g$children[ordered]
+  visible <- !vapply(children, inherits, logical(1), c("zeroGrob", "null"))
+  if (!all(visible)) ordered <- ordered[visible]
   # A panel background belongs below every run, including vector text.
   output <- vector("list", length(ordered) + background)
   used <- as.integer(background)
@@ -660,7 +660,7 @@ fmt_raster <- function(
   for (i in seq_along(ordered)) {
     j <- ordered[i]
     child <- g$children[[j]]
-    name <- names(g$children)[j]
+    name <- child_names[j]
     if (grepl("^(grill|panel\\.border)", name) || .is_text_grob(child, name)) {
       if (i > start) {
         used <- used + 1L

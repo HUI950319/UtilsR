@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization reuses the existing child list when already in draw order and only filters empty grobs when present.
+
 * Discrete palette mapping reuses deduplicated ordinary character labels without a second uniqueness scan.
 
 * Equal-size named and positional palette requests keep the original stops before alpha adjustment.

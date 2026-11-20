@@ -1049,3 +1049,22 @@ test_that("raster size inference skips span processing for one-cell panels", {
   gt[["layout"]][["r"]][1L] <- 2L
   expect_identical(fn(gt, 1:2, "width", NULL, "cm", c(1, 2, 3)), c(3, 3))
 })
+
+test_that("raster children in native draw order reuse their list", {
+  skip_if_not_installed("ragg")
+  g <- grid::grobTree(grid::rectGrob(name = "body"), grid::textGrob("test", name = "caption"))
+  f <- .rasterize_panel_grob
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(g$children)) && identical(substitute(i), quote(ordered)) &&
+        identical(i, seq_along(x))) stop("gathered all panel children in the existing order")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  draw <- function(fn, panel) {
+    out <- fn(panel, 1, 1, 20L, "in", "transparent")
+    list(unname(lapply(raster_find_grobs(out, "rastergrob"), function(child) child$raster)),
+         unname(vapply(raster_find_grobs(out, "text"), function(child) child$label, character(1))))
+  }
+  expect_identical(unname(draw(f, g)), unname(draw(.rasterize_panel_grob, g)))
+  g$childrenOrder <- rev(g$childrenOrder)
+  expect_identical(unname(draw(f, g)), unname(draw(.rasterize_panel_grob, g)))
+})
