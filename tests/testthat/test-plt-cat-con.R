@@ -2164,3 +2164,14 @@ test_that("single category per subgroup skips sparse denominator construction", 
   expect_identical(out, .prepare_cat_data(d, "x", "g", "percent"))
   expect_identical(out$value, rep(100, 3L))
 })
+
+test_that("dense categorical percentages sum contiguous support columns", {
+  d <- data.frame(x = factor(c("a", "a", "c", "b", NA), levels = c("a", "b", "c", "d")),
+    g = factor(c("b", "b", "b", "a", "a"), levels = c("b", "a", "unused")))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(ave = function(...) stop("split dense categorical counts for totals")),
+    parent = environment(fn))
+  expected <- .prepare_cat_data(d, "x", "g", "percent", keep_empty = TRUE)
+  expect_identical(fn(d, "x", "g", "percent", keep_empty = TRUE), expected)
+  expect_identical(expected$value[9:12], rep(0, 4L))
+})

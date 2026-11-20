@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dense categorical percentage tables use their known count-grid layout to compute group totals without splitting rows.
+
 * Sparse categorical percentage tables assign 100% directly when each represented subgroup has one observed category.
 
 * Fully finite palette mappings now store their length and omit the row-sized placement mask.
