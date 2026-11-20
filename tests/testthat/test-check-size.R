@@ -593,3 +593,16 @@ test_that("integer object positions use their integer bounds directly", {
   expect_identical(result[["_data"]], check_size(c(1L, 3L), envir = env, method = "object.size")[["_data"]])
   expect_error(fn(c(1L, NA_integer_), envir = env), "within the available names")
 })
+
+test_that("object size reports keep already ranked object rows", {
+  e <- list2env(list(a = raw(16000L), b = raw(2000L), c = raw(10L)))
+  f <- check_size
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(object_info)) && identical(substitute(i), quote(rows)) &&
+        identical(i, seq_len(nrow(x)))) stop("reordered an object size frame in its existing order")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
+  e$c <- raw(50000L)
+  expect_identical(f(envir = e)[["_data"]], check_size(envir = e)[["_data"]])
+})

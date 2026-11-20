@@ -206,7 +206,9 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
             call. = FALSE)
   }
   rows <- order(object_info$Size, decreasing = TRUE, na.last = NA, method = "radix")
-  object_info <- object_info[rows, , drop = FALSE]
+  if (length(rows) != nrow(object_info) || is.unsorted(rows)) {
+    object_info <- object_info[rows, , drop = FALSE]
+  }
   object_count <- nrow(object_info)
   total_mb <- sum(object_info$Size)
   if (method == "lobstr" && object_count > 1L) {
