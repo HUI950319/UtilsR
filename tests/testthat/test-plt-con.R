@@ -2595,3 +2595,14 @@ test_that("plain complete comparison groups skip missing row selection", {
   g[2L] <- NA_character_
   expect_identical(draw(f), draw(.con_comparisons))
 })
+
+test_that("single key continuous dot counts keep their counted order", {
+  groups <- data.frame(x = c("b", "a", "b", NA, NA, "c"))
+  fn <- .con_dot_counts
+  environment(fn) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, order)) stop("regrouped a single dot count key")
+    base::do.call(what, args, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(groups, "x"), .con_dot_counts(groups, "x"))
+  expect_identical(fn(groups[FALSE, , drop = FALSE], "x"), .con_dot_counts(groups[FALSE, , drop = FALSE], "x"))
+})

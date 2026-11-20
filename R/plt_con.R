@@ -827,6 +827,10 @@ plt_con <- function(data,
     counts <- as.data.frame(groups[!duplicated(ids), , drop = FALSE])
     counts$n <- tabulate(ids, n_keys)
   }
+  if (length(by) < 2L) {
+    rownames(counts) <- NULL
+    return(counts)
+  }
   order_keys <- lapply(counts[by], function(x) {
     if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
         !anyNA(levels(x))) x <- as.integer(x)

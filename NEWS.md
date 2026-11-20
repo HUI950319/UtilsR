@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Single-key continuous dot summaries keep the encounter order produced by counting and skip a second key grouping.
+
 * `PlotCircleLollipop()` keeps an already distinct ordinary grouping column in first-observed order.
 
 * Rank correlation scaling uses known complete-group sizes and extrema without recreating missingness masks.
