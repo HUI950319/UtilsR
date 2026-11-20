@@ -149,10 +149,11 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   check_axis <- function(x, arg) {
     if (is.null(x) || isTRUE(x) || isFALSE(x)) return(invisible(NULL))
     if (!(typeof(x) %in% c("integer", "double")) || is.object(x) || !is.null(dim(x)) ||
-        anyNA(x) || any(!is.finite(x)) || any(x < 1 | x != floor(x))) {
+        anyNA(x) || (!is.integer(x) && (any(!is.finite(x)) || any(x != floor(x)))) ||
+        (length(x) && min(x) < 1)) {
       cli::cli_abort("{.arg {arg}} must be TRUE, FALSE, NULL or finite positive integer plot indices.")
     }
-    if (any(x > n)) {
+    if (length(x) && max(x) > n) {
       cli::cli_abort("{.arg {arg}} indices exceed the number of editable plots ({n}).")
     }
   }

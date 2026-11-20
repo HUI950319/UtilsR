@@ -510,3 +510,20 @@ test_that("hidden axis clones exclude unrelated sibling data", {
   expect_identical(ggplot2::ggplot_build(single)$data, ggplot2::ggplot_build(listed)$data)
   expect_identical(p$scales$scales[[1L]]$guide$params$theme$axis.text.x$colour, "red")
 })
+
+test_that("integer axis selectors skip fractional validation", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  plots <- list(p, p + ggplot2::labs(title = "Second"))
+  f <- fmt_axis
+  environment(f) <- list2env(list(floor = function(x) {
+    if (is.integer(x) && length(x) == 300L) stop("rounded whole integer plot selections")
+    base::floor(x)
+  }), parent = environment(f))
+  ids <- rep(c(1L, 2L), 150L)
+  actual <- f(plots, x.axis = ids)
+  expected <- fmt_axis(plots, x.axis = ids)
+  expect_identical(lapply(actual, function(p) p$theme), lapply(expected, function(p) p$theme))
+  expect_error(f(plots, x.axis = c(1.5, 2)), "finite positive integer")
+  expect_error(f(plots, x.axis = 3L), "exceed")
+})
