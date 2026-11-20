@@ -1462,3 +1462,19 @@ test_that("dense alluvial factors retain fully observed codes", {
   run <- function(f) suppressMessages(f(d, "x", "g"))$data
   expect_identical(run(fn), run(plt_alluvial))
 })
+
+test_that("unfaceted alluvial strata count their final category codes", {
+  skip_if_not_installed("ggalluvial")
+  local_mocked_bindings(.save_sized = function(p, ...) p)
+  d <- data.frame(x = ordered(rep(c("c", "b", "a"), 12L), levels = c("a", "c", "b")),
+    g = rep(c("L", "R"), 18L), panel = rep(c("Z", "Y"), each = 18L))
+  original <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x, ...) {
+    if (identical(substitute(x), quote(as.integer(plot_input$.cat_var))))
+      stop("rehashed existing alluvial category codes")
+    original(x, ...)
+  }, .package = "vctrs")
+  p <- suppressMessages(plt_alluvial(d, "x", "g", stratum_args = list(gap = 0)))
+  expect_identical(as.character(p$data$.cat_var), rep(c("a", "c", "b"), 2L))
+  expect_identical(p$data$count, rep.int(6L, 6L))
+})

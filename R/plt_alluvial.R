@@ -497,28 +497,35 @@ plt_alluvial <- function(
   # Count only observed facet/category pairs, keeping zero-count group strata.
   pair_columns <- c(".facet", ".cat_var")
   pair_id <- if (facet_used) vctrs::vec_group_id(plot_input[pair_columns]) else
-    vctrs::vec_group_id(as.integer(plot_input$.cat_var))
-  n_pairs <- attr(pair_id, "n")
+    as.integer(plot_input$.cat_var)
+  n_pairs <- if (facet_used) attr(pair_id, "n") else length(cat_levels)
   n_strata <- as.double(n_pairs) * n_groups
   n_gaps <- if (stratum_args$gap > 0) max(0L, n_groups - 1L) else 0L
   if (n_strata + as.double(n_pairs) * n_gaps >= 2^31) {
     cli::cli_abort("The alluvial stratum grid must contain fewer than 2^31 cells. Reduce the number of categories or groups.")
   }
   unique_pairs <- n_pairs == length(pair_id)
-  pairs <- if (unique_pairs) plot_input[pair_columns] else
-    plot_input[!duplicated(pair_id), pair_columns]
-  pair_order <- order(pairs$.cat_var, pairs$.facet)
-  if (is.unsorted(pair_order)) {
-    pairs <- pairs[pair_order, , drop = FALSE]
-    pair_rank <- integer(length(pair_order))
-    pair_rank[pair_order] <- seq_along(pair_order)
-    pair_id <- pair_rank[pair_id]
+  if (facet_used) {
+    pairs <- if (unique_pairs) plot_input[pair_columns] else
+      plot_input[!duplicated(pair_id), pair_columns]
+    pair_order <- order(pairs$.cat_var, pairs$.facet)
+    if (is.unsorted(pair_order)) {
+      pairs <- pairs[pair_order, , drop = FALSE]
+      pair_rank <- integer(length(pair_order))
+      pair_rank[pair_order] <- seq_along(pair_order)
+      pair_id <- pair_rank[pair_id]
+    }
+    facet_codes <- as.integer(pairs$.facet)
+    category_codes <- as.integer(pairs$.cat_var)
+  } else {
+    facet_codes <- rep.int(1L, n_pairs)
+    category_codes <- seq_len(n_pairs)
   }
   count_id <- pair_id + (as.integer(plot_input$.group) - 1) * n_pairs
   stat <- data.frame(
-    .facet = structure(rep.int(as.integer(pairs$.facet), n_groups),
+    .facet = structure(rep.int(facet_codes, n_groups),
                        levels = facet_levels, class = "factor"),
-    .cat_var = structure(rep.int(as.integer(pairs$.cat_var), n_groups),
+    .cat_var = structure(rep.int(category_codes, n_groups),
                          levels = cat_levels, class = "factor"),
     .group = structure(rep(seq_len(n_groups), each = n_pairs),
                        levels = group_levels, class = "factor"),

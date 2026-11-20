@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unfaceted alluvial plots use the observed factor codes as their final category positions and skip hashing or resorting a facet/category table.
+
 * Panel rasterization classifies each child once and reuses that result for passthrough and run segmentation.
 
 * Comparison bracket layout indexes observations by context once before evaluating the displayed pair families.
