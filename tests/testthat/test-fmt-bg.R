@@ -680,3 +680,10 @@ test_that("background recognition skips masks for complete ordinary categories",
     expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
   }
 })
+
+test_that("explicit discrete limits supply background stripes on missing categories", {
+  p <- ggplot2::ggplot(data.frame(g = c(NA_character_, NA_character_), y = 1:2),
+    ggplot2::aes(g, y)) + ggplot2::geom_point(na.rm = TRUE) +
+    ggplot2::scale_x_discrete(limits = c("B", "A"), na.translate = FALSE, guide = "none")
+  expect_identical(bg_fills(fmt_bg(p, palcolor = bg_colors)), unname(bg_colors[c("B", "A")]))
+})

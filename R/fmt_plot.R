@@ -5207,7 +5207,8 @@ fmt_bg <- function(plot,
     }
     axis_scale <- p$scales$get_scales(bg_axis)
     has_discrete_scale <- !is.null(axis_scale) && axis_scale$is_discrete()
-    if (has_discrete_scale && is.null(axis_values)) deferred <- TRUE
+    if (has_discrete_scale && (is.null(axis_values) ||
+        (!has_observations && !is.null(axis_scale$limits)))) deferred <- TRUE
     if (!has_layer_mapping && !has_discrete_scale) {
       cli::cli_warn("No {bg_axis}-axis mapping found; skipping background.")
       return(p)

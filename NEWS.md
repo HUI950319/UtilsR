@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_bg()` now lets explicit discrete limits define the stripes when the data contain no observed categories.
+
 * Alluvial preparation checks the minimum level count before allocating a coverage mask for incomplete factors.
 
 * Single-key continuous dot summaries keep the encounter order produced by counting and skip a second key grouping.
