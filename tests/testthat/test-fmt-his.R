@@ -956,3 +956,17 @@ test_that("histogram layer fallback keeps its effective x mapping", {
   expect_identical(overlay(p)$x, overlay(ref)$x)
   expect_identical(overlay(p, con_var = "actual")$x, overlay(ref)$x)
 })
+
+test_that("removing built distribution layers restores facet training", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  q <- ggplot2::ggplot_build(fmt_his(p, binwidth = 1))$plot
+  q$layers <- Filter(function(layer) !inherits(layer, "LayerHis"), q$layers)
+  added <- ggplot2::geom_point(data = data.frame(x = 100, y = 100))
+  actual <- ggplot2::ggplot_build(q + added)
+  expected <- ggplot2::ggplot_build(p + added)
+  expect_identical(actual$layout$panel_params[[1L]]$x.range,
+                   expected$layout$panel_params[[1L]]$x.range)
+  expect_identical(actual$data[[2L]]$x, expected$data[[2L]]$x)
+  expect_identical(actual$data[[2L]]$y, expected$data[[2L]]$y)
+})

@@ -5245,6 +5245,8 @@ ggplot_build.ggplot_his <- function(plot, ...) {
     plot$facet <- layers[[1L]]$his_wrap(plot$facet, specs)
     plot$facet$his_layers <- which(vapply(plot$layers, inherits, logical(1), "LayerHis"))
     plot$facet$his_coord <- plot$coordinates
+  } else if (inherits(plot$facet, "FacetHis")) {
+    plot$facet <- plot$facet$his_parent
   }
   NextMethod()
 }
