@@ -4721,7 +4721,9 @@ fmt_com <- function(plot,
         if (inherits(ids, "integer64") && !requireNamespace("bit64", quietly = TRUE))
           cli::cli_abort("Interpreting integer64 paired IDs requires package {.pkg bit64}.")
         missing_id <- anyNA(ids)
-        ids <- match(ids, unique(ids))
+        ids <- if (!is.object(ids) && is.atomic(ids) && is.null(dim(ids))) {
+          as.integer(vctrs::vec_group_id(ids))
+        } else match(ids, unique(ids))
         if (missing_id || vctrs::vec_duplicate_any(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
           cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
       }

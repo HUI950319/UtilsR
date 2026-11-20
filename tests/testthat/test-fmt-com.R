@@ -920,3 +920,18 @@ test_that("comparison bracket layouts reuse full mapped observations", {
   draw <- function(f) ggplot2::ggplot_build(f(p, com_method = "all", label.y = c(8, 9, 10)))$data
   expect_identical(draw(fn), draw(fmt_com))
 })
+
+test_that("ordinary paired IDs reuse first occurrence group codes", {
+  d <- data.frame(g = rep(c("A", "B"), each = 4L), y = c(1, 3, 4, 7, 2, 6, 5, 10),
+    id = rep(c("p4", "p2", "p3", "p1"), 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_boxplot()
+  fn <- fmt_com
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(ids)) && identical(substitute(table), quote(unique(ids))))
+      stop("rematched ordinary paired IDs")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  run <- function(f) ggplot2::ggplot_build(f(p, method = "t.test",
+    method.args = list(paired = TRUE, id = "id")))$data
+  expect_identical(run(fn), run(fmt_com))
+})

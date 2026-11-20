@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` assigns ordinary paired comparison IDs in one grouping pass.
+
 * Confidence-level conversion retains the endpoints it first checks and recomputes them only after numerical rescaling.
 
 * Hex-only console color previews skip per-color numeric-index flags while retaining full invalid-color diagnostics.
