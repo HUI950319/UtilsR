@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axisTile()` preserves the native break order for dodging and overlap checks on its axis labels.
+
 * `fmt_axisTile()` now keeps the native axis line cap at the selected breaks while drawing tiles across the trained categories.
 
 * Atomic previews in `pr_tree()` escape and style the names attached to displayed values with a nonempty name.

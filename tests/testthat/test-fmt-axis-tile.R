@@ -703,3 +703,20 @@ test_that("axis tiles preserve native axis caps at selected breaks", {
   expect_equal(nrow(tiled$key), 4L)
   expect_equal(as.numeric(tiled$decor$x), c(2, 3))
 })
+
+test_that("axis tile labels reach the native guide in explicit break order", {
+  seen <- new.env(parent = emptyenv())
+  guide <- ggplot2::guide_axis(n.dodge = 2L)
+  guide$build_labels <- function(key, elements, params) {
+    seen$order <- as.character(key$.value)
+    ggplot2::GuideAxis$build_labels(key, elements, params)
+  }
+  breaks <- c("D", "B", "A", "C")
+  p <- ggplot2::ggplot(data.frame(g = LETTERS[1:4], y = 1:4), ggplot2::aes(g, y)) +
+    ggplot2::geom_col() + ggplot2::scale_x_discrete(breaks = breaks, guide = guide)
+  invisible(ggplot2::ggplotGrob(p))
+  expect_identical(seen$order, breaks)
+  q <- fmt_axisTile(p, c(A = "red", B = "blue", C = "green", D = "purple"))
+  invisible(ggplot2::ggplotGrob(q))
+  expect_identical(seen$order, breaks)
+})

@@ -3935,6 +3935,7 @@ fmt_axisTile <- function(plot,
       index <- match(values, key$.value)
       full$.label <- if (is.null(key)) rep(NA_character_, length(values)) else key$.label[index]
       full$.fmt_label <- !is.na(index)
+      full$.fmt_break_at <- index
       full
     },
     extract_decor = function(scale, aesthetic, position, key, ...) {
@@ -4056,9 +4057,16 @@ fmt_axisTile <- function(plot,
       tile
     },
     build_labels = function(key, elements, params) {
-      if (settings$mode == "tile" &&
-          (is.null(key$.fmt_label) || !isTRUE(all(key$.fmt_label)))) {
-        key <- key[key$.fmt_label, , drop = FALSE]
+      if (settings$mode == "tile") {
+        break_at <- key$.fmt_break_at
+        if (is.null(break_at)) {
+          label_rows <- key$.fmt_label
+          if (is.null(label_rows) || !isTRUE(all(label_rows))) {
+            key <- key[label_rows, , drop = FALSE]
+          }
+        } else if (anyNA(break_at) || is.unsorted(break_at)) {
+          key <- key[order(break_at, na.last = NA), , drop = FALSE]
+        }
       }
       labels <- parent$build_labels(key, elements, params)
       if (settings$mode != "text" || !settings$show_text || !nrow(key) ||
