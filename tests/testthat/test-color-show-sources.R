@@ -3289,3 +3289,15 @@ test_that("full-size palette assignments reuse the original colour vector", {
                      .pal_apply(cols, x = letters[1:3], alpha = op))
   }
 })
+
+test_that("plain character palette levels do not rehash their labels", {
+  x <- c("b", "a", "b", "", NA_character_, "c")
+  f <- .pal_discrete_levels
+  environment(f) <- list2env(list(anyDuplicated = function(x, ...) {
+    if (identical(substitute(x), quote(labels))) stop("rechecked uniqueness of deduplicated character labels")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(f))
+  expect_identical(f(x), c("b", "a", "", "c"))
+  expect_identical(f(setNames(x, seq_along(x))), f(x))
+  expect_identical(f(character()), character())
+})

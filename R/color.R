@@ -803,6 +803,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   values <- if (is.factor(x)) levels(x) else
     unique(if (!is.object(x) && !anyNA(x)) x else x[!is.na(x)])
   if (is.object(values) || anyNA(values)) values <- values[!is.na(values)]
+  if (is.character(x) && !is.object(x)) return(unname(values))
   labels <- if (is.character(values) && !is.object(values)) unname(values) else as.character(values)
   if (anyDuplicated(labels)) {
     cli::cli_abort(c(

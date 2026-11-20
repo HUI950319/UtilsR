@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete palette mapping reuses deduplicated ordinary character labels without a second uniqueness scan.
+
 * Equal-size named and positional palette requests keep the original stops before alpha adjustment.
 
 * Palette plots and console swatches share the channel transform and evaluate it only for the applicable values.
