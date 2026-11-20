@@ -1218,3 +1218,15 @@ test_that("point sampling keeps complete single-stratum partitions", {
   expected <- .fmt_point_sample(d, mapping, sample_n = 2L, seed = 8L)
   expect_identical(fn(d, mapping, sample_n = 2L, seed = 8L), expected)
 })
+
+test_that("point sampling rejects injected row vector literals", {
+  d <- data.frame(x = 1:12, y = 13:24, g = rep(c("b", "a"), 6L))
+  vector <- d$g
+  draw <- function(mapping) fmt_point(ggplot2::ggplot(d, mapping), sample_n = 2L)
+  expect_error(draw(ggplot2::aes(x, y, colour = !!vector)),
+    "Sampling cannot align external row vectors")
+  expect_error(draw(ggplot2::aes(x, y, shape = factor(!!vector))),
+    "Sampling cannot align external row vectors")
+  sampled <- draw(ggplot2::aes(x, y, group = g, colour = !!"literal"))
+  expect_equal(nrow(ggplot2::layer_data(sampled)), 4L)
+})

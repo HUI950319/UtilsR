@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point()` now detects injected row-length aesthetic vectors before sampling, including literals nested in transformations.
+
 * Sankey diagrams assign caption codes directly when every caption is distinct.
 
 * Rank-correlation scaling shares the completeness result with centering and avoids masks on complete ordinary scores.

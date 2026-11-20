@@ -449,7 +449,7 @@ fmt_point <- function(plot,
         }
         return(any(vapply(args, external_vector, logical(1), env = env)))
       }
-    }
+    } else value <- expr
     is.atomic(value) && length(value) > 1L && length(value) == nrow(data)
   }
   for (aesthetic in c(mapping, facets)) {
