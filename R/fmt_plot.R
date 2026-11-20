@@ -5080,7 +5080,7 @@ fmt_bg <- function(plot,
                                              parent = environment(fmt_bg))
 
   # Unified background layer builder for both x and y axes
-  build_bg_layer <- function(lvs, alpha, bg_axis = "x", facet_columns = character()) {
+  build_bg_layer <- function(lvs, alpha, bg_axis = "x") {
     # Keep lazy arguments from retaining the caller's plot in ggproto closures.
     force(lvs)
     force(alpha)
@@ -5091,10 +5091,7 @@ fmt_bg <- function(plot,
       resolve_bg_colors(lvs)
     } else NULL
 
-    bg_data <- data.frame(.bg = TRUE)
-    if (".bg" %in% facet_columns) {
-      names(bg_data) <- tail(make.unique(c(facet_columns, ".bg")), 1L)
-    }
+    bg_data <- data.frame(row.names = 1L)
 
     bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
       required_aes = character(),
@@ -5167,6 +5164,12 @@ fmt_bg <- function(plot,
       fill = NA, alpha = alpha, inherit.aes = FALSE, show.legend = FALSE
     )
     bg_layer$geom <- bg_geom
+    bg_layer$compute_statistic <- eval(quote(function(self, data, layout) {
+      # A column-free placeholder is empty for facet mapping. Add the
+      # background rows after the layout has been trained on the real layers.
+      if (!nrow(data)) data <- data.frame(PANEL = layout$layout$PANEL, group = -1L)
+      ggplot2::ggproto_parent(parent_layer, self)$compute_statistic(data, layout)
+    }), list2env(list(parent_layer = bg_layer$super()), parent = environment(fmt_bg)))
     bg_layer
   }
   environment(build_bg_layer) <- list2env(list(resolve_bg_colors = resolve_bg_colors,
@@ -5226,8 +5229,7 @@ fmt_bg <- function(plot,
     } else {
       levels(factor(if (is.object(axis_values)) axis_values else unique(axis_values)))
     }
-    bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis,
-                              facet_columns = .plot_facet_columns(p))
+    bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis)
     p$layers <- c(list(bg_layer), Filter(function(layer) {
       !inherits(layer$geom, "GeomBgStripes")
     }, p$layers))

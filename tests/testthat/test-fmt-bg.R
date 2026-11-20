@@ -700,3 +700,13 @@ test_that("complete trained background values skip missing colour replacement", 
   env$fmt_bg <- fn
   expect_identical(bg_fills(fn(p, palcolor = bg_colors)), unname(bg_colors))
 })
+
+test_that("background placeholders stay invisible to dynamic facet columns", {
+  d <- data.frame(g = c("A", "B", "A", "B"), y = 1:4, .bg = rep(c("L", "R"), each = 2L))
+  facet_name <- ".bg"
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(get(facet_name)))
+  q <- fmt_bg(p, palcolor = bg_colors)
+  expect_identical(ggplot2::ggplot_build(q)$layout$layout, ggplot2::ggplot_build(p)$layout$layout)
+  expect_equal(length(bg_grobs(ggplot2::ggplotGrob(q))), 2L)
+})
