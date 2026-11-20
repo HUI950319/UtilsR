@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Atomic previews in `pr_tree()` escape and style the names attached to displayed values with a nonempty name.
+
 * `fmt_axisTile()` now accepts a named scalar `"axis"` guide as ggplot2 does.
 
 * A fully observed single-factor combination reuses the declared levels and only substitutes actual missing-level labels.

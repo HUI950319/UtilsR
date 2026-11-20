@@ -2291,3 +2291,15 @@ test_that("mixed tree siblings only format missing names", {
   expect_identical(capture.output(fn(value, max_items = 24L)),
     capture.output(pr_tree(value, max_items = 24L)))
 })
+
+test_that("atomic tree previews skip formatting absent names", {
+  names <- c("label", "", NA_character_, "x[1]")
+  d <- list(elements = setNames(seq_along(names), names))
+  fn <- ._obj_desc
+  mock <- ._pr_escape
+  environment(fn) <- list2env(list(._pr_escape = function(x, ...) {
+    if (identical(x, names)) stop("formatted absent atomic preview names")
+    mock(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d$elements), ._obj_desc(d$elements))
+})

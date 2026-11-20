@@ -924,7 +924,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     # a named value with its name
     nm <- names(first)
     if (!is.null(nm)) {
-      vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(g(paste(._pr_escape(nm), "=")), vals))
+      named <- which(!is.na(nm) & nzchar(nm))
+      if (length(named)) vals[named] <- paste(g(paste(._pr_escape(nm[named]), "=")), vals[named])
     }
     # a factor with its number of levels, as str() gives it
     lev  <- if (is.factor(v)) {
