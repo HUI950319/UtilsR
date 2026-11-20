@@ -433,14 +433,17 @@ plt_dist <- function(data,
         key <- sprintf("%.17g", as.numeric(value) + 0)
       }
       if (!is.null(key)) {
-        distinct <- unique(key)
-        at <- match(distinct, key)
+        ids <- vctrs::vec_group_id(key)
+        at <- if (attr(ids, "n") < length(ids)) which(!duplicated(ids))
+        distinct <- if (is.null(at)) key else key[at]
         native_labels <- !is.object(value) ||
           class(value)[1L] %in% c("AsIs", "Date", "POSIXct", "POSIXlt", "difftime",
                                  "Duration", "Period", "Interval")
-        labels <- if (native_labels) as.character(value[at]) else as.character(value)[at]
-        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
-        if (any(collision)) {
+        labels <- if (is.null(at)) as.character(value) else if (native_labels) {
+          as.character(value[at])
+        } else as.character(value)[at]
+        if (anyDuplicated(labels)) {
+          collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
           labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
           data[[v]] <- factor(key, levels = distinct, labels = labels)
         }

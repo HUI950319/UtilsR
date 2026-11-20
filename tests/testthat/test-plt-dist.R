@@ -1048,3 +1048,18 @@ test_that("named distribution palettes reuse filtered character categories", {
   draw <- function(f) suppressMessages(f(d, c("x", "fill"), type = "bar", color = cols)[["data"]])
   expect_identical(draw(fn), draw(plt_dist))
 })
+
+test_that("typed distribution category keys retain their first observations", {
+  d <- data.frame(group = c("x", "x", "y", "y", "y"),
+    time = as.Date(c(16000, 16000.1, 16000, 16001, 16001.2), origin = "1970-01-01"))
+  f <- plt_dist
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(distinct)) && identical(substitute(table), quote(key)))
+      stop("rematched normalized distribution key strings")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  draw <- function(fn, data) suppressMessages(fn(data, c("group", "time")))$data
+  expect_identical(draw(f, d), draw(plt_dist, d))
+  d <- rbind(d, d[1:2, ])
+  expect_identical(draw(f, d), draw(plt_dist, d))
+})
