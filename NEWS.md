@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel size resolution avoids duplicate masks and remapping for distinct multi-cell spans.
+
 * Panel rasterization retains planned child tables when every nested table contains panels.
 
 * Panel rasterization reuses the existing child list when already in draw order and only filters empty grobs when present.

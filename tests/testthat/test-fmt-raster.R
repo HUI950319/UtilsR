@@ -1084,3 +1084,18 @@ test_that("raster recursion keeps already complete nested plans", {
   result <- f(root, dpi = 20L, width = NULL, height = NULL, units = "in", bg = "transparent")
   expect_length(raster_find_grobs(patchwork::patchworkGrob(result), "rastergrob"), 2L)
 })
+
+test_that("raster measurement skips deduplication for unique spans", {
+  gt <- gtable::gtable(grid::unit(rep(1, 12L), "cm"), grid::unit(1, "cm"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 10L),
+    t = 1L, l = 1:10, r = 3:12, name = "panel")
+  f <- .resolve_panel_size
+  environment(f) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(span_ids)) && length(x) == attr(x, "n"))
+      stop("resliced distinct raster panel spans")
+    base::duplicated(x, ...)
+  }), parent = environment(f))
+  args <- list(gtable = gt, panel_index = 1:10, dim = "width",
+               user_val = NULL, units = "cm", cell_sizes = 1:12 / 7)
+  expect_identical(do.call(f, args), do.call(.resolve_panel_size, args))
+})

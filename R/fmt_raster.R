@@ -567,11 +567,12 @@ fmt_raster <- function(
       span_ids <- if (length(spanning) >= 8L) {
         vctrs::vec_group_id(vctrs::new_data_frame(list(from = from[spanning], to = to[spanning])))
       }
-      distinct <- if (is.null(span_ids)) spanning else spanning[!duplicated(span_ids)]
+      same_spans <- !is.null(span_ids) && attr(span_ids, "n") < length(spanning)
+      distinct <- if (same_spans) spanning[!duplicated(span_ids)] else spanning
       totals <- vapply(distinct, function(i) {
         sum(cell_sizes[from[i]:to[i]])
       }, numeric(1L))
-      sizes[spanning] <- if (is.null(span_ids)) totals else totals[span_ids]
+      sizes[spanning] <- if (same_spans) totals[span_ids] else totals
     }
   } else {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
