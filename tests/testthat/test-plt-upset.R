@@ -1188,3 +1188,18 @@ test_that("integer64 UpSet membership skips range masks for complete integers", 
   d$a[6L] <- NA_integer_
   expect_identical(draw(fn, c(ask, NA)), draw(plt_upset, c(ask, NA)))
 })
+
+test_that("complete UpSet list membership is filled once", {
+  d <- list(all_rows = letters[1:8], subset = c("d", "e", "g"))
+  f <- plt_upset
+  no_calls <- 0L
+  environment(f) <- list2env(list(rep.int = function(x, times) {
+    if (identical(x, "No") && times == 8L) {
+      no_calls <<- no_calls + 1L
+      if (no_calls > 1L) stop("initialized a second full UpSet membership column")
+    }
+    base::rep.int(x, times)
+  }), parent = environment(f))
+  expect_identical(f(d, output = "data"), plt_upset(d, output = "data"))
+  expect_identical(no_calls, 1L)
+})

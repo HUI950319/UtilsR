@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet data output fills wholly observed sets directly without initializing and replacing their entire membership vector.
+
 * Patchwork flattening avoids recursively wrapping every element of an already flat unnamed graphics list.
 
 * Layer rasterization returns the original plot or container when no layers required rasterizing.

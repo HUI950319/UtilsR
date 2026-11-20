@@ -330,9 +330,14 @@ plt_upset <- function(data,
       df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
       names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
       for (nm in names(data)) {
-        membership <- if (length(all_elements)) rep.int("No", length(all_elements)) else logical()
         rows <- set_list[[nm]]
-        if (length(rows)) membership[rows] <- "Yes"
+        n <- length(all_elements)
+        if (n && length(rows) == n) {
+          membership <- rep.int("Yes", n)
+        } else {
+          membership <- if (n) rep.int("No", n) else logical()
+          if (length(rows)) membership[rows] <- "Yes"
+        }
         df_bin[[nm]] <- membership
       }
       data <- df_bin
