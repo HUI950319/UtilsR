@@ -1205,3 +1205,16 @@ test_that("point sampling distinguishes literal lookups of external and data vec
   scalar <- draw(ggplot2::aes(x, y, colour = get("external")))
   expect_equal(nrow(ggplot2::layer_data(scalar)), 2L)
 })
+
+test_that("point sampling keeps complete single-stratum partitions", {
+  d <- data.frame(x = seq_len(12L), y = 13:24, g = factor(rep(c("b", "a"), 6L)))
+  mapping <- ggplot2::aes(x, y, group = g)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(rows)) && is.logical(i) && all(i))
+      stop("sliced complete sampling partitions")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expected <- .fmt_point_sample(d, mapping, sample_n = 2L, seed = 8L)
+  expect_identical(fn(d, mapping, sample_n = 2L, seed = 8L), expected)
+})
