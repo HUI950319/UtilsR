@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Textual P-value checks reuse complete unbounded values without gathering a full index vector.
+
 * P-value parsing substitutes textual missing markers only when they occur.
 
 * P-value validation uses scalar extrema for ordinary numeric vectors and keeps class-specific missingness handling.

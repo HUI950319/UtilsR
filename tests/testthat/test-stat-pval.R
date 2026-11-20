@@ -1014,3 +1014,17 @@ test_that("ordinary P value text skips an empty missing token update", {
     expect_identical(f(x), stat_pval(x))
   }
 })
+
+test_that("complete exact P-value strings validate the existing vector", {
+  x <- c("0.001", ".02", "1", "0", "0.5", "0.00e+00")
+  f <- stat_pval
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(!is.na(text))) && all(x))
+      stop("collected rows for complete exact P-value strings")
+    base::which(x, ...)
+  }), parent = environment(f))
+  for (value in list(x, c(x, NA_character_), c(x, "<0.002", "≥0.005"))) {
+    expect_identical(f(value), stat_pval(value))
+  }
+  expect_error(f(c(x, "broken")), "numeric strings")
+})

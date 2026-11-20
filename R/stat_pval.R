@@ -216,14 +216,20 @@ stat_pval <- function(x,
     text <- .trim_pvalue_space(x)
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
-    present <- which(!is.na(text))
-    bound_rows <- grepl("^[<>\u2264\u2265]", text[present])
-    bound_at <- present[bound_rows]
-    exact_at <- present[!bound_rows]
-    bounded[bound_at] <- grepl(paste0("^", prefix, number, "$"), text[bound_at], perl = TRUE)
-    if (!all(bounded[bound_at]) ||
+    present <- if (anyNA(text)) which(!is.na(text))
+    observed <- if (is.null(present)) text else text[present]
+    bound_rows <- grepl("^[<>\u2264\u2265]", observed)
+    exact <- observed
+    valid_bounds <- TRUE
+    if (any(bound_rows)) {
+      at <- if (is.null(present)) which(bound_rows) else present[bound_rows]
+      bounded[at] <- grepl(paste0("^", prefix, number, "$"), observed[bound_rows], perl = TRUE)
+      valid_bounds <- all(bounded[at])
+      exact <- observed[!bound_rows]
+    }
+    if (!valid_bounds ||
         !all(grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
-                   text[exact_at], perl = TRUE))) {
+                   exact, perl = TRUE))) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
     values <- text
