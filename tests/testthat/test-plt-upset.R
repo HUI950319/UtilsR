@@ -1215,3 +1215,16 @@ test_that("UpSet bit columns sum without a second combination matrix", {
   expect_identical(fn(d, vars = names(d), levels = 1, output = "data"), reference)
   expect_identical(as.character(reference$intersect_group), c("a/c", "b/c", "a/b/c", "None"))
 })
+
+test_that("full first UpSet set initializes its row codes directly", {
+  sets <- list(a = 1:200, b = c(1L, 25L, 81L), c = c(25L, 200L))
+  fn <- .upset_row_codes
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (length(i) == 200L) stop("replaced every row code for the first UpSet set")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(sets), .upset_row_codes(sets))
+  expect_identical(fn(list(a = integer(), b = integer()), 0L), integer())
+  sets$a <- c(1L, 2L, 50L)
+  expect_identical(fn(sets), .upset_row_codes(sets))
+})

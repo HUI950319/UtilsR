@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet membership coding initializes a complete first set directly, avoiding a row-sized assignment.
+
 * `plt_upset()` sums contiguous combination bit masks without copying them into an intermediate matrix.
 
 * `PlotRankCor()` now uses the centered extrema to detect overflow and determine the normalization magnitude.

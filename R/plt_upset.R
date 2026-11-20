@@ -580,8 +580,13 @@ plt_upset <- function(data,
     n <- max(last)
   }
   bits <- bitwShiftL(1L, seq_along(sets) - 1L)
-  codes <- integer(n)
-  if (length(sets)) codes[sets[[1L]]] <- bits[[1L]]
+  first <- if (length(sets)) sets[[1L]] else integer()
+  if (length(first) == n && n > 0L && identical(first, seq_len(n))) {
+    codes <- rep.int(bits[[1L]], n)
+  } else {
+    codes <- integer(n)
+    if (length(first)) codes[first] <- bits[[1L]]
+  }
   for (i in seq_along(sets)[-1L]) {
     rows <- sets[[i]]
     if (length(rows) == n && identical(rows, seq_len(n))) {
