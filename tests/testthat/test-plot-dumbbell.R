@@ -1075,3 +1075,22 @@ test_that("integer64 plotting means keep complete counts without an NA mask", {
   expect_identical(f(x), .5)
   expect_identical(f(x, na.rm = FALSE), NA_real_)
 })
+
+test_that("dumbbell factor axes keep codes when the level order is already correct", {
+  d <- data.frame(start = 1:6, end = 3:8,
+                  category = ordered(c("A", "B", "C", "A", "B", NA)))
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(table), quote(observed)) &&
+        identical(table, 1:3)) stop("rematched dumbbell factor codes already in order")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  draw <- function(f) {
+    p <- NULL
+    invisible(capture.output(p <- suppressMessages(f(d, sort_by = "none"))))
+    p$data
+  }
+  expect_identical(draw(fn), draw(PlotDumbbell))
+  d$category <- ordered(d$category, levels = c("C", "B", "A", "unused"))
+  expect_identical(draw(fn), draw(PlotDumbbell))
+})

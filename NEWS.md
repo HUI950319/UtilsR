@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell axes keep factor codes when all levels occur in their existing order.
+
 * Plot summaries use the length of complete integer64 vectors when calculating means.
 
 * Console tables keep complete finite numeric columns without creating row masks.
