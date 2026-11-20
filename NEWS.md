@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` returns a scalar success for fully valid colour vectors and expands flags only for diagnostics.
+
 * Sparse factor membership avoids filtering its level dictionary when every observed code is present.
 
 * CI parsing checks the bounds of its complete precision vector without allocating per-row comparison masks.

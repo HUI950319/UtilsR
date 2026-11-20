@@ -507,9 +507,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     }
     # Exclude numeric indices before col2rgb() can parse them as integers.
     rejected <- is.na(v) | grepl("^[0-9]", v, useBytes = TRUE)
-    draw <- if (any(rejected)) replace(v, rejected, NA_character_) else v
+    any_rejected <- any(rejected)
+    draw <- if (any_rejected) replace(v, rejected, NA_character_) else v
     drawable <- if (can_draw(draw)) {
-      rep(TRUE, length(v))
+      if (!any_rejected) return(TRUE)
+      TRUE
     } else {
       to_check <- if (is.object(draw)) draw else unique(draw)
       if (is.object(to_check) || length(to_check) <= 256L) {

@@ -3354,3 +3354,15 @@ test_that("nonrepeating pairs skip the palette uniqueness probe", {
     expect_identical(fn(x), .pal_use_unique(x))
   }
 })
+
+test_that("valid palette colors need no per entry success flags", {
+  cols <- c("red", "navy", "#80808055")
+  fn <- pal_get
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, TRUE)) stop("allocated flags for fully validated palette colors")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(cols), pal_get(cols))
+  expect_identical(fn(list(one = cols, two = rev(cols))), pal_get(list(one = cols, two = rev(cols))))
+  expect_error(fn(c("red", "not-a-colour", "blue")), "not-a-colour")
+})
