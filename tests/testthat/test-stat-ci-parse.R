@@ -1392,3 +1392,14 @@ test_that("fully parsed confidence fields avoid scattering every row", {
   expect_identical(f(input)$digits, c(1, 2, 0))
   expect_identical(f(c(input, "invalid")), .ci_extract(c(input, "invalid")))
 })
+
+test_that("uniform interval precision groups repeated values directly", {
+  x <- rep(c("3.120 (2.275, 4.010)", "8.024 (7.012, 9.025)"), 750L)
+  expected <- stat_ci_parse(x, exp = FALSE, digits = 4L)
+  make <- vctrs::new_data_frame
+  local_mocked_bindings(new_data_frame = function(x = list(), ...) {
+    if (identical(names(x), c("v", "d"))) stop("hashed a repeated constant precision column")
+    make(x, ...)
+  }, .package = "vctrs")
+  expect_identical(stat_ci_parse(x, exp = FALSE, digits = 4L), expected)
+})

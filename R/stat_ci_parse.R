@@ -348,7 +348,14 @@ stat_ci_parse <- function(x,
   }
   fmt <- function(v, d) {
     n <- length(v)
-    if (n > 1024L) {
+    if (n > 1024L && min(d) == max(d)) {
+      if (.pal_use_unique(v)) {
+        keys <- unique(v)
+        if (length(keys) < n / 2) {
+          return(.format_once(keys, rep.int(d[[1L]], length(keys)))[match(v, keys)])
+        }
+      }
+    } else if (n > 1024L) {
       probe <- seq.int(1L, n, length.out = 1024L)
       keys <- vctrs::new_data_frame(list(v = v[probe], d = d[probe]))
       if (attr(vctrs::vec_group_id(keys), "n") < length(probe) / 2) {

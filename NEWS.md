@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated confidence values with uniform display precision are grouped by the single numeric vector.
+
 * Complete confidence-interval parsing retains extracted fields directly and allocates default-filled columns only for partial input.
 
 * Stacked-distribution text formats a uniform percentage once and recycles that label to the displayed segments.
