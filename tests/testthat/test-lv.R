@@ -1817,3 +1817,15 @@ test_that("ordinary lv standard deviations skip whole-column finite scans", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("lv sorted distinct observations are reused in summary levels", {
+  d <- data.frame(value = seq(0.5, 8.5, by = .5))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(x, d$value) && identical(substitute(x), quote(if (complete) x else x[!is.na(x)])))
+      stop("recomputed unique levels for sorted distinct numbers")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

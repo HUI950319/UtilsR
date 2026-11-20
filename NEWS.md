@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Variable inspection uses complete strictly increasing numeric columns without building another unique and sorted copy.
+
 * Variable inspection avoids a full finite-value mask when standard deviations need no extreme-value correction.
 
 * Data quality summaries order full column counts without first copying all columns.
