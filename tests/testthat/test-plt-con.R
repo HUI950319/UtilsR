@@ -2547,3 +2547,23 @@ test_that("bar ranges use scalar bounds for complete outcomes", {
   expect_identical(fn(replace(x, 1L, NA_real_), group),
                    .con_bar_range(replace(x, 1L, NA_real_), group))
 })
+
+test_that("sparse continuous comparison data uses the existing level tally", {
+  g <- factor(rep(c("A", "B", "C"), each = 5L),
+    levels = c("C", "B", "A", paste0("unused", 1:2000)))
+  x <- c(1:5, 3:7, 4:8)
+  f <- .con_comparisons
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(group_levels)) && length(x) > length(g))
+      stop("matched every unused comparison group level")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  pairs <- list(c("A", "B"), c("A", "C"))
+  draw <- function(fn) {
+    out <- fn(pairs, g, "outcome", x, "t.test")
+    list(pairs = unname(as.list(out)), p = lapply(attr(out, ".con_test_cache"), function(e) e$p.value))
+  }
+  result <- draw(f)
+  expect_identical(result$p, draw(.con_comparisons)$p)
+  expect_equal(result$p[[1L]], stats::t.test(x[1:5], x[6:10])$p.value)
+})

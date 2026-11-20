@@ -949,8 +949,9 @@ plt_con <- function(data,
   ordinary_factor <- identical(class(groups), "factor") ||
     identical(class(groups), c("ordered", "factor"))
   group_levels <- levels(groups)
+  tally <- if (ordinary_factor) .factor_tally(groups)
   available <- if (ordinary_factor) {
-    group_levels[.factor_tally(groups)$codes]
+    group_levels[tally$codes]
   } else unique(as.character(groups[!is.na(groups)]))
   pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) group_levels[pair] else pair)
   keep <- vapply(pairs, function(pair) {
@@ -964,8 +965,13 @@ plt_con <- function(data,
     test_params <- ggpubr::stat_compare_means(comparisons = comparisons[keep], method = method)$stat_params
     test <- .con_pairwise_test(test_params[["test"]])
     used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
-    group_ids <- if (ordinary_factor) match(group_levels, used_groups)[as.integer(groups)] else
+    group_ids <- if (!ordinary_factor) {
       match(groups, used_groups)
+    } else if (length(group_levels) <= length(groups)) {
+      match(group_levels, used_groups)[tally$row_codes]
+    } else {
+      match(available, used_groups)[match(tally$row_codes, tally$codes)]
+    }
     locations <- split(seq_along(groups), group_ids)
     group_data <- lapply(locations, function(rows) values[rows])
     # Shared group environments avoid serializing the same vector for every pair.

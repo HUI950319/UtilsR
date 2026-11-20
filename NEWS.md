@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pairwise comparisons use observed factor codes without looking up every unused factor level.
+
 * Stacked rose labels use grouped integer counts directly for their outer radius.
 
 * Distribution plots avoid hashing typed category keys twice when choosing representative display values.
