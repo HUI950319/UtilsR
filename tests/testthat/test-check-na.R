@@ -947,3 +947,15 @@ test_that("special-value factor counts reuse whole level names", {
   expect_identical(fn(x, special = "known"), 24)
   expect_identical(fn(x, special = ".*"), 48)
 })
+
+test_that("unique character columns count special values without membership matching", {
+  x <- c("UNKNOWN", paste0("identifier_", seq_len(600L)), "  ", NA_character_, "N/A")
+  fn <- .count_special_values
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (identical(substitute(table), quote(markers)) && !anyDuplicated(x)) stop("rematched unique observations to special values")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  expect_identical(fn(x), 3)
+  expect_identical(fn(x, special = "^identifier_10$"), 1)
+  expect_identical(fn(c("N/A", "N/A", "test")), 2)
+})

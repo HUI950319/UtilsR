@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` and `lv()` reuse the marker count for distinct ordinary character observations.
+
 * Confidence text formatting only rewrites values when rounding actually yields zero.
 
 * Confidence interval parsing checks finite test statistics only where the ordinary tail probability is zero.
