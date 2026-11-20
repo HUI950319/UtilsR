@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked-distribution text formats a uniform percentage once and recycles that label to the displayed segments.
+
 * Numeric frequency listings keep the existing order of complete, sorted unique values.
 
 * Palette previews reuse one unnamed flag when every swatch lacks a name.

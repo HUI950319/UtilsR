@@ -576,8 +576,10 @@ plt_dist <- function(data,
           counts <- scales::comma(if (complete) counts else counts[visible], accuracy = 1)
         }
         if (label_args$style != "count") {
-          pct <- scales::percent(if (complete) proportions else proportions[visible],
-                                 accuracy = label_args$pct_accuracy)
+          share <- if (complete) proportions else proportions[visible]
+          pct <- if (length(share) > 1L && min(share) == max(share)) {
+            rep.int(scales::percent(share[1L], accuracy = label_args$pct_accuracy), length(share))
+          } else scales::percent(share, accuracy = label_args$pct_accuracy)
         }
         shown <- switch(label_args$style,
           count              = counts,

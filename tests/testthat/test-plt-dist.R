@@ -1114,3 +1114,15 @@ test_that("unambiguous labelled distribution categories avoid duplicate masks", 
   }), parent = environment(fn))
   expect_identical(fn(d, c("x", "g"))$data, plt_dist(d, c("x", "g"))$data)
 })
+
+test_that("equal stacked shares format one percentage per plot", {
+  x <- paste0("x", seq_len(40L))
+  d <- data.frame(x = rep(x, each = 2L), g = rep(c("L", "R"), 40L))
+  reference <- plt_dist(d, c("x", "g"), type = "bar", label_args = list(style = "percent"))$data
+  fmt <- scales::percent
+  local_mocked_bindings(percent = function(x, ...) {
+    if (length(x) == 80L && all(x == 0.5)) stop("formatted uniform stacked shares separately")
+    fmt(x, ...)
+  }, .package = "scales")
+  expect_identical(plt_dist(d, c("x", "g"), type = "bar", label_args = list(style = "percent"))$data, reference)
+})
