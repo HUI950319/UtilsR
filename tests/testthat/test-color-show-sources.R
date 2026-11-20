@@ -3343,3 +3343,14 @@ test_that("finite numeric palettes avoid allocating placement masks", {
       pal_get(cols, x = values, reverse = TRUE))
   }
 })
+
+test_that("nonrepeating pairs skip the palette uniqueness probe", {
+  fn <- .pal_use_unique
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (length(x) <= 2L) stop("probed a two value palette coordinate set")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  for (x in list(numeric(), 0, c(0, 0), c(0, 1), rep(1, 3L), c(1, 2, 1))) {
+    expect_identical(fn(x), .pal_use_unique(x))
+  }
+})

@@ -820,6 +820,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_use_unique <- function(values) {
   n <- length(values)
+  if (n <= 2L) return(FALSE)
   probe <- if (n <= 1024L) values else {
     values[round(seq.int(1, n, length.out = 1024L))]
   }

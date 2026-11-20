@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette repetition detection no longer scans vectors that are too short for duplicate reuse to be beneficial.
+
 * Mixed-scale confidence intervals now evaluate the tight-log-interval condition on exponentiated rows only.
 
 * Stratified point sampling retains the existing group list when its keys are already in legacy lexical order.
