@@ -525,3 +525,18 @@ test_that("reference line leaves reuse inputs without sharing stateful layers", 
   expect_identical(classed[[1L]]$layers[[2L]]$data[[".fmt_ref_intercept"]], c(2, 3))
   expect_identical(classed[[2L]]$layers[[2L]]$data[[".fmt_ref_intercept"]], c(3, 4))
 })
+
+test_that("reference lines preserve dynamically selected facet levels", {
+  facet_name <- ".fmt_ref_colour"
+  d <- data.frame(x = 1:6, y = 6:1)
+  d[[facet_name]] <- rep(c("first", "second"), each = 3L)
+  layouts <- list(ggplot2::facet_wrap(ggplot2::vars(get(facet_name))),
+                  ggplot2::facet_wrap(ggplot2::vars(.data[[facet_name]])))
+  for (layout in layouts) {
+    plot <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() + layout
+    out <- fmt_ref(plot, x = c(2, 4), color = c("red", "blue"))
+    built <- ggplot2::ggplot_build(out)
+    expect_identical(built$layout$layout, ggplot2::ggplot_build(plot)$layout$layout)
+    expect_setequal(unlist(lapply(built$data[-1L], function(layer) layer$xintercept)), c(2, 4))
+  }
+})

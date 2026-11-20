@@ -1586,6 +1586,15 @@ fmt_ref <- function(plot,
     list(do.call(geom, args, envir = baseenv()))
   }
 
+  dynamic_facet <- function(expr) {
+    if (rlang::is_missing(expr) || !is.call(expr)) return(FALSE)
+    lookup <- rlang::call_name(expr)
+    if (isTRUE(lookup %in% c("get", "get0", "mget")) &&
+        (length(expr) < 2L || !is.character(expr[[2L]]))) return(TRUE)
+    if (identical(lookup, "[[") && length(expr) == 3L &&
+        identical(expr[[2L]], quote(.data)) && !is.character(expr[[3L]])) return(TRUE)
+    any(vapply(as.list(expr)[-1L], dynamic_facet, logical(1)))
+  }
   for (i in seq_along(plots)) {
     facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
                 plots[[i]]$facet$params$cols)
@@ -1593,7 +1602,8 @@ fmt_ref <- function(plot,
       deparse(rlang::get_expr(facet))
     }), use.names = FALSE))
     # Native layers cannot supply our helper columns as spurious facet values.
-    plot_layers <- if (any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
+    dynamic <- any(vapply(facets, function(facet) dynamic_facet(rlang::get_expr(facet)), logical(1)))
+    plot_layers <- if (dynamic || any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
       c(.ref_layers(x, "x", x_styles, native = TRUE), .ref_layers(y, "y", y_styles, native = TRUE))
     } else c(.ref_layers(x, "x", x_styles), .ref_layers(y, "y", y_styles))
     plots[[i]] <- plots[[i]] + plot_layers

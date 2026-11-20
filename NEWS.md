@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines avoid private style columns when facets look up their column names dynamically.
+
 * Boxplot overlays find explicit bare column symbols in layer data while preserving mappings to caller values.
 
 * Boxplot overlays recognize named identity-stat and orientation selections when finding precomputed summaries.
