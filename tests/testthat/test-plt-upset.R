@@ -1173,3 +1173,18 @@ test_that("full UpSet sets combine bits without reindexing every row", {
   expect_identical(fn(sets, 4L), c(3L, 6L, 3L, 6L))
   expect_identical(fn(sets), .upset_row_codes(sets))
 })
+
+test_that("integer64 UpSet membership skips range masks for complete integers", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(a = 1:10, b = bit64::as.integer64(10:1))
+  ask <- bit64::as.integer64(c(1L, 5L))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(trunc = function(x, ...) {
+    if (identical(x, d$a) && !anyNA(x)) stop("checked representability for a complete integer vector")
+    base::trunc(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f, q = ask) f(d, c("a", "b"), levels = q, output = "data")
+  expect_identical(draw(fn), draw(plt_upset))
+  d$a[6L] <- NA_integer_
+  expect_identical(draw(fn, c(ask, NA)), draw(plt_upset, c(ask, NA)))
+})

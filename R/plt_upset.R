@@ -228,9 +228,13 @@ plt_upset <- function(data,
     plain_numeric <- function(x) is.numeric(x) && !is.object(x) && !is.complex(x)
     representable <- function(x) is.finite(x) & x == trunc(x) & x > -2^63 & x < 2^63
     if (inherits(values, "integer64") && plain_numeric(query)) {
-      query <- bit64::as.integer64(query[representable(query)])
+      if (is.integer(query)) {
+        if (anyNA(query)) query <- query[!is.na(query)]
+      } else query <- query[representable(query)]
+      query <- bit64::as.integer64(query)
     } else if (inherits(query, "integer64") && plain_numeric(values)) {
-      usable <- representable(values)
+      if (is.integer(values) && !anyNA(values)) return(bit64::as.integer64(values) %in% query)
+      usable <- if (is.integer(values)) !is.na(values) else representable(values)
       selected <- rep(FALSE, length(values))
       selected[usable] <- bit64::as.integer64(values[usable]) %in% query
       return(selected)
