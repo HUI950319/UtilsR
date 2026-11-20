@@ -1270,3 +1270,18 @@ test_that("confidence z scores restore null values without a conditional result 
   expect_identical(p, suppressWarnings(stat_ci_parse(v, output = "p", exp = FALSE)))
   expect_identical(p[[1L]], 1)
 })
+
+test_that("ordinary CI widths avoid raw endpoint overflow masks", {
+  x <- c("1.3 (0.2, 2.4)", "2.2 (1.9, 3.3)", "-2.6 (-3.9, -0.4)")
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(l)) && length(x) == 3L)
+      stop("tested every ordinary CI width for raw endpoint finiteness")
+    base::is.finite(x)
+  }), parent = environment(f))
+  expect_identical(suppressWarnings(f(x, output = "p", exp = FALSE)),
+                   suppressWarnings(stat_ci_parse(x, output = "p", exp = FALSE)))
+  y <- "8e307 (-1e308, 1.7e308)"
+  expect_identical(suppressWarnings(f(y, output = "p", exp = FALSE)),
+                   suppressWarnings(stat_ci_parse(y, output = "p", exp = FALSE)))
+})
