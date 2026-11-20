@@ -1298,3 +1298,19 @@ test_that("complete linear confidence intervals restore endpoints directly", {
   expect_identical(suppressWarnings(f(x, level = .89, output = "ci", exp = FALSE)),
                    suppressWarnings(stat_ci_parse(x, level = .89, output = "ci", exp = FALSE)))
 })
+
+test_that("asymmetric confidence width does not scan stable endpoint vectors", {
+  input <- rep(c("0.20 (-1.30, 0.25)", "2.00 (1.95, 3.60)"), 80L)
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    expr <- substitute(x)
+    if (is.symbol(expr) && as.character(expr) %in% c("center", "lower", "upper") && length(x) == 160L)
+      stop("scanned all asymmetric endpoints")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(suppressWarnings(fn(input, exp = FALSE, output = "p")),
+    suppressWarnings(stat_ci_parse(input, exp = FALSE, output = "p")))
+  extreme <- c(input[1:2], "1.00e308 (-1.00e308, 1.20e308)")
+  expect_identical(suppressWarnings(fn(extreme, exp = FALSE, output = "p")),
+    suppressWarnings(stat_ci_parse(extreme, exp = FALSE, output = "p")))
+})

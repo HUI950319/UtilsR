@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` now checks endpoint finiteness only where the asymmetric half width needs overflow handling.
+
 * `fct_num()` keeps the original quantile breakpoint vector when adjacent cut points are distinct.
 
 * `pr_tree()` now constructs positional labels only for unnamed items in a mixed-named list.

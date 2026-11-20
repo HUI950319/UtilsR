@@ -235,9 +235,12 @@ stat_ci_parse <- function(x,
         lower <- l[asymmetric_rows]
         upper <- h[asymmetric_rows]
         half <- ifelse(center > 0, center - lower, upper - center) / z95
-        wide <- is.finite(center) & is.finite(lower) & is.finite(upper) & !is.finite(half)
-        if (any(wide)) half[wide] <- ifelse(center[wide] > 0,
-          center[wide] / z95 - lower[wide] / z95, upper[wide] / z95 - center[wide] / z95)
+        wide <- which(!is.finite(half))
+        if (length(wide)) {
+          wide <- wide[is.finite(center[wide]) & is.finite(lower[wide]) & is.finite(upper[wide])]
+          half[wide] <- ifelse(center[wide] > 0,
+            center[wide] / z95 - lower[wide] / z95, upper[wide] / z95 - center[wide] / z95)
+        }
         full[asymmetric_rows] <- half
       }
       if (length(tight)) full[tight] <- tight_se
