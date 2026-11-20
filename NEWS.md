@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval releveling writes adjusted linear endpoints without selecting a logarithmic branch when every row is valid and linear.
+
 * Confidence interval standard error calculation checks and rescales finite endpoints only where the initial calculation overflows.
 
 * CI P-value inference avoids a full conditional result vector and still maps zero estimates to a zero standard score.

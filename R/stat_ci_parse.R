@@ -274,8 +274,13 @@ stat_ci_parse <- function(x,
       if (level != .95) {
         l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
         h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
-        lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
-        hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+        if (all_valid && !any(is_exp)) {
+          lo <- l_s * work_scale
+          hi <- h_s * work_scale
+        } else {
+          lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
+          hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+        }
         if (length(tight)) {
           down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
           up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)

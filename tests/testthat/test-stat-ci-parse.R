@@ -1285,3 +1285,16 @@ test_that("ordinary CI widths avoid raw endpoint overflow masks", {
   expect_identical(suppressWarnings(f(y, output = "p", exp = FALSE)),
                    suppressWarnings(stat_ci_parse(y, output = "p", exp = FALSE)))
 })
+
+test_that("complete linear confidence intervals restore endpoints directly", {
+  x <- c("2.50 (1.40, 3.60)", "-0.40 (-1.70, 0.90)", "3.20 (2.10, 4.60)")
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(valid)) &&
+        grepl("work_scale", paste(deparse(substitute(yes)), collapse = ""), fixed = TRUE))
+      stop("selected adjusted complete linear bounds row by row")
+    base::ifelse(test, yes, no)
+  }), parent = environment(f))
+  expect_identical(suppressWarnings(f(x, level = .89, output = "ci", exp = FALSE)),
+                   suppressWarnings(stat_ci_parse(x, level = .89, output = "ci", exp = FALSE)))
+})
