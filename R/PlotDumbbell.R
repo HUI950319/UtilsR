@@ -587,12 +587,14 @@ PlotDumbbell <- function(
 .mean_plot_values <- function(value, na.rm = TRUE) {
   if (!inherits(value, "integer64")) return(mean(value, na.rm = na.rm))
   .register_integer64(value)
-  if (!na.rm && anyNA(value)) return(NA_real_)
+  missing <- anyNA(value)
+  if (!na.rm && missing) return(NA_real_)
+  n <- if (missing) length(value) - sum(is.na(value)) else length(value)
+  if (!n) return(NaN)
   # Add the two limbs before dividing, retaining cancellation and fractions.
   step <- bit64::as.integer64("4294967296")
   high <- sum(as.double(value %/% step), na.rm = TRUE)
   low <- sum(as.double(value %% step), na.rm = TRUE)
-  n <- if (na.rm && anyNA(value)) length(value) - sum(is.na(value)) else length(value)
   (high * 2^32 + low) / n
 }
 

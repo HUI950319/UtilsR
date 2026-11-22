@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Exact integer64 means determine the observed denominator once and return immediately for entirely missing vectors.
+
 * Ordinary nonmissing numeric scatter groups use their grouping codes directly and retain exact labels for nearby values.
 
 * When the input has one observed group, complete Jaccard comparisons use its rows directly without matching and splitting them.

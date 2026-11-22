@@ -1142,3 +1142,15 @@ test_that("dumbbell factor axis reuses its observed level dictionary", {
   run <- function(f) f(d, "x", "y", "g", sort_by = "none")$data
   expect_identical(run(fn), run(PlotDumbbell))
 })
+
+test_that("integer64 mean returns before decomposing all missing values", {
+  skip_if_not_installed("bit64")
+  fn <- .mean_plot_values
+  environment(fn) <- list2env(list(`%/%` = function(...) {
+    stop("decomposed all-missing integer64 values into limbs")
+  }), parent = environment(fn))
+  expect_identical(fn(bit64::as.integer64(rep(NA_character_, 32L))), NaN)
+  expect_identical(fn(bit64::integer64()), NaN)
+  expect_identical(fn(bit64::as.integer64(NA_character_), na.rm = FALSE), NA_real_)
+  expect_identical(.mean_plot_values(bit64::as.integer64(c(1L, 2L, NA_integer_))), 1.5)
+})
