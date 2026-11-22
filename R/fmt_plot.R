@@ -1576,7 +1576,7 @@ fmt_ref <- function(plot,
          linewidth = rep_len(linewidth, n), alpha = rep_len(alpha, n))
   }
   x_styles <- line_styles(x)
-  y_styles <- line_styles(y)
+  y_styles <- if (length(y) == length(x)) x_styles else line_styles(y)
 
   reference_args <- list()
   .ref_layers <- function(values, axis, styles, native = FALSE) {

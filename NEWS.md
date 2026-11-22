@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines reuse their recycled style vectors when both axes need the same number of values.
+
 * Reference lines avoid inspecting facet expressions when the requested settings already require native individual layers.
 
 * Console colour previews skip copying the full RGBA matrix when input order and identities are unchanged.

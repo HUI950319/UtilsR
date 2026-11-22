@@ -575,3 +575,19 @@ test_that("native reference line arguments bypass facet expression discovery", {
   draw <- function(f) ggplot2::ggplot_build(f(p, x = c(2, 4), show.legend = FALSE))$data
   expect_identical(draw(fn), draw(fmt_ref))
 })
+
+test_that("matching horizontal and vertical reference sizes share recycled styles", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) + ggplot2::geom_point()
+  reads <- 0L
+  fn <- fmt_ref
+  environment(fn) <- list2env(list(rep_len = function(x, length.out) {
+    if (identical(substitute(x), quote(color))) {
+      reads <<- reads + 1L
+      if (reads > 1L) stop("recycled identical reference styles on both axes")
+    }
+    base::rep_len(x, length.out)
+  }), parent = environment(fn))
+  draw <- function(f) ggplot2::ggplot_build(f(p, x = 1:3, y = 2:4, color = c("red", "blue")))$data
+  expect_identical(draw(fn), draw(fmt_ref))
+  expect_identical(reads, 1L)
+})
