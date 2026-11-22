@@ -642,3 +642,21 @@ test_that("sorted unique explicit size selections skip duplicate collection", {
     expect_identical(fn(x, envir = e)[["_data"]], check_size(x, envir = e)[["_data"]])
   }
 })
+
+test_that("size inspection uses scalar bounds for large numeric selections", {
+  e <- list2env(stats::setNames(as.list(seq_len(8L)), letters[1:8]), parent = emptyenv())
+  fn <- check_size
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(obj)) && length(x) > 1L)
+      stop("allocated a finite flag for every size inspection index")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  draw <- function(f, positions) {
+    invisible(utils::capture.output(x <- f(positions, envir = e)))
+    x[["_data"]]
+  }
+  expect_identical(draw(fn, c(5, 3, 5, 1)), draw(check_size, c(5, 3, 5, 1)))
+  for (bad in list(c(1, Inf), c(0L, 2L), c(1, NaN), c(1, 2.2))) {
+    expect_error(draw(fn, bad), "finite integers within")
+  }
+})

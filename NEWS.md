@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Object size selection checks numeric extrema before testing whether the indices are whole numbers.
+
 * Scatter colour and shape mappings skip a set comparison when their validated labels already match the group order.
 
 * Scatter preparation factors a shared colour and shape group once.

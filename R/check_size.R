@@ -131,9 +131,9 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
           if (is.null(all_objects)) {
             all_objects <- ls(envir = envir, all.names = TRUE)
           }
-          bad <- if (is.integer(obj)) anyNA(obj) else
-            any(!is.finite(obj)) || any(obj != trunc(obj))
-          if (bad || (length(obj) && (min(obj) < 1L || max(obj) > length(all_objects)))) {
+          valid <- !length(obj) || (isTRUE(min(obj) >= 1L && max(obj) <= length(all_objects)) &&
+            (is.integer(obj) || all(obj == trunc(obj))))
+          if (!valid) {
             stop("Object indices must be finite integers within the available names.",
                  call. = FALSE)
           }
