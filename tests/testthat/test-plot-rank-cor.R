@@ -1472,3 +1472,20 @@ test_that("rank correlation centering reads existing endpoint distances", {
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("unique rank group keys are reused without duplicate flags", {
+  d <- rank_cor_data()
+  d$g <- LETTERS[seq_len(nrow(d))]
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(group_id)) && attr(x, "n") == length(x))
+      stop("created duplicate flags for exclusively unique rank groups")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  draw <- function(f) {
+    invisible(capture.output(p <- f(d, "item", "score", group.by = "g", method.by = "method",
+                                     show.label = FALSE)))
+    list(data = p$data, results = attr(p, "cor_results"))
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

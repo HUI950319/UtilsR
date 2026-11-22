@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank-correlation preparation skips a duplicate scan and slice when every group key is distinct.
+
 * Single-panel rank plots reuse the displayed rows directly when all points are highlighted.
 
 * Plot label and comparison helpers return immediately when there are no facet variables to inspect.

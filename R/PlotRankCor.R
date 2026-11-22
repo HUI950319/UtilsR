@@ -277,7 +277,8 @@ PlotRankCor <- function(
     group_values <- data[[group.by]]
     if (inherits(group_values, "haven_labelled_spss")) group_values <- .scatter_axis_values(group_values)
     group_id <- vctrs::vec_group_id(group_values)
-    group_keys <- group_values[!duplicated(group_id)]
+    group_keys <- if (attr(group_id, "n") == length(group_id)) group_values else
+      group_values[!duplicated(group_id)]
     group_labels <- as.character(group_keys)
     missing_group <- is.na(group_keys) | is.na(group_labels)
     has_missing <- any(missing_group)
