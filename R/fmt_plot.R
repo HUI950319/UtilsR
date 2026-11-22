@@ -3266,7 +3266,8 @@ fmt_text <- function(plot,
 
   # ---- Vectorize label params (recycle to n plots) ----
   vec_or_null <- function(x) {
-    if (is.null(x) || is.call(x) || is.symbol(x)) return(rep(list(x), n))
+    if (is.null(x)) return(NULL)
+    if (is.call(x) || is.symbol(x)) return(rep(list(x), n))
     values <- rep_len(x, n)
     if (is.expression(values)) {
       return(lapply(seq_along(values), function(i) values[i]))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Text formatting keeps omitted label fields empty without replicating them for every subplot.
+
 * Legend formatting handles named scalar position values consistently when checking patchwork collection.
 
 * Clearing a legend title leaves the legend-title theme available for later labels and preserves explicit guide text styling.

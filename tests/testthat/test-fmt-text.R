@@ -325,3 +325,18 @@ test_that("cleared legend text can be restored with its existing styling", {
   expect_identical(restored$theme$legend.title, p$theme$legend.title)
   expect_identical(text_test_count(p, "Species"), 1L)
 })
+
+test_that("omitted text labels are not recycled across plots", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) + ggplot2::geom_point()
+  fn <- fmt_text
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, list(NULL)) && identical(list(...), list(12L)))
+      stop("replicated an omitted plot label")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  plots <- rep(list(p), 12L)
+  result <- fn(plots, title = c("First", "Second"))
+  expect_identical(vapply(result, function(p) p$labels$title, character(1L)),
+                   rep(c("First", "Second"), 6L))
+  expect_true(all(vapply(result, function(g) identical(g$theme, p$theme), logical(1L))))
+})
