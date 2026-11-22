@@ -1236,9 +1236,12 @@ fmt_legend <- function(plot,
     last_scaled_theme <<- if (length(scale_args)) do.call(ggplot2::theme, scale_args)
     last_scaled_theme
   }
-  for (i in seq_len(n)) {
+  theme_requested <- length(leg_theme) || isTRUE(attr(leg_theme, "complete"))
+  style_requested <- theme_requested || length(guide_args) || scaling ||
+    !is.null(scale_width) || !is.null(scale_height)
+  if (style_requested) for (i in seq_len(n)) {
     p <- plots[[i]]
-    if (length(leg_theme) || isTRUE(attr(leg_theme, "complete"))) p <- p + leg_theme
+    if (theme_requested) p <- p + leg_theme
     th <- base_theme + p$theme
     if (inherits(p$guides, "Guides")) {
       guides <- p$guides$guides

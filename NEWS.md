@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend formatting skips the guide and scale styling pass for title-only or collection-only calls.
+
 * Patchwork collection avoids decoding layer mappings when neither theme positions nor explicit guides can place a legend inside.
 
 * Legend formatting caches the resolved font and spacing adjustments while leaving each guide's local settings independent.

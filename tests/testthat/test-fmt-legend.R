@@ -1260,3 +1260,14 @@ test_that("outside legend collection does not visit layer aesthetics", {
   expect_warning(out <- fmt_legend(inside | p, collect = TRUE), "inside")
   expect_identical(out$patches$layout$guides, "keep")
 })
+
+test_that("title-only legend formatting skips the styling pass", {
+  p <- legend_test_plot() + ggplot2::guides(colour = ggplot2::guide_legend(reverse = TRUE))
+  fn <- fmt_legend
+  environment(fn) <- list2env(list(.is_legend_aes = function(x) {
+    stop("revisited existing guides for title-only legend formatting")
+  }), parent = environment(fn))
+  out <- fn(p, title = "Replacement")
+  expect_true("Replacement" %in% legend_test_labels(ggplot2::ggplotGrob(out)))
+  expect_true(out$guides$guides$colour$params$reverse)
+})
