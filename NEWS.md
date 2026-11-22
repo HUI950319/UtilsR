@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse Jaccard overlaps look up the groups of shared features without expanding an index for every membership.
+
 * Disjoint sets of the same member type skip a full member rematch and per-set sorting.
 
 * Confidence-interval parsing skips numeric conversion for rows with mismatched brackets.

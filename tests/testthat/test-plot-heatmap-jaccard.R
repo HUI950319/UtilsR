@@ -1180,3 +1180,19 @@ test_that("Jaccard diagonal uses its occupied group positions", {
   expect_identical(fn(d, group_levels = group, return_type = "data"),
     PlotHeatmapJaccard(d, group_levels = group, return_type = "data"))
 })
+
+test_that("sparse Jaccard groups come from cumulative set boundaries", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(substitute(x), quote(seq_len(n_ct))) && "times" %in% names(list(...)))
+      stop("expanded all sparse Jaccard group memberships")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(cell_type = rep(letters[1:20], each = 6L), gene = paste0("g", seq_len(120L)))
+  d$gene[c(1L, 25L, 115L)] <- "shared"
+  levels <- c("unused", "a", "unused2", letters[2:20])
+  got <- fn(d, group_levels = levels, return_type = "data")
+  expect_identical(got, PlotHeatmapJaccard(d, group_levels = levels, return_type = "data"))
+  expect_equal(got[c("a", "e"), "t"], c(a = 1/11, e = 1/11))
+  expect_identical(got["unused", "unused2"], 0)
+})
