@@ -1075,8 +1075,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (!is.null(index) &&
       !(is.numeric(index) && !is.complex(index) && !is.object(index) &&
-        is.null(dim(index)) && length(index) > 0L && all(is.finite(index)) &&
-        all(index >= 1 & index <= .Machine$integer.max & index == floor(index)) &&
+        is.null(dim(index)) && length(index) > 0L &&
+        isTRUE(min(index) >= 1 && max(index) <= .Machine$integer.max) &&
+        (is.integer(index) || all(index == floor(index))) &&
         !anyDuplicated(index))) {
     cli::cli_abort("{.arg index} must contain unique positive whole numbers without missing values.")
   }

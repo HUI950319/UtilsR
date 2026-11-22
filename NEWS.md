@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette preview validation avoids full finiteness and rounding flags for integer indices.
+
 * Numeric palette mapping retains its original lookup without constructing a second distinct vector when no positions collide.
 
 * Legend title updates reuse stored labels when the title and every applicable label are already identical.

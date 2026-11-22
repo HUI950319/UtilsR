@@ -3414,3 +3414,16 @@ test_that("distinct scaled palette positions keep their original lookup", {
   collapsed <- rep(c(0, 1e-310, 1e-309, 1e308), 420L)
   expect_identical(fn(collapsed, FALSE), .pal_numeric_positions(collapsed, FALSE))
 })
+
+test_that("integer palette preview positions skip vector rounding and finiteness tests", {
+  fn <- .pal_validate_show
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (length(x) > 1L) stop("allocated finiteness flags for palette preview positions")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_null(fn(256, 256, seq_len(256L)))
+  expect_null(fn(256, 256, as.double(c(3L, 1L))))
+  for (bad in list(c(1L, NA_integer_), c(0L, 1L), c(1, 2.5), c(2L, 2L), c(1, Inf))) {
+    expect_error(fn(256, 256, bad), "unique positive whole numbers")
+  }
+})
