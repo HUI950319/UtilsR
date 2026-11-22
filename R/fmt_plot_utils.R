@@ -191,13 +191,13 @@
       if (defer) return(NULL)
       next
     }
-    if (defer && is.call(expr)) {
+    direct_column <- FALSE
+    if (is.call(expr)) {
       accessor <- rlang::call_name(expr)
-      direct_column <- length(expr) == 3L &&
-        identical(expr[[2L]], as.name(".data")) &&
-        (identical(accessor, "$") ||
-         (identical(accessor, "[[") && is.character(expr[[3L]])))
-      if (!direct_column) return(NULL)
+      direct_column <- length(expr) == 3L && identical(expr[[2L]], quote(.data)) &&
+        ((identical(accessor, "$") && is.symbol(expr[[3L]])) ||
+         (identical(accessor, "[[") && rlang::is_string(expr[[3L]])))
+      if (defer && !direct_column) return(NULL)
     }
     if (defer && is.symbol(expr) &&
         !(is.data.frame(data) && as.character(expr) %in% names(data))) {
@@ -212,11 +212,11 @@
         binding_env <- parent.env(binding_env)
       }
     }
-    column <- if (is.symbol(expr)) as.character(expr) else ""
+    column <- if (is.symbol(expr)) as.character(expr) else if (direct_column) as.character(expr[[3L]]) else ""
     ordinary_data <- identical(class(data), "data.frame") ||
       identical(class(data), c("tbl_df", "tbl", "data.frame"))
-    d <- if (ordinary_data && nzchar(column) && !column %in% c(".data", ".env") &&
-             column %in% names(data)) {
+    d <- if (ordinary_data && nzchar(column) && column %in% names(data) &&
+             (direct_column || !column %in% c(".data", ".env"))) {
       data[[column]]
     } else {
       tryCatch(

@@ -609,3 +609,15 @@ test_that("scale callback replacement leaves unrelated lazy bindings untouched",
   expect_identical(changed$scales$get_scales("x")$labels(c(1, 2)), c("new1", "new2"))
   expect_identical(scale$labels(c(1, 2)), c("old1", "old2"))
 })
+
+test_that("literal data-pronoun scale inference uses column storage", {
+  d <- data.frame(group = factor(c("a", "b")), score = c(2, 3))
+  fn <- .detect_scale_type
+  p <- ggplot2::ggplot(d, ggplot2::aes(.data[["group"]], .data$score)) + ggplot2::geom_point()
+  p$plot_env <- baseenv()
+  local_mocked_bindings(eval_tidy = function(...) stop("evaluated a literal data-pronoun axis in a data mask"),
+    .package = "rlang")
+  expect_identical(fn(p, "x", defer = TRUE), "scale_x_discrete")
+  expect_identical(fn(p, "y", defer = TRUE), "scale_y_continuous")
+  expect_identical(fn(p, "x"), "scale_x_discrete")
+})
