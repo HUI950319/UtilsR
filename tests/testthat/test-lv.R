@@ -1973,3 +1973,17 @@ test_that("long factor frequency listings normalize only visible labels", {
   levels(d$category)[c(1L, 20L)] <- c("", "(blank)")
   expect_identical(capture(lv.data.frame, d), capture(fn, d))
 })
+
+test_that("inspection cross-tabulations pass only their selected columns to counting", {
+  d <- dplyr::group_by(tibble::tibble(a = c("a", "b", "a"), b = c(1L, 1L, 2L),
+                                        unused = c("x", "y", "z")), unused)
+  draw <- function() cli::ansi_strip(utils::capture.output(suppressMessages(lv(d, count = c("a", "b")))))
+  expected <- draw()
+  original <- dplyr::count
+  local_mocked_bindings(count = function(x, ...) {
+    if (all(c("a", "b", "unused") %in% names(x))) stop("counted through unrelated inspection columns")
+    original(x, ...)
+  }, .package = "dplyr")
+  expect_identical(draw(), expected)
+  expect_identical(dplyr::group_vars(d), "unused")
+})

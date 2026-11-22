@@ -967,7 +967,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     count_names <- tail(make.unique(c(count_vars, "n", "pct"), sep = "_"), 2L)
     n_name <- count_names[1L]
     pct_name <- count_names[2L]
-    count_data <- dplyr::ungroup(data)
+    count_data <- dplyr::select(dplyr::ungroup(data), dplyr::all_of(count_vars))
     count_data[count_vars] <- lapply(count_data[count_vars], function(x) {
       .label_na_level(.spss_missing_to_na(x), missing_as_level = TRUE)
     })
