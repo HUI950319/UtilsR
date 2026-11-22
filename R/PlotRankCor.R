@@ -425,20 +425,20 @@ PlotRankCor <- function(
   rownames(rank_wide) <- NULL
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
-  .center_scale_vec <- function(x, complete = length(x) && !is.object(x) &&
-                                is.finite(min(x)) && is.finite(max(x))) {
+  .center_scale_vec <- function(x, complete, bounds = NULL) {
     if (!length(x)) return(x)
     observed <- if (!complete) which(is.finite(x))
     if (!complete && !length(observed)) return(x)
     origin <- x[if (complete) 1L else observed[1L]]
-    centered <- x - origin
-    observed_centered <- if (complete) centered else centered[observed]
-    magnitude <- max(abs(range(observed_centered)))
-    if (!is.finite(magnitude)) {
-      magnitude <- max(abs(range(if (complete) x else x[observed])))
-      centered <- x / magnitude - origin / magnitude
-      observed_centered <- if (complete) centered else centered[observed]
-      magnitude <- max(abs(range(observed_centered)))
+    if (is.null(bounds)) bounds <- range(if (complete) x else x[observed])
+    magnitude <- max(abs(bounds - origin))
+    if (is.finite(magnitude)) {
+      centered <- x - origin
+    } else {
+      scale <- max(abs(bounds))
+      center <- origin / scale
+      centered <- x / scale - center
+      magnitude <- max(abs(bounds / scale - center))
     }
     if (magnitude > 0) centered <- centered / magnitude
     centered
@@ -516,8 +516,8 @@ PlotRankCor <- function(
       return(c(NA_real_, NA_real_))
     }
     if (!use_rank) {
-      x <- .center_scale_vec(x, complete = TRUE)
-      y <- .center_scale_vec(y, complete = TRUE)
+      x <- .center_scale_vec(x, complete = TRUE, bounds = x_limits)
+      y <- .center_scale_vec(y, complete = TRUE, bounds = y_limits)
     }
     ct <- stats::cor.test(x, y, method = cor_method, exact = FALSE)
     c(ct$estimate, ct$p.value)

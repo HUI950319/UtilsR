@@ -1455,3 +1455,20 @@ test_that("single group rank correlation scales complete axes without indexing",
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("rank correlation centering reads existing endpoint distances", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    if (identical(substitute(x), quote(observed_centered)))
+      stop("measured the full shifted rank correlation vector")
+    base::range(x, ...)
+  }), parent = environment(fn))
+  d <- rank_cor_data()
+  d$score <- c(-1.5e308, -.7e308, 0, 1.5e308, -1.1e308, -.3e308, NA_real_, 1.3e308)
+  draw <- function(f) {
+    invisible(capture.output(p <- f(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "minmax", scale_y = "zscore", show.label = FALSE)))
+    list(data = p$data, cor = attr(p, "cor_results"))
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

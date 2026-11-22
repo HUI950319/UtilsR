@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank-correlation normalization computes its scaling distance from endpoints instead of rescanning a shifted series.
+
 * Rank-correlation axis transformations reuse columns when the displayed pairs belong to one group.
 
 * Circular lollipop scoring reads finite group endpoints without allocating per-row missingness flags.
