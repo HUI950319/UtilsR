@@ -1957,3 +1957,19 @@ test_that("complete ordinary numeric inspection values keep their sorted sequenc
   }), parent = environment(fn))
   expect_identical(capture.output(suppressMessages(fn(d))), capture.output(suppressMessages(lv(d))))
 })
+
+test_that("long factor frequency listings normalize only visible labels", {
+  d <- data.frame(category = factor(paste0("level", seq_len(20L))))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (is.call(substitute(x)) && identical(substitute(x)[[1L]], quote(.label_blank)) &&
+        length(x) > 15L && !"" %in% x) stop("formatted every factor frequency label")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  capture <- function(f, x) cli::ansi_strip(utils::capture.output(suppressMessages(f(x))))
+  expected <- capture(lv.data.frame, d)
+  expect_identical(capture(fn, d), expected)
+  expect_true(any(grepl("(6 others)", expected, fixed = TRUE)))
+  levels(d$category)[c(1L, 20L)] <- c("", "(blank)")
+  expect_identical(capture(lv.data.frame, d), capture(fn, d))
+})

@@ -512,7 +512,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   .lv_frequencies <- function(x, var) {
     x <- .label_na_level(x)
-    if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
+    ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+    if (ordinary_factor) {
       tally <- .factor_tally(x)
       valid <- levels(x)
       if (length(tally$codes) != length(valid)) valid <- valid[tally$codes]
@@ -547,6 +548,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       valid <- tab$value[!missing]
       n <- tab$n[!missing]
       missing_n <- sum(tab$n[missing])
+    }
+    # Keep the full blank-label check when the preview contains a blank.
+    if (ordinary_factor && length(n) > 15L && all(nzchar(valid[1:14]))) {
+      valid <- valid[1:14]
     }
     # spans with their units, unpadded; date-times keep the time at midnight,
     # which as.character() drops ("2020-01-01" beside "2020-01-01 01:00:00")
