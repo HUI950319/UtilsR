@@ -1088,3 +1088,13 @@ test_that("unbounded P-value text needs no allocated bound flags", {
   expect_identical(fn(x, mode = "stars"), stat_pval(x, mode = "stars"))
   expect_identical(fn(x, mode = "plain"), stat_pval(x, mode = "plain"))
 })
+
+test_that("one significance cut keeps ties together", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list(split = function(...) {
+    stop("split ties for a single P-value threshold")
+  }), parent = environment(fn))
+  x <- c("0.050000000000000001", "0.05", "5e-2", ".049999999999999999", NA, ">0.1")
+  expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0.05)),
+                   c("0.050", "0.050*", "0.050*", "0.050*", NA, ">0.1"))
+})

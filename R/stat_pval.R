@@ -149,7 +149,9 @@ stat_pval <- function(x,
       list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),
            digits = sub("0+$", "", coefficient))
     }
-    tied_groups <- if (length(tied)) split(tied, index[tied])
+    tied_groups <- if (length(tied)) {
+      if (length(map) == 1L) list(tied) else split(tied, index[tied])
+    }
     for (rows in tied_groups) {
       cut <- map[[index[rows[1L]]]]
       candidates <- sprintf("%.*g", 1:17, cut)

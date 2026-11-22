@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Decimal P-values with one significance threshold compare tied endpoints in a single group.
+
 * Log-scale interval comparisons reuse the original estimates, bounds, and units when every interval is eligible.
 
 * Faceted rank plots use their complete logical highlight vector to assign two labels directly.
