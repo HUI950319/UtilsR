@@ -1453,3 +1453,22 @@ test_that("missing butterfly wing values get a grouping diagnostic", {
   d$wing <- rep(c("left", "right"), each = 2L)
   expect_no_error(draw(d))
 })
+
+test_that("complete ordinary butterfly score blocks skip missing masks", {
+  d <- data.frame(category = rep(letters[1:5], 2L), fill = "total",
+                  score = c(12:16, rep(6L, 5L)), wing = rep(c("L", "R"), each = 5L))
+  fn <- PlotButterfly
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(values)) && length(x) == 5L && !anyNA(x))
+      stop("allocated missing flags for a complete butterfly score block")
+    base::is.na(x)
+  }), parent = environment(fn))
+  run <- function(f, d) {
+    p <- f(d, stat.by = "category", fill.by = "fill", value.by = "score",
+      group.by = "wing", minmax = TRUE)
+    lapply(seq_along(p), function(i) p[[i]]$data)
+  }
+  expect_identical(run(fn, d), run(PlotButterfly, d))
+  d$score[2L] <- NA_integer_
+  expect_identical(run(fn, d), run(PlotButterfly, d))
+})

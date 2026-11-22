@@ -307,10 +307,15 @@ PlotButterfly <- function(
       scores <- data[[value.by]]
       scaled <- lapply(rows, function(index) {
         values <- scores[index]
-        if (all(is.na(values))) return(rep(NA_real_, length(values)))
-        rng <- range(values, na.rm = TRUE)
+        complete <- !is.object(values) && is.numeric(values) && !anyNA(values)
+        rng <- if (complete) c(min(values), max(values)) else {
+          if (all(is.na(values))) return(rep(NA_real_, length(values)))
+          range(values, na.rm = TRUE)
+        }
         if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
-        if (rng[1] == rng[2]) return(ifelse(is.na(values), NA_real_, 0))
+        if (rng[1] == rng[2]) {
+          return(if (complete) rep.int(0, length(values)) else ifelse(is.na(values), NA_real_, 0))
+        }
         if (inherits(rng, "integer64")) {
           shift <- .dumbbell_integer64_difference(values, rep(rng[1L], length(values)))
           span <- .dumbbell_integer64_difference(rng[2L], rng[1L])
