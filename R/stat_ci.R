@@ -96,8 +96,11 @@ stat_ci <- function(x, y = NULL, z = NULL,
   }
   .drop_signed_zero <- function(text) {
     pattern <- "-0(?=(?:\\.0+)?(?:[^0-9.]|$))"
-    hit <- grepl(pattern, text, perl = TRUE)
-    if (any(hit)) text[hit] <- gsub(pattern, "0", text[hit], perl = TRUE)
+    hit <- which(grepl("-0", text, fixed = TRUE))
+    if (length(hit)) {
+      hit <- hit[grepl(pattern, text[hit], perl = TRUE)]
+      if (length(hit)) text[hit] <- gsub(pattern, "0", text[hit], perl = TRUE)
+    }
     text
   }
   .format_values <- function(fmt, ...) {

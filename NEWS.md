@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Interval formatting uses a fixed prefix search before applying the signed-zero pattern to candidate strings.
+
 * Confidence-interval scale detection returns directly when no row can use a logarithmic comparison.
 
 * Console inspection formats only the visible factor labels when the rest can be summarized without changing blank labels.

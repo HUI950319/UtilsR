@@ -371,3 +371,14 @@ test_that("confidence display precision needs no row-sized finite test", {
   expect_identical(fn(x), stat_ci(x))
   expect_identical(fn(numeric(), numeric()), character())
 })
+
+test_that("confidence interval text skips a regular expression on unaffected values", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list(grepl = function(pattern, x, ...) {
+    if (identical(substitute(pattern), quote(pattern)) && length(x) == 4L)
+      stop("ran the signed-zero regular expression over every interval")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(fn))
+  out <- fn(c(5, -0.0001, -0.01, 0), rep(0.001, 4L), digits = 2)
+  expect_identical(out, c("5.00(0.00)", "0.00(0.00)", "-0.01(0.00)", "0.00(0.00)"))
+})
