@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey layers reuse node codes as caption codes when every node has a distinct caption.
+
 * Legend formatting skips the guide and scale styling pass for title-only or collection-only calls.
 
 * Patchwork collection avoids decoding layer mappings when neither theme positions nor explicit guides can place a legend inside.

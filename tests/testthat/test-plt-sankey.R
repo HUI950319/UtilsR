@@ -1100,3 +1100,19 @@ test_that("zero threshold Sankey labels skip repeated share lookup", {
     label_args = list(min_pct = 0), theme_use = ggplot2::theme_minimal()))$layers[[3L]]$data
   expect_identical(run(fn), run(plt_sankey))
 })
+
+test_that("Sankey captions reuse their node codes when all labels are distinct", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(a = rep(c("left A", "left B"), each = 40L),
+                  b = rep(c("right A", "right B"), times = 40L))
+  fn <- plt_sankey
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(x), quote(caption_codes)))
+      stop("gathered identity caption codes for Sankey nodes")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  p <- suppressMessages(fn(d, vars = c("a", "b"), show_text = "name", label_args = list(min_pct = 1)))
+  expect_identical(as.character(p$data$label), as.vector(rbind(d$a, d$b)))
+  expect_identical(as.integer(p$data$label), as.integer(p$data$node))
+})
