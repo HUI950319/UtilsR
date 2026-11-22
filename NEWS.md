@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pearson scatter correlations check integer64 axes for completeness before allocating a missingness mask.
+
 * Console wrapping leaves text unchanged before wrapping when no missing string needs a replacement.
 
 * Console tables use the ordered positions from logical highlights directly.

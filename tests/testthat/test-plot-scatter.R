@@ -2047,3 +2047,19 @@ test_that("complete double scatter groups reuse their first appearance codes", {
   expect_identical(names(out), names(x))
   expect_identical(levels(out), c("1.0000000000000002", "1", "Inf"))
 })
+
+test_that("complete integer64 correlation vectors avoid a missingness scan", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64("9007199254740993") + bit64::as.integer64(1:80)
+  y <- as.double((1:80)^2)
+  fn <- .scatter_cor_test
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(value)) && inherits(x, "integer64") && !anyNA(x)) stop("allocated the complete integer64 axis mask")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expected <- stats::cor.test(as.double(0:79), y, method = "pearson")
+  expect_equal(fn(x, y, "pearson")$estimate, expected$estimate)
+  expect_equal(fn(x, y, "pearson")$p.value, expected$p.value)
+  x[2L] <- NA
+  expect_equal(fn(x, y, "pearson")$estimate, .scatter_cor_test(x, y, "pearson")$estimate)
+})

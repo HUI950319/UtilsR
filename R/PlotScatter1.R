@@ -656,7 +656,7 @@ PlotScatter1 <- function(
     if (!inherits(value, "integer64")) return(.scatter_axis_values(value))
     .register_integer64(value)
     if (!pearson) return(vctrs::vec_rank(value, ties = "min", incomplete = "na"))
-    if (any(!is.na(value))) {
+    if (length(value) && (!anyNA(value) || any(!is.na(value)))) {
       bounds <- range(value, na.rm = TRUE)
       span <- suppressWarnings(as.double(bounds[2L] - bounds[1L]))
       if (is.finite(span) && span <= 2^53) return(as.double(value - bounds[1L]))
