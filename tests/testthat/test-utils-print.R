@@ -2390,3 +2390,15 @@ test_that("logical table highlights do not need sorting and deduplication", {
   draw <- function(f) utils::capture.output(f(d, highlight = flags, n = 4L))
   expect_identical(draw(fn), draw(pr_table))
 })
+
+test_that("complete console wrapping skips replacement of missing text", {
+  fn <- ._pr_wrap
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(text)) && !anyNA(x))
+      stop("allocated a missing mask before wrapping complete text")
+    base::is.na(x)
+  }), parent = environment(fn))
+  x <- c("alpha beta gamma", "two words")
+  expect_identical(fn(x, width = 8), ._pr_wrap(x, width = 8))
+  expect_identical(fn(c(x, NA), width = 8), ._pr_wrap(c(x, NA), width = 8))
+})

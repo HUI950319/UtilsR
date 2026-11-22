@@ -122,7 +122,7 @@
 # cli wraps at spaces; split overlong words or CJK runs without losing text.
 ._pr_wrap <- function(text, width, exdent = 0L) {
   width <- max(1L, floor(width))
-  text[is.na(text)] <- "NA"
+  if (anyNA(text)) text[is.na(text)] <- "NA"
   if (length(text) == 1L && grepl("\033", text, fixed = TRUE) &&
       cli::ansi_nchar(text, type = "width") == 0L) {
     plain <- cli::ansi_strip(text)
