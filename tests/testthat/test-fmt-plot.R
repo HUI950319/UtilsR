@@ -329,3 +329,13 @@ test_that("recursive plot discovery keeps ordinary flat leaves directly", {
   annotated <- structure(plots, display_hint = "caller metadata")
   expect_null(attr(.to_plot_list(annotated, recurse = TRUE)$plots, "display_hint"))
 })
+
+test_that("recursive single-plot restoration skips remapping the plot tree", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) + ggplot2::geom_point()
+  q <- p + ggplot2::labs(title = "Replacement")
+  fn <- .from_plot_list
+  environment(fn) <- list2env(list(.map_plot_leaves = function(...) {
+    stop("walked the source to return a single formatted plot")
+  }), parent = environment(fn))
+  expect_identical(fn(list(q), FALSE, TRUE, pw_orig = p, recurse = TRUE), q)
+})

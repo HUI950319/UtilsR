@@ -104,6 +104,10 @@
 .from_plot_list <- function(plot_list, was_patchwork, was_single, pw_orig = NULL,
                             recurse = FALSE, ...) {
   if (recurse) {
+    if (was_single && length(plot_list) == 1L && inherits(pw_orig, "gg") &&
+        !inherits(pw_orig, c("patchwork", "spacer", "guide_area", "inset_patch", "wrapped_patch"))) {
+      return(plot_list[[1L]])
+    }
     i <- 0L
     return(.map_plot_leaves(pw_orig, function(p) {
       i <<- i + 1L
