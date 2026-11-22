@@ -211,9 +211,15 @@ stat_ci_parse <- function(x,
     tight <- integer()
     exp_rows <- which(is_exp)
     if (length(exp_rows)) {
-      e_s[exp_rows] <- log_est <- log(est[exp_rows])
-      l_s[exp_rows] <- log_lo <- log(lo[exp_rows])
-      h_s[exp_rows] <- log_hi <- log(hi[exp_rows])
+      if (length(exp_rows) == length(est)) {
+        e_s <- log_est <- log(est)
+        l_s <- log_lo <- log(lo)
+        h_s <- log_hi <- log(hi)
+      } else {
+        e_s[exp_rows] <- log_est <- log(est[exp_rows])
+        l_s[exp_rows] <- log_lo <- log(lo[exp_rows])
+        h_s[exp_rows] <- log_hi <- log(hi[exp_rows])
+      }
       tight <- exp_rows[pmax(abs(log_lo - log_est), abs(log_hi - log_est)) <
                           sqrt(.Machine$double.eps) * pmax(1, abs(log_est))]
     }

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence-interval inference transforms the whole estimate and bounds columns directly when every interval is a ratio.
+
 * Rank-correlation normalization computes its scaling distance from endpoints instead of rescanning a shifted series.
 
 * Rank-correlation axis transformations reuse columns when the displayed pairs belong to one group.

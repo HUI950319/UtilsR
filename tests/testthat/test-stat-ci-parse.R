@@ -1447,3 +1447,16 @@ test_that("interval scale detection skips log work for wholly nonpositive bounds
   expect_identical(apply(fn, TRUE), apply(.ci_scale, TRUE))
   expect_identical(apply(fn, TRUE)$invalid, c(TRUE, TRUE, TRUE, FALSE))
 })
+
+test_that("complete ratio interval inference uses full logarithm inputs", {
+  x <- c("2.00 (1.00, 4.00)", "3.00 (1.00, 9.00)", "0.50 (0.25, 1.00)")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(i), quote(exp_rows)) && length(i) == length(x))
+      stop("gathered an entire ratio interval column")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = TRUE, output = "p"), stat_ci_parse(x, exp = TRUE, output = "p"))
+  expect_identical(fn(x, exp = TRUE, output = "ci", level = 0.8),
+                   stat_ci_parse(x, exp = TRUE, output = "ci", level = 0.8))
+})
