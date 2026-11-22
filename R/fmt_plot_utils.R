@@ -55,12 +55,18 @@
     info <- if (inherits(plot, "patchwork")) {
       list(plots = NULL, is_patchwork = TRUE, is_single = FALSE, pw_orig = plot)
     } else .to_plot_list(plot)
-    plots <- list()
-    invisible(.map_plot_leaves(plot, function(p) {
-      plots[[length(plots) + 1L]] <<- p
-      p
-    }))
-    info$plots <- plots
+    special <- c("patchwork", "spacer", "guide_area", "inset_patch", "wrapped_patch", "free_plot")
+    plain_list <- all(names(attributes(info$plots)) %in% "names")
+    if (!info$is_patchwork && plain_list && !any(vapply(info$plots, inherits, logical(1), special))) {
+      info$plots <- unname(info$plots)
+    } else {
+      plots <- list()
+      invisible(.map_plot_leaves(plot, function(p) {
+        plots[[length(plots) + 1L]] <<- p
+        p
+      }))
+      info$plots <- plots
+    }
     info$pw_orig <- plot
     return(info)
   }

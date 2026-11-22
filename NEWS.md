@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Recursive formatters reuse ordinary plots and flat plot lists after validation while traversing patchwork and special elements as before.
+
 * Theme construction uses the shared grid-unit validator directly for panel spacing.
 
 * Palette hex formatting only creates a per-colour opacity mask when opaque and translucent colours are mixed.

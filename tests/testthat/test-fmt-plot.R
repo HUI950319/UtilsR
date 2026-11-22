@@ -315,3 +315,17 @@ test_that("scale inference reads ordinary mapped columns directly", {
   expect_identical(.detect_scale_type(p, "x"), "scale_x_discrete")
   expect_identical(.detect_scale_type(p, "y"), "scale_y_continuous")
 })
+
+test_that("recursive plot discovery keeps ordinary flat leaves directly", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) + ggplot2::geom_point()
+  plots <- list(alpha = p, beta = p + ggplot2::labs(title = "B"))
+  fn <- .to_plot_list
+  environment(fn) <- list2env(list(.map_plot_leaves = function(...) {
+    stop("walked a validated flat list of plot leaves")
+  }), parent = environment(fn))
+  expect_identical(fn(plots, recurse = TRUE), .to_plot_list(plots, recurse = TRUE))
+  expect_identical(fn(p, recurse = TRUE), .to_plot_list(p, recurse = TRUE))
+  expect_error(fn(list(checked = p, invalid = 1), recurse = TRUE), "ggplot objects")
+  annotated <- structure(plots, display_hint = "caller metadata")
+  expect_null(attr(.to_plot_list(annotated, recurse = TRUE)$plots, "display_hint"))
+})
