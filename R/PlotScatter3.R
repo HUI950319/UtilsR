@@ -396,9 +396,10 @@ PlotScatter3 <- function(
 
   # ---- Histogram ----
   if (is.null(hist_x_limits)) {
-    finite_diff <- diff_values[is.finite(diff_values)]
-    if (!length(finite_diff)) stop("No finite paired differences to plot.", call. = FALSE)
-    hist_extent <- max(abs(finite_diff))
+    bounds <- c(min(diff_values), max(diff_values))
+    if (!all(is.finite(bounds))) bounds <- suppressWarnings(range(diff_values, finite = TRUE))
+    if (!all(is.finite(bounds))) stop("No finite paired differences to plot.", call. = FALSE)
+    hist_extent <- max(abs(bounds))
     if (hist_extent == 0) hist_extent <- 1
     hist_extent <- min(hist_extent, .Machine$double.xmax / 1.2)
     hist_x_limits <- c(-hist_extent, hist_extent) * 1.2

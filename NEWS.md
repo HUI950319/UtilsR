@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter histograms calculate their automatic extent from finite endpoints without copying all finite differences.
+
 * Complete ordinary butterfly score blocks use scalar endpoints before scaling, with missing and encoded blocks using their existing methods.
 
 * Butterfly bar plots reject missing wing labels before constructing the two-sided grid.

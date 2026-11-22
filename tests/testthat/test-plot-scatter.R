@@ -2092,3 +2092,25 @@ test_that("complete ordered scatter palette mappings skip a missing-key comparis
   expect_identical(draw(fn, colors)[[1L]]$data, draw(PlotScatter2, colors)[[1L]]$data)
   expect_error(draw(fn, c(a = "red")), "missing mappings for: b")
 })
+
+test_that("automatic scatter histogram endpoints avoid a finite difference copy", {
+  d <- data.frame(Control = 1:10, Treat = 1:10 + c(-4, -2, 0, 1, 3, 4, 2, -1, 5, 6),
+                  group = rep(c("NS", "S"), 5L))
+  fn <- PlotScatter3
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(finite_diff))) stop("calculated absolute values of all paired differences")
+    base::abs(x)
+  }), parent = environment(fn))
+  inset <- NULL
+  local_mocked_bindings(ggplotGrob = function(p, ...) {
+    inset <<- p
+    grid::nullGrob()
+  }, .package = "ggplot2")
+  draw <- function(f, data) {
+    suppressWarnings(f(data, test_method = "none", cor_method = "none"))
+    list(limits = inset$scales$get_scales("x")$limits, counts = suppressWarnings(ggplot2::layer_data(inset, 1L)$count))
+  }
+  expect_identical(draw(fn, d), draw(PlotScatter3, d))
+  d$Treat[1L] <- NA
+  expect_identical(draw(fn, d), draw(PlotScatter3, d))
+})
