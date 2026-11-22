@@ -221,8 +221,9 @@ fct_cat <- function(x, ...,
     }
     if (all(is_character)) {
       new_order <- unname(c(...))
-      bad <- setdiff(new_order, cur)
-      if (length(bad) > 0L) {
+      indices <- match(new_order, cur)
+      if (anyNA(indices)) {
+        bad <- unique(new_order[is.na(indices)])
         cli::cli_abort("Level{?s} not found: {.val {bad}}.")
       }
     } else {
@@ -237,7 +238,9 @@ fct_cat <- function(x, ...,
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
     }
-    return(.relevel_factor(x, c(new_order, setdiff(cur, new_order))))
+    remaining <- rep.int(TRUE, length(cur))
+    remaining[indices] <- FALSE
+    return(.relevel_factor(x, c(new_order, unname(cur[remaining]))))
   }
 }
 

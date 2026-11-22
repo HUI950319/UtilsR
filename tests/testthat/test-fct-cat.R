@@ -1091,3 +1091,18 @@ test_that("complete and incomplete logical factor encodings need no match", {
   forms <- list(c(a = TRUE, b = NA), c(FALSE, NA, FALSE), c(TRUE, NA, FALSE), c(NA, NA), logical())
   for (x in forms) expect_identical(fn(x), factor(x))
 })
+
+test_that("character factor orders reuse matched level positions", {
+  x <- ordered(c("a", "c", "d", "a"), levels = c("a", "b", "c", "d"))
+  fn <- fct_cat
+  environment(fn) <- list2env(list(setdiff = function(x, y, ...) {
+    if (is.character(x) && is.character(y)) stop("recomputed a set difference for factor reordering")
+    base::setdiff(x, y, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, c("c", "a")), fct_cat(x, c("c", "a")))
+  expect_identical(levels(fn(x, c("c", "a"))), c("c", "a", "b", "d"))
+  x <- addNA(x)
+  expect_identical(fn(x, c(NA_character_, "d")), fct_cat(x, c(NA_character_, "d")))
+  expect_error(fn(x, c("nope", "nope")), "not found")
+  expect_error(fn(x, c("c", "c")), "duplicated")
+})
