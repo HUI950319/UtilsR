@@ -1623,14 +1623,20 @@ fmt_ref <- function(plot,
     any(vapply(as.list(expr)[-1L], dynamic_facet, logical(1)))
   }
   for (i in seq_along(plots)) {
-    facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
-                plots[[i]]$facet$params$cols)
-    facet_text <- c(names(facets), unlist(lapply(facets, function(facet) {
-      deparse(rlang::get_expr(facet))
-    }), use.names = FALSE))
-    # Native layers cannot supply our helper columns as spurious facet values.
-    dynamic <- any(vapply(facets, function(facet) dynamic_facet(rlang::get_expr(facet)), logical(1)))
-    plot_layers <- if (dynamic || any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
+    native <- !batch_dots
+    if (!native) {
+      facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
+                  plots[[i]]$facet$params$cols)
+      if (length(facets)) {
+        # Native layers cannot supply our helper columns as spurious facet values.
+        dynamic <- any(vapply(facets, function(facet) dynamic_facet(rlang::get_expr(facet)), logical(1)))
+        facet_text <- c(names(facets), unlist(lapply(facets, function(facet) {
+          deparse(rlang::get_expr(facet))
+        }), use.names = FALSE))
+        native <- dynamic || any(grepl(".fmt_ref_", facet_text, fixed = TRUE))
+      }
+    }
+    plot_layers <- if (native) {
       c(.ref_layers(x, "x", x_styles, native = TRUE), .ref_layers(y, "y", y_styles, native = TRUE))
     } else c(.ref_layers(x, "x", x_styles), .ref_layers(y, "y", y_styles))
     plots[[i]] <- plots[[i]] + plot_layers

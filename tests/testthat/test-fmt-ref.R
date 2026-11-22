@@ -562,3 +562,16 @@ test_that("ordinary Date reference lines share batch data across subplots", {
   expect_identical(lapply(out, draw), lapply(want, draw))
   expect_false(identical(out[[1L]]$layers[[2L]], out[[2L]]$layers[[2L]]))
 })
+
+test_that("native reference line arguments bypass facet expression discovery", {
+  d <- data.frame(x = 1:6, y = 2:7, panel = rep(c("A", "B"), each = 3L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(panel))
+  fn <- fmt_ref
+  environment(fn) <- list2env(list(deparse = function(expr, ...) {
+    if (identical(expr, quote(panel))) stop("deparsed irrelevant facet expressions for native reference lines")
+    base::deparse(expr, ...)
+  }), parent = environment(fn))
+  draw <- function(f) ggplot2::ggplot_build(f(p, x = c(2, 4), show.legend = FALSE))$data
+  expect_identical(draw(fn), draw(fmt_ref))
+})

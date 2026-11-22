@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines avoid inspecting facet expressions when the requested settings already require native individual layers.
+
 * Console colour previews skip copying the full RGBA matrix when input order and identities are unchanged.
 
 * KNN avoids rebuilding factor codes for complete labelled integer or string predictors.
