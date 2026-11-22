@@ -693,8 +693,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     is_p <- c(FALSE, is_p)
   }
   colour <- ._pr_colour()
-  hl <- if (is.logical(highlight)) which(highlight) else highlight
-  at <- sort(unique(hl[hl >= 1L & hl <= nrow(data)]))
+  at <- if (is.logical(highlight)) {
+    rows <- which(highlight)
+    rows[rows <= nrow(data)]
+  } else {
+    sort(unique(highlight[highlight >= 1L & highlight <= nrow(data)]))
+  }
   if (!colour && length(at)) indent <- max(indent, 2L)
   avail <- (width %||% console_width()) - indent
   # The first column and every P-value column must fit.

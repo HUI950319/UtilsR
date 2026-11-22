@@ -2378,3 +2378,15 @@ test_that("finite numeric sparkline data reuse checked histogram endpoints", {
   expect_identical(utils::capture.output(fn(d)), utils::capture.output(pr_spark(d)))
   expect_identical(reads, 1L)
 })
+
+test_that("logical table highlights do not need sorting and deduplication", {
+  d <- data.frame(id = letters[1:6], score = 1:6)
+  fn <- pr_table
+  environment(fn) <- list2env(list(sort = function(x, ...) {
+    if (identical(x, c(2L, 4L))) stop("resorted logical table highlight positions")
+    base::sort(x, ...)
+  }), parent = environment(fn))
+  flags <- c(FALSE, TRUE, FALSE, TRUE, FALSE, TRUE)
+  draw <- function(f) utils::capture.output(f(d, highlight = flags, n = 4L))
+  expect_identical(draw(fn), draw(pr_table))
+})

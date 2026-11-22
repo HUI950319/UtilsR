@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables use the ordered positions from logical highlights directly.
+
 * Raster conversion treats empty named label grobs as non-drawing and keeps actual nested text as vector content.
 
 * Histogram overlays avoid splitting their built data when only one panel has rows.
