@@ -2644,3 +2644,16 @@ test_that("continuous bounds handle missing gaps without filtering all values", 
   expect_identical(fn(c(x, Inf, -Inf)), c(1.1, 8.6))
   expect_identical(suppressWarnings(fn(rep(NA_real_, 4L))), c(Inf, -Inf))
 })
+
+test_that("ordinary continuous bar groups skip rematching their partition keys", {
+  values <- c(0, 2, 1, 4, 8, 12, 11, 12)
+  fn <- .con_bar_range
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(groups))) stop("rematched ordinary continuous group labels")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  for (g in list(rep(c("b", "a", NA, "a"), 2), rep(c(0, 1, NA_real_, NaN), 2),
+                 rep(c(FALSE, TRUE, FALSE, NA), 2))) {
+    expect_identical(fn(values, g), .con_bar_range(values, g))
+  }
+})
