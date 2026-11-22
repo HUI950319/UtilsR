@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Histogram and density overlays read finite peaks directly and only filter bins if a nonfinite value occurs.
+
 * Reference lines reuse their recycled style vectors when both axes need the same number of values.
 
 * Reference lines avoid inspecting facet expressions when the requested settings already require native individual layers.

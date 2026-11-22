@@ -985,3 +985,18 @@ test_that("overlay height adjustment uses contiguous panel positions directly", 
   expect_identical(ggplot2::layer_data(fn(p, binwidth = 1), 2L),
     ggplot2::layer_data(fmt_his(p, binwidth = 1), 2L))
 })
+
+test_that("complete histogram overlays do not allocate finite bin flags", {
+  d <- data.frame(x = seq(0, 5, length.out = 32L), y = 1:32)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  fn <- fmt_his
+  env <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(values)) && length(x) > 1L)
+      stop("allocated finite flags for complete overlay bins")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_his <- fn
+  draw <- function(f, type) ggplot2::layer_data(f(p, type = type, binwidth = 0.4), 2L)
+  for (type in c("histogram", "density")) expect_identical(draw(fn, type), draw(fmt_his, type))
+})

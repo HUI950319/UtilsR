@@ -5509,9 +5509,12 @@ fmt_his <- function(plot,
               } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
               if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")
               values <- data[[if (spec$type == "histogram") "count" else "density"]][rows]
-              finite <- is.finite(values)
-              if (!any(finite)) next
-              peak <- if (all(finite)) max(values) else max(values[finite])
+              peak <- max(values)
+              if (!is.finite(peak) || !is.finite(min(values))) {
+                finite <- is.finite(values)
+                if (!any(finite)) next
+                peak <- max(values[finite])
+              }
               height <- if (peak > 0) values / peak else numeric(length(values))
               data$y[rows] <- interpolate(bounds, height)
               data$ymin[rows] <- bounds[[1L]]
