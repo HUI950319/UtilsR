@@ -318,7 +318,11 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
   names(codes) <- paste0("v", seq_along(codes))
   group_n <- if (is.null(complete_rows)) n else length(complete_rows)
-  ids <- vctrs::vec_group_id(vctrs::new_data_frame(codes, n = group_n))
+  ids <- if (length(codes) == 1L) {
+    vctrs::vec_group_id(codes[[1L]])
+  } else {
+    vctrs::vec_group_id(vctrs::new_data_frame(codes, n = group_n))
+  }
   keys <- attr(ids, "n")
   first <- if (keys != group_n) match(seq_len(keys), ids)
   ordering_codes <- if (is.null(first)) codes else lapply(codes, function(v) v[first])

@@ -693,3 +693,16 @@ test_that("character combination columns retain character grouping codes", {
   expect_identical(fct_to_combine(x, y), expected)
   expect_identical(as.character(expected), c("z & 1", "beta & 2", "alpha & 1", "alpha & 2", NA))
 })
+
+test_that("single input combination can group its codes without a frame", {
+  d <- c(2, 1, NA_real_, 3, 1, 2)
+  expected <- fct_to_combine(d)
+  original <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), "v1"))
+      stop("built a frame for a single combination key")
+    original(x)
+  }, .package = "vctrs")
+  expect_identical(fct_to_combine(d), expected)
+  expect_identical(levels(expected), c("1", "2", "3"))
+})
