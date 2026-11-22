@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous plot coordinates use native panel setup directly when their limits match the original coordinate object.
+
 * Sankey label positioning reads built factor codes directly when the level dictionary is unchanged.
 
 * Panel formatting reuses the most recently resolved theme directly for consecutive subplots.

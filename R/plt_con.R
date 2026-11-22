@@ -1293,6 +1293,7 @@ plt_con <- function(data,
           if (inverse[1L] > inverse[2L]) bounds[["y"]] <- rev(bounds[["y"]])
         }
       }
+      if (identical(bounds, coord$limits)) return(coord$setup_panel_params(scale_x, scale_y, ...))
       adjusted <- ggplot2::ggproto(NULL, coord, limits = bounds)
       adjusted$setup_panel_params(scale_x, scale_y, ...)
     }

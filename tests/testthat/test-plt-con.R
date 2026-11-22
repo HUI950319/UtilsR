@@ -2671,3 +2671,19 @@ test_that("shared bar ranges avoid finiteness flags for full transformed columns
   x2 <- replace(x, 7L, Inf)
   expect_identical(run(fn, x2), run(.con_shared_range, x2))
 })
+
+test_that("ordinary continuous panel limits skip unchanged coordinate cloning", {
+  d <- data.frame(x = seq_len(8L), y = c(2, 8, 3, 6, 4, 7, 9, 11))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  draw <- function(p, coord) ggplot2::ggplot_build(p + coord)$layout$panel_params[[1L]][c("x.range", "y.range")]
+  ref <- draw(p, ggplot2::coord_cartesian(ylim = c(1, 12)))
+  coord <- .con_coord(FALSE, limits = c(1, 12), automatic = c(FALSE, FALSE))
+  original <- ggplot2::ggproto
+  local_mocked_bindings(ggproto = function(.Class = NULL, .inherit = NULL, ...) {
+    settings <- list(...)
+    if (inherits(.inherit, "CoordCartesian") && identical(names(settings), "limits"))
+      stop("cloned an unchanged coordinate for continuous panel setup")
+    original(.Class, .inherit, ...)
+  }, .package = "ggplot2")
+  expect_identical(draw(p, coord), ref)
+})
