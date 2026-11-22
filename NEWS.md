@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plot aesthetic summaries reuse ordinary finite pair sums and only check for overflow or missingness when needed.
+
 * Rank-correlation preparation skips a duplicate scan and slice when every group key is distinct.
 
 * Single-panel rank plots reuse the displayed rows directly when all points are highlighted.

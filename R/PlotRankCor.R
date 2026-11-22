@@ -340,13 +340,15 @@ PlotRankCor <- function(
       a <- as.double(values[first])
       b <- as.double(values[last])
       means <- (a + b) / 2
-      overflow <- which(is.infinite(means) & is.finite(a) & is.finite(b))
-      means[overflow] <- a[overflow] / 2 + b[overflow] / 2
-      a_missing <- is.na(a)
-      b_missing <- is.na(b)
-      means[a_missing] <- b[a_missing]
-      means[b_missing] <- a[b_missing]
-      means[is.na(means)] <- NaN
+      if (!is.finite(min(means)) || !is.finite(max(means))) {
+        overflow <- which(is.infinite(means) & is.finite(a) & is.finite(b))
+        means[overflow] <- a[overflow] / 2 + b[overflow] / 2
+        a_missing <- is.na(a)
+        b_missing <- is.na(b)
+        means[a_missing] <- b[a_missing]
+        means[b_missing] <- a[b_missing]
+        means[is.na(means)] <- NaN
+      }
       means[which(means == 0)] <- 0
       result <- numeric(length(group_sizes))
       result[small] <- means

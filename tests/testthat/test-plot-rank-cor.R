@@ -1489,3 +1489,25 @@ test_that("unique rank group keys are reused without duplicate flags", {
   }
   expect_identical(draw(fn), draw(PlotRankCor))
 })
+
+test_that("finite rank aesthetic pairs skip missing pair masks", {
+  d <- expand.grid(item = letters[1:6], method = c("m1", "m2"), stringsAsFactors = FALSE)
+  d$score <- c(1:6, 6:1)
+  d$weight <- 1:12 / 8
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(a)) && length(x) == 6L && min(x, na.rm = TRUE) < 1e300 && max(x, na.rm = TRUE) < 1e300 && !anyNA(x))
+      stop("allocated a missing-value mask for complete rank aesthetic pairs")
+    base::is.na(x)
+  }), parent = environment(fn))
+  draw <- function(f, d) {
+    invisible(capture.output(p <- f(d, "item", "score", method.by = "method",
+      size_by = "weight", show.label = FALSE)))
+    p$data$weight
+  }
+  expect_identical(draw(fn, d), draw(PlotRankCor, d))
+  expect_identical(draw(fn, d), seq(4, 9) / 8)
+  d$weight[c(1L, 7L)] <- 1e308
+  d$weight[2L] <- NA_real_
+  expect_identical(draw(fn, d), draw(PlotRankCor, d))
+})
