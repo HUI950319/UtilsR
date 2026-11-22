@@ -1206,3 +1206,20 @@ test_that("named legend positions have the same collection rules as plain positi
   expect_no_warning(out <- fmt_legend(hidden | p, collect = TRUE))
   expect_identical(out$patches$layout$guides, "collect")
 })
+
+test_that("legend titles ignore disabled layer mappings", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width, colour = Species))
+  plots <- list(
+    p + ggplot2::geom_point(ggplot2::aes(Sepal.Length, Sepal.Width), inherit.aes = FALSE),
+    p + ggplot2::geom_point(colour = "black"),
+    p + ggplot2::geom_point(ggplot2::aes(colour = NULL))
+  )
+  for (value in plots) {
+    expect_silent(g <- ggplot2::ggplotGrob(fmt_legend(value, title = "New group")))
+    expect_false("New group" %in% legend_test_labels(g))
+  }
+  mixed <- plots[[2L]] + ggplot2::geom_point()
+  expect_true("New group" %in% legend_test_labels(ggplot2::ggplotGrob(fmt_legend(mixed, title = "New group"))))
+  awaiting_layer <- fmt_legend(p, title = "New group") + ggplot2::geom_point()
+  expect_true("New group" %in% legend_test_labels(ggplot2::ggplotGrob(awaiting_layer)))
+})

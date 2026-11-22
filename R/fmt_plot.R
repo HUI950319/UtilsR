@@ -829,6 +829,18 @@ fmt_tag <- function(plot,
   defaults[vapply(defaults, calculated, logical(1))]
 }
 
+# Resolve inherited, local and calculated mappings before testing legend use.
+.legend_layer_mapping <- function(layer, plot_mapping) {
+  mapping <- layer$mapping
+  if (isTRUE(layer$inherit.aes)) {
+    mapping <- c(plot_mapping[setdiff(names(plot_mapping), names(mapping))], mapping)
+  }
+  defaults <- .stat_calculated_aes(layer$stat)
+  mapping <- c(mapping, defaults[setdiff(names(defaults), names(mapping))])
+  mapping <- mapping[setdiff(names(mapping), names(layer$aes_params))]
+  mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
+}
+
 .set_legend_title <- function(p, label) {
   rename_guide <- function(guide) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
@@ -837,11 +849,8 @@ fmt_tag <- function(plot,
     params["title"] <- list(label)
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
-  mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
-    defaults <- names(.stat_calculated_aes(layer$stat))
-    overridden <- c(names(layer$mapping), names(layer$aes_params),
-                    if (isTRUE(layer$inherit.aes)) names(p$mapping))
-    union(names(layer$mapping), setdiff(defaults, overridden))
+  mapped <- unique(c(if (!length(p$layers)) names(p$mapping), unlist(lapply(p$layers, function(layer) {
+    names(.legend_layer_mapping(layer, p$mapping))
   }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
     sc$aesthetics
   }), use.names = FALSE)))
@@ -1349,14 +1358,7 @@ fmt_legend <- function(plot,
     })))
     mapped <- lapply(p$layers, function(layer) {
       if (identical(layer$show.legend, FALSE)) return(NULL)
-      mapping <- layer$mapping
-      if (isTRUE(layer$inherit.aes)) {
-        mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
-      }
-      defaults <- .stat_calculated_aes(layer$stat)
-      mapping <- c(mapping, defaults[setdiff(names(defaults), names(mapping))])
-      mapping <- mapping[setdiff(names(mapping), names(layer$aes_params))]
-      mapping <- mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
+      mapping <- .legend_layer_mapping(layer, p$mapping)
       asis <- vapply(mapping, function(value) {
         expr <- rlang::get_expr(value)
         stage_name <- if (is.call(expr)) rlang::call_name(expr) else NULL

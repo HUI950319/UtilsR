@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend titles ignore inherited mappings disabled by a layer and aesthetics fixed to a literal value.
+
 * Numeric sparklines reuse the bounds checked during finite-input validation when constructing the histogram.
 
 * Grid unit validation checks numeric extrema before inspecting compound operands.
