@@ -1441,3 +1441,15 @@ test_that("balanced butterfly columns skip padding their row indices", {
   d <- d[-1L, ]
   expect_identical(run(fn, d), run(PlotButterfly2, d))
 })
+
+test_that("missing butterfly wing values get a grouping diagnostic", {
+  d <- data.frame(category = rep(c("A", "B"), 2L), fill = "count",
+                  score = 1:4, wing = c("left", "left", NA, NA))
+  draw <- function(d) PlotButterfly(d, stat.by = "category", fill.by = "fill",
+    value.by = "score", group.by = "wing")
+  expect_error(draw(d), "group.by.*missing group values")
+  d$wing <- addNA(factor(d$wing))
+  expect_error(draw(d), "group.by.*missing group values")
+  d$wing <- rep(c("left", "right"), each = 2L)
+  expect_no_error(draw(d))
+})
