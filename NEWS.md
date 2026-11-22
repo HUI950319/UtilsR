@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` tests for variation in zero-spread doubles from their extrema.
+
 * Single-color palettes reuse a compact mapping for complete numeric observations.
 
 * Continuous grouped summaries compute the rescaling magnitude from the shifted endpoints without allocating absolute-value vectors.

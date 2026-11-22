@@ -1417,7 +1417,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       spread <- stats::sd(shape)
       if (length(shape) > 1L && (!is.finite(spread) ||
           (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||
-          (spread == 0 && any(shape != shape[1])))) {
+          (spread == 0 && min(shape) != max(shape)))) {
         center <- min(shape) / 2 + max(shape) / 2
         shifted <- shape - center
         scale <- max(abs(shifted))

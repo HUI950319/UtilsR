@@ -2337,3 +2337,14 @@ test_that("console numeric probability formatting reuses valid value flags", {
   }), parent = environment(fn))
   expect_identical(fn(x), ._p_cells(x))
 })
+
+test_that("constant sparkline spreads skip per-measurement inequality flags", {
+  d <- data.frame(x = rep(8.125, 500L))
+  fn <- pr_spark
+  environment(fn) <- list2env(list("!=" = function(e1, e2) {
+    if (identical(substitute(e1), quote(shape)))
+      stop("scanned every measurement for constant sparkline spread")
+    base::"!="(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})
