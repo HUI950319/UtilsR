@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter colour and shape mappings skip a set comparison when their validated labels already match the group order.
+
 * Scatter preparation factors a shared colour and shape group once.
 
 * Pearson scatter correlations check integer64 axes for completeness before allocating a missingness mask.

@@ -2078,3 +2078,17 @@ test_that("scatter reuses the grouping factor shared by colour and shape", {
   expect_identical(calls, 1L)
   expect_identical(p[[1L]]$data$group, draw(PlotScatter2)[[1L]]$data$group)
 })
+
+test_that("complete ordered scatter palette mappings skip a missing-key comparison", {
+  d <- data.frame(x = 1:6, y = 2:7, group = rep(c("a", "b"), each = 3L))
+  fn <- PlotScatter2
+  environment(fn) <- list2env(list(setdiff = function(x, y, ...) {
+    if (identical(x, c("a", "b")) && identical(x, y))
+      stop("searched an already aligned scatter palette for missing mappings")
+    base::setdiff(x, y, ...)
+  }), parent = environment(fn))
+  draw <- function(f, colors) f(d, x = "x", y = "y", group = "group", colors = colors)
+  colors <- c(a = "red", b = "blue")
+  expect_identical(draw(fn, colors)[[1L]]$data, draw(PlotScatter2, colors)[[1L]]$data)
+  expect_error(draw(fn, c(a = "red")), "missing mappings for: b")
+})

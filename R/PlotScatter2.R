@@ -258,6 +258,7 @@ PlotScatter2 <- function(
       }
       return(stats::setNames(values[seq_along(lvls)], lvls))
     }
+    if (identical(names(values), lvls)) return(values)
     missing_lvls <- setdiff(lvls, names(values))
     if (length(missing_lvls)) {
       stop(sprintf("'%s' is missing mappings for: %s.",
