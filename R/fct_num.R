@@ -184,7 +184,18 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
   nbins <- as.integer(nbins)
   plain_range <- NULL
-  if (plain_x || identical(class(x), "AsIs") || inherits(x, "haven_labelled")) {
+  integer_quantiles <- plain_x && is.integer(x) && type == "quantile"
+  if (integer_quantiles) {
+    endpoints <- x[c(1L, length(x))]
+    if (anyNA(endpoints) || endpoints[1L] == endpoints[2L]) {
+      bounds <- range(x, na.rm = has_na)
+      if (bounds[1L] == bounds[2L]) {
+        cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
+      }
+    }
+  }
+  if (!integer_quantiles &&
+      (plain_x || identical(class(x), "AsIs") || inherits(x, "haven_labelled"))) {
     numeric_x <- if (plain_x) x else as.double(x)
     bounds <- as.double(c(min(numeric_x, na.rm = has_na), max(numeric_x, na.rm = has_na)))
     if (is.finite(bounds[1L]) && bounds[1L] == bounds[2L]) {

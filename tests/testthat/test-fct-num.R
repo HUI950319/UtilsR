@@ -430,3 +430,15 @@ test_that("fixed ordinary bin thresholds avoid full comparison masks", {
   expect_identical(fn(1:90, breaks = breaks), fct_num(1:90, breaks = breaks))
   expect_error(fn(1:90, breaks = c(breaks, Inf)), "finite, non-missing")
 })
+
+test_that("plain integer quantile bins do not precompute numeric bounds", {
+  x <- c(1:100, NA_integer_)
+  fn <- fct_num
+  environment(fn) <- list2env(list(min = function(x, ...) {
+    if (is.integer(x) && length(x) == 101L) stop("measured integer endpoints before calculating quantiles")
+    base::min(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, nbins = 4), fct_num(x, nbins = 4))
+  expect_identical(fn(x[-length(x)], nbins = 4), fct_num(x[-length(x)], nbins = 4))
+  expect_error(fn(rep(3L, 101L), nbins = 4), "constant")
+})

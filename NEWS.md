@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Quantile binning defers integer endpoint checks to the quantiles already computed for the cuts.
+
 * Numeric interval and SD formatting return the missing result directly when no row can be formatted.
 
 * Interval formatting checks high scalar precision limits without expanding the digits value to every observation.
