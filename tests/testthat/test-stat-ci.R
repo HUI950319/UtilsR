@@ -394,3 +394,16 @@ test_that("scalar high precision checks do not expand the digits vector", {
   expect_identical(fn(x, x + 1L, digits = 7882L), stat_ci(x, x + 1L, digits = 7882L))
   expect_error(fn(rep(-1e308, 6), x, digits = 7882L), "8192-byte")
 })
+
+test_that("all incomplete numeric intervals skip formatting work", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, sprintf)) stop("formatted zero complete interval rows")
+    base::do.call(what, args, ...)
+  }), parent = environment(fn))
+  x <- c(a = NA_real_, b = 1, c = NA_real_)
+  y <- c(4, NA, 3)
+  expected <- stats::setNames(rep(NA_character_, 3), names(x))
+  expect_identical(fn(x, y), expected)
+  expect_identical(fn(x, y, rep(5, 3L)), expected)
+})

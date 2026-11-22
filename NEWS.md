@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric interval and SD formatting return the missing result directly when no row can be formatted.
+
 * Interval formatting checks high scalar precision limits without expanding the digits value to every observation.
 
 * Interval formatting uses a fixed prefix search before applying the signed-zero pattern to candidate strings.

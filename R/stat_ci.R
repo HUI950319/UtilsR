@@ -202,6 +202,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     complete <- !is.object(x) && !is.object(y) && !is.object(z) &&
       !anyNA(x) && !anyNA(y) && !anyNA(z)
     observed <- if (complete) TRUE else !(is.na(x) | is.na(y) | is.na(z))
+    if (n && !any(observed)) return(stats::setNames(rep.int(NA_character_, n), input_names))
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     if (all(observed)) {
       .check_precision(d, x, y, z)
@@ -229,6 +230,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
   d <- digits %||% 1L
   complete <- !is.object(x) && !is.object(y) && !anyNA(x) && !anyNA(y)
   observed <- if (complete) TRUE else !(is.na(x) | is.na(y))
+  if (length(x) && !any(observed)) {
+    return(stats::setNames(rep.int(NA_character_, length(x)), input_names))
+  }
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   if (all(observed)) {
     .check_precision(d, x, y)
