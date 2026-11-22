@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet list input reuses an already unique atomic member dictionary while still stripping its generated names.
+
 * Rank plotting retains full source vectors when the group includes every source row in order.
 
 * Continuous plot coordinates use native panel setup directly when their limits match the original coordinate object.

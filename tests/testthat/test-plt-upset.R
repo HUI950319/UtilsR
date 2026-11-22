@@ -1280,3 +1280,17 @@ test_that("disjoint homogeneous set members keep their contiguous indices", {
   overlapping <- list(A = c("b", "a", "b"), B = c("a", "c"))
   expect_identical(fn(overlapping, output = "data"), plt_upset(overlapping, output = "data"))
 })
+
+test_that("distinct UpSet member dictionaries skip copying unique values", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(prototype %||% character())) && length(x) > 1L &&
+        !anyDuplicated(x)) stop("rebuilt a dictionary of already unique UpSet members")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  distinct <- list(A = c(x = "alpha", y = NA_character_), B = c(x = "beta"), Empty = character())
+  shared <- list(A = c(1, 2, 4), B = c(2, 3))
+  for (sets in list(distinct, shared)) {
+    expect_identical(fn(sets, output = "data"), plt_upset(sets, output = "data"))
+  }
+})
