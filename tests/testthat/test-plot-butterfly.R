@@ -1406,3 +1406,20 @@ test_that("distinct numeric category labels preserve exact labels without rematc
   expect_identical(fn(x), .butterfly_category_labels(x))
   expect_equal(length(unique(fn(x)[1:3])), 3L)
 })
+
+test_that("complete butterfly factor categories avoid a missing row mask", {
+  d <- data.frame(item = factor(rep(c("A", "A", "B", "B"), 2L)),
+                  side = rep(c("L", "R"), each = 4L), score = seq_len(8L))
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(codes))) stop("allocated a complete butterfly category mask")
+    base::is.na(x)
+  }), parent = environment(fn))
+  run <- function(f, data) {
+    p <- f(data, stat.by = "item", group.by = "side", value.by = "score", type = "box")
+    lapply(seq_along(p), function(i) p[[i]]$data)
+  }
+  expect_identical(run(fn, d), run(PlotButterfly2, d))
+  d$item[1L] <- NA
+  expect_identical(nrow(run(PlotButterfly2, d)[[1L]]), 4L)
+})

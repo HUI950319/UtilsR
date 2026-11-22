@@ -225,7 +225,7 @@ PlotButterfly2 <- function(
     labels <- levels(category)
     rejected <- which(is.na(labels) | labels == "Mixed")
     codes <- as.integer(category)
-    keep <- !is.na(codes)
+    keep <- if (anyNA(codes)) !is.na(codes) else TRUE
     if (length(rejected)) keep <- keep & !codes %in% rejected
   } else {
     categories <- as.character(category)

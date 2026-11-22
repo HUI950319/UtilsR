@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly distributions reuse category rows directly when all factor labels are allowed and the codes are complete.
+
 * Exact integer64 means determine the observed denominator once and return immediately for entirely missing vectors.
 
 * Ordinary nonmissing numeric scatter groups use their grouping codes directly and retain exact labels for nearby values.
