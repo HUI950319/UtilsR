@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations use grouped character codes and order the distinct keys once without rematching the column.
+
 * Logical factor conversion derives codes directly from the observed boolean levels and preserves missing values and names.
 
 * Quantile binning defers integer endpoint checks to the quantiles already computed for the cuts.

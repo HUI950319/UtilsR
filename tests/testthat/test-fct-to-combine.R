@@ -679,3 +679,17 @@ test_that("single factor combinations reuse the fully observed level dictionary"
   na_level <- addNA(x)
   expect_identical(fn(na_level), fct_to_combine(na_level))
 })
+
+test_that("character combination columns retain character grouping codes", {
+  x <- c("z", "beta", "alpha", "alpha", NA)
+  y <- c(1L, 2L, 1L, 2L, 1L)
+  expected <- fct_to_combine(x, y)
+  original <- vctrs::vec_match
+  local_mocked_bindings(vec_match = function(needles, haystack, ...) {
+    if (identical(needles, x[!is.na(x)]) && is.character(haystack))
+      stop("rematched an ordinary character combination column")
+    original(needles, haystack, ...)
+  }, .package = "vctrs")
+  expect_identical(fct_to_combine(x, y), expected)
+  expect_identical(as.character(expected), c("z & 1", "beta & 2", "alpha & 1", "alpha & 2", NA))
+})
