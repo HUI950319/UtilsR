@@ -1431,3 +1431,19 @@ test_that("mismatched brackets skip decimal conversion", {
   expect_identical(got$trailing, c(FALSE, FALSE, FALSE, TRUE))
   expect_identical(fn("999 [0, 1)"), .ci_extract("999 [0, 1)"))
 })
+
+test_that("interval scale detection skips log work for wholly nonpositive bounds", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(log1p = function(...) {
+    stop("computed a log ratio without eligible intervals")
+  }), parent = environment(fn))
+  est <- c(0, -4, -1, NA_real_)
+  low <- c(-2, -5, -2, NA_real_)
+  high <- c(2, -1, -1, NA_real_)
+  units <- matrix(0.01, 4L, 3L)
+  valid <- c(TRUE, TRUE, TRUE, FALSE)
+  apply <- function(f, scale) f(est, low, high, units, scale, valid)
+  expect_identical(apply(fn, "auto"), apply(.ci_scale, "auto"))
+  expect_identical(apply(fn, TRUE), apply(.ci_scale, TRUE))
+  expect_identical(apply(fn, TRUE)$invalid, c(TRUE, TRUE, TRUE, FALSE))
+})

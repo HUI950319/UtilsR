@@ -582,7 +582,11 @@ stat_ci_parse <- function(x,
     invalid <- invalid | (ok & !pos)
     ok <- pos
   }
-  a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
+  if (!any(pos)) {
+    unset <- rep.int(FALSE, n)
+    return(list(is_exp = unset, invalid = invalid, ambiguous = unset,
+                asymmetric = if (isTRUE(exp)) unset else ok & a_lin - r_lin > 0.2))
+  }
   log_ratio <- function(a, b) {
     relative <- (a - b) / b
     close <- is.finite(relative) & abs(relative) < 0.5
@@ -598,6 +602,8 @@ stat_ci_parse <- function(x,
     a_log <- abs(log_ratio(hi, est) - log_ratio(est, lo)) / w
     r_log <- (ul / lo / 2 + uh / hi / 2 + ue / est) / w
   } else {
+    a_log <- rep.int(Inf, n)
+    r_log <- numeric(n)
     lower <- lo[pos]
     estimate <- est[pos]
     upper <- hi[pos]

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence-interval scale detection returns directly when no row can use a logarithmic comparison.
+
 * Console inspection formats only the visible factor labels when the rest can be summarized without changing blank labels.
 
 * KNN donor summaries validate ordinary numeric weights without creating a finiteness and positivity mask per donor.
