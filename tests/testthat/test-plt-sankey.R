@@ -1116,3 +1116,19 @@ test_that("Sankey captions reuse their node codes when all labels are distinct",
   expect_identical(as.character(p$data$label), as.vector(rbind(d$a, d$b)))
   expect_identical(as.integer(p$data$label), as.integer(p$data$node))
 })
+
+test_that("built Sankey labels use native node codes with matching levels", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(a = factor(rep(c("a", "b"), 6L), levels = c("unused", "b", "a")),
+                  b = rep(c("b", "other", NA), each = 4L))
+  fn <- plt_sankey
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(substitute(x), quote(label_data$node)) && is.factor(x))
+      stop("converted aligned built Sankey node labels to text")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  run <- function(f, rev) suppressMessages(f(d, vars = c("a", "b"), show_text = "n",
+      reverse_levels = rev))$layers[[3L]]$data
+  for (rev in c(FALSE, TRUE)) expect_identical(run(fn, rev), run(plt_sankey, rev))
+})

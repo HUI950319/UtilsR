@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey label positioning reads built factor codes directly when the level dictionary is unchanged.
+
 * Panel formatting reuses the most recently resolved theme directly for consecutive subplots.
 
 * Inspection reports reuse the formatted percentage when all displayed shares coincide.

@@ -381,7 +381,10 @@ plt_sankey <- function(data,
     nodes <- plot
     nodes$layers <- plot$layers[2L]
     label_data <- ggplot2::ggplot_build(nodes)$data[[1L]]
-    positions <- match(as.character(label_data$node), all_levels)
+    node <- label_data$node
+    positions <- if (is.factor(node) && identical(levels(node), all_levels)) {
+      as.integer(node)
+    } else match(as.character(node), all_levels)
     stage_codes <- rep.int(seq_along(node_counts), node_counts)
     label_data$x <- structure(stage_codes[positions], levels = levels(plot_data[["x"]]),
                               class = "factor")
