@@ -557,12 +557,13 @@ PlotScatter1 <- function(
     return(factor(value, levels = levels))
   }
   if (missing(levels) && !is.object(value) && is.null(dim(value)) &&
-      typeof(value) %in% c("character", "integer", "logical") && !anyNA(value)) {
+      typeof(value) %in% c("character", "integer", "logical", "double") && !anyNA(value)) {
     ids <- vctrs::vec_group_id(value)
     codes <- as.integer(ids)
     names(codes) <- names(value)
-    labels <- as.character(if (attr(ids, "n") == length(value)) value else value[!duplicated(ids)])
-    return(structure(codes, levels = labels, class = "factor"))
+    values <- if (attr(ids, "n") == length(value)) value else value[!duplicated(ids)]
+    if (is.double(values)) values <- .butterfly_category_labels(values)
+    return(structure(codes, levels = as.character(values), class = "factor"))
   }
   if (!is.object(value) && !is.object(levels) &&
       typeof(value) %in% c("character", "integer", "logical") &&

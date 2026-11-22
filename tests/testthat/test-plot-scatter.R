@@ -2034,3 +2034,16 @@ test_that("numeric scatter groups keep the complete level label sequence", {
     expect_identical(fn(x, levels = v), .scatter_group_factor(x, levels = v))
   }
 })
+
+test_that("complete double scatter groups reuse their first appearance codes", {
+  x <- stats::setNames(c(1 + 2^-52, 1, Inf, 1, 1 + 2^-52), letters[1:5])
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) == 5L) stop("rematched complete numeric scatter groups")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  out <- fn(x)
+  expect_identical(as.integer(out), c(1L, 2L, 3L, 2L, 1L))
+  expect_identical(names(out), names(x))
+  expect_identical(levels(out), c("1.0000000000000002", "1", "Inf"))
+})
