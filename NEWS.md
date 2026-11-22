@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence-interval parsing skips numeric conversion for rows with mismatched brackets.
+
 * Unfaceted comparison formatting skips a redundant per-panel comparison pass and its row-sized placeholder.
 
 * UpSet data checks for unselected rows without allocating one comparison flag per row.

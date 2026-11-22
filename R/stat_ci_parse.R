@@ -471,14 +471,19 @@ stat_ci_parse <- function(x,
     first <- starts[hit, k]
     substring(text, first, first + lengths[hit, k] - 1L)
   })
+  paired <- (g[[2L]] == "(") == (g[[6L]] == ")")
+  if (!all(paired)) {
+    hit <- hit[paired]
+    g <- lapply(g, "[", paired)
+    text <- text[paired]
+  }
   end <- matched[hit] + attr(matched, "match.length")[hit]
   extra <- which(end <= nchar(text))
   has_trailing <- logical(length(hit))
   if (length(extra)) has_trailing[extra] <- grepl("[^\\h\\v]",
     substring(text[extra], end[extra]), perl = TRUE)
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
-  ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
-    Reduce(`&`, lapply(values, is.finite))
+  ok <- Reduce(`&`, lapply(values, is.finite))
   if (!all(ok)) {
     hit <- hit[ok]
     g <- lapply(g, "[", ok)

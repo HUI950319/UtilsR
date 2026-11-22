@@ -1417,3 +1417,17 @@ test_that("positive confidence intervals reuse log scale inputs", {
   expected <- .ci_scale(est, lo, hi, unit, "auto", rep(TRUE, length(est)))
   expect_identical(fn(est, lo, hi, unit, "auto", rep(TRUE, length(est))), expected)
 })
+
+test_that("mismatched brackets skip decimal conversion", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list(.parse_decimal_tokens = function(text) {
+    if ("999" %in% text) stop("converted a rejected bracket row")
+    .parse_decimal_tokens(text)
+  }), parent = environment(fn))
+  x <- c("999 (0, 1]", "2.0 [1, 3]", NA, "4 (3, 5) extra")
+  got <- fn(x)
+  expect_identical(got$estimate, c(NA_real_, 2, NA_real_, 4))
+  expect_identical(got$valid, c(FALSE, TRUE, FALSE, TRUE))
+  expect_identical(got$trailing, c(FALSE, FALSE, FALSE, TRUE))
+  expect_identical(fn("999 [0, 1)"), .ci_extract("999 [0, 1)"))
+})
