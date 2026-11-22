@@ -1478,3 +1478,18 @@ test_that("unfaceted alluvial strata count their final category codes", {
   expect_identical(as.character(p$data$.cat_var), rep(c("a", "c", "b"), 2L))
   expect_identical(p$data$count, rep.int(6L, 6L))
 })
+
+test_that("alluvial filters explicit levels and missing factor codes in one pass", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(category = structure(c(1L, 2L, NA_integer_, 3L, 1L),
+    levels = c("A", NA_character_, "B"), class = "factor"), group = c("left", "left", "right", "right", "left"))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("allocated separate row flags for coded alluvial missingness")
+    base::is.na(x)
+  }), parent = environment(fn))
+  run <- function(f) f(d, "category", "group", label_args = list(style = "none"))
+  expect_message(p <- run(fn), "Removed 2 rows")
+  expect_identical(p$data, suppressMessages(run(plt_alluvial))$data)
+  expect_equal(sum(p$data$count), 3)
+})

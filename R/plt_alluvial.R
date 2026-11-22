@@ -417,19 +417,19 @@ plt_alluvial <- function(
     .register_integer64(value)
     ordinary_factor <- identical(class(value), "factor") ||
       identical(class(value), c("ordered", "factor"))
-    incomplete <- if (ordinary_factor) anyNA(unclass(value)) else is.object(value) || anyNA(value)
-    if (incomplete) {
+    if (ordinary_factor) {
+      if (anyNA(levels(value))) {
+        missing_code <- match(NA_character_, levels(value))
+        valid <- !as.integer(value) %in% c(NA_integer_, missing_code)
+      } else if (anyNA(unclass(value))) {
+        valid <- !is.na(value)
+      } else next
+    } else if (is.object(value)) {
+      valid <- !is.na(value) & !is.na(as.character(value))
+    } else if (anyNA(value)) {
       valid <- !is.na(value)
-      keep <- if (is.null(keep)) valid else keep & valid
-    }
-    if (ordinary_factor && anyNA(levels(value))) {
-      missing_code <- match(NA_character_, levels(value))
-      valid <- !as.integer(value) %in% missing_code
-      keep <- if (is.null(keep)) valid else keep & valid
-    } else if (is.object(value) && !ordinary_factor) {
-      valid <- !is.na(as.character(value))
-      keep <- if (is.null(keep)) valid else keep & valid
-    }
+    } else next
+    keep <- if (is.null(keep)) valid else keep & valid
   }
   removed <- if (is.null(keep)) 0L else sum(!keep)
   if (removed > 0L) {

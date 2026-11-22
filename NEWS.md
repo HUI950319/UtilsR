@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial preparation excludes both kinds of missing factor rows by looking up the integer codes once.
+
 * Sankey layers reuse node codes as caption codes when every node has a distinct caption.
 
 * Legend formatting skips the guide and scale styling pass for title-only or collection-only calls.
