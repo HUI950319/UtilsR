@@ -1126,3 +1126,16 @@ test_that("equal stacked shares format one percentage per plot", {
   }, .package = "scales")
   expect_identical(plt_dist(d, c("x", "g"), type = "bar", label_args = list(style = "percent"))$data, reference)
 })
+
+test_that("uniform distribution counts reuse one console label", {
+  d <- data.frame(x = rep(paste0("x", 1:30), each = 2L), g = rep(c("left", "right"), 30L))
+  draw <- function() suppressMessages(plt_dist(d, c("x", "g"), type = "bar",
+    label_args = list(style = "count")))$data
+  expected <- draw()
+  formatter <- scales::comma
+  local_mocked_bindings(comma = function(x, ...) {
+    if (length(x) == 60L && all(x == 1)) stop("formatted every equal stacked count")
+    formatter(x, ...)
+  }, .package = "scales")
+  expect_identical(draw(), expected)
+})

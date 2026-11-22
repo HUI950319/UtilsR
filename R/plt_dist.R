@@ -573,7 +573,10 @@ plt_dist <- function(data,
       if (complete || length(visible)) {
         complete <- complete || length(visible) == nrow(plotdata)
         if (label_args$style != "percent") {
-          counts <- scales::comma(if (complete) counts else counts[visible], accuracy = 1)
+          shown_counts <- if (complete) counts else counts[visible]
+          counts <- if (length(shown_counts) > 1L && min(shown_counts) == max(shown_counts)) {
+            rep.int(scales::comma(shown_counts[1L], accuracy = 1), length(shown_counts))
+          } else scales::comma(shown_counts, accuracy = 1)
         }
         if (label_args$style != "count") {
           share <- if (complete) proportions else proportions[visible]
