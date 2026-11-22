@@ -2657,3 +2657,17 @@ test_that("ordinary continuous bar groups skip rematching their partition keys",
     expect_identical(fn(values, g), .con_bar_range(values, g))
   }
 })
+
+test_that("shared bar ranges avoid finiteness flags for full transformed columns", {
+  x <- seq(1.5, 8, length.out = 15L)
+  groups <- rep(letters[1:3], each = 5L)
+  fn <- .con_shared_range
+  environment(fn) <- list2env(list(is.finite = function(value) {
+    if (identical(value, x)) stop("allocated finiteness flags for a full transformed bar range")
+    base::is.finite(value)
+  }), parent = environment(fn))
+  run <- function(f, values) f(values, groups, 0L, FALSE)(ggplot2::scale_y_continuous())
+  expect_identical(run(fn, x), run(.con_shared_range, x))
+  x2 <- replace(x, 7L, Inf)
+  expect_identical(run(fn, x2), run(.con_shared_range, x2))
+})

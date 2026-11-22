@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared continuous bar ranges keep complete transformed outcomes and their grouping vector without building a finiteness mask.
+
 * Continuous bar ranges group plain numeric, logical and character keys without a distinct-key rematch.
 
 * Continuous scales use observed extrema without building a filtered vector when missing values are the only gaps.

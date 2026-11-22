@@ -1253,8 +1253,12 @@ plt_con <- function(data,
     bounds <- if (is.null(groups) && !is.object(transformed)) {
       .con_finite_bounds(transformed)
     } else {
-      keep <- is.finite(transformed)
-      complete <- all(keep)
+      complete <- !is.object(transformed) && length(transformed) &&
+        is.finite(min(transformed)) && is.finite(max(transformed))
+      if (!complete) {
+        keep <- is.finite(transformed)
+        complete <- all(keep)
+      }
       observed <- if (complete) transformed else transformed[keep]
       if (is.null(groups)) range(observed) else
         .con_bar_range(observed, if (complete) groups else groups[keep])
