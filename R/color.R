@@ -700,11 +700,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (reverse) at <- 1 - at
   index <- NULL
-  if (!is.null(lookup) || .pal_use_unique(at)) {
+  if (!is.null(lookup) && !anyDuplicated(at)) {
+    index <- lookup
+  } else if (!is.null(lookup) || .pal_use_unique(at)) {
     unique_at <- unique(at)
-    if (!is.null(lookup) && length(unique_at) == length(at)) {
-      index <- lookup
-    } else if (!is.null(lookup) || length(unique_at) < length(at) / 2) {
+    if (!is.null(lookup) || length(unique_at) < length(at) / 2) {
       index <- match(at, unique_at)
       if (!is.null(lookup)) index <- index[lookup]
       at <- unique_at

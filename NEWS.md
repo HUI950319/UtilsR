@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric palette mapping retains its original lookup without constructing a second distinct vector when no positions collide.
+
 * Legend title updates reuse stored labels when the title and every applicable label are already identical.
 
 * Legend collection ignores staged AsIs values that train no scale and still preserves legends trained by another stage.

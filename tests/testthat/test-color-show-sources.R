@@ -3400,3 +3400,17 @@ test_that("single stop palettes skip complete placement masks", {
   expect_identical(fn(cols, x = c(-1, 0, NA, Inf), reverse = TRUE),
     pal_get(cols, x = c(-1, 0, NA, Inf), reverse = TRUE))
 })
+
+test_that("distinct scaled palette positions keep their original lookup", {
+  x <- rep(c(0, 1, 2, 10), 420L)
+  fn <- .pal_numeric_positions
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(at)) && !anyDuplicated(x))
+      stop("rebuilt the distinct normalized position vector")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, FALSE), .pal_numeric_positions(x, FALSE))
+  expect_identical(fn(x, TRUE), .pal_numeric_positions(x, TRUE))
+  collapsed <- rep(c(0, 1e-310, 1e-309, 1e308), 420L)
+  expect_identical(fn(collapsed, FALSE), .pal_numeric_positions(collapsed, FALSE))
+})
