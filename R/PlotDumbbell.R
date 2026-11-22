@@ -593,8 +593,14 @@ PlotDumbbell <- function(
   if (!n) return(NaN)
   # Add the two limbs before dividing, retaining cancellation and fractions.
   step <- bit64::as.integer64("4294967296")
-  high <- sum(as.double(value %/% step), na.rm = TRUE)
-  low <- sum(as.double(value %% step), na.rm = TRUE)
+  limb_sum <- function(limb) {
+    # Each limb has magnitude below 2^32, so an ordinary-length vector fits.
+    if (length(limb) <= .Machine$integer.max) {
+      suppressWarnings(as.double(sum(limb, na.rm = TRUE)))
+    } else sum(as.double(limb), na.rm = TRUE)
+  }
+  high <- limb_sum(value %/% step)
+  low <- limb_sum(value %% step)
   (high * 2^32 + low) / n
 }
 

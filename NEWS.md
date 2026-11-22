@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Integer64 means sum their bounded limbs in integer64 storage before converting the two totals to doubles.
+
 * Factor reordering uses the matched level positions to keep unselected levels in their existing order.
 
 * Axis preparation reuses the full factor level vector when every level is displayed and only extra attributes need removal.

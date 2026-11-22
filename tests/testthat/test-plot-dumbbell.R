@@ -1154,3 +1154,17 @@ test_that("integer64 mean returns before decomposing all missing values", {
   expect_identical(fn(bit64::as.integer64(NA_character_), na.rm = FALSE), NA_real_)
   expect_identical(.mean_plot_values(bit64::as.integer64(c(1L, 2L, NA_integer_))), 1.5)
 })
+
+test_that("integer64 means convert only the limb totals on ordinary vectors", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(rep(c("9223372036854775807", "-9223372036854775807", "5", "1", NA), 36L))
+  fn <- .mean_plot_values
+  environment(fn) <- list2env(list(as.double = function(x, ...) {
+    if (inherits(x, "integer64") && length(x) > 1L)
+      stop("converted a complete integer64 mean limb to double")
+    base::as.double(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .mean_plot_values(x))
+  expect_identical(fn(x), 1.5)
+  expect_identical(fn(x, na.rm = FALSE), NA_real_)
+})
