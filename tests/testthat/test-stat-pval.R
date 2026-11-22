@@ -1109,3 +1109,15 @@ test_that("underflowing P-value powers avoid insignificant digit padding", {
   expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0)),
                    c("<0.001", "<0.001*", "<0.001", "<0.001*", "0.100"))
 })
+
+test_that("interior decimal P-values do not allocate endpoint flags", {
+  x <- c("0.001", "0.0010000000000000001", "0.34", "0.99", "<0.05")
+  fn <- stat_pval
+  environment(fn) <- list2env(list(`%in%` = function(x, table) {
+    if (identical(substitute(x), quote(x_num)) && identical(table, c(0, 1)))
+      stop("compared every interior decimal P-value with both endpoints")
+    base::`%in%`(x, table)
+  }), parent = environment(fn))
+  expect_identical(fn(x, mode = "stars"), stat_pval(x, mode = "stars"))
+  expect_identical(fn(x, mode = "plain"), stat_pval(x, mode = "plain"))
+})

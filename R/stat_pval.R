@@ -267,7 +267,8 @@ stat_pval <- function(x,
   }
 
   if (is.character(x)) {
-    edge <- which(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))
+    interior <- length(x_num) && isTRUE(min(x_num) > 0 && max(x_num) < 1)
+    edge <- if (!interior) which(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))
     if (length(edge)) {
       # Inspect decimal text where rounding or parser overflow can hide values.
       endpoint <- values[edge]

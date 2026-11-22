@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* String P-values whose parsed values are strictly between zero and one avoid the special endpoint scan.
+
 * Ordinary confidence intervals skip the extra logarithmic half-width calculations used for nearly coincident bounds.
 
 * Confidence-interval inference transforms the whole estimate and bounds columns directly when every interval is a ratio.
