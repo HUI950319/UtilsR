@@ -323,6 +323,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }
   hit <- .is_special_value(u, special)
   if (anyNA(u)) hit[is.na(u)] <- FALSE
+  if (!any(hit)) return(0)
   sum(n[hit]) + 0
 }
 

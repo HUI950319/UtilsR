@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor inspection avoids subsetting the tally when none of its observed labels is a special marker.
+
 * Inspection skips whitespace normalization when special missing-value detection is disabled.
 
 * Missing-value inspection recognizes normalized blank labels in the same scan as other built-in markers.

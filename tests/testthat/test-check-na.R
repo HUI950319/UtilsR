@@ -979,3 +979,16 @@ test_that("disabled special markers leave label text unscanned", {
   expect_identical(fn(c(" ", "Not available", NA), character()), rep(FALSE, 3L))
   expect_identical(fn(character()), logical())
 })
+
+test_that("ordinary factor labels skip empty tally slices", {
+  x <- factor(c("local", "regional", NA, "local"), levels = c("local", "regional", "unknown"))
+  tally <- .factor_tally(x)
+  fn <- .count_special_values
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(x), quote(n)) && identical(substitute(i), quote(hit)) &&
+        !any(i)) stop("subset a factor tally using all false markers")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, tally = tally), 0)
+  expect_identical(fn(x, "local", tally = tally), 2)
+})
