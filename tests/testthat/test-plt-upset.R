@@ -1266,3 +1266,17 @@ test_that("empty Upset memberships skip row-length comparison flags", {
   expect_identical(as.character(got$intersect_group), rep.int("None", nrow(d)))
   expect_length(fn(d[FALSE, ], vars = c("A", "B"), output = "data")$intersect_group, 0L)
 })
+
+test_that("disjoint homogeneous set members keep their contiguous indices", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(prototype)) && length(x) == length(table)) stop("rematched disjoint UpSet members")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  sets <- list(A = c("b", "a", NA), B = c("d", "c"), Empty = character())
+  got <- fn(sets, output = "data")
+  expect_identical(got$.element, c("b", "a", NA, "d", "c"))
+  expect_identical(as.character(got$intersect_group), c("A", "A", "A", "B", "B"))
+  overlapping <- list(A = c("b", "a", "b"), B = c("a", "c"))
+  expect_identical(fn(overlapping, output = "data"), plt_upset(overlapping, output = "data"))
+})

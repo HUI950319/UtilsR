@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Disjoint sets of the same member type skip a full member rematch and per-set sorting.
+
 * Confidence-interval parsing skips numeric conversion for rows with mismatched brackets.
 
 * Unfaceted comparison formatting skips a redundant per-panel comparison pass and its row-sized placeholder.

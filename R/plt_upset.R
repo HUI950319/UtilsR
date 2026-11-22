@@ -315,14 +315,18 @@ plt_upset <- function(data,
       identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
     }, logical(1)))
     if (homogeneous || ordinary_factors) {
-      indices <- if (ordinary_factors) {
-        flattened <- if (is.null(codes)) as.integer(prototype) else unlist(codes)
-        match(flattened, as.integer(all_elements))
-      } else match(prototype, all_elements)
+      indices <- if (length(all_elements) != length(prototype)) {
+        if (ordinary_factors) {
+          flattened <- if (is.null(codes)) as.integer(prototype) else unlist(codes)
+          match(flattened, as.integer(all_elements))
+        } else match(prototype, all_elements)
+      }
       end <- cumsum(lengths(data))
       start <- c(0L, end[-length(end)])
       set_list <- Map(function(start, end) {
-        if (start == end) integer() else sort(unique(indices[seq.int(start + 1, end)]))
+        if (start == end) return(integer())
+        rows <- seq.int(start + 1, end)
+        if (is.null(indices)) rows else sort(unique(indices[rows]))
       }, start, end)
       names(set_list) <- names(data)
     } else set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
