@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical frequencies group ordinary count-grid indices as one exact numeric key when they fit in a double.
+
 * Point sampling keeps the original stratum order without expanding an ordinary factor's unused levels.
 
 * Alluvial preparation excludes both kinds of missing factor rows by looking up the integer codes once.

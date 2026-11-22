@@ -2215,3 +2215,21 @@ test_that("sparse categorical set membership retains nonmissing level codes", {
   expect_identical(fn(x, c("l8", "l1")), c(FALSE, TRUE, FALSE, TRUE))
   expect_identical(fn(x[c(1:4, NA_integer_)], "l5"), c(TRUE, FALSE, TRUE, FALSE, FALSE))
 })
+
+test_that("sparse categorical pairs use exact single row grid keys", {
+  d <- data.frame(a = factor(c("v100", "v2", "v2", NA, "v100", "v100"),
+                           levels = paste0("v", seq_len(100L))),
+                  b = factor(c("u4", "u2", "u2", "u2", "u3", NA),
+                           levels = paste0("u", seq_len(90L))))
+  expected <- .prepare_cat_data(d, "a", "b", "count", FALSE, FALSE)
+  original <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), c("stat_code", "group_code")))
+      stop("hashed two columns for a sparse category grid")
+    original(x)
+  }, .package = "vctrs")
+  got <- .prepare_cat_data(d, "a", "b", "count", FALSE, FALSE)
+  expect_identical(got, expected)
+  expect_identical(got$n, c(2L, 1L, 1L))
+  expect_identical(rownames(got), c("102", "300", "400"))
+})

@@ -907,7 +907,12 @@ plt_cat <- function(data,
       stat_code <- stat_code[keep]
       group_code <- group_code[keep]
     }
-    ids <- vctrs::vec_group_id(data.frame(stat_code, group_code))
+    ids <- if (prod(as.double(dimensions)) <= 2^53) {
+      cells <- stat_code + (group_code - 1) * dimensions[1L]
+      vctrs::vec_group_id(cells)
+    } else {
+      vctrs::vec_group_id(data.frame(stat_code, group_code))
+    }
     distinct <- attr(ids, "n")
     if (distinct == length(ids)) {
       counts <- rep.int(1L, distinct)
