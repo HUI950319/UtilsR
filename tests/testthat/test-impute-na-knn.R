@@ -1039,3 +1039,15 @@ test_that("ordinary KNN weights retain existing weighted and fallback means", {
   d <- data.frame(x = c(NA, 2, 4, 8), y = 1:4)
   expect_equal(fn(d, k = 1L, verbose = FALSE)$x, c(6, 2, 4, 8))
 })
+
+test_that("complete labelled integer predictors skip restoration code conversion", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(x = c(0, 1, NA_real_, 2), g = haven::labelled(c(1L, 2L, 1L, 2L)))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(as.integer = function(x, ...) {
+    if (identical(substitute(x), quote(categories))) stop("converted unused restoration codes for a complete KNN predictor")
+    base::as.integer(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})
