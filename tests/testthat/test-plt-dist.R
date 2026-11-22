@@ -1139,3 +1139,16 @@ test_that("uniform distribution counts reuse one console label", {
   }, .package = "scales")
   expect_identical(draw(), expected)
 })
+
+test_that("distribution legend fallback accepts named theme positions", {
+  d <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
+  hidden <- ggplot2::theme_bw() + ggplot2::theme(legend.position = c(position = "none"))
+  bar <- dist_test_plot(d, c("x", "group"), type = "bar", theme_use = hidden)
+  tiles <- dist_test_plot(d, c("x", "y", "group"), theme_use = hidden,
+                         label_args = list(style = "none"))
+  expect_identical(bar$theme$legend.position, "right")
+  expect_identical(tiles$theme$legend.position, "right")
+  explicit <- dist_test_plot(d, c("x", "group"), type = "bar", theme_use = hidden,
+                            legend_args = list(position = "none"))
+  expect_identical(explicit$theme$legend.position, "none")
+})

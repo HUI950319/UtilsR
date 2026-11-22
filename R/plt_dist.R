@@ -618,7 +618,7 @@ plt_dist <- function(data,
     # legend (it targets the self-labelled heatmap); re-enable it here when the
     # active theme would hide it, leaving a custom theme's placement intact.
     legend_position <- legend_args$position %||%
-      (if (identical(thm$legend.position, "none")) "right")
+      (if (identical(unname(thm$legend.position), "none")) "right")
     if (!is.null(legend_position)) {
       p <- p + ggplot2::theme(legend.position = legend_position)
     }
@@ -677,7 +677,7 @@ plt_dist <- function(data,
   labelled <- label_args$style != "none"
   heat_legend <- legend_args$position %||%
     (if (labelled) "none" else
-      if (identical(thm$legend.position, "none")) "right" else thm$legend.position)
+      if (identical(unname(thm$legend.position), "none")) "right" else thm$legend.position)
   if (".data" %in% dis_vars) plotdata[[alias]] <- plotdata[[".data"]]
   draw_x <- drawing_vars[1L]
   draw_y <- drawing_vars[2L]
