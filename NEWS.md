@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Logical factor conversion derives codes directly from the observed boolean levels and preserves missing values and names.
+
 * Quantile binning defers integer endpoint checks to the quantiles already computed for the cuts.
 
 * Numeric interval and SD formatting return the missing result directly when no row can be formatted.

@@ -1081,3 +1081,13 @@ test_that("fully observed factor recodes skip allocation of an output coverage m
   }), parent = environment(fn))
   expect_identical(fn(x, g, checked_indices = TRUE), fct_cat(x, groups = g))
 })
+
+test_that("complete and incomplete logical factor encodings need no match", {
+  fn <- .as_factor
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (is.logical(x)) stop("rematched logical factor values")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  forms <- list(c(a = TRUE, b = NA), c(FALSE, NA, FALSE), c(TRUE, NA, FALSE), c(NA, NA), logical())
+  for (x in forms) expect_identical(fn(x), factor(x))
+})
