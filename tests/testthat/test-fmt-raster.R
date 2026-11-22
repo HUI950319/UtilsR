@@ -1166,3 +1166,11 @@ test_that("mixed raster panels classify vector children only once", {
   expect_identical(seen, names(g$children))
   expect_identical(length(out$children), 3L)
 })
+
+test_that("nested empty label grobs do not turn geometry into vector text", {
+  empty <- grid::grobTree(grid::pointsGrob(), grid::nullGrob(name = "empty_label"))
+  visible <- grid::grobTree(grid::pointsGrob(), grid::textGrob("label"))
+  expect_false(.is_text_grob(empty, "geometry"))
+  expect_true(.is_text_grob(visible, "geometry"))
+  expect_false(.is_text_grob(ggplot2::zeroGrob(), "empty_label"))
+})
