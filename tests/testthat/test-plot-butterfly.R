@@ -1423,3 +1423,21 @@ test_that("complete butterfly factor categories avoid a missing row mask", {
   d$item[1L] <- NA
   expect_identical(nrow(run(PlotButterfly2, d)[[1L]]), 4L)
 })
+
+test_that("balanced butterfly columns skip padding their row indices", {
+  d <- data.frame(item = rep(c("A", "A", "B", "B"), 2L),
+                  side = rep(c("L", "R"), each = 4L), score = seq_len(8L))
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(i), quote(padding)) && length(x) == length(i))
+      stop("padded already full butterfly sample indices")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  run <- function(f, data) {
+    p <- f(data, stat.by = "item", group.by = "side", value.by = "score", type = "box")
+    lapply(seq_along(p), function(i) p[[i]]$data$Value)
+  }
+  expect_identical(run(fn, d), run(PlotButterfly2, d))
+  d <- d[-1L, ]
+  expect_identical(run(fn, d), run(PlotButterfly2, d))
+})

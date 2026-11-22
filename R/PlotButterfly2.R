@@ -288,8 +288,10 @@ PlotButterfly2 <- function(
     .to_wide <- function(index) {
       rows <- split(index, codes[index])
       padding <- seq_len(max(lengths(rows)))
+      scores <- data[[value.by]]
       mat <- lapply(rows[as.character(common)], function(idx) {
-        data[[value.by]][idx[padding]]
+        if (length(idx) < length(padding)) idx <- idx[padding]
+        scores[idx]
       })
       out <- as.data.frame(unname(mat))
       names(out) <- categories[common]
