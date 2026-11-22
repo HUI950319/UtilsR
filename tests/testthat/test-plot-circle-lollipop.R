@@ -1596,3 +1596,21 @@ test_that("circular distinct ordinary groups avoid duplicate masks", {
   run <- function(f) suppressMessages(f(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
   expect_identical(run(fn), run(PlotCircleLollipop))
 })
+
+test_that("circular scores and groups are reused when no top count is active", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 10L), name = letters[1:20],
+                  value = seq(0.1, 0.9, length.out = 20L))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(i), quote(selected)) && length(i) == nrow(d) &&
+        as.character(substitute(x))[1L] %in% c("group_ids", "numeric_values"))
+      stop("gathered all circular plot rows through a selected index")
+    call <- sys.call()
+    call[[1L]] <- base::`[`
+    eval(call, parent.frame())
+  }), parent = environment(fn))
+  local_mocked_bindings(circos.initialize = function(...) stop("circular layout reached"), .package = "circlize")
+  expect_error(fn(d, show_labels = FALSE, show_links = FALSE), "circular layout reached")
+  expect_error(fn(d, top_n = 4L, show_labels = FALSE, show_links = FALSE), "circular layout reached")
+})

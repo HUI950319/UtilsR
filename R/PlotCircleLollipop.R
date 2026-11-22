@@ -267,14 +267,14 @@ PlotCircleLollipop <- function(
 
   # ---- Keep original data for group-level scaling (before top_n) ----
   data_orig <- data
-  selected <- seq_len(nrow(data))
+  selected <- NULL
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
     ranking <- tibble::tibble(
       group = group_input,
       score = if (integer64_scores) data[[value_col]] else numeric_values,
-      row_id = selected
+      row_id = seq_len(nrow(data))
     )
     selected <- ranking |>
       dplyr::group_by(.data[["group"]]) |>
@@ -293,13 +293,13 @@ PlotCircleLollipop <- function(
 
   # ---- Normalise to standard column names ----
   direct_groups <- is.null(group_levels) && !is.factor(data[[group_col]]) && !anyNA(group_labels)
-  selected_groups <- group_ids[selected]
+  selected_groups <- if (is.null(selected)) group_ids else group_ids[selected]
   group <- if (direct_groups) structure(selected_groups, levels = group_labels, class = "factor") else
     group_labels[selected_groups]
   df <- data.frame(
     group = group,
     name  = as.character(.butterfly_category_labels(data[[name_col]])),
-    value = numeric_values[selected],
+    value = if (is.null(selected)) numeric_values else numeric_values[selected],
     stringsAsFactors = FALSE
   )
   if (!nrow(df)) stop("No observations to plot.", call. = FALSE)
