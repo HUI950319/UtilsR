@@ -207,7 +207,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
         data_for_impute[[var_name]] <- categories
       }
     }
-    labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), codes)]
+    if (var_name %in% vars_with_missing) {
+      labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), codes)]
+    }
   }
 
   numeric_bounds <- lapply(data_for_impute, function(x) {

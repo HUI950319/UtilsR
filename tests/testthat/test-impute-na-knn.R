@@ -990,3 +990,21 @@ test_that("KNN integer64 precision bounds are reused across columns", {
   expect_identical(impute_na_knn(d, k = 1L, verbose = FALSE), expected)
   expect_identical(calls, 1L)
 })
+
+test_that("complete labelled predictors do not build a restoration lookup", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  d <- data.frame(x = c(NA_real_, 2, 3, 4), complete = haven::labelled(c(1, 2, 1, 2)),
+                  target = haven::labelled(c(8, NA_real_, 8, 9)))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(seq_len(nlevels(categories)))) &&
+        identical(get("var_name", envir = parent.frame()), "complete"))
+      stop("built a restoration lookup for a complete KNN label")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  result <- fn(d, k = 1L, verbose = FALSE)
+  expect_identical(result, impute_na_knn(d, k = 1L, verbose = FALSE))
+  expect_identical(result$complete, d$complete)
+  expect_identical(attributes(result$target), attributes(d$target))
+})

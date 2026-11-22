@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN imputation builds a restoration dictionary only for labelled columns with missing values.
+
 * Text formatting keeps omitted label fields empty without replicating them for every subplot.
 
 * Legend formatting handles named scalar position values consistently when checking patchwork collection.
