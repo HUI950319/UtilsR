@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop scoring reads finite group endpoints without allocating per-row missingness flags.
+
 * Circular lollipop preparation avoids full-vector index copies when no top-N selection is requested.
 
 * Recursive formatters reuse ordinary plots and flat plot lists after validation while traversing patchwork and special elements as before.

@@ -356,7 +356,8 @@ PlotCircleLollipop <- function(
   }
   score_range <- function(x) {
     if (length(x) && !anyNA(x)) return(c(min(x), max(x)))
-    if (all(is.na(x))) c(NA_real_, NA_real_) else range(x, na.rm = TRUE)
+    bounds <- suppressWarnings(range(x, na.rm = TRUE))
+    if (bounds[1L] == Inf) c(NA_real_, NA_real_) else bounds
   }
   scale_integer64 <- function(x, reference = x) {
     if (all(is.na(reference))) return(rep(NA_real_, length(x)))

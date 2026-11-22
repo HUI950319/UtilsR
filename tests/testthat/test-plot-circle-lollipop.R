@@ -1614,3 +1614,18 @@ test_that("circular scores and groups are reused when no top count is active", {
   expect_error(fn(d, show_labels = FALSE, show_links = FALSE), "circular layout reached")
   expect_error(fn(d, top_n = 4L, show_labels = FALSE, show_links = FALSE), "circular layout reached")
 })
+
+test_that("circular score spans retain partly and wholly missing groups", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 4L), name = letters[1:8],
+                  value = c(1, NA_real_, 5, 9, rep(NA_real_, 4L)))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) == 4L)
+      stop("scanned missing flags for a circular score range")
+    base::is.na(x)
+  }), parent = environment(fn))
+  local_mocked_bindings(circos.initialize = function(...) stop("circular layout reached"), .package = "circlize")
+  expect_error(fn(d, value_scale = "group", show_labels = FALSE), "circular layout reached")
+  expect_error(fn(d, value_scale = "top_n", show_labels = FALSE, top_n = 2L), "circular layout reached")
+})
