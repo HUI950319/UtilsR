@@ -1195,3 +1195,14 @@ test_that("legend layout does not read unrelated guide bindings", {
   expect_identical(repeated$guides$active_marker, "ok")
   expect_identical(n, 1L)
 })
+
+test_that("named legend positions have the same collection rules as plain positions", {
+  p <- legend_test_plot()
+  inside <- p + ggplot2::theme(legend.position = c(place = "inside"),
+                               legend.position.inside = c(0.8, 0.8))
+  expect_warning(out <- fmt_legend(inside | p, collect = TRUE), "inside.*keep")
+  expect_identical(out$patches$layout$guides, "keep")
+  hidden <- inside + ggplot2::theme(legend.position = c(place = "none"))
+  expect_no_warning(out <- fmt_legend(hidden | p, collect = TRUE))
+  expect_identical(out$patches$layout$guides, "collect")
+})

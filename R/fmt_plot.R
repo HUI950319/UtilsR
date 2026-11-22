@@ -1128,13 +1128,14 @@ fmt_legend <- function(plot,
   }
   scaling <- !is.null(scale)
   factor <- if (scaling) scale else 1
+  is_position <- function(position, value) identical(unname(position), value)
   style_guide <- function(guide, th) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
     params <- guide$params
     if (length(guide_args) && inherits(guide, "GuideLegend") &&
         !inherits(guide, "GuideColourbar")) params[names(guide_args)] <- guide_args
     if (!is.null(leg_theme$legend.position)) {
-      params$position <- if (identical(leg_theme$legend.position, "none")) NULL else
+      params$position <- if (is_position(leg_theme$legend.position, "none")) NULL else
         leg_theme$legend.position
     }
     if (!is.null(leg_theme$legend.direction)) params$direction <- leg_theme$legend.direction
@@ -1324,14 +1325,14 @@ fmt_legend <- function(plot,
   }
   collection_skipped <- FALSE
   is_inside <- function(position) {
-    identical(position, "inside") || (is.numeric(position) && length(position) == 2L)
+    is_position(position, "inside") || (is.numeric(position) && length(position) == 2L)
   }
   has_inside_legend <- function(p, annotation_inside = FALSE) {
     if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
         match("inset_patch", class(p)) < match("patchwork", class(p)))) return(FALSE)
     if (inherits(p, "patchwork")) {
       annotation_position <- (base_theme + p$patches$annotation$theme)$legend.position
-      if (identical(annotation_position, "none")) return(FALSE)
+      if (is_position(annotation_position, "none")) return(FALSE)
       annotation_inside <- annotation_inside || is_inside(annotation_position)
       return(any(vapply(seq_along(p), function(i) {
         child <- p[[i]]
@@ -1342,7 +1343,7 @@ fmt_legend <- function(plot,
     }
     if (inherits(p, c("spacer", "guide_area", "wrapped_patch"))) return(FALSE)
     plot_position <- (base_theme + p$theme)$legend.position
-    if (identical(plot_position, "none")) return(FALSE)
+    if (is_position(plot_position, "none")) return(FALSE)
     fixed <- unique(unlist(lapply(p$scales$scales, function(sc) {
       if (!is.null(sc$limits)) sc$aesthetics else character()
     })))
@@ -1430,7 +1431,7 @@ fmt_legend <- function(plot,
           }
         }
         # Older ggplot2 guide boxes have no default justification for "none".
-        if (identical(th$legend.position, "none") && is.null(th$legend.box.just)) {
+        if (is_position(th$legend.position, "none") && is.null(th$legend.box.just)) {
           args$legend.box.just <- c("left", "top")
         }
         if (length(args)) p <- p + patchwork::plot_annotation(theme = do.call(ggplot2::theme, args))
