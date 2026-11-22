@@ -1403,3 +1403,17 @@ test_that("uniform interval precision groups repeated values directly", {
   }, .package = "vctrs")
   expect_identical(stat_ci_parse(x, exp = FALSE, digits = 4L), expected)
 })
+
+test_that("positive confidence intervals reuse log scale inputs", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(i), quote(pos))) stop("subset a completely positive interval column")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  est <- c(1, 2, 3, 0.7)
+  lo <- c(0.5, 1, 1, 0.2)
+  hi <- c(2, 7, 4, 1.3)
+  unit <- matrix(0.01, length(est), 3L)
+  expected <- .ci_scale(est, lo, hi, unit, "auto", rep(TRUE, length(est)))
+  expect_identical(fn(est, lo, hi, unit, "auto", rep(TRUE, length(est))), expected)
+})
