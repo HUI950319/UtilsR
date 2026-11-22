@@ -1098,3 +1098,14 @@ test_that("one significance cut keeps ties together", {
   expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0.05)),
                    c("0.050", "0.050*", "0.050*", "0.050*", NA, ">0.1"))
 })
+
+test_that("underflowing P-value powers avoid insignificant digit padding", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list(strrep = function(x, times) {
+    if (identical(x, "0") && length(times) == 4L) stop("padded digits for unequal decimal powers")
+    base::strrep(x, times)
+  }), parent = environment(fn))
+  x <- c("1e-400", ".000e-500", "3e-500", "+0", ".1")
+  expect_identical(fn(x, mode = "stars", map_signif = c("*" = 0)),
+                   c("<0.001", "<0.001*", "<0.001", "<0.001*", "0.100"))
+})

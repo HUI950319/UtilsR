@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Exact decimal significance comparisons skip digit padding when the powers already determine the order.
+
 * Decimal P-values with one significance threshold compare tied endpoints in a single group.
 
 * Log-scale interval comparisons reuse the original estimates, bounds, and units when every interval is eligible.

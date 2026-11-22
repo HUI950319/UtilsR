@@ -166,10 +166,17 @@ stat_pval <- function(x,
         text <- keys
       }
       input <- decimal(text)
-      width <- pmax(nchar(input$digits), nchar(cutoff$digits))
-      a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
-      b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))
-      above <- input$power > cutoff$power | (input$power == cutoff$power & a > b)
+      above <- input$power > cutoff$power
+      equal_power <- which(input$power == cutoff$power)
+      if (length(equal_power)) {
+        digits <- input$digits[equal_power]
+        n_digits <- nchar(digits)
+        cutoff_width <- nchar(cutoff$digits)
+        width <- pmax(n_digits, cutoff_width)
+        a <- paste0(digits, strrep("0", width - n_digits))
+        b <- paste0(cutoff$digits, strrep("0", width - cutoff_width))
+        above[equal_power] <- a > b
+      }
       if (!is.null(lookup)) above <- above[lookup]
       index[rows[above]] <- index[rows[above]] + 1L
     }
