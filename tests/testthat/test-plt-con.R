@@ -2632,3 +2632,15 @@ test_that("extreme continuous spreads rescale from scalar extrema", {
   expect_identical(fn(x), .con_mean_sd(x))
   expect_identical(fn(c(-1e-177, 2e-177, 3e-177)), .con_mean_sd(c(-1e-177, 2e-177, 3e-177)))
 })
+
+test_that("continuous bounds handle missing gaps without filtering all values", {
+  x <- c(NA_real_, 1.1, 4.3, NaN, 2.2, 8.6)
+  fn <- .con_finite_bounds
+  environment(fn) <- list2env(list(range = function(value, ...) {
+    if (identical(value, x)) stop("filtered a continuous range with missing values and no infinities")
+    base::range(value, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), c(1.1, 8.6))
+  expect_identical(fn(c(x, Inf, -Inf)), c(1.1, 8.6))
+  expect_identical(suppressWarnings(fn(rep(NA_real_, 4L))), c(Inf, -Inf))
+})

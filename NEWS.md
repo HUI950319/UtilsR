@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous scales use observed extrema without building a filtered vector when missing values are the only gaps.
+
 * Categorical percentage tables format the 100% label once when each observed group has one category.
 
 * Categorical frequencies group ordinary count-grid indices as one exact numeric key when they fit in a double.

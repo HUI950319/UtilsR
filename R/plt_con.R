@@ -874,6 +874,10 @@ plt_con <- function(data,
   if (length(x)) {
     bounds <- c(min(x), max(x))
     if (all(is.finite(bounds))) return(bounds)
+    if (!is.object(x) && anyNA(bounds)) {
+      bounds <- suppressWarnings(c(min(x, na.rm = TRUE), max(x, na.rm = TRUE)))
+      if (all(is.finite(bounds))) return(bounds)
+    }
   }
   range(x, finite = TRUE)
 }
