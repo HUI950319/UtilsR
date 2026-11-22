@@ -5487,9 +5487,13 @@ fmt_his <- function(plot,
             spec <- self$his_specs[[layer$his_id]]
             panel <- as.integer(data$PANEL)
             panels <- unique(panel)
-            codes <- if (identical(panels, seq_along(panels))) panel else match(panel, panels)
-            panel_codes <- structure(codes, levels = as.character(panels), class = "factor")
-            panel_rows <- split(seq_len(nrow(data)), panel_codes)
+            panel_rows <- if (length(panels) == 1L) {
+              list(seq_len(nrow(data)))
+            } else {
+              codes <- if (identical(panels, seq_along(panels))) panel else match(panel, panels)
+              panel_codes <- structure(codes, levels = as.character(panels), class = "factor")
+              split(seq_len(nrow(data)), panel_codes)
+            }
             indices <- match(panels, as.integer(layout$PANEL))
             for (i in seq_along(indices)) {
               rows <- panel_rows[[i]]

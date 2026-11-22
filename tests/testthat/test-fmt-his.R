@@ -1000,3 +1000,20 @@ test_that("complete histogram overlays do not allocate finite bin flags", {
   draw <- function(f, type) ggplot2::layer_data(f(p, type = type, binwidth = 0.4), 2L)
   for (type in c("histogram", "density")) expect_identical(draw(fn, type), draw(fmt_his, type))
 })
+
+test_that("single-panel histogram overlays reuse the full row sequence", {
+  d <- data.frame(x = rep(1:8, each = 3L), y = 1:24)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  fn <- fmt_his
+  env <- list2env(list(split = function(x, f, ...) {
+    if (identical(substitute(f), quote(panel_codes)) && nlevels(f) == 1L)
+      stop("split an unfaceted histogram overlay")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_his <- fn
+  draw <- function(f, p) ggplot2::layer_data(f(p, binwidth = 1), 2L)
+  expect_identical(draw(fn, p), draw(fmt_his, p))
+  faceted <- p + ggplot2::facet_wrap(ggplot2::vars(y %% 2L))
+  expect_identical(draw(fn, faceted), draw(fmt_his, faceted))
+})
