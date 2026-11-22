@@ -3031,6 +3031,7 @@ fmt_panel <- function(plot,
     (inherits(plot, "patchwork") || (is.list(plot) && !inherits(plot, "gg")))
   cache_themes <- list()
   cache_panels <- list()
+  recent_cache <- NULL
   cache_misses <- 0L
   last_theme <- NULL
   last_panel <- NULL
@@ -3040,17 +3041,22 @@ fmt_panel <- function(plot,
     }
     if (grid == "keep" && !length(theme_args) && !length(extra_args)) return(p)
     plot_theme <- p$theme
+    if (!is.null(last_panel) && identical(plot_theme, last_theme)) {
+      cache_misses <<- 0L
+      return(p + last_panel)
+    }
     if (cache_enabled) {
+      if (!is.null(recent_cache) && identical(plot_theme, cache_themes[[recent_cache]])) {
+        cache_misses <<- 0L
+        return(p + cache_panels[[recent_cache]])
+      }
       for (j in seq_along(cache_themes)) {
         if (identical(plot_theme, cache_themes[[j]])) {
+          recent_cache <<- j
           cache_misses <<- 0L
           return(p + cache_panels[[j]])
         }
       }
-    }
-    if (!is.null(last_panel) && identical(plot_theme, last_theme)) {
-      cache_misses <<- 0L
-      return(p + last_panel)
     }
     current_theme <- panel_theme
     if (length(enabled)) {
@@ -3150,6 +3156,7 @@ fmt_panel <- function(plot,
       if (length(cache_themes) < 4L) {
         cache_themes[length(cache_themes) + 1L] <<- list(plot_theme)
         cache_panels[[length(cache_panels) + 1L]] <<- current_theme
+        recent_cache <<- length(cache_themes)
       } else {
         last_theme <<- plot_theme
         last_panel <<- current_theme

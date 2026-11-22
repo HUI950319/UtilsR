@@ -726,3 +726,21 @@ test_that("panel keep requires no theme addition without styling", {
   expect_identical(fmt_panel(p, grid = "keep"), p)
   expect_identical(fmt_panel(p, grid = "keep", bg = "red")$theme$panel.background$fill, "red")
 })
+
+test_that("repeated panel themes reuse the most recent cached theme", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) +
+    ggplot2::geom_point() + ggplot2::theme_classic()
+  q <- p + ggplot2::theme(panel.grid.major = ggplot2::element_line(colour = "blue"))
+  fn <- fmt_panel
+  old_reads <- 0L
+  environment(fn) <- list2env(list(identical = function(x, y, ...) {
+    if (base::identical(substitute(y), quote(cache_themes[[j]]))) {
+      old_reads <<- old_reads + 1L
+      if (old_reads > 1L) stop("searched older panel themes for a consecutive repeat")
+    }
+    base::identical(x, y, ...)
+  }), parent = environment(fn))
+  plots <- c(list(p), rep(list(q), 16L))
+  draw <- function(f) lapply(f(plots, grid = "major"), function(p) p$theme)
+  expect_identical(draw(fn), draw(fmt_panel))
+})

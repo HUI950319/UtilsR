@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel formatting reuses the most recently resolved theme directly for consecutive subplots.
+
 * Inspection reports reuse the formatted percentage when all displayed shares coincide.
 
 * Cross-tabulation passes just the selected columns to the counting path after dropping existing groups.
