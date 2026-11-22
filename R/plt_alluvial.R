@@ -521,7 +521,7 @@ plt_alluvial <- function(
     facet_codes <- rep.int(1L, n_pairs)
     category_codes <- seq_len(n_pairs)
   }
-  count_id <- pair_id + (as.integer(plot_input$.group) - 1) * n_pairs
+  count_id <- pair_id + (as.integer(plot_input$.group) - 1L) * as.integer(n_pairs)
   stat <- data.frame(
     .facet = structure(rep.int(facet_codes, n_groups),
                        levels = facet_levels, class = "factor"),

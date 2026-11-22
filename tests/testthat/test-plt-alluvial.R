@@ -1493,3 +1493,17 @@ test_that("alluvial filters explicit levels and missing factor codes in one pass
   expect_identical(p$data, suppressMessages(run(plt_alluvial))$data)
   expect_equal(sum(p$data$count), 3)
 })
+
+test_that("bounded alluvial count grid uses integer positions", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(tabulate = function(bin, nbins, ...) {
+    if (identical(substitute(bin), quote(count_id)) && !is.integer(bin))
+      stop("expanded alluvial count positions to double")
+    base::tabulate(bin, nbins, ...)
+  }), parent = environment(fn))
+  run <- function(f, facet) suppressMessages(f(d, "category", "group", facet = facet,
+    label_args = list(style = "none")))$data
+  for (facet in list(NULL, "panel")) expect_identical(run(fn, facet), run(plt_alluvial, facet))
+})
