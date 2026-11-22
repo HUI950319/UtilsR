@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection reports reuse the formatted percentage when all displayed shares coincide.
+
 * Cross-tabulation passes just the selected columns to the counting path after dropping existing groups.
 
 * Rank plot aesthetic summaries reuse ordinary finite pair sums and only check for overflow or missingness when needed.

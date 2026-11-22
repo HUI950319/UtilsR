@@ -1987,3 +1987,15 @@ test_that("inspection cross-tabulations pass only their selected columns to coun
   expect_identical(draw(), expected)
   expect_identical(dplyr::group_vars(d), "unused")
 })
+
+test_that("inspection cross-tabulations reuse a common formatted share", {
+  d <- data.frame(a = letters[1:6], b = rep(c("first", "second"), 3L), c = rep(1:3, 2L))
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    if (identical(fmt, "%.1f%%") && length(list(...)[[1L]]) == nrow(d))
+      stop("formatted the same inspection percentage for every row")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  draw <- function(f) cli::ansi_strip(utils::capture.output(suppressMessages(f(d, count = c("a", "b", "c")))))
+  expect_identical(draw(fn), draw(lv.data.frame))
+})

@@ -341,9 +341,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
   }
   .fmt_pct <- function(x) {
+    n <- length(x)
+    repeated <- n > 1L && !anyNA(x) && min(x) == max(x)
+    if (repeated) x <- x[1L]
     text <- sprintf("%.1f%%", x)
     text[!is.na(x) & x > 0 & x < 0.1] <- "<0.1%"
-    text
+    if (repeated) rep.int(text, n) else text
   }
   # "n (share of `of`)", and a plain "0" for none
   .fmt_n_pct <- function(n, of) {
