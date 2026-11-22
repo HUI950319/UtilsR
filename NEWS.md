@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness plots keep the paired present and missing summary rows directly when every displayed variable is partly observed.
+
 * Alluvial stratum counts keep their already bounded grid indices in integer storage.
 
 * Shared continuous bar ranges keep complete transformed outcomes and their grouping vector without building a finiteness mask.

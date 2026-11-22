@@ -160,12 +160,18 @@ plt_na <- function(
   counts <- missing_counts[sort(missing_vars, method = "radix")]
   n_rows <- nrow(df)
   numbers <- as.vector(rbind(n_rows - counts, counts))
-  included <- which(numbers > 0)
-  numbers <- numbers[included]
-  columns <- (included + 1) %/% 2
+  if (max(counts) < n_rows) {
+    columns <- rep(seq_along(counts), each = 2L)
+    isna <- rep.int(c(FALSE, TRUE), length(counts))
+  } else {
+    included <- which(numbers > 0)
+    numbers <- numbers[included]
+    columns <- (included + 1L) %/% 2L
+    isna <- included %% 2L == 0L
+  }
   missing_summary <- tibble::tibble(
     name = names(counts)[columns],
-    isna = included %% 2L == 0L,
+    isna = isna,
     num = numbers,
     total = n_rows,
     pct = numbers / n_rows * 100

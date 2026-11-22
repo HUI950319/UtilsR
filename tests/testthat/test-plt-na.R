@@ -688,3 +688,18 @@ test_that("missingness summary row codes compute source positions only once", {
   }), parent = environment(fn))
   expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
 })
+
+test_that("partly observed columns keep complete missingness summary pairs", {
+  d <- data.frame(a = c(1, 2, NA, 3), b = c(NA, 1, NA, 3), ignored = 1:4)
+  fn <- plt_na
+  environment(fn) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(numbers > 0)) && all(x))
+      stop("filtered already populated missingness summary rows")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  run <- function(f, value) f(value, output = "percentage")$data
+  expect_identical(run(fn, d), run(plt_na, d))
+  expect_identical(run(fn, d)$isna, rep(c(FALSE, TRUE), 2L))
+  d$c <- NA
+  expect_identical(run(fn, d), run(plt_na, d))
+})
