@@ -1552,3 +1552,17 @@ test_that("hex swatch previews skip numeric index flag allocation", {
   expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
   expect_error(fn(c(x, "#BADHEX")), "BADHEX")
 })
+
+test_that("distinct forward swatches reuse their RGBA matrix", {
+  cols <- c("#A06030", "blue", "#0D8329A0", "#FAC07080")
+  withr::local_options(cli.num_colors = 16777216L)
+  fn <- show_color
+  environment(fn) <- list2env(list(`[` = function(x, i, j, ...) {
+    if (!missing(j) && identical(substitute(j), quote(source)) && is.matrix(x))
+      stop("copied all resolved console swatch channels")
+    cl <- sys.call()
+    cl[[1L]] <- base::`[`
+    eval(cl, envir = parent.frame())
+  }), parent = environment(fn))
+  expect_identical(utils::capture.output(fn(cols)), utils::capture.output(show_color(cols)))
+})

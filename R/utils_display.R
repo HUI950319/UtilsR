@@ -864,9 +864,11 @@ show_color <- function(x, rev = FALSE) {
     on.exit(options(old_colors), add = TRUE)
     swatch_ids <- if (anyDuplicated(hex)) vctrs::vec_group_id(hex)
     ids <- if (is.null(swatch_ids)) seq_along(hex) else which(!duplicated(swatch_ids))
-    source <- if (rev) length(hex) - ids + 1L else ids
-    if (!is.null(lookup)) source <- lookup[source]
-    rgba <- rgba[, source, drop = FALSE]
+    if (rev || !is.null(swatch_ids) || !is.null(lookup)) {
+      source <- if (rev) length(hex) - ids + 1L else ids
+      if (!is.null(lookup)) source <- lookup[source]
+      rgba <- rgba[, source, drop = FALSE]
+    }
     preview <- hex[ids]
     preview_rgb <- rgba[1:3, , drop = FALSE]
     translucent <- rgba[4L, ] < 255L

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console colour previews skip copying the full RGBA matrix when input order and identities are unchanged.
+
 * KNN avoids rebuilding factor codes for complete labelled integer or string predictors.
 
 * String P-values whose parsed values are strictly between zero and one avoid the special endpoint scan.
