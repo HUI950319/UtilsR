@@ -526,8 +526,14 @@ PlotRank <- function(
                       lab_size, pt_size, title,
                       ylab, base_size, ncol) {
 
-  df$TopGroup <- ifelse(df$IsTop, "top", "other")
-  label_df    <- df[df$IsTop, ]
+  top <- df$IsTop
+  if (length(top) && !anyNA(top)) {
+    df$TopGroup <- rep.int("other", length(top))
+    df$TopGroup[top] <- "top"
+  } else {
+    df$TopGroup <- ifelse(top, "top", "other")
+  }
+  label_df <- df[top, ]
 
   p <- ggplot2::ggplot(
     df,

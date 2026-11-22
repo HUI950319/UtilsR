@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Faceted rank plots use their complete logical highlight vector to assign two labels directly.
+
 * Unvarying stacked-bar counts use a single formatted label for every visible segment.
 
 * `pr_spark()` tests for variation in zero-spread doubles from their extrema.

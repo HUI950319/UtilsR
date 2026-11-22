@@ -931,3 +931,15 @@ test_that("complete top rank scaling uses displayed scalar extrema", {
   run <- function(f) f(d, max_show = 3L, value_scale = "top_n", return_type = "data")
   expect_identical(run(fn), run(PlotRank))
 })
+
+test_that("facet rank labels use direct assignment for complete top flags", {
+  d <- data.frame(Rank = rep(1:4, 2L), Score = 1:8, Group = rep(c("b", "a"), each = 4L),
+    Label = letters[1:8], IsTop = rep(c(TRUE, TRUE, FALSE, FALSE), 2L))
+  fn <- .pr_facet
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(df$IsTop))) stop("repacked complete faceted rank flags")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  run <- function(f) f(d, "red", "blue", 4, 3, NULL, "Score", 12, 2)$data
+  expect_identical(run(fn), run(.pr_facet))
+})
