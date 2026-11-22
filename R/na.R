@@ -357,6 +357,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # Whether each distinct value is a special marker under the rules of
 # .count_special_values(); lv() also highlights its table levels with it.
 .is_special_value <- function(u, special = NULL) {
+  if (!length(u) || (!is.null(special) && !length(special))) return(rep(FALSE, length(u)))
   # Normalize only values holding whitespace and match caselessly, so values
   # such as identifiers are not copied, lowercased or trimmed with TRE.
   ws <- grepl("[\\h\\v]", u, perl = TRUE)
@@ -370,7 +371,6 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
           u, ignore.case = TRUE, perl = TRUE)
   } else {
     # Keep capture groups, leading directives and comments local to each pattern.
-    if (!length(special) || !length(u)) return(rep(FALSE, length(u)))
     present <- if (anyNA(u)) which(!is.na(u))
     values <- if (is.null(present)) u else u[present]
     if (!length(values)) return(rep(FALSE, length(u)))

@@ -970,3 +970,12 @@ test_that("blank markers share the standard marker scan", {
   expect_identical(fn(x), c(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE))
   expect_identical(fn(x, "^unknown"), c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE))
 })
+
+test_that("disabled special markers leave label text unscanned", {
+  fn <- .is_special_value
+  environment(fn) <- list2env(list(grepl = function(...) {
+    stop("normalized labels for disabled special markers")
+  }), parent = environment(fn))
+  expect_identical(fn(c(" ", "Not available", NA), character()), rep(FALSE, 3L))
+  expect_identical(fn(character()), logical())
+})

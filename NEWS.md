@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection skips whitespace normalization when special missing-value detection is disabled.
+
 * Missing-value inspection recognizes normalized blank labels in the same scan as other built-in markers.
 
 * Exact decimal significance comparisons skip digit padding when the powers already determine the order.
