@@ -855,7 +855,9 @@ fmt_tag <- function(plot,
     sc$aesthetics
   }), use.names = FALSE)))
   mapped <- mapped[.is_legend_aes(mapped)]
-  if (length(mapped)) {
+  existing <- p$labels
+  if (length(mapped) && (!all(mapped %in% names(existing)) ||
+      !all(vapply(existing[mapped], identical, logical(1), y = label)))) {
     p <- p + do.call(ggplot2::labs, stats::setNames(
       rep(list(label), length(mapped)), mapped
     ), quote = TRUE)

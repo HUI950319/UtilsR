@@ -1291,3 +1291,15 @@ test_that("staged AsIs aesthetics do not keep otherwise collectable legends", {
   expect_warning(out <- fmt_legend(trained | outside, collect = TRUE), "inside")
   expect_identical(out$patches$layout$guides, "keep")
 })
+
+test_that("identical stored legend titles skip building the labs object", {
+  p <- legend_test_plot()
+  label <- quote(alpha + beta)
+  named <- .set_legend_title(p, label)
+  cleared <- .set_legend_title(p, NULL)
+  expect_true("colour" %in% names(cleared$labels))
+  local_mocked_bindings(labs = function(...) stop("rebuilt an unchanged legend label"),
+    .package = "ggplot2")
+  expect_identical(.set_legend_title(named, label)$labels, named$labels)
+  expect_identical(.set_legend_title(cleared, NULL)$labels, cleared$labels)
+})

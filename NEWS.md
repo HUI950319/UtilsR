@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend title updates reuse stored labels when the title and every applicable label are already identical.
+
 * Legend collection ignores staged AsIs values that train no scale and still preserves legends trained by another stage.
 
 * Missingness plots keep the paired present and missing summary rows directly when every displayed variable is partly observed.
