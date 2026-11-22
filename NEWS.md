@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet data checks for unselected rows without allocating one comparison flag per row.
+
 * Factor inspection avoids subsetting the tally when none of its observed labels is a special marker.
 
 * Inspection skips whitespace normalization when special missing-value detection is disabled.

@@ -1253,3 +1253,16 @@ test_that("empty UpSet regions use their existing combination order", {
   expect_identical(fn(list(A = NULL, B = NULL), output = "data"),
     plt_upset(list(A = NULL, B = NULL), output = "data"))
 })
+
+test_that("empty Upset memberships skip row-length comparison flags", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list(`!=` = function(e1, e2) {
+    if (identical(substitute(e1), quote(row_codes))) stop("allocated the empty UpSet membership mask")
+    base::`!=`(e1, e2)
+  }), parent = environment(fn))
+  d <- data.frame(A = rep.int(FALSE, 200L), B = rep.int(FALSE, 200L))
+  got <- fn(d, vars = c("A", "B"), output = "data")
+  expect_identical(levels(got$intersect_group), c("A", "B", "A/B", "None"))
+  expect_identical(as.character(got$intersect_group), rep.int("None", nrow(d)))
+  expect_length(fn(d[FALSE, ], vars = c("A", "B"), output = "data")$intersect_group, 0L)
+})
