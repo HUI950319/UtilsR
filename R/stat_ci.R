@@ -88,7 +88,8 @@ stat_ci <- function(x, y = NULL, z = NULL,
       for (values in list(...)) {
         at <- which(is.finite(values) & d > 7881L)
         widths <- nchar(sprintf("%.0f", trunc(values[at])))
-        if (any(widths + 1L + rep_len(d, length(values))[at] > 8192L)) {
+        precision <- if (length(d) == 1L) d else d[at]
+        if (any(widths + 1L + precision > 8192L)) {
           cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
         }
       }

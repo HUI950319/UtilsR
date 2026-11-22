@@ -382,3 +382,15 @@ test_that("confidence interval text skips a regular expression on unaffected val
   out <- fn(c(5, -0.0001, -0.01, 0), rep(0.001, 4L), digits = 2)
   expect_identical(out, c("5.00(0.00)", "0.00(0.00)", "-0.01(0.00)", "0.00(0.00)"))
 })
+
+test_that("scalar high precision checks do not expand the digits vector", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list(rep_len = function(x, length.out) {
+    if (identical(x, 7882L) && length.out == 6L)
+      stop("expanded a scalar interval precision across the data")
+    base::rep_len(x, length.out)
+  }), parent = environment(fn))
+  x <- seq_len(6L)
+  expect_identical(fn(x, x + 1L, digits = 7882L), stat_ci(x, x + 1L, digits = 7882L))
+  expect_error(fn(rep(-1e308, 6), x, digits = 7882L), "8192-byte")
+})
