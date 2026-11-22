@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend formatting caches the resolved font and spacing adjustments while leaving each guide's local settings independent.
+
 * Legend titles ignore inherited mappings disabled by a layer and aesthetics fixed to a literal value.
 
 * Numeric sparklines reuse the bounds checked during finite-input validation when constructing the histogram.

@@ -1223,3 +1223,24 @@ test_that("legend titles ignore disabled layer mappings", {
   awaiting_layer <- fmt_legend(p, title = "New group") + ggplot2::geom_point()
   expect_true("New group" %in% legend_test_labels(ggplot2::ggplotGrob(awaiting_layer)))
 })
+
+test_that("subplots with equal themes reuse resolved legend scaling", {
+  p <- legend_test_plot() + ggplot2::theme(legend.key.width = grid::unit(3, "mm"))
+  q <- p + ggplot2::theme(legend.key.width = grid::unit(8, "mm"))
+  original <- ggplot2::calc_element
+  calls <- 0L
+  local_mocked_bindings(calc_element = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "ggplot2")
+  one <- fmt_legend(p, scale = 0.8)
+  ordinary <- calls
+  other <- fmt_legend(q, scale = 0.8)
+  distinct <- calls
+  expect_gt(ordinary, 0L)
+  calls <- 0L
+  many <- fmt_legend(c(rep(list(p), 8L), rep(list(q), 4L)), scale = 0.8)
+  expect_true(calls <= distinct, info = "a repeated theme recalculated the scale")
+  expect_true(all(vapply(many[1:8], function(z) identical(z$theme, one$theme), logical(1L))))
+  expect_true(all(vapply(many[9:12], function(z) identical(z$theme, other$theme), logical(1L))))
+})

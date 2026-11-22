@@ -1193,29 +1193,9 @@ fmt_legend <- function(plot,
     if (identical(params, guide$params)) return(guide)
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
-  for (i in seq_len(n)) {
-    p <- plots[[i]]
-    if (length(leg_theme) || isTRUE(attr(leg_theme, "complete"))) p <- p + leg_theme
-    th <- base_theme + p$theme
-    if (inherits(p$guides, "Guides")) {
-      guides <- p$guides$guides
-      selected <- names(guides)[is_legend_aes(names(guides))]
-      if (length(selected)) guides[selected] <- lapply(guides[selected], style_guide, th = th)
-      if (!identical(guides, p$guides$guides)) {
-        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
-                            envir = baseenv())
-      }
-    }
-    scales <- lapply(p$scales$scales, function(sc) {
-      if (!any(is_legend_aes(sc$aesthetics))) return(sc)
-      guide <- style_guide(sc$guide, th)
-      if (identical(guide, sc$guide)) return(sc)
-      do.call(ggplot2::ggproto, list(NULL, sc, guide = guide), envir = baseenv())
-    })
-    if (!identical(scales, p$scales$scales)) {
-      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
-                          envir = baseenv())
-    }
+  last_legend_theme <- last_scaled_theme <- NULL
+  scaled_theme <- function(th) {
+    if (identical(th, last_legend_theme)) return(last_scaled_theme)
     scale_args <- list()
     if (scaling) {
       for (element in c("legend.text", "legend.title")) {
@@ -1252,7 +1232,35 @@ fmt_legend <- function(plot,
       scale_args$legend.key.height <- if (inherits(height, "rel")) height * scale_height else
         get_unit(th, "legend.key.height") * factor * scale_height
     }
-    if (length(scale_args)) p <- p + do.call(ggplot2::theme, scale_args)
+    last_legend_theme <<- th
+    last_scaled_theme <<- if (length(scale_args)) do.call(ggplot2::theme, scale_args)
+    last_scaled_theme
+  }
+  for (i in seq_len(n)) {
+    p <- plots[[i]]
+    if (length(leg_theme) || isTRUE(attr(leg_theme, "complete"))) p <- p + leg_theme
+    th <- base_theme + p$theme
+    if (inherits(p$guides, "Guides")) {
+      guides <- p$guides$guides
+      selected <- names(guides)[is_legend_aes(names(guides))]
+      if (length(selected)) guides[selected] <- lapply(guides[selected], style_guide, th = th)
+      if (!identical(guides, p$guides$guides)) {
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
+                            envir = baseenv())
+      }
+    }
+    scales <- lapply(p$scales$scales, function(sc) {
+      if (!any(is_legend_aes(sc$aesthetics))) return(sc)
+      guide <- style_guide(sc$guide, th)
+      if (identical(guide, sc$guide)) return(sc)
+      do.call(ggplot2::ggproto, list(NULL, sc, guide = guide), envir = baseenv())
+    })
+    if (!identical(scales, p$scales$scales)) {
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
+                          envir = baseenv())
+    }
+    scaled <- scaled_theme(th)
+    if (!is.null(scaled)) p <- p + scaled
     plots[[i]] <- p
   }
 
