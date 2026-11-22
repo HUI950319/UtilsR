@@ -1244,3 +1244,19 @@ test_that("subplots with equal themes reuse resolved legend scaling", {
   expect_true(all(vapply(many[1:8], function(z) identical(z$theme, one$theme), logical(1L))))
   expect_true(all(vapply(many[9:12], function(z) identical(z$theme, other$theme), logical(1L))))
 })
+
+test_that("outside legend collection does not visit layer aesthetics", {
+  p <- legend_test_plot()
+  fn <- fmt_legend
+  environment(fn) <- list2env(list(.stat_calculated_aes = function(stat) {
+    stop("looked up layer aesthetics without a possible inside legend")
+  }, .legend_layer_mapping = function(...) {
+    stop("looked up layer aesthetics without a possible inside legend")
+  }), parent = environment(fn))
+  out <- fn((p + ggplot2::guides(colour = ggplot2::guide_legend(position = "bottom"))) | p,
+            collect = TRUE)
+  expect_identical(out$patches$layout$guides, "collect")
+  inside <- p + ggplot2::guides(colour = ggplot2::guide_legend(position = "inside"))
+  expect_warning(out <- fmt_legend(inside | p, collect = TRUE), "inside")
+  expect_identical(out$patches$layout$guides, "keep")
+})

@@ -1361,6 +1361,12 @@ fmt_legend <- function(plot,
     if (inherits(p, c("spacer", "guide_area", "wrapped_patch"))) return(FALSE)
     plot_position <- (base_theme + p$theme)$legend.position
     if (is_position(plot_position, "none")) return(FALSE)
+    if (!annotation_inside && !is_inside(plot_position)) {
+      explicit <- c(p$guides$guides, lapply(p$scales$scales, function(sc) sc$guide))
+      if (!any(vapply(explicit, function(guide) {
+        inherits(guide, "Guide") && is_inside(guide$params$position)
+      }, logical(1L)))) return(FALSE)
+    }
     fixed <- unique(unlist(lapply(p$scales$scales, function(sc) {
       if (!is.null(sc$limits)) sc$aesthetics else character()
     })))
