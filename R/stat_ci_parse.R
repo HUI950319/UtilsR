@@ -223,10 +223,12 @@ stat_ci_parse <- function(x,
       tight <- exp_rows[pmax(abs(log_lo - log_est), abs(log_hi - log_est)) <
                           sqrt(.Machine$double.eps) * pmax(1, abs(log_est))]
     }
-    tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
-    tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
-    tight_se <- ifelse(asym[tight], ifelse(e_s[tight] > 0, tight_lower, tight_upper),
-                       (tight_lower + tight_upper) / 2) / z95
+    if (length(tight)) {
+      tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
+      tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
+      tight_se <- ifelse(asym[tight], ifelse(e_s[tight] > 0, tight_lower, tight_upper),
+                         (tight_lower + tight_upper) / 2) / z95
+    }
     # Full width for symmetric intervals; for asymmetric ones the half facing
     # the null, so that p < 0.05 exactly when the interval excludes the null
     asymmetric_rows <- which(asym)

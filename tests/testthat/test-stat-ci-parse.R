@@ -1460,3 +1460,16 @@ test_that("complete ratio interval inference uses full logarithm inputs", {
   expect_identical(fn(x, exp = TRUE, output = "ci", level = 0.8),
                    stat_ci_parse(x, exp = TRUE, output = "ci", level = 0.8))
 })
+
+test_that("ordinary intervals do not compute absent tight logarithms", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(log1p = function(x) {
+    if (!length(x)) stop("computed logarithms with no tight interval rows")
+    base::log1p(x)
+  }), parent = environment(fn))
+  for (x in list(c("1.00 (0.00, 2.00)", "3.00 (1.00, 5.00)"),
+                 c("1.00000000001 (1.00000000000, 1.00000000002)", "2 (1, 4)"))) {
+    expect_identical(fn(x, exp = startsWith(x[[1L]], "1.000"),
+                        output = "p"), stat_ci_parse(x, exp = startsWith(x[[1L]], "1.000"), output = "p"))
+  }
+})

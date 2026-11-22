@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Ordinary confidence intervals skip the extra logarithmic half-width calculations used for nearly coincident bounds.
+
 * Confidence-interval inference transforms the whole estimate and bounds columns directly when every interval is a ratio.
 
 * Rank-correlation normalization computes its scaling distance from endpoints instead of rescanning a shifted series.
