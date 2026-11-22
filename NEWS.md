@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette hex formatting only creates a per-colour opacity mask when opaque and translucent colours are mixed.
+
 * Palette preview validation avoids full finiteness and rounding flags for integer indices.
 
 * Numeric palette mapping retains its original lookup without constructing a second distinct vector when no positions collide.

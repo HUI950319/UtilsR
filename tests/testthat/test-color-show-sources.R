@@ -3427,3 +3427,15 @@ test_that("integer palette preview positions skip vector rounding and finiteness
     expect_error(fn(256, 256, bad), "unique positive whole numbers")
   }
 })
+
+test_that("uniform palette alpha avoids an opacity flag vector", {
+  fn <- .pal_hex
+  environment(fn) <- list2env(list(`==` = function(e1, e2) {
+    if (length(e1) > 2L && identical(e2, 255)) stop("allocated opacity flags for uniform palette alpha")
+    base::`==`(e1, e2)
+  }), parent = environment(fn))
+  for (x in list(c("black", "orange", "red"), c("#12345680", "#FFFFFF00", "#00000010"),
+                 character(), c("yellow", "#00000080"))) {
+    expect_identical(fn(x), .pal_hex(x))
+  }
+})
