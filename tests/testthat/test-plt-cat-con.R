@@ -2248,3 +2248,16 @@ test_that("singleton categorical group labels use one percentage formatting call
   expect_identical(actual$label_text, rep.int(sprintf("%.1f%%", 100), k))
   expect_identical(actual, .prepare_cat_data(d, "category", "group", "percent", FALSE, FALSE))
 })
+
+test_that("background axes reuse an already aligned factor dictionary", {
+  d <- data.frame(g = factor(rep(c("a", "b"), each = 6L)), bg = rep(c("left", "right"), each = 6L))
+  fn <- .build_bg_layer
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(levels(groups))) && identical(x, table))
+      stop("rematched an already aligned background group dictionary")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  run <- function(f, levels) f(d, "g", "bg", .2, axis_levels = levels)$data
+  expect_identical(run(fn, c("a", "b")), run(.build_bg_layer, c("a", "b")))
+  expect_identical(run(fn, c("b", "a")), run(.build_bg_layer, c("b", "a")))
+})

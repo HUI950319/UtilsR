@@ -1281,7 +1281,8 @@ plt_cat <- function(data,
   plain_factor <- identical(class(groups), "factor") || identical(class(groups), c("ordered", "factor"))
   if (!is.null(axis_levels) && plain_factor) {
     codes <- as.integer(groups)
-    group_codes <- match(levels(groups), axis_levels)[codes]
+    group_codes <- if (identical(levels(groups), axis_levels)) codes else
+      match(levels(groups), axis_levels)[codes]
     if (anyNA(codes)) group_codes[is.na(codes)] <- match(NA_character_, axis_levels)
   } else {
     group_values <- as.character(groups)

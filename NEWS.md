@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical background preparation retains native group codes when the factor levels match the axis.
+
 * Position scale inference reads ordinary columns directly for supported literal .data mappings.
 
 * Object size selection checks numeric extrema before testing whether the indices are whole numbers.
