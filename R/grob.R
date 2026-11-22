@@ -558,7 +558,9 @@ grob_to_gg <- function(grob, ...) {
 }
 
 .grob_finite_unit <- function(value) {
-  if (any(!is.finite(as.numeric(value)))) return(FALSE)
+  coefficients <- as.numeric(value)
+  if (length(coefficients) && (!is.finite(min(coefficients)) ||
+      !is.finite(max(coefficients)))) return(FALSE)
   if (inherits(value, "simpleUnit") || !inherits(value, "unit_v2")) return(TRUE)
   # Compound units store their operands separately from the numeric coefficient.
   compound <- which(grid::unitType(value) %in% c("sum", "min", "max"))

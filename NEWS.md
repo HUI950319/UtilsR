@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grid unit validation checks numeric extrema before inspecting compound operands.
+
 * Single-vector factor combinations group the existing integer codes directly.
 
 * Factor combinations use grouped character codes and order the distinct keys once without rematching the column.

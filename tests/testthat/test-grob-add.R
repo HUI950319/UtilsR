@@ -371,3 +371,16 @@ test_that("mixed noncompound units need no nested operand inspection", {
   expect_false(fn(grid::unit(Inf, "cm")))
   expect_true(fn(grid::unit(1, "cm") + grid::unit(.25, "npc")))
 })
+
+test_that("grid units validate numeric extrema before compound operands", {
+  fn <- .grob_finite_unit
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (length(x) > 2L) stop("allocated finiteness flags for all grid units")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_true(fn(grid::unit(seq_len(80L), "pt")))
+  expect_false(fn(grid::unit(c(seq_len(80L), Inf), "pt")))
+  expect_false(fn(grid::unit(c(1, NA, 2), "npc")))
+  expect_true(fn(grid::unit(0.1, "npc") + grid::unit(1, "pt")))
+  expect_false(fn(grid::unit(0.1, "npc") + grid::unit(Inf, "pt")))
+})
