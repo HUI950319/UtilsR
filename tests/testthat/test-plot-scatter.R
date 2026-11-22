@@ -2063,3 +2063,18 @@ test_that("complete integer64 correlation vectors avoid a missingness scan", {
   x[2L] <- NA
   expect_equal(fn(x, y, "pearson")$estimate, .scatter_cor_test(x, y, "pearson")$estimate)
 })
+
+test_that("scatter reuses the grouping factor shared by colour and shape", {
+  d <- data.frame(x = 1:8, y = 2:9, group = rep(c("b", "a"), each = 4L))
+  calls <- 0L
+  fn <- PlotScatter2
+  environment(fn) <- list2env(list(.scatter_group_factor = function(...) {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("factored the shared scatter group twice")
+    .scatter_group_factor(...)
+  }), parent = environment(fn))
+  draw <- function(f) f(d, x = "x", y = "y", group = "group", group2 = "group")
+  p <- draw(fn)
+  expect_identical(calls, 1L)
+  expect_identical(p[[1L]]$data$group, draw(PlotScatter2)[[1L]]$data$group)
+})

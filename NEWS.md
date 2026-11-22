@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter preparation factors a shared colour and shape group once.
+
 * Pearson scatter correlations check integer64 axes for completeness before allocating a missingness mask.
 
 * Console wrapping leaves text unchanged before wrapping when no missing string needs a replacement.

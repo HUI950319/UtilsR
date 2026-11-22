@@ -237,7 +237,7 @@ PlotScatter2 <- function(
     if (inherits(df[[col]], "integer64")) df[[col]] <- .scatter_axis_values(df[[col]])
   }
   df[[group]] <- .scatter_group_factor(df[[group]])
-  if (!is.null(group2)) {
+  if (!is.null(group2) && group2 != group) {
     df[[group2]] <- .scatter_group_factor(df[[group2]])
   }
 
