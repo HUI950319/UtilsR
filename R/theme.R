@@ -116,10 +116,13 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
 
   # Process panel.spacing
   if (!is.null(panel.spacing)) {
-    spacing_value <- if (grid::is.unit(panel.spacing)) as.numeric(panel.spacing) else panel.spacing
-    if (!is.numeric(spacing_value) || is.object(spacing_value) ||
-        !is.null(dim(spacing_value)) || !length(spacing_value) ||
-        (if (grid::is.unit(panel.spacing)) !.grob_finite_unit(panel.spacing) else any(!is.finite(spacing_value))))
+    valid_spacing <- if (grid::is.unit(panel.spacing)) {
+      length(panel.spacing) && .grob_finite_unit(panel.spacing)
+    } else {
+      is.numeric(panel.spacing) && !is.object(panel.spacing) && is.null(dim(panel.spacing)) &&
+        length(panel.spacing) && all(is.finite(panel.spacing))
+    }
+    if (!valid_spacing)
       stop("'panel.spacing' must contain finite numeric values or grid units.", call. = FALSE)
   }
   if (is.null(panel.spacing)) {

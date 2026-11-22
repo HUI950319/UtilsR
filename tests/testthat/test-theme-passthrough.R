@@ -316,3 +316,15 @@ test_that("main theme diagnoses malformed legend positions before building a plo
   expect_identical(theme_my(legend.position = "left")$legend.position, "left")
   expect_identical(theme_my(legend.position = c(.2, .8))$legend.position.inside, c(.2, .8))
 })
+
+test_that("theme spacing reads grid coefficients in the unit validator only", {
+  fn <- theme_my
+  environment(fn) <- list2env(list(as.numeric = function(x, ...) {
+    if (grid::is.unit(x)) stop("converted theme unit coefficients before shared validation")
+    base::as.numeric(x, ...)
+  }), parent = environment(fn))
+  space <- grid::unit(0.1, "npc") + grid::unit(2, "pt")
+  expect_identical(fn(panel.spacing = space)$panel.spacing, theme_my(panel.spacing = space)$panel.spacing)
+  expect_error(fn(panel.spacing = grid::unit(Inf, "pt")), "panel.spacing.*finite")
+  expect_identical(fn(panel.spacing = c(1, 2))$panel.spacing, theme_my(panel.spacing = c(1, 2))$panel.spacing)
+})

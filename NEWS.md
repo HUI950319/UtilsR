@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Theme construction uses the shared grid-unit validator directly for panel spacing.
+
 * Palette hex formatting only creates a per-colour opacity mask when opaque and translucent colours are mixed.
 
 * Palette preview validation avoids full finiteness and rounding flags for integer indices.
