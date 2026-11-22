@@ -936,14 +936,17 @@ plt_cat <- function(data,
       n = counts
     )
     if (stat == "percent") {
-      df$value <- if (!length(j)) logical() else if (!anyDuplicated(j)) {
-        rep.int(100, length(j))
+      if (length(j) && !anyDuplicated(j)) {
+        df$value <- rep.int(100, length(j))
+        df$label_text <- rep.int(sprintf("%.1f%%", 100), length(j))
       } else {
-        totals <- rowsum(as.double(df$n), j, reorder = FALSE)
-        total <- unname(totals[match(j, as.integer(rownames(totals))), 1L])
-        df$n / total * 100
+        df$value <- if (!length(j)) logical() else {
+          totals <- rowsum(as.double(df$n), j, reorder = FALSE)
+          total <- unname(totals[match(j, as.integer(rownames(totals))), 1L])
+          df$n / total * 100
+        }
+        df$label_text <- sprintf("%.1f%%", df$value)
       }
-      df$label_text <- sprintf("%.1f%%", df$value)
       return(dplyr::as_tibble(df))
     }
     row_id <- (as.double(j) - 1L) * dimensions[1L] + i

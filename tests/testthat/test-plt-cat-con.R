@@ -2233,3 +2233,18 @@ test_that("sparse categorical pairs use exact single row grid keys", {
   expect_identical(got$n, c(2L, 1L, 1L))
   expect_identical(rownames(got), c("102", "300", "400"))
 })
+
+test_that("singleton categorical group labels use one percentage formatting call", {
+  k <- 24L
+  d <- data.frame(category = factor(rep("A", k)), group = factor(seq_len(k)))
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    if (identical(fmt, "%.1f%%") && length(list(...)[[1L]]) == k)
+      stop("formatted every singleton categorical percentage")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  actual <- fn(d, "category", "group", "percent", FALSE, FALSE)
+  expect_identical(actual$value, rep.int(100, k))
+  expect_identical(actual$label_text, rep.int(sprintf("%.1f%%", 100), k))
+  expect_identical(actual, .prepare_cat_data(d, "category", "group", "percent", FALSE, FALSE))
+})
