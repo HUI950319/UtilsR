@@ -200,8 +200,11 @@ PlotHeatmapJaccard <- function(
                        !is.complex(ct_names)) ||
     (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
        !is.complex(group_values))
-  group_rows <- if (base_groups || time_groups || scalar_time_groups || integer64_groups ||
-                    (indexable_groups && is.character(lookup_levels) && !is.object(lookup_levels))) {
+  group_rows <- if (complete && n_ct == 1L && is.null(group_levels) &&
+                    (!factor_groups || !anyNA(levels(group_values)))) {
+    list(seq_len(nrow(data)))
+  } else if (base_groups || time_groups || scalar_time_groups || integer64_groups ||
+             (indexable_groups && is.character(lookup_levels) && !is.object(lookup_levels))) {
     rows <- if (complete) seq_len(nrow(data)) else which(non_missing)
     keys <- if (complete) group_values else group_values[rows]
     labels <- lookup_levels

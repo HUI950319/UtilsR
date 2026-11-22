@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* When the input has one observed group, complete Jaccard comparisons use its rows directly without matching and splitting them.
+
 * Sparse Jaccard overlaps look up the groups of shared features without expanding an index for every membership.
 
 * Disjoint sets of the same member type skip a full member rematch and per-set sorting.

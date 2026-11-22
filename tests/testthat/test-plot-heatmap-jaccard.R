@@ -1196,3 +1196,17 @@ test_that("sparse Jaccard groups come from cumulative set boundaries", {
   expect_equal(got[c("a", "e"), "t"], c(a = 1/11, e = 1/11))
   expect_identical(got["unused", "unused2"], 0)
 })
+
+test_that("one complete Jaccard group skips splitting row positions", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(split = function(x, ...) {
+    if (identical(substitute(x), quote(rows)) && length(x) == 200L && any(!is.na(list(...)[[1L]]))) stop("split rows for the only Jaccard group")
+    base::split(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(cell_type = factor(rep("T", 200L)), gene = rep(letters, length.out = 200L))
+  expect_identical(fn(d, return_type = "data"), matrix(1, 1L, 1L, dimnames = list("T", "T")))
+  expect_identical(fn(d, group_levels = "B", return_type = "data"),
+                   matrix(0, 1L, 1L, dimnames = list("B", "B")))
+  d$cell_type <- structure(rep.int(2L, nrow(d)), levels = c("T", NA_character_), class = "factor")
+  expect_identical(fn(d, return_type = "data"), matrix(0, 1L, 1L, dimnames = list("T", "T")))
+})
