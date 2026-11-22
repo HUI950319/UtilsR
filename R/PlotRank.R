@@ -458,8 +458,9 @@ PlotRank <- function(
         index <- if (is.null(group_rows) || is.na(g)) {
           !is.na(data[[group_col]]) & data[[group_col]] == g
         } else group_rows[[i]]
-        v <- scores[index]
-        names(v) <- data[[name_col]][index]
+        all_rows <- identical(index, seq_along(scores))
+        v <- if (all_rows) scores else scores[index]
+        names(v) <- if (all_rows) data[[name_col]] else data[[name_col]][index]
         v
       }))
     }

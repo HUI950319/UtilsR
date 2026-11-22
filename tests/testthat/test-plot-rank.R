@@ -961,3 +961,19 @@ test_that("all highlighted rank rows reuse their labelled frame", {
   expect_identical(run(fn, 5L), run(PlotRank, 5L))
   expect_identical(run(fn, 2L), run(PlotRank, 2L))
 })
+
+test_that("single complete rank groups keep their score and label storage", {
+  d <- data.frame(group = rep("one", 40L), name = paste0("item", seq_len(40L)), value = seq_len(40L))
+  fn <- .pr_parse
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(x), quote(scores)) && length(i) == length(x))
+      stop("copied a complete score vector through group row positions")
+    call <- sys.call()
+    call[[1L]] <- base::`[`
+    eval(call, parent.frame())
+  }), parent = environment(fn))
+  read <- function(f, d) f(d, "group", "name", "value", NULL)
+  expect_identical(read(fn, d), list(one = stats::setNames(d$value, d$name)))
+  d$group[seq(1L, nrow(d), by = 2L)] <- "two"
+  expect_identical(read(fn, d), read(.pr_parse, d))
+})
