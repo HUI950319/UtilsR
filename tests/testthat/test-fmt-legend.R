@@ -1271,3 +1271,23 @@ test_that("title-only legend formatting skips the styling pass", {
   expect_true("Replacement" %in% legend_test_labels(ggplot2::ggplotGrob(out)))
   expect_true(out$guides$guides$colour$params$reverse)
 })
+
+test_that("staged AsIs aesthetics do not keep otherwise collectable legends", {
+  d <- data.frame(x = seq_len(12L), group = rep(c("a", "b"), 6L))
+  simple <- ggplot2::ggplot(d, ggplot2::aes(x, x)) +
+    ggplot2::theme(legend.position = "inside", legend.position.inside = c(0.8, 0.8))
+  outside <- legend_test_plot()
+  wrapped <- list(
+    simple + ggplot2::geom_point(ggplot2::aes(colour = ggplot2::after_stat(I("red")))),
+    simple + ggplot2::geom_point(ggplot2::aes(colour = ggplot2::stage(start = I("red"))))
+  )
+  for (p in wrapped) {
+    expect_length(ggplot2::ggplot_build(p)$plot$guides$guides, 0L)
+    expect_no_warning(out <- fmt_legend(p | outside, collect = TRUE))
+    expect_identical(out$patches$layout$guides, "collect")
+  }
+  trained <- simple + ggplot2::geom_point(ggplot2::aes(
+    colour = ggplot2::stage(start = group, after_scale = I("red"))))
+  expect_warning(out <- fmt_legend(trained | outside, collect = TRUE), "inside")
+  expect_identical(out$patches$layout$guides, "keep")
+})

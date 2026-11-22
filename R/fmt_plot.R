@@ -1347,6 +1347,29 @@ fmt_legend <- function(plot,
   is_inside <- function(position) {
     is_position(position, "inside") || (is.numeric(position) && length(position) == 2L)
   }
+  unscaled_mapping <- function(expr, env) {
+    if (is.null(expr)) return(TRUE)
+    stage_name <- if (is.call(expr)) rlang::call_name(expr) else NULL
+    if (any(stage_name %in% c("after_scale", "from_theme"))) return(TRUE)
+    if (identical(stage_name, "stage")) {
+      stages <- as.list(match.call(ggplot2::stage, expr))[-1L]
+      return(unscaled_mapping(stages$start, env) && unscaled_mapping(stages$after_stat, env))
+    }
+    if (any(stage_name %in% c("after_stat", "stat")) && length(expr) == 2L) {
+      return(unscaled_mapping(expr[[2L]], env))
+    }
+    if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)
+    if (!rlang::is_call(expr, "I", ns = "")) return(FALSE)
+    while (!identical(env, emptyenv())) {
+      if (exists("I", envir = env, inherits = FALSE)) {
+        if (bindingIsActive("I", env) || rlang::env_binding_are_lazy(env, "I")[[1L]]) return(FALSE)
+        binding <- get("I", envir = env, inherits = FALSE)
+        if (is.function(binding)) return(identical(binding, base::I))
+      }
+      env <- parent.env(env)
+    }
+    FALSE
+  }
   has_inside_legend <- function(p, annotation_inside = FALSE) {
     if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
         match("inset_patch", class(p)) < match("patchwork", class(p)))) return(FALSE)
@@ -1377,27 +1400,7 @@ fmt_legend <- function(plot,
       if (identical(layer$show.legend, FALSE)) return(NULL)
       mapping <- .legend_layer_mapping(layer, p$mapping)
       asis <- vapply(mapping, function(value) {
-        expr <- rlang::get_expr(value)
-        stage_name <- if (is.call(expr)) rlang::call_name(expr) else NULL
-        if (any(stage_name %in% c("after_scale", "from_theme"))) return(TRUE)
-        if (identical(stage_name, "stage")) {
-          stages <- as.list(match.call(ggplot2::stage, expr))[-1L]
-          if (is.null(stages$start) && is.null(stages$after_stat)) return(TRUE)
-        }
-        if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)
-        if (!rlang::is_call(expr, "I", ns = "")) return(FALSE)
-        env <- rlang::get_env(value)
-        while (!identical(env, emptyenv())) {
-          if (exists("I", envir = env, inherits = FALSE)) {
-            if (bindingIsActive("I", env) || rlang::env_binding_are_lazy(env, "I")[[1L]]) {
-              return(FALSE)
-            }
-            binding <- get("I", envir = env, inherits = FALSE)
-            if (is.function(binding)) return(identical(binding, base::I))
-          }
-          env <- parent.env(env)
-        }
-        FALSE
+        unscaled_mapping(rlang::get_expr(value), rlang::get_env(value, default = baseenv()))
       }, logical(1))
       aesthetics <- names(mapping)[!asis | names(mapping) %in% fixed]
       forced <- if (isTRUE(layer$show.legend)) names(layer$geom$default_aes) else

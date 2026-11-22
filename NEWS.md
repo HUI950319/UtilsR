@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend collection ignores staged AsIs values that train no scale and still preserves legends trained by another stage.
+
 * Missingness plots keep the paired present and missing summary rows directly when every displayed variable is partly observed.
 
 * Alluvial stratum counts keep their already bounded grid indices in integer storage.
