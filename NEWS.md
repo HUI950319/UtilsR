@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot label and comparison helpers return immediately when there are no facet variables to inspect.
+
 * Plot formatters return a rebuilt single plot directly when the original input has no container to reconstruct.
 
 * Paired scatter histograms calculate their automatic extent from finite endpoints without copying all finite differences.

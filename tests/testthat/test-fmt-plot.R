@@ -339,3 +339,15 @@ test_that("recursive single-plot restoration skips remapping the plot tree", {
   }), parent = environment(fn))
   expect_identical(fn(list(q), FALSE, TRUE, pw_orig = p, recurse = TRUE), q)
 })
+
+test_that("unfaceted plots skip the facet expression walk", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width)) + ggplot2::geom_point()
+  fn <- .plot_facet_columns
+  environment(fn) <- list2env(list(lapply = function(x, fun, ...) {
+    if (!length(x)) stop("walked an empty set of facet expressions")
+    base::lapply(x, fun, ...)
+  }), parent = environment(fn))
+  expect_null(fn(p))
+  facets <- p + ggplot2::facet_wrap(ggplot2::vars(Species))
+  expect_identical(fn(facets), "Species")
+})

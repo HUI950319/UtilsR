@@ -271,6 +271,7 @@
 .plot_facet_columns <- function(plot) {
   params <- plot$facet$params
   facets <- c(params$facets, params$rows, params$cols)
+  if (!length(facets)) return(NULL)
   symbols <- function(expr) {
     if (is.symbol(expr)) return(as.character(expr))
     if (!is.call(expr)) return(character())
