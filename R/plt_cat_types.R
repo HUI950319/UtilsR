@@ -37,15 +37,18 @@
     if (length(observed) == length(labels)) {
       if (all(names(attributes(value)) %in% c("levels", "class", "names"))) return(value)
       codes <- tally$row_codes
-    } else if (length(labels) <= length(value)) {
-      positions <- rep.int(NA_integer_, length(labels))
-      positions[observed] <- seq_along(observed)
-      codes <- positions[tally$row_codes]
     } else {
-      codes <- match(tally$row_codes, observed)
+      if (length(labels) <= length(value)) {
+        positions <- rep.int(NA_integer_, length(labels))
+        positions[observed] <- seq_along(observed)
+        codes <- positions[tally$row_codes]
+      } else {
+        codes <- match(tally$row_codes, observed)
+      }
+      labels <- labels[observed]
     }
     names(codes) <- names(value)
-    return(structure(codes, levels = labels[observed], class = class(value)))
+    return(structure(codes, levels = labels, class = class(value)))
   }
   factor(value)
 }

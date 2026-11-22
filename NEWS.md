@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis preparation reuses the full factor level vector when every level is displayed and only extra attributes need removal.
+
 * Categorical background preparation retains native group codes when the factor levels match the axis.
 
 * Position scale inference reads ordinary columns directly for supported literal .data mappings.

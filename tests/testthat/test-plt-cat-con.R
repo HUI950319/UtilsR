@@ -2261,3 +2261,17 @@ test_that("background axes reuse an already aligned factor dictionary", {
   expect_identical(run(fn, c("a", "b")), run(.build_bg_layer, c("a", "b")))
   expect_identical(run(fn, c("b", "a")), run(.build_bg_layer, c("b", "a")))
 })
+
+test_that("complete axis factor labels skip gathering their dictionary", {
+  x <- ordered(c(a = "B", b = "A", c = "B"), levels = c("B", "A"))
+  attr(x, "label") <- "axis notes"
+  fn <- .cat_axis_factor
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(x), quote(labels)) && length(i) == length(x))
+      stop("gathered every category while removing extra axis factor metadata")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .cat_axis_factor(x))
+  expect_identical(fn(x[1L]), .cat_axis_factor(x[1L]))
+  expect_null(attr(fn(x), "label"))
+})
