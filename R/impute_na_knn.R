@@ -109,9 +109,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   if (any(labelled_cols) && !requireNamespace("haven", quietly = TRUE)) {
     cli::cli_abort("Inspecting labelled columns requires package {.pkg haven}.")
   }
-  vars_with_missing <- names(data_for_impute)[
-    vapply(data_for_impute, anyNA, logical(1))
-  ]
+  missing_cols <- vapply(data_for_impute, anyNA, logical(1))
+  vars_with_missing <- names(data_for_impute)[missing_cols]
   if (length(vars_with_missing) == 0L) {
     if (verbose) {
       cli::cli_inform(
@@ -300,7 +299,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   backend_data <- if (all_observed) data_for_impute else
     data_for_impute[observed_rows, , drop = FALSE]
   missing_backend <- if (all_observed && !any(labelled_cols | time_cols)) {
-    match(vars_with_missing, names(data_for_impute))
+    which(missing_cols)
   } else which(vapply(backend_data, anyNA, logical(1)))
   backend_variables <- backend_names[missing_backend]
   result <- data_for_impute

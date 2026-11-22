@@ -1008,3 +1008,15 @@ test_that("complete labelled predictors do not build a restoration lookup", {
   expect_identical(result$complete, d$complete)
   expect_identical(attributes(result$target), attributes(d$target))
 })
+
+test_that("ordinary KNN keeps initial missing column positions", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(NA, 2L, 3L, 4L), keep = 1:4, y = c(0, NA, 0, 1))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(vars_with_missing)))
+      stop("rematched KNN column names after missingness classification")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})
