@@ -537,7 +537,10 @@ fmt_point <- function(plot,
     })
     if (length(strata) == 1L) {
       groups <- strata[[1L]]
-      if (nlevels(groups) > nrow(data)) groups <- droplevels(groups, exclude = NULL)
+      if (nlevels(groups) > nrow(data)) {
+        ordinary <- identical(class(groups), "factor") || identical(class(groups), c("ordered", "factor"))
+        groups <- if (ordinary) as.integer(groups) else droplevels(groups, exclude = NULL)
+      }
       rows <- split(seq_len(nrow(data)), groups)
       observed <- lengths(rows) > 0L
       if (!all(observed)) rows <- rows[observed]

@@ -1251,3 +1251,17 @@ test_that("numeric point shapes are not rounded by a character fallback", {
   expect_identical(.shape_convert(x), c(21, fractional, 22, NA_real_))
   expect_identical(.shape_convert(c("19", "6", "13")), c("21", "25", "13"))
 })
+
+test_that("sparse point sampling splits native codes without dropping all unused levels", {
+  d <- data.frame(x = 1:40, y = 41:80, group = factor(rep(c("b", "a"), each = 20L),
+    levels = c("a", paste0("unused", seq_len(1000L)), "b")))
+  mapping <- ggplot2::aes(x, y, group = group)
+  expected <- .fmt_point_sample(d, mapping, sample_n = 3L, seed = 12L)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(droplevels = function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) stop("rebuilt the sparse point sampling factor")
+    base::droplevels(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, mapping, sample_n = 3L, seed = 12L), expected)
+  expect_identical(as.character(expected$group), rep(c("a", "b"), each = 3L))
+})

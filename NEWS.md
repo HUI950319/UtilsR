@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling keeps the original stratum order without expanding an ordinary factor's unused levels.
+
 * Alluvial preparation excludes both kinds of missing factor rows by looking up the integer codes once.
 
 * Sankey layers reuse node codes as caption codes when every node has a distinct caption.
