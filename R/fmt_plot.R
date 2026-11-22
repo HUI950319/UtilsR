@@ -4667,7 +4667,7 @@ fmt_com <- function(plot,
         facet_values <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
                                rlang::eval_tidy, data = source_data)
         panels <- if (length(facet_values)) do.call(interaction,
-          c(lapply(facet_values, function(value) factor(vctrs::vec_group_id(rep(value, length.out = n)), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
+          c(lapply(facet_values, function(value) factor(vctrs::vec_group_id(rep(value, length.out = n)), exclude = NULL)), list(drop = TRUE)))
         context_id <- match(context, contexts)
         observed <- which(finite & !is.na(context) & !is.na(context_id))
         context_rows <- split(observed, structure(context_id[observed],
@@ -4677,7 +4677,9 @@ fmt_com <- function(plot,
           if (!length(rows)) next
           subset <- contexts[[i]]
           add_pairs(values[rows], subset, declared = is.list(comparisons))
-          for (panel in unique(panels[rows])) add_pairs(values[rows[panels[rows] == panel]], subset)
+          if (!is.null(panels)) {
+            for (panel in unique(panels[rows])) add_pairs(values[rows[panels[rows] == panel]], subset)
+          }
         }
       }
       count <- length(layout_keys)

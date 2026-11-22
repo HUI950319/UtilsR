@@ -961,3 +961,16 @@ test_that("comparison bracket layout uses one scan of each context key", {
   run <- function(f) ggplot2::ggplot_build(f(p, label.y = c(12, 13)))$data
   expect_identical(run(fn), run(fmt_com))
 })
+
+test_that("unfaceted bracket layout skips the duplicate panel pass", {
+  d <- data.frame(x = rep(letters[1:3], each = 4L), y = c(1, 4, 2, 5, 2, 6, 5, 9, 7, 8, 6, 10))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_boxplot()
+  fn <- fmt_com
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, 1L) && length(list(...)) == 1L && identical(list(...)[[1L]], 12L))
+      stop("allocated a dummy panel for the unfaceted comparison layout")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  run <- function(f) ggplot2::ggplot_build(f(p, label.y = c(12, 13)))$data
+  expect_identical(run(fn), run(fmt_com))
+})

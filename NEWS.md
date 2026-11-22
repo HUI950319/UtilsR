@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unfaceted comparison formatting skips a redundant per-panel comparison pass and its row-sized placeholder.
+
 * UpSet data checks for unselected rows without allocating one comparison flag per row.
 
 * Factor inspection avoids subsetting the tally when none of its observed labels is a special marker.
