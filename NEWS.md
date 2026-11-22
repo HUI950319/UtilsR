@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Viridis previews reuse one interpolated colour when their begin and end points coincide.
+
 * Integer64 means sum their bounded limbs in integer64 storage before converting the two totals to doubles.
 
 * Factor reordering uses the matched level positions to keep unselected levels in their existing order.

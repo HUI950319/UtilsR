@@ -3439,3 +3439,17 @@ test_that("uniform palette alpha avoids an opacity flag vector", {
     expect_identical(fn(x), .pal_hex(x))
   }
 })
+
+test_that("zero-width viridis intervals call the spline once per colour", {
+  before <- .pal_viridis_preview(80L, "mako", c(1L, 5L, 44L, 80L), .6, .4, .4, -1)
+  original <- grDevices::colorRamp
+  local_mocked_bindings(colorRamp = function(...) {
+    fn <- original(...)
+    function(x) {
+      if (length(x) > 1L) stop("interpolated repeated identical viridis positions")
+      fn(x)
+    }
+  }, .package = "grDevices")
+  expect_identical(.pal_viridis_preview(80L, "mako", c(1L, 5L, 44L, 80L), .6, .4, .4, -1), before)
+  expect_length(unique(before), 1L)
+})

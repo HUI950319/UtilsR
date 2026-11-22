@@ -932,11 +932,16 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   ramp <- grDevices::colorRamp(knots, space = "Lab", interpolate = "spline")
   from <- if (direction == 1) begin else end
   to <- if (direction == 1) end else begin
-  at <- from + (index - 1) * ((to - from) / (n - 1))
-  at[index == 1] <- from
-  at[index == n] <- to
+  constant <- from == to
+  at <- if (constant) from else {
+    positions <- from + (index - 1) * ((to - from) / (n - 1))
+    positions[index == 1] <- from
+    positions[index == n] <- to
+    positions
+  }
   rgb <- ramp(at) / 255
-  grDevices::rgb(rgb[, 1L], rgb[, 2L], rgb[, 3L], alpha = alpha)
+  colours <- grDevices::rgb(rgb[, 1L], rgb[, 2L], rgb[, 3L], alpha = alpha)
+  if (constant) rep.int(colours, length(index)) else colours
 }
 
 # Keep returned plot environments separate from the original palette input.
