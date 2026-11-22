@@ -1437,3 +1437,21 @@ test_that("finite rank correlation pairs do not repeat original extrema scans", 
   }
   expect_identical(run(fn), run(PlotRankCor))
 })
+
+test_that("single group rank correlation scales complete axes without indexing", {
+  d <- rank_cor_data()
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (identical(substitute(x), quote(values)) && identical(substitute(i), quote(idx)))
+      stop("gathered an entire rank correlation axis before scaling")
+    call <- sys.call()
+    call[[1L]] <- base::`[`
+    eval(call, parent.frame())
+  }), parent = environment(fn))
+  draw <- function(f) {
+    invisible(capture.output(p <- f(d, "item", "score", method.by = "method",
+      use_rank = FALSE, scale_x = "minmax", scale_y = "zscore", show.label = FALSE)))
+    list(data = p$data, cor = attr(p, "cor_results"))
+  }
+  expect_identical(draw(fn), draw(PlotRankCor))
+})

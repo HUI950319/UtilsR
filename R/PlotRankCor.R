@@ -486,7 +486,9 @@ PlotRankCor <- function(
     axis_scales <- c(scale_x, scale_y)
     for (i in which(axis_scales != "none")) {
       values <- rank_wide[[method_cols[i]]]
-      for (idx in wide_rows[["loc"]]) {
+      if (length(wide_groups) == 1L) {
+        values <- .scale_vec(values, axis_scales[i])
+      } else for (idx in wide_rows[["loc"]]) {
         values[idx] <- .scale_vec(values[idx], axis_scales[i])
       }
       rank_wide[[method_cols[i]]] <- values
