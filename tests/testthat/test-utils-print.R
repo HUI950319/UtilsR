@@ -2348,3 +2348,17 @@ test_that("constant sparkline spreads skip per-measurement inequality flags", {
   }), parent = environment(fn))
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("factor sparklines sort only their displayed largest counts", {
+  codes <- rep(seq_len(200L), times = rep(1:9, length.out = 200L))
+  d <- data.frame(group = factor(codes, levels = seq_len(260L)))
+  fn <- pr_spark
+  environment(fn) <- list2env(list(sort = function(x, ...) {
+    if (identical(substitute(x), quote(counts)) && length(x) == 200L)
+      stop("fully sorted the counts of a wide sparkline factor")
+    base::sort(x, ...)
+  }), parent = environment(fn))
+  render <- function(f) cli::ansi_strip(utils::capture.output(f(d, bins = 4)))
+  expect_identical(render(fn), render(pr_spark))
+  expect_match(paste(render(fn), collapse = " "), "260 levels.*top 9")
+})

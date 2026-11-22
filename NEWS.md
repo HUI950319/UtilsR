@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor sparklines partially sort the observed counts when only a small share can be displayed.
+
 * Equal-size butterfly sample columns reuse their row indices and shorter columns still receive typed missing padding.
 
 * Butterfly distributions reuse category rows directly when all factor labels are allowed and the codes are complete.

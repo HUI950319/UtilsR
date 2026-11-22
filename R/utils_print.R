@@ -1439,7 +1439,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         lab <- levels(v)[factor_tally$codes[top]]
         share <- counts[top]
         if (k > bins) {
-          tab <- head(sort(counts, decreasing = TRUE), bins)
+          if (bins < length(counts) / 8) {
+            first <- length(counts) - bins + 1L
+            largest <- sort.int(counts, partial = first)[seq.int(first, length(counts))]
+            tab <- sort(largest, decreasing = TRUE)
+          } else {
+            tab <- head(sort(counts, decreasing = TRUE), bins)
+          }
           length(tab) <- bins
           tab[is.na(tab)] <- 0L
         } else if (length(counts) == k) {
