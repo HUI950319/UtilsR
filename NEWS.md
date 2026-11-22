@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric sparklines reuse the bounds checked during finite-input validation when constructing the histogram.
+
 * Grid unit validation checks numeric extrema before inspecting compound operands.
 
 * Single-vector factor combinations group the existing integer codes directly.

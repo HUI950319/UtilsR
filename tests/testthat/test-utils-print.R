@@ -2362,3 +2362,19 @@ test_that("factor sparklines sort only their displayed largest counts", {
   expect_identical(render(fn), render(pr_spark))
   expect_match(paste(render(fn), collapse = " "), "260 levels.*top 9")
 })
+
+test_that("finite numeric sparkline data reuse checked histogram endpoints", {
+  x <- seq(0.031, 10.031, length.out = 1000L)
+  d <- data.frame(series = x)
+  reads <- 0L
+  fn <- pr_spark
+  environment(fn) <- list2env(list(min = function(value, ...) {
+    if (identical(value, x)) {
+      reads <<- reads + 1L
+      if (reads > 1L) stop("recomputed the bounds of a complete numeric sparkline")
+    }
+    base::min(value, ...)
+  }), parent = environment(fn))
+  expect_identical(utils::capture.output(fn(d)), utils::capture.output(pr_spark(d)))
+  expect_identical(reads, 1L)
+})

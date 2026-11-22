@@ -1333,8 +1333,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   vars <- names(data)[columns]
 
   # equal-width bins, or one per value for few whole numbers
-  bin <- function(x) {
-    rng <- c(min(x), max(x))
+  bin <- function(x, rng = c(min(x), max(x))) {
     if (rng[1L] == rng[2L]) return(length(x))
     probe <- x[seq_len(min(length(x), bins + 1))]
     if (all(probe == round(probe))) {
@@ -1401,8 +1400,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       # classed numbers (integer64, labelled) as plain doubles: mean() of an
       # integer64 is an integer64, which formatC() writes as its raw bits
       num <- suppressWarnings(as.numeric(v))
-      complete <- !is.object(v) && length(missing) == 1L && !missing &&
-        is.finite(min(num)) && is.finite(max(num))
+      bounds <- if (!is.object(v) && length(missing) == 1L && !missing) {
+        c(min(num), max(num))
+      }
+      complete <- !is.null(bounds) && all(is.finite(bounds))
       fin <- if (complete) num else {
         valid <- !missing & is.finite(num)
         if (all(valid)) num else num[valid]
@@ -1413,7 +1414,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         observed <- v[!missing]
         shape <- suppressWarnings(as.numeric(observed - min(observed)))
       }
-      counts <- bin(shape)
+      counts <- if (complete) bin(shape, bounds) else bin(shape)
       spread <- stats::sd(shape)
       if (length(shape) > 1L && (!is.finite(spread) ||
           (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||
