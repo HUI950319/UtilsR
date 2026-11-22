@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missing-value inspection recognizes normalized blank labels in the same scan as other built-in markers.
+
 * Exact decimal significance comparisons skip digit padding when the powers already determine the order.
 
 * Decimal P-values with one significance threshold compare tied endpoints in a single group.

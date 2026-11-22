@@ -366,8 +366,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }
   if (is.null(special)) {
     grepl(paste0("(*UCP)\\b(unknowns?|blanks?|n/a|na|missing|unspecified|",
-                 "not (available|applicable|stated|reported)|null)\\b|^[?.-]+$"),
-          u, ignore.case = TRUE, perl = TRUE) | u %in% ""
+                 "not (available|applicable|stated|reported)|null)\\b|^[?.-]*$"),
+          u, ignore.case = TRUE, perl = TRUE)
   } else {
     # Keep capture groups, leading directives and comments local to each pattern.
     if (!length(special) || !length(u)) return(rep(FALSE, length(u)))

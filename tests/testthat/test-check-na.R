@@ -959,3 +959,14 @@ test_that("unique character columns count special values without membership matc
   expect_identical(fn(x, special = "^identifier_10$"), 1)
   expect_identical(fn(c("N/A", "N/A", "test")), 2)
 })
+
+test_that("blank markers share the standard marker scan", {
+  fn <- .is_special_value
+  environment(fn) <- list2env(list(`%in%` = function(x, table) {
+    if (identical(table, "")) stop("matched normalized blanks a second time")
+    base::`%in%`(x, table)
+  }), parent = environment(fn))
+  x <- c("", " ", "\u2009\t", NA, "Canada", "Unknown case", "n/a", "--", "null")
+  expect_identical(fn(x), c(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE))
+  expect_identical(fn(x, "^unknown"), c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE))
+})
