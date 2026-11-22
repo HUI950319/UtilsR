@@ -105,7 +105,7 @@ test_that("fmt_text() legend_title keeps guide types and settings", {
   expect_identical(built_guides(fmt_text(width, legend_title = "W"))$params[[1]]$title, "W")
 
   per_plot <- fmt_text(list(styled, styled), legend_title = c("", "Second"))
-  expect_s3_class(per_plot[[1]]$theme$legend.title, "element_blank")
+  expect_identical(text_test_count(per_plot[[1]], "g"), 0L)
   expect_identical(built_guides(per_plot[[2]])$params[[1]]$title, "Second")
 })
 
@@ -312,4 +312,16 @@ test_that("text formatting reuses equal adjacent theme styles", {
   result <- fmt_text(rep(list(p), 16), title_size = 20, axis_title_color = "red")
   expect_equal(calls, 1L)
   expect_true(all(vapply(result, function(x) identical(x$theme, expected$theme), logical(1))))
+})
+
+test_that("cleared legend text can be restored with its existing styling", {
+  p <- ggplot2::ggplot(iris, ggplot2::aes(Sepal.Length, Sepal.Width, colour = Species)) +
+    ggplot2::geom_point() +
+    ggplot2::theme(legend.title = ggplot2::element_text(colour = "purple", face = "bold"))
+  hidden <- fmt_text(p, legend_title = "")
+  restored <- fmt_text(hidden, legend_title = "Restored group")
+  expect_identical(text_test_count(hidden, "Species"), 0L)
+  expect_identical(text_test_count(restored, "Restored group"), 1L)
+  expect_identical(restored$theme$legend.title, p$theme$legend.title)
+  expect_identical(text_test_count(p, "Species"), 1L)
 })

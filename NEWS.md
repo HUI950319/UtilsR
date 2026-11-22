@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Clearing a legend title leaves the legend-title theme available for later labels and preserves explicit guide text styling.
+
 * Factor sparklines partially sort the observed counts when only a small share can be displayed.
 
 * Equal-size butterfly sample columns reuse their row indices and shorter columns still receive typed missing padding.
