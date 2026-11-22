@@ -2,6 +2,305 @@
 
 ## UtilsR 0.6.23
 
+- UpSet list input reuses an already unique atomic member dictionary
+  while still stripping its generated names.
+
+- Rank plotting retains full source vectors when the group includes
+  every source row in order.
+
+- Continuous plot coordinates use native panel setup directly when their
+  limits match the original coordinate object.
+
+- Sankey label positioning reads built factor codes directly when the
+  level dictionary is unchanged.
+
+- Panel formatting reuses the most recently resolved theme directly for
+  consecutive subplots.
+
+- Inspection reports reuse the formatted percentage when all displayed
+  shares coincide.
+
+- Cross-tabulation passes just the selected columns to the counting path
+  after dropping existing groups.
+
+- Rank plot aesthetic summaries reuse ordinary finite pair sums and only
+  check for overflow or missingness when needed.
+
+- Rank-correlation preparation skips a duplicate scan and slice when
+  every group key is distinct.
+
+- Single-panel rank plots reuse the displayed rows directly when all
+  points are highlighted.
+
+- Plot label and comparison helpers return immediately when there are no
+  facet variables to inspect.
+
+- Plot formatters return a rebuilt single plot directly when the
+  original input has no container to reconstruct.
+
+- Paired scatter histograms calculate their automatic extent from finite
+  endpoints without copying all finite differences.
+
+- Complete ordinary butterfly score blocks use scalar endpoints before
+  scaling, with missing and encoded blocks using their existing methods.
+
+- Butterfly bar plots reject missing wing labels before constructing the
+  two-sided grid.
+
+- Distribution plots apply their existing legend fallback when a theme
+  uses a named ‘none’ position.
+
+- Viridis previews reuse one interpolated colour when their begin and
+  end points coincide.
+
+- Integer64 means sum their bounded limbs in integer64 storage before
+  converting the two totals to doubles.
+
+- Factor reordering uses the matched level positions to keep unselected
+  levels in their existing order.
+
+- Axis preparation reuses the full factor level vector when every level
+  is displayed and only extra attributes need removal.
+
+- Categorical background preparation retains native group codes when the
+  factor levels match the axis.
+
+- Position scale inference reads ordinary columns directly for supported
+  literal .data mappings.
+
+- Object size selection checks numeric extrema before testing whether
+  the indices are whole numbers.
+
+- Scatter colour and shape mappings skip a set comparison when their
+  validated labels already match the group order.
+
+- Scatter preparation factors a shared colour and shape group once.
+
+- Pearson scatter correlations check integer64 axes for completeness
+  before allocating a missingness mask.
+
+- Console wrapping leaves text unchanged before wrapping when no missing
+  string needs a replacement.
+
+- Console tables use the ordered positions from logical highlights
+  directly.
+
+- Raster conversion treats empty named label grobs as non-drawing and
+  keeps actual nested text as vector content.
+
+- Histogram overlays avoid splitting their built data when only one
+  panel has rows.
+
+- Histogram and density overlays read finite peaks directly and only
+  filter bins if a nonfinite value occurs.
+
+- Reference lines reuse their recycled style vectors when both axes need
+  the same number of values.
+
+- Reference lines avoid inspecting facet expressions when the requested
+  settings already require native individual layers.
+
+- Console colour previews skip copying the full RGBA matrix when input
+  order and identities are unchanged.
+
+- KNN avoids rebuilding factor codes for complete labelled integer or
+  string predictors.
+
+- String P-values whose parsed values are strictly between zero and one
+  avoid the special endpoint scan.
+
+- Ordinary confidence intervals skip the extra logarithmic half-width
+  calculations used for nearly coincident bounds.
+
+- Confidence-interval inference transforms the whole estimate and bounds
+  columns directly when every interval is a ratio.
+
+- Rank-correlation normalization computes its scaling distance from
+  endpoints instead of rescanning a shifted series.
+
+- Rank-correlation axis transformations reuse columns when the displayed
+  pairs belong to one group.
+
+- Circular lollipop scoring reads finite group endpoints without
+  allocating per-row missingness flags.
+
+- Circular lollipop preparation avoids full-vector index copies when no
+  top-N selection is requested.
+
+- Recursive formatters reuse ordinary plots and flat plot lists after
+  validation while traversing patchwork and special elements as before.
+
+- Theme construction uses the shared grid-unit validator directly for
+  panel spacing.
+
+- Palette hex formatting only creates a per-colour opacity mask when
+  opaque and translucent colours are mixed.
+
+- Palette preview validation avoids full finiteness and rounding flags
+  for integer indices.
+
+- Numeric palette mapping retains its original lookup without
+  constructing a second distinct vector when no positions collide.
+
+- Legend title updates reuse stored labels when the title and every
+  applicable label are already identical.
+
+- Legend collection ignores staged AsIs values that train no scale and
+  still preserves legends trained by another stage.
+
+- Missingness plots keep the paired present and missing summary rows
+  directly when every displayed variable is partly observed.
+
+- Alluvial stratum counts keep their already bounded grid indices in
+  integer storage.
+
+- Shared continuous bar ranges keep complete transformed outcomes and
+  their grouping vector without building a finiteness mask.
+
+- Continuous bar ranges group plain numeric, logical and character keys
+  without a distinct-key rematch.
+
+- Continuous scales use observed extrema without building a filtered
+  vector when missing values are the only gaps.
+
+- Categorical percentage tables format the 100% label once when each
+  observed group has one category.
+
+- Categorical frequencies group ordinary count-grid indices as one exact
+  numeric key when they fit in a double.
+
+- Point sampling keeps the original stratum order without expanding an
+  ordinary factor’s unused levels.
+
+- Alluvial preparation excludes both kinds of missing factor rows by
+  looking up the integer codes once.
+
+- Sankey layers reuse node codes as caption codes when every node has a
+  distinct caption.
+
+- Legend formatting skips the guide and scale styling pass for
+  title-only or collection-only calls.
+
+- Patchwork collection avoids decoding layer mappings when neither theme
+  positions nor explicit guides can place a legend inside.
+
+- Legend formatting caches the resolved font and spacing adjustments
+  while leaving each guide’s local settings independent.
+
+- Legend titles ignore inherited mappings disabled by a layer and
+  aesthetics fixed to a literal value.
+
+- Numeric sparklines reuse the bounds checked during finite-input
+  validation when constructing the histogram.
+
+- Grid unit validation checks numeric extrema before inspecting compound
+  operands.
+
+- Single-vector factor combinations group the existing integer codes
+  directly.
+
+- Factor combinations use grouped character codes and order the distinct
+  keys once without rematching the column.
+
+- Logical factor conversion derives codes directly from the observed
+  boolean levels and preserves missing values and names.
+
+- Quantile binning defers integer endpoint checks to the quantiles
+  already computed for the cuts.
+
+- Numeric interval and SD formatting return the missing result directly
+  when no row can be formatted.
+
+- Interval formatting checks high scalar precision limits without
+  expanding the digits value to every observation.
+
+- Interval formatting uses a fixed prefix search before applying the
+  signed-zero pattern to candidate strings.
+
+- Confidence-interval scale detection returns directly when no row can
+  use a logarithmic comparison.
+
+- Console inspection formats only the visible factor labels when the
+  rest can be summarized without changing blank labels.
+
+- KNN donor summaries validate ordinary numeric weights without creating
+  a finiteness and positivity mask per donor.
+
+- KNN reuses the initial missing-column flags when the backend rows and
+  storage need no remapping.
+
+- KNN imputation builds a restoration dictionary only for labelled
+  columns with missing values.
+
+- Text formatting keeps omitted label fields empty without replicating
+  them for every subplot.
+
+- Legend formatting handles named scalar position values consistently
+  when checking patchwork collection.
+
+- Clearing a legend title leaves the legend-title theme available for
+  later labels and preserves explicit guide text styling.
+
+- Factor sparklines partially sort the observed counts when only a small
+  share can be displayed.
+
+- Equal-size butterfly sample columns reuse their row indices and
+  shorter columns still receive typed missing padding.
+
+- Butterfly distributions reuse category rows directly when all factor
+  labels are allowed and the codes are complete.
+
+- Exact integer64 means determine the observed denominator once and
+  return immediately for entirely missing vectors.
+
+- Ordinary nonmissing numeric scatter groups use their grouping codes
+  directly and retain exact labels for nearby values.
+
+- When the input has one observed group, complete Jaccard comparisons
+  use its rows directly without matching and splitting them.
+
+- Sparse Jaccard overlaps look up the groups of shared features without
+  expanding an index for every membership.
+
+- Disjoint sets of the same member type skip a full member rematch and
+  per-set sorting.
+
+- Confidence-interval parsing skips numeric conversion for rows with
+  mismatched brackets.
+
+- Unfaceted comparison formatting skips a redundant per-panel comparison
+  pass and its row-sized placeholder.
+
+- UpSet data checks for unselected rows without allocating one
+  comparison flag per row.
+
+- Factor inspection avoids subsetting the tally when none of its
+  observed labels is a special marker.
+
+- Inspection skips whitespace normalization when special missing-value
+  detection is disabled.
+
+- Missing-value inspection recognizes normalized blank labels in the
+  same scan as other built-in markers.
+
+- Exact decimal significance comparisons skip digit padding when the
+  powers already determine the order.
+
+- Decimal P-values with one significance threshold compare tied
+  endpoints in a single group.
+
+- Log-scale interval comparisons reuse the original estimates, bounds,
+  and units when every interval is eligible.
+
+- Faceted rank plots use their complete logical highlight vector to
+  assign two labels directly.
+
+- Unvarying stacked-bar counts use a single formatted label for every
+  visible segment.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  tests for variation in zero-spread doubles from their extrema.
+
 - Single-color palettes reuse a compact mapping for complete numeric
   observations.
 
