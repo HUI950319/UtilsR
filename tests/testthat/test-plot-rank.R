@@ -943,3 +943,21 @@ test_that("facet rank labels use direct assignment for complete top flags", {
   run <- function(f) f(d, "red", "blue", 4, 3, NULL, "Score", 12, 2)$data
   expect_identical(run(fn), run(.pr_facet))
 })
+
+test_that("all highlighted rank rows reuse their labelled frame", {
+  d <- stats::setNames(c(5, 8, 3, 10, 12), paste0("item", seq_len(5L)))
+  source <- .pr_single
+  env <- list2env(list(`[` = function(x, i, ...) {
+    if (is.data.frame(x) && identical(substitute(i), quote(df$IsTop)) && isTRUE(all(i)))
+      stop("copied all highlighted rows of a rank plot")
+    call <- sys.call()
+    call[[1L]] <- base::`[`
+    eval(call, parent.frame())
+  }), parent = environment(source))
+  environment(source) <- env
+  fn <- PlotRank
+  environment(fn) <- list2env(list(.pr_single = source), parent = environment(fn))
+  run <- function(f, n) f(d, top_n = n, max_show = 5L)$layers[[2L]]$data
+  expect_identical(run(fn, 5L), run(PlotRank, 5L))
+  expect_identical(run(fn, 2L), run(PlotRank, 2L))
+})

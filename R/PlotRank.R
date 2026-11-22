@@ -483,7 +483,7 @@ PlotRank <- function(
                        lab_size, pt_size, title,
                        ylab, base_size) {
 
-  label_df <- df[df$IsTop, ]
+  label_df <- if (isTRUE(all(df$IsTop))) df else df[df$IsTop, ]
   point_colors <- ifelse(df$IsTop,
     if (is.factor(hi_col)) as.character(hi_col) else hi_col,
     if (is.factor(base_col)) as.character(base_col) else base_col)
