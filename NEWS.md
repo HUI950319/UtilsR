@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN donor summaries validate ordinary numeric weights without creating a finiteness and positivity mask per donor.
+
 * KNN reuses the initial missing-column flags when the backend rows and storage need no remapping.
 
 * KNN imputation builds a restoration dictionary only for labelled columns with missing values.

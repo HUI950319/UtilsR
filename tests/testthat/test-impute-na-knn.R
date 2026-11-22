@@ -1020,3 +1020,22 @@ test_that("ordinary KNN keeps initial missing column positions", {
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("ordinary KNN weights retain existing weighted and fallback means", {
+  skip_if_not_installed("VIM")
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(weights))) stop("allocated a donor weight finiteness mask")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  local_mocked_bindings(kNN = function(data, variable, k, numFun, ...) {
+    x <- c(2, 4, 8)
+    expect_equal(numFun(x, weights = c(0.5, 0, 1)), 6)
+    expect_equal(numFun(x, weights = c(NA, 0, 1)), mean(x))
+    expect_equal(numFun(x, weights = c(0, 0, 0)), mean(x))
+    data[[variable]][1L] <- numFun(x, weights = c(0.5, 0, 1))
+    data
+  }, .package = "VIM")
+  d <- data.frame(x = c(NA, 2, 4, 8), y = 1:4)
+  expect_equal(fn(d, k = 1L, verbose = FALSE)$x, c(6, 2, 4, 8))
+})

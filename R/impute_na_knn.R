@@ -227,10 +227,12 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   distance_weights <- function(weights) {
-    if (!is.null(weights) && (!all(is.finite(weights)) || !any(weights > 0))) {
-      weights <- rep(1, length(weights))
-    }
-    weights
+    if (is.null(weights)) return(weights)
+    usable <- if (!is.object(weights) && is.numeric(weights) && length(weights)) {
+      upper <- max(weights)
+      is.finite(upper) && upper > 0 && is.finite(min(weights))
+    } else all(is.finite(weights)) && any(weights > 0)
+    if (usable) weights else rep(1, length(weights))
   }
   weighted_mean <- function(x, weights = NULL, ...) {
     weights <- distance_weights(weights)
