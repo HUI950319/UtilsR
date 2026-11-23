@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Headers only filter converted components if a missing or empty part is present.
+
 * Console key-value output retains the original field and key vectors when no settings are NULL.
 
 * Console conversion skips a second missingness mask when a factor's labels are complete.

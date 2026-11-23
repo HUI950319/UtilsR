@@ -2571,3 +2571,15 @@ test_that("complete key-value fields are not sliced after validation", {
   expect_identical(fn(list(a = "one", gone = NULL, longer = 10L), width = 65L),
                    fn(list(a = "one", longer = 10L), width = 65L))
 })
+
+test_that("a complete headline keeps all converted parts without slicing", {
+  fn <- pr_head
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(parts)) && is.logical(i) && all(i)) stop("unnecessary [ in pr_head")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  withr::local_options(cli.num_colors = 1L)
+  expect_identical(capture.output(fn("sample", "first", 8L)), capture.output(pr_head("sample", "first", 8L)))
+  expect_identical(capture.output(fn("sample", "", "first", NA_character_, 8L)),
+                   capture.output(pr_head("sample", "first", 8L)))
+})

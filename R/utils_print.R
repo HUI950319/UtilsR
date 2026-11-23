@@ -284,7 +284,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
   # piece by piece: unlist() would turn a factor into its codes and a date
   # into a day count
   parts <- unlist(lapply(list(...), ._as_text), use.names = FALSE)
-  parts <- parts[!is.na(parts) & nzchar(parts)]
+  if (anyNA(parts) || "" %in% parts) parts <- parts[!is.na(parts) & nzchar(parts)]
   parts <- ._pr_escape(parts)
   line  <- ._pr_label(class, cli::make_ansi_style(bg, bg = TRUE),
                       cli::make_ansi_style(fg))
