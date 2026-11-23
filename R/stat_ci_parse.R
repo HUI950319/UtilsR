@@ -601,6 +601,8 @@ stat_ci_parse <- function(x,
   }
   log_ratio <- function(a, b) {
     relative <- (a - b) / b
+    if (length(relative) && isTRUE(min(relative) > -0.5 && max(relative) < 0.5))
+      return(log1p(relative))
     close <- is.finite(relative) & abs(relative) < 0.5
     if (all(close)) return(log1p(relative))
     if (!any(close)) return(log(a) - log(b))

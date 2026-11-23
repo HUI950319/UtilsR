@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval scale inference uses log1p directly when every relative contrast is in its stable range.
+
 * Confidence interval formatting identifies signed-zero candidates only when the rounded values can contain zero.
 
 * Opaque palette viewers calculate text contrast from their original RGB channels directly.

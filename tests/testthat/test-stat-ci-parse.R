@@ -1494,3 +1494,17 @@ test_that("ordinary rounded CI values avoid zero flag allocation", {
   x <- c("2.50 (1.30,3.50)", "9.00 (7.80,10.20)")
   expect_identical(f(x, output = "ci"), stat_ci_parse(x, output = "ci"))
 })
+
+test_that("near ratio CI components use their relative extrema", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(relative)) && all(base::abs(x) < .5))
+      stop("allocated row flags for uniformly close CI ratios")
+    base::abs(x)
+  }), parent = environment(fn))
+  est <- c(1.02, 1.2, 2, 3.5)
+  lo <- est * .95
+  hi <- est * 1.05
+  args <- list(est, lo, hi, matrix(.01, 4L, 3L), TRUE, rep(TRUE, 4L))
+  expect_identical(do.call(fn, args), do.call(.ci_scale, args))
+})
