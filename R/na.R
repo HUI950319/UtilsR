@@ -320,8 +320,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     u <- distinct %||% unique(x)
     hit <- .is_special_value(u, special)
     if (is.object(u)) hit[is.na(u)] <- FALSE
+    if (!any(hit)) return(0)
     markers <- u[hit]
-    if (!length(markers)) return(0)
     if (length(markers) == length(u)) return(length(x) + 0)
     if (!is.object(x) && length(x) == length(u)) return(length(markers) + 0)
     return(sum(x %in% markers) + 0)

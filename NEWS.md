@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Character quality checks skip slicing the dictionary when no category matches a special value.
+
 * Log-scale interval checks avoid combining validity masks when every interval is eligible.
 
 * Confidence interval scale classification can select a single repeated component row without searching its group IDs.

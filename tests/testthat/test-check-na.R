@@ -1044,3 +1044,15 @@ test_that("columns without missingness skip computing shading bands", {
   expect_s3_class(out, "gt_tbl")
   expect_identical(out[["_data"]]$special_combined, c("1 (50.0%)", "0 (0.0%)"))
 })
+
+test_that("empty special marker matches do not copy the category dictionary", {
+  fn <- .count_special_values
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(u)) && is.logical(i) && !any(i)) stop("unnecessary [ in .count_special_values")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  x <- rep(c("stable", "visible", NA_character_), 500L)
+  expect_identical(fn(x), 0)
+  expect_identical(fn(x, "^[s]"), 500)
+  expect_identical(fn(c(NA, "??", "Unknown", "ok"), NULL), 2)
+})
