@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Opaque palette viewers calculate text contrast from their original RGB channels directly.
+
 * Palette opacity only constructs literal-NA replacement flags when the input contains that colour spelling.
 
 * White-border point drawing uses the native filled-shape grob directly for panels whose integer shape codes are all fillable.

@@ -3465,3 +3465,18 @@ test_that("registered palette alpha skips full literal NA flags", {
                    ggplot2::alpha(c("navy", "gold", "red"), .6))
   expect_identical(f(c("NA", "navy"), alpha = .6), ggplot2::alpha(c("#FFFFFF00", "navy"), .6))
 })
+
+test_that("opaque palette previews skip alpha compositing masks", {
+  f <- .pal_show_colors
+  environment(f) <- list2env(list("!=" = function(e1, e2) {
+    if (identical(e2, 255L) && length(e1) > 1L && all(e1 == 255L))
+      stop("built an opaque swatch mask")
+    base::"!="(e1, e2)
+  }), parent = environment(f))
+  reference <- .pal_show_colors(c("red", "black", "white"), max_colors = 5L)
+  actual <- f(c("red", "black", "white"), max_colors = 5L)
+  expect_identical(actual$data, reference$data)
+  with_alpha <- c("#00000030", "black", "white")
+  expect_identical(f(with_alpha, max_colors = 5L)$data,
+                   .pal_show_colors(with_alpha, max_colors = 5L)$data)
+})

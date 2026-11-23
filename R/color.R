@@ -1983,8 +1983,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   if (!named && any(has_name)) labels[has_name] <- color_names[has_name]
 
   # Compute luminance for text contrast
-  translucent <- rgba[4L, ] != 255L
-  alpha <- rgba[4L, translucent] / 255
+  alpha_bytes <- rgba[4L, ]
+  translucent <- if (length(alpha_bytes) && min(alpha_bytes) < 255L) alpha_bytes != 255L
+  alpha <- if (length(translucent)) alpha_bytes[translucent] / 255
   channel <- function(i) {
     v <- rgba[i, ] / 255
     # Preview tiles are drawn on white; contrast uses the composited colour.
