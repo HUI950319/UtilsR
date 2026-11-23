@@ -591,3 +591,16 @@ test_that("matching horizontal and vertical reference sizes share recycled style
   expect_identical(draw(fn), draw(fmt_ref))
   expect_identical(reads, 1L)
 })
+
+test_that("reference layers recognize empty additional controls immediately", {
+  fn <- fmt_ref
+  environment(fn) <- list2env(list("lengths" = function(x, ...) {
+    if (identical(substitute(x), quote(dots)) && !length(x)) stop("unnecessary lengths in fmt_ref")
+    base::lengths(x, ...)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  out <- ggplot2::ggplot_build(fn(p, x = c(2, 4)))$data
+  expect_equal(out[[2L]]$xintercept, c(2, 4))
+  out <- ggplot2::ggplot_build(fn(p, x = c(2, 4), na.rm = TRUE))$data
+  expect_equal(out[[2L]]$xintercept, c(2, 4))
+})

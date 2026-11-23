@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines bypass the additional-control scan when no extra arguments are passed.
+
 * Axis formatting filters child plots only when a layout contains an inset.
 
 * All three scatter entry points compare their two validated axis names directly before normalizing encoded axes.

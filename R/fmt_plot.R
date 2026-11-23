@@ -1555,9 +1555,10 @@ fmt_ref <- function(plot,
     .to_plot_list(plot)
     return(plot)
   }
-  batch_dots <- length(names(dots)) == length(dots) &&
-    !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&
-    all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1)))
+  batch_dots <- !length(dots) ||
+    (length(names(dots)) == length(dots) && !anyDuplicated(names(dots)) &&
+      all(names(dots) %in% c("na.rm", "lineend")) &&
+      all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1))))
   if (length(x) || length(y)) {
     styles <- list(linetype = linetype, linewidth = linewidth, color = color, alpha = alpha)
     for (name in names(styles)) {
