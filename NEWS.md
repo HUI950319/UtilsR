@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection only masks the distinct character dictionary when counting and displaying observed labels.
+
 * Logical inspection frequencies share one presence mask between labels and counts.
 
 * Inspection frequencies use the existing first observation for one repeated numeric value.

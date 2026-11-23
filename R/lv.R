@@ -391,7 +391,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # sorted as the count listing sorts them (C locale), not as they occur
       if (complete && !is.object(x) && is.numeric(x) && is.null(dim(x)) &&
           !is.unsorted(x, strictly = TRUE)) return(unname(x))
-      values <- unique(if (complete) x else x[!is.na(x)])
+      values <- if (complete) unique(x) else if (is.character(x) && !is.object(x) && is.null(dim(x))) {
+        distinct <- unique(x)
+        if (anyNA(distinct)) distinct[!is.na(distinct)] else distinct
+      } else unique(x[!is.na(x)])
       tryCatch(sort(values, method = "radix"), error = function(e) values)
     }
   }

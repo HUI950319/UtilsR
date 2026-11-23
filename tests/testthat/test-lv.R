@@ -1455,8 +1455,9 @@ test_that("ungrouped inspection reuses observed cardinality for table selection"
   fn <- lv.data.frame
   examined <- 0L
   environment(fn) <- list2env(list(unique = function(x, ...) {
-    if (is.character(x) && length(x) && all(startsWith(x, "SAMPLE_"))) {
-      examined <<- examined + length(x)
+    if (is.character(x) && length(x)) {
+      sample <- startsWith(x, "SAMPLE_")
+      if (any(sample, na.rm = TRUE) && all(sample, na.rm = TRUE)) examined <<- examined + length(x)
     }
     base::unique(x, ...)
   }), parent = environment(fn))
@@ -1466,7 +1467,7 @@ test_that("ungrouped inspection reuses observed cardinality for table selection"
     factor = factor(rep("used", 960L), levels = c("used", as.character(1:100)))
   )
   reports <- capture_reports(fn(data))
-  expect_identical(examined, 720L)
+  expect_identical(examined, nrow(data))
   expect_equal(reports[[1L]][["_data"]]$n_unique, c(3, 1))
   expect_identical(unique(reports[[2L]][["_data"]]$variable), "label")
 })
@@ -2089,4 +2090,16 @@ test_that("logical inspection frequencies share their observed flags", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
   expect_identical(checks, 1L)
+})
+
+test_that("missing ordinary inspection strings are removed from the dictionary", {
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(x)) && is.character(x) && length(x) == 400L &&
+        any(vapply(sys.calls(), function(call) identical(call[[1L]], quote(.get_levels)), logical(1)))) stop("unnecessary is.na in lv.data.frame")
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- data.frame(code = rep(c("a", "é", "", NA_character_), 100L))
+  run <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(run(fn), run(lv))
 })
