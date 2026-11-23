@@ -794,8 +794,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       }
     }
     # Unlike col2rgb(), farver interprets the literal "NA" as a missing value.
-    literal_na <- out %in% "NA"
-    if (any(literal_na)) out[literal_na] <- "#FFFFFF00"
+    if ("NA" %in% out) out[out %in% "NA"] <- "#FFFFFF00"
     # Use vector-sized encoding when deduplication leaves a single colour.
     if (!is.null(keys) && length(keys) == 1L) out <- rep.int(out, 2L)
     out <- ggplot2::alpha(out, alpha)

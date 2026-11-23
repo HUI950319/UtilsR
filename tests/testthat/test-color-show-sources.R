@@ -3453,3 +3453,15 @@ test_that("zero-width viridis intervals call the spline once per colour", {
   expect_identical(.pal_viridis_preview(80L, "mako", c(1L, 5L, 44L, 80L), .6, .4, .4, -1), before)
   expect_length(unique(before), 1L)
 })
+
+test_that("registered palette alpha skips full literal NA flags", {
+  f <- .pal_apply
+  environment(f) <- list2env(list("%in%" = function(x, table) {
+    if (identical(table, "NA") && length(x) > 1L && !"NA" %in% x)
+      stop("allocated absent literal colour flags")
+    base::"%in%"(x, table)
+  }), parent = environment(f))
+  expect_identical(f(c("navy", "gold", "red"), alpha = .6),
+                   ggplot2::alpha(c("navy", "gold", "red"), .6))
+  expect_identical(f(c("NA", "navy"), alpha = .6), ggplot2::alpha(c("#FFFFFF00", "navy"), .6))
+})
