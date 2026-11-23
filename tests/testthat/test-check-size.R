@@ -671,3 +671,16 @@ test_that("external size selections skip reconstructing argument expressions", {
   act <- f(c("a", "b"), envir = env)
   expect_identical(act[["_data"]][["Object"]], c("**TOTAL**", "b", "a"))
 })
+
+test_that("size reports use one shared summary row position", {
+  env <- list2env(list(a = raw(17), z = raw(700)))
+  seen <- 0L
+  f <- check_size
+  environment(f) <- list2env(list(seq_len = function(length.out) {
+    if (identical(substitute(length.out), quote(nrow(object_info)))) seen <<- seen + 1L
+    base::seq_len(length.out)
+  }), parent = environment(f))
+  expect_identical(f("a", "z", envir = env)[["_data"]][["Object"]], c("**TOTAL**", "z", "a"))
+  expect_identical(seen, 1L)
+  expect_no_error(gt::as_raw_html(f(pattern = "^does_not_exist$", envir = env)))
+})

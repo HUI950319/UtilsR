@@ -273,11 +273,12 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   }
   environment(size_colors) <- baseenv()
 
+  summary_row <- if (object_count) 1L else integer()
   gt_table <- object_info %>%
     gt::gt() %>%
     gt::fmt_markdown(
       columns = "Object",
-      rows = seq_len(nrow(object_info)) == 1L
+      rows = summary_row
     ) %>%
     gt::fmt(
       columns = "Size_bar",
@@ -306,7 +307,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     gt::tab_style(
       style = gt::cell_text(weight = "bold", color = "#FF0000"),
       locations = gt::cells_body(
-        rows = seq_len(nrow(object_info)) == 1L
+        rows = summary_row
       )
     ) %>%
     gt::opt_table_font(font = "Arial") %>%
