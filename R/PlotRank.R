@@ -284,7 +284,7 @@ PlotRank <- function(
   } else if (value_scale == "top_n" && !is.object(plot_df$Score)) {
     values <- lapply(all_df, function(part) {
       scores <- part$Score
-      bounds <- c(min(scores, na.rm = TRUE), max(scores, na.rm = TRUE))
+      bounds <- c(scores[length(scores)], scores[1L])
       scale_scores(scores, bounds)
     })
     plot_df$Score <- unlist(values, use.names = FALSE)

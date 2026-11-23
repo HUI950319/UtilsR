@@ -990,3 +990,15 @@ test_that("strictly ascending ordinary scores select ranks without sorting", {
   expect_identical(out$Score, unname(x[rows]))
   expect_identical(out$Label, names(x)[rows])
 })
+
+test_that("top rank scaling reads the displayed endpoints", {
+  d <- stats::setNames(c(24, 1.5, 22, 20, 13, 2), paste0("a", 1:6))
+  f <- PlotRank
+  environment(f) <- list2env(list(min = function(..., na.rm = FALSE) {
+    if (identical(as.list(substitute(list(...)))[[2L]], quote(scores)))
+      stop("rescanned a sorted displayed rank interval")
+    base::min(..., na.rm = na.rm)
+  }), parent = environment(f))
+  result <- f(d, max_show = 4L, value_scale = "top_n", return_type = "data")
+  expect_identical(result$Score, (c(24, 22, 20, 13) - 13) / 11)
+})
