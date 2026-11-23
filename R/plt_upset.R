@@ -438,10 +438,9 @@ plt_upset <- function(data,
   # Keep unique internal set keys separate from labels used for display.
   display_names <- names(set_list)
   if (!is.null(set.labels)) {
-    old_names <- display_names
-    new_names <- ifelse(old_names %in% names(set.labels),
-                        set.labels[old_names], old_names)
-    display_names <- unname(new_names)
+    replacements <- match(display_names, names(set.labels))
+    mapped <- which(!is.na(replacements))
+    if (length(mapped)) display_names[mapped] <- set.labels[replacements[mapped]]
   }
   grp_data <- row_codes <- NULL
   if (output %in% c("data", "all")) {

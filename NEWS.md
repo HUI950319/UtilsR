@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet relabelling only allocates positions for set names that have replacements.
+
 * UpSet selection retains the observation factor codes and maps only the query dictionary.
 
 * Circular lollipop plots use existing row order directly in a single sector.

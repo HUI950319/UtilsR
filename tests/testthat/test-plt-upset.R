@@ -1351,3 +1351,16 @@ test_that("different factor set dictionaries only remap query labels", {
   expect_identical(fn(d, vars = c("a", "b"), levels = query, output = "data"),
                    plt_upset(d, vars = c("a", "b"), levels = query, output = "data"))
 })
+
+test_that("set display labels reuse one name lookup", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list("ifelse" = function(test, yes, no) {
+    if (identical(substitute(no), quote(old_names))) stop("unnecessary ifelse in plt_upset")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  x <- data.frame(a = c(1, 0, 1, 0), b = c(0, 1, 1, 0))
+  run <- function(map) fn(x, vars = c("a", "b"), levels = 1, set.labels = map, output = "data")
+  expect_identical(as.character(run(c(b = "Group B"))$intersect_group),
+    c("a", "Group B", "a/Group B", "None"))
+  expect_identical(as.character(run(c(elsewhere = "Other"))$intersect_group), c("a", "b", "a/b", "None"))
+})
