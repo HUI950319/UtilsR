@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Facet inspection recognizes literal data-pronoun references and does not treat environment-pronoun names as data columns.
+
 * Strip labellers calculate unmatched row positions only when the replacement mapping has a gap.
 
 * Categorical background mapping only allocates missing-group flags for axes that have an unmatched row.

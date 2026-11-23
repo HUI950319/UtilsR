@@ -275,10 +275,14 @@
   symbols <- function(expr) {
     if (is.symbol(expr)) return(as.character(expr))
     if (!is.call(expr)) return(character())
-    if (identical(rlang::call_name(expr), "get") && length(expr) > 1L &&
+    name <- rlang::call_name(expr)
+    if (length(expr) == 3L && (identical(name, "$") || identical(name, "[[")) &&
+        (is.symbol(expr[[3L]]) && identical(name, "$") || rlang::is_string(expr[[3L]]))) {
+      if (identical(expr[[2L]], quote(.env))) return(character())
+      if (identical(expr[[2L]], quote(.data))) return(as.character(expr[[3L]]))
+    }
+    if (identical(name, "get") && length(expr) > 1L &&
         rlang::is_string(expr[[2L]])) return(expr[[2L]])
-    if (rlang::is_call(expr, "[[", n = 2L) && identical(expr[[2L]], quote(.data)) &&
-        is.character(expr[[3L]])) return(expr[[3L]])
     unlist(lapply(as.list(expr)[-1L], symbols), use.names = FALSE)
   }
   unique(c(names(facets), unlist(lapply(facets, function(x) symbols(rlang::get_expr(x))),

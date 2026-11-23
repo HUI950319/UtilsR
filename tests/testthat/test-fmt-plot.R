@@ -365,3 +365,10 @@ test_that("complete named facet labels do not allocate replacement flags", {
   partial <- f(ggplot2::label_value, "g", c(a = "A"))
   expect_identical(partial(values), list(g = c("A", "b", "A")))
 })
+
+test_that("facet column discovery distinguishes data and environment pronouns", {
+  panel <- rep("outside", nrow(mtcars))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
+    ggplot2::facet_wrap(ggplot2::vars(f = .data$cyl, g = .env$panel, h = .data[["gear"]]))
+  expect_setequal(.plot_facet_columns(p), c("f", "g", "h", "cyl", "gear"))
+})
