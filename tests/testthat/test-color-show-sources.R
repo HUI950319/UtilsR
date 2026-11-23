@@ -3510,3 +3510,15 @@ test_that("complete opaque console palettes avoid compositing flags", {
   mixed <- c(vals, "#CCCCCC60")
   expect_identical(capture.output(fn(mixed)), capture.output(show_color(mixed)))
 })
+
+test_that("missing palette values are discarded after establishing ordinary character keys", {
+  x <- setNames(rep(c("east", NA_character_, "west", ""), 600L), seq_len(2400L))
+  fn <- .pal_discrete_levels
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (length(x) > 2000L) stop("masked all character colour observations")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), c("east", "west", ""))
+  expect_identical(fn(c(NA_character_, NA_character_)), character())
+  expect_identical(fn(matrix(c("a", NA, "b", "a"), 2L)), c("a", "b"))
+})

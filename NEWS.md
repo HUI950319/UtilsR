@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete palettes remove missing values from the character dictionary instead of scanning and subsetting all observations.
+
 * Continuous dot counts avoid a row-length duplicate mask when all rows share a bin.
 
 * Circular lollipop plots reject impossible angular gaps before allocating row groups.
