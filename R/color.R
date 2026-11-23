@@ -863,6 +863,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     at <- if (n == 1L) 0.5 else seq.int(0, 1, length.out = n)
     out <- .pal_apply(cols, x = at)
   } else if (n == length(cols) && total == n && !is.object(cols)) {
+    if (is.character(cols) && all(names(attributes(cols)) %in% c("names", "type"))) return(cols)
     out <- stats::setNames(as.character(cols), names(cols))
   } else if (total <= length(cols)) {
     indices <- if (continuous) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews reuse a full character dictionary when its attributes already match the displayed result.
+
 * Palette application avoids coercing an ordinary character result whose only possible attribute is its name vector.
 
 * Palette application skips reverse order for an ordinary single-colour result.

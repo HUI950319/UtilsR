@@ -3559,3 +3559,16 @@ test_that("bare palette results keep their prepared character vector", {
   expect_identical(fn(c("red", "blue"), x = c("a", "b")), c(a = "red", b = "blue"))
   expect_identical(fn(structure(c("red", "blue"), type = "seq")), c("red", "blue"))
 })
+
+test_that("complete palette previews reuse their existing display attributes", {
+  fn <- .pal_resize
+  environment(fn) <- list2env(list("as.character" = function(x, ...) {
+    if (identical(substitute(x), quote(cols)) && !("extra" %in% names(attributes(x)))) stop("unnecessary as.character in .pal_resize")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  cols <- structure(c(one = "red", two = "blue"), type = "seq")
+  expect_identical(fn(cols, 2L), cols)
+  attr(cols, "extra") <- 1L
+  expect_identical(fn(cols, 2L), .pal_resize(cols, 2L))
+  expect_identical(fn(cols, 1L), .pal_resize(cols, 1L))
+})
