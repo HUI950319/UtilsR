@@ -2,6 +2,306 @@
 
 ## UtilsR 0.6.23
 
+- Console trimming avoids re-expanding a deduplicated text vector when
+  none of its labels needs trimming.
+
+- Console colour previews only build opacity position flags when a
+  decoded swatch has source transparency.
+
+- Rank-correlation reshaping only normalizes missing values and signed
+  zeros when they can occur in the score vector.
+
+- Rank correlation uses existing method codes in factor order and
+  retains the handling of unused and missing levels.
+
+- Console P-value cells use their minimum to skip extra rounding checks
+  for observations above the thresholds.
+
+- Grob margins measure a sole child directly while retaining maximum
+  sizing for lists of several grobs.
+
+- Continuous dot plots retain their container directly when every size
+  scale already has the joint limits.
+
+- Point sampling reads grouping symbols from plain data frames without
+  evaluating a data mask.
+
+- Factor releveling replicates the remapped code when every row in a
+  sparse dictionary uses the same level.
+
+- KNN checks native tibble columns for missing values and returns a
+  complete tibble directly.
+
+- The printed system report and returned metadata use the same
+  timestamp.
+
+- Inspection tables avoid assigning colour bands to percentages that are
+  all zero.
+
+- Missingness tables check formatting bounds before allocating the
+  per-variable low-percentage flags.
+
+- Rank plots prune empty score vectors only when group selection has
+  produced one.
+
+- Empty P-value inputs return their empty result while still validating
+  requested significance thresholds.
+
+- Scale inference carries the base axis mapping and data through layer
+  inspection.
+
+- Factor conversion obtains repeated numeric labels directly with the
+  observed dictionary size and retains exact floating-point labels.
+
+- Factor combinations find representative rows from their
+  encounter-order IDs and size their lookup by the observed combination
+  count.
+
+- Circular link and colour selection count exact feature-sector pairs
+  without constructing a per-observation data frame when the keys fit.
+
+- Inspection summaries skip collision discovery when all rendered labels
+  are already distinct.
+
+- Inspection tables skip blank-label position masks for character
+  columns without empty values.
+
+- Single-variable missingness plots use their existing missing-value
+  vector as the tile data.
+
+- Missingness matrices keep masks of ordinary columns that were already
+  found to have missing rows.
+
+- Deferred position scales check duplicate names only when normalized
+  aliases actually collide.
+
+- Histogram overlays filter invalid transformed observations only when
+  extrema indicate that filtering is needed.
+
+- Paired t-tests use finite difference endpoints to rescale extreme
+  pairs without creating per-row validity or nonzero flags.
+
+- Stacked violins subset rows only when at least one feature-group
+  combination has fewer than two observations.
+
+- Continuous comparison preflight slices user pairs and cached test
+  results only after rejecting a comparison.
+
+- Plot formatters reuse modified leaves directly when their input is a
+  flat ordinary plot list.
+
+- Panel formatting preserves existing panel styles without building a
+  theme when no styling control is requested.
+
+- Position scale updates reuse constructor argument names when including
+  inherited options.
+
+- Tile axes with all tick labels omitted retain the complete band
+  geometry and use missing break indices directly.
+
+- Stacked distributions divide by a single sum when all displayed counts
+  belong to one x and facet combination.
+
+- Stacked distribution bars group unfaceted proportions directly by the
+  x values.
+
+- Palette ramps detect source alpha without building a per-stop
+  transparency vector.
+
+- Integer64 paired differences test complete ordinary double endpoints
+  with scalar range checks before exact conversion.
+
+- Scatter histograms share paired-difference extrema between automatic
+  limits and their visibility check.
+
+- Scatter difference histograms skip copying observations and breaks on
+  the ordinary unit scale.
+
+- Rank data preparation reuses a full group’s observations from its
+  known row locations.
+
+- Rank preparation uses the sole ordinary data frame directly when no
+  cross-group row bind is needed.
+
+- Top-rank scaling reads the first and last already ordered scores
+  without rescanning each displayed group.
+
+- Rank plots select descending leaders directly from strictly increasing
+  ordinary scores and retain the existing tie handling elsewhere.
+
+- P-only confidence interval requests decide whether byte-length
+  validation is needed from the existing upper precision bound.
+
+- Inset placement checks existing inset names at their reference cells
+  before building a list of neighboring names.
+
+- Facet inspection recognizes literal data-pronoun references and does
+  not treat environment-pronoun names as data columns.
+
+- Strip labellers calculate unmatched row positions only when the
+  replacement mapping has a gap.
+
+- Categorical background mapping only allocates missing-group flags for
+  axes that have an unmatched row.
+
+- Dense categorical percentage tables divide directly when every group
+  has observations.
+
+- Sparse categorical percentages divide directly by a shared sum when
+  only one group is observed.
+
+- Sparse categorical counts use exact integer cell keys when the factor
+  grid fits and widen only for larger grids.
+
+- Console trees store displayed child identifiers in one bounded vector
+  and preserve the branch stubs for cut-off lines.
+
+- Inspection table preparation only allocates all-missing masks for
+  ordinary inputs that contain a missing value.
+
+- Object size tables share the same explicit summary row for Markdown
+  and text styling.
+
+- Console tree formatting builds the standard attribute list once and
+  adds S7 properties only for the nodes that carry them.
+
+- Inspection listings normalize the visible character labels before
+  collapsing the remaining levels into their count.
+
+- Object size inspection reads selector expressions only when the call
+  comes from the inspected environment.
+
+- KNN combines row availability without allocating an initial all-false
+  vector.
+
+- KNN skips the labelled conversion assignment for ordinary inputs and
+  uses the selected labelled columns when conversion is needed.
+
+- Panel rasterization reuses the existing child list when all geometry
+  is captured in draw order as one run.
+
+- Factor sparklines detect unique observed labels from the largest
+  frequency.
+
+- Date and timestamp sparklines share their observed endpoints between
+  the bins and displayed range.
+
+- Confidence interval scale inference uses log1p directly when every
+  relative contrast is in its stable range.
+
+- Confidence interval formatting identifies signed-zero candidates only
+  when the rounded values can contain zero.
+
+- Opaque palette viewers calculate text contrast from their original RGB
+  channels directly.
+
+- Palette opacity only constructs literal-NA replacement flags when the
+  input contains that colour spelling.
+
+- White-border point drawing uses the native filled-shape grob directly
+  for panels whose integer shape codes are all fillable.
+
+- White-border point formatting keeps fillable numeric shapes in their
+  existing storage.
+
+- Point sampling combines factor strata without expanding unused level
+  labels, and keeps explicit and uncoded missing strata separate.
+
+- Sparkline binning recognizes ordinary integer columns without rounding
+  the observations to verify their storage.
+
+- Character sparklines count complete inputs directly and subset
+  observations only when needed.
+
+- Console tables use finite extrema to set decimal significance when all
+  observed values have the same sign.
+
+- Console tables use formatted text directly for columns whose displayed
+  values have no missing cells.
+
+- Significance formatting returns empty star suffixes directly for
+  observations above all thresholds.
+
+- P-value formatting avoids scanning for rounded-zero rows when its
+  smallest value is above the display cutoff.
+
+- CI parsing builds row-level finiteness flags only when a parsed number
+  can be non-finite.
+
+- Confidence intervals and SD strings inspect only incomplete inputs
+  when building the joint row filter.
+
+- Named butterfly palettes identify duplicates without gathering names
+  on valid mappings.
+
+- Alluvial plots preserve numeric group identity without converting all
+  observation values to labels.
+
+- Sankey percentages reuse one formatted label for nodes with the same
+  proportion within a stage.
+
+- Butterfly category labels keep unclassed categories out of the date
+  and duration adapters.
+
+- Alluvial missing-row notices use the count of retained rows directly.
+
+- Alluvial preparation keeps unrelated tibble columns out of the frame
+  coercion.
+
+- Sankey paths build their successor nodes from the next stage columns
+  and keep terminal nodes missing.
+
+- Continuous bars with one complete factor group derive their mean and
+  error span using the original observations.
+
+- Continuous dot counts use vector grouping directly when there is only
+  one grouping variable.
+
+- Special-value counters use the marker predicate’s existing
+  missing-label semantics without rechecking each label.
+
+- Factor tallies with many unused levels extract distinct integer codes
+  with a bounded dictionary.
+
+- Factor combinations retain first-occurrence codes directly when
+  character labels are in their resulting order.
+
+- Deduplicating UpSet member positions reuses rows already in strict
+  index order.
+
+- UpSet flattens set vectors without synthesizing per-member names that
+  the membership dictionary does not use.
+
+- UpSet combines the bits of full sets once before filling sparse
+  membership rows.
+
+- Complete double scatter groups obtain first-occurrence labels without
+  allocating a mask across all observations.
+
+- Missingness matrices avoid allocating the percentage summary and its
+  internal factor codes.
+
+- Rank-correlation aesthetic means use their extrema to avoid a zero
+  mask when every mean is strictly positive or strictly negative.
+
+- Rank correlation groups ordinary method labels and encodes their rows
+  in one lookup while retaining factor level order.
+
+- One-sector circular selections pass scores directly to top-N
+  selection, preserving the order of ties.
+
+- A one-sector circular plot assigns the unique-feature colour without
+  comparing memberships.
+
+- Full-group circular scaling only partitions the original observations
+  after top-N selection.
+
+- PlotScatter2 supplies inside shape-legend coordinates through the
+  ggplot2 3.5 position interface.
+
+- Scatter grouping sizes its first-occurrence lookup by the number of
+  observed levels and preserves the original labels.
+
 - UpSet list input reuses an already unique atomic member dictionary
   while still stripping its generated names.
 
