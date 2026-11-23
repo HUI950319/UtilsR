@@ -179,7 +179,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   format_pct <- function(x, digits) {
     fmt <- paste0("%.", digits, "f%%")
     text <- sprintf(fmt, x)
-    text[x > 0 & x < 10^(-digits)] <- paste0("<", sprintf(fmt, 10^(-digits)))
+    cutoff <- 10^(-digits)
+    if (length(x) && max(x) > 0 && min(x) < cutoff)
+      text[x > 0 & x < cutoff] <- paste0("<", sprintf(fmt, cutoff))
     text
   }
   total_missing_vars <- sum(res_na$missing_count > 0)

@@ -1018,3 +1018,17 @@ test_that("special marker counts reuse the predicate's missing handling", {
   expect_identical(fn(x, "^[?]$"), 1)
   expect_identical(fn(addNA(x), "^[?]$"), 1)
 })
+
+test_that("known zero percentages skip small positive flags", {
+  f <- check_na
+  environment(f) <- list2env(list(">" = function(e1, e2) {
+    if (length(e1) > 1L && e2 == 0 && identical(substitute(e1), quote(x)) && all(e1 == 0))
+      stop("built small-percent flags for zero missingness")
+    base::">"(e1, e2)
+  }), parent = environment(f))
+  d <- data.frame(a = rep("normal", 2000L), b = rep("?", 2000L))
+  out <- suppressMessages(f(d, show_all = TRUE))[["_data"]]
+  expect_identical(out$missing_combined, rep("0 (0.0%)", 2L))
+  d$a[1L] <- NA_character_
+  expect_match(suppressMessages(f(d))[["_data"]]$missing_combined[1L], "<0.1%", fixed = TRUE)
+})

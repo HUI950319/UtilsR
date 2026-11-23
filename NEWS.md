@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness tables check formatting bounds before allocating the per-variable low-percentage flags.
+
 * Rank plots prune empty score vectors only when group selection has produced one.
 
 * Empty P-value inputs return their empty result while still validating requested significance thresholds.
