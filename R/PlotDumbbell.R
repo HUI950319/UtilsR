@@ -591,6 +591,7 @@ PlotDumbbell <- function(
   if (!na.rm && missing) return(NA_real_)
   n <- if (missing) length(value) - sum(is.na(value)) else length(value)
   if (!n) return(NaN)
+  if (!missing && length(value) == 1L) return(suppressWarnings(as.double(value)))
   # Add the two limbs before dividing, retaining cancellation and fractions.
   step <- bit64::as.integer64("4294967296")
   limb_sum <- function(limb) {

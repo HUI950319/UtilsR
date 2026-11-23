@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot means convert a single observed integer64 value directly instead of computing both arithmetic limbs.
+
 * Named distribution palettes only build a missing-category diagnostic when a name is absent.
 
 * Free continuous facets resolve scale-to-feature positions together instead of looking up each scale against the full layout.

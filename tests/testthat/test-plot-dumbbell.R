@@ -1181,3 +1181,16 @@ test_that("complete integral double endpoints avoid mixed range flags", {
   expect_identical(f(x, y), bit64::as.integer64(rep(1, 3)))
   expect_identical(f(x, c(NA_real_, y[2:3])), bit64::as.integer64(c(NA, 1, 1)))
 })
+
+test_that("single ordinary integer64 means use one direct conversion", {
+  fn <- .mean_plot_values
+  environment(fn) <- list2env(list("%/%" = function(e1, e2) {
+    if (inherits(e1, "integer64") && length(e1) == 1L) stop("unnecessary %/% in .mean_plot_values")
+    base::`%/%`(e1, e2)
+  }), parent = environment(fn))
+  x <- bit64::as.integer64("9007199254740993")
+  expect_identical(fn(x), 9007199254740992)
+  expect_identical(fn(-x), -9007199254740992)
+  expect_identical(fn(c(x, NA)), .mean_plot_values(c(x, NA)))
+  expect_identical(fn(bit64::NA_integer64_), NaN)
+})
