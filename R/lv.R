@@ -527,8 +527,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       missing_n <- if (anyNA(x)) sum(is.na(x)) else 0L
       true <- sum(x, na.rm = TRUE)
       counts <- c(length(x) - missing_n - true, true)
-      valid <- c(FALSE, TRUE)[counts > 0L]
-      n <- counts[counts > 0L]
+      observed <- counts > 0L
+      valid <- c(FALSE, TRUE)[observed]
+      n <- counts[observed]
     } else if (!is.object(x) && is.null(dim(x)) &&
                typeof(x) %in% c("character", "integer", "double") &&
                !isTRUE(getOption("dplyr.legacy_locale"))) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Logical inspection frequencies share one presence mask between labels and counts.
+
 * Inspection frequencies use the existing first observation for one repeated numeric value.
 
 * Inspection frequencies avoid copying sorted complete numeric keys through an identity permutation.

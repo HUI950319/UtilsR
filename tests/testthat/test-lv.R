@@ -2077,3 +2077,16 @@ test_that("single distinct numeric inspection values avoid a duplicate mask", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("logical inspection frequencies share their observed flags", {
+  fn <- lv.data.frame
+  checks <- 0L
+  environment(fn) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(counts)) && length(e1) == 2L) checks <<- checks + 1L
+    base::">"(e1, e2)
+  }), parent = environment(fn))
+  d <- data.frame(flag = rep(c(TRUE, NA, FALSE), 50L))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+  expect_identical(checks, 1L)
+})
