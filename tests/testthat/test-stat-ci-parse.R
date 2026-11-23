@@ -1547,3 +1547,15 @@ test_that("repeated identical confidence intervals reuse a single parse index", 
   expect_identical(out$unit, one$unit[rep.int(1L, 1200L), , drop = FALSE])
   expect_identical(out$trailing, rep(FALSE, 1200L))
 })
+
+test_that("repeated identical interval components select their first row directly", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (length(x) == 1L && length(table) > 1024L) stop("unnecessary match in .ci_scale")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  unit <- matrix(.01, 1056L, 3L)
+  out <- fn(rep(2, 1056L), rep(1, 1056L), rep(4, 1056L), unit, "auto", rep(TRUE, 1056L))
+  one <- fn(2, 1, 4, unit[1L, , drop = FALSE], "auto", TRUE)
+  expect_identical(out, lapply(one, rep, times = 1056L))
+})

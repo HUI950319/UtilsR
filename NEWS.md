@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval scale classification can select a single repeated component row without searching its group IDs.
+
 * A vector containing a single confidence interval spelling reuses its parsed row without matching all input strings.
 
 * Confidence interval parsing reads the known first character position without allocating a vector of identical match offsets.

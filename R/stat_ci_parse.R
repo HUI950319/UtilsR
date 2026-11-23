@@ -558,7 +558,7 @@ stat_ci_parse <- function(x,
       groups <- vctrs::vec_group_id(vctrs::new_data_frame(parts))
       count <- attr(groups, "n")
       if (count < n / 2L) {
-        at <- match(seq_len(count), groups)
+        at <- if (count == 1L) 1L else match(seq_len(count), groups)
         result <- .ci_scale(est[at], lo[at], hi[at], unit[at, , drop = FALSE], exp, valid[at])
         return(lapply(result, "[", as.integer(groups)))
       }
