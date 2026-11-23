@@ -151,7 +151,7 @@ PlotHeatmapJaccard <- function(
   } else {
     unique(data[[group_col]])
   }
-  ct_names <- ct_names[!is.na(ct_names)]
+  if (is.object(ct_names) || anyNA(ct_names)) ct_names <- ct_names[!is.na(ct_names)]
   # Keep typed group keys separate from their display labels.
   ct_labels <- as.character(ct_names)
   if (anyDuplicated(ct_labels)) {

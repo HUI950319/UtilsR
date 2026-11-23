@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard heatmaps reuse complete ordinary group dictionaries directly.
+
 * Discrete palettes remove missing values from the character dictionary instead of scanning and subsetting all observations.
 
 * Continuous dot counts avoid a row-length duplicate mask when all rows share a bin.

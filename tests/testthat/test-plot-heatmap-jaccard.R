@@ -1210,3 +1210,17 @@ test_that("one complete Jaccard group skips splitting row positions", {
   d$cell_type <- structure(rep.int(2L, nrow(d)), levels = c("T", NA_character_), class = "factor")
   expect_identical(fn(d, return_type = "data"), matrix(0, 1L, 1L, dimnames = list("T", "T")))
 })
+
+test_that("complete Jaccard group orders reuse their dictionary", {
+  d <- data.frame(cell_type = c("B", "B", "A", "A"), gene = c("p", "q", "q", "r"))
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(ct_names)) && !anyNA(x))
+      stop("masked a complete Jaccard group dictionary")
+    base::is.na(x)
+  }), parent = environment(fn))
+  p <- fn(d, return_type = "data")
+  expect_identical(rownames(p), c("B", "A"))
+  expect_equal(p[1L, 2L], 1/3)
+  expect_identical(fn(d, group_levels = c("B", NA, "A"), return_type = "data"), p)
+})
