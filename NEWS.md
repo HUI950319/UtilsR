@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet combines the bits of full sets once before filling sparse membership rows.
+
 * Complete double scatter groups obtain first-occurrence labels without allocating a mask across all observations.
 
 * Missingness matrices avoid allocating the percentage summary and its internal factor codes.

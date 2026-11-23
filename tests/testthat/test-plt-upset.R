@@ -1294,3 +1294,16 @@ test_that("distinct UpSet member dictionaries skip copying unique values", {
     expect_identical(fn(sets, output = "data"), plt_upset(sets, output = "data"))
   }
 })
+
+test_that("full UpSet memberships are initialized in one vector", {
+  fn <- .upset_row_codes
+  environment(fn) <- list2env(list(bitwOr = function(a, b) {
+    if (length(a) == 100L) stop("combined another full set across all rows")
+    base::bitwOr(a, b)
+  }), parent = environment(fn))
+  sets <- list(a = 1:100, b = c(5L, 80L), c = 1:100, d = 1:100, e = c(2L, 5L))
+  expected <- rep.int(13L, 100L)
+  expected[c(2L, 5L, 80L)] <- c(29L, 31L, 15L)
+  expect_identical(fn(sets), expected)
+  expect_identical(fn(list(integer(), integer()), 0L), integer())
+})
