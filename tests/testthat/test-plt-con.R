@@ -2757,3 +2757,14 @@ test_that("extreme paired tests reuse finite difference limits", {
   actual <- f("t.test")(x, y, paired = TRUE)
   expect_equal(actual$p.value, expected$p.value)
 })
+
+test_that("matching dot size limits skip the plot restoration", {
+  d <- data.frame(x = 1:3, y = 4:6, n = 2:4)
+  p <- ggplot2::ggplot() + ggplot2::geom_point(ggplot2::aes(x, y, size = n), data = d) +
+    ggplot2::scale_size_area(limits = c(2L, 4L))
+  plots <- list(left = p, right = p)
+  f <- .con_dot_scales
+  environment(f) <- list2env(list(.from_plot_list = function(...) stop("restored already harmonized dot plots")),
+                             parent = environment(f))
+  expect_identical(f(plots), plots)
+})

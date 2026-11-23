@@ -867,6 +867,7 @@ plt_con <- function(data,
     size_scale$limits <- limits
     p
   })
+  if (identical(changed, info$plots)) return(plots)
   .from_plot_list(changed, info$is_patchwork, info$is_single, info$pw_orig, recurse = TRUE)
 }
 

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot plots retain their container directly when every size scale already has the joint limits.
+
 * Point sampling reads grouping symbols from plain data frames without evaluating a data mask.
 
 * Factor releveling replicates the remapped code when every row in a sparse dictionary uses the same level.
