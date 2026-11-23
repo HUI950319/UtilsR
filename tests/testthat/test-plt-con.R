@@ -2697,3 +2697,16 @@ test_that("one dimensional dot counts reuse the vector keys", {
   }, .package = "vctrs")
   expect_identical(.con_dot_counts(d, "bin"), data.frame(bin = c(9, 1, 2), n = c(2L, 2L, 1L)))
 })
+
+test_that("single ordinary factor bar range avoids splitting observations", {
+  y <- c(1, 40, 60, 90, 120)
+  g <- ordered(rep("one", length(y)))
+  fn <- .con_bar_range
+  environment(fn) <- list2env(list(split = function(x, f, ...) {
+    if (identical(f, g)) stop("split a single continuous bar group")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  bounds <- range(c(0, y, mean(y) + c(-1, 1) * stats::sd(y)))
+  expect_identical(fn(y, g), bounds)
+  expect_identical(fn(y, replace(g, 2L, NA)), .con_bar_range(y, replace(g, 2L, NA)))
+})

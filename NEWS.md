@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous bars with one complete factor group derive their mean and error span using the original observations.
+
 * Continuous dot counts use vector grouping directly when there is only one grouping variable.
 
 * Special-value counters use the marker predicate's existing missing-label semantics without rechecking each label.

@@ -1320,7 +1320,9 @@ plt_con <- function(data,
     identical(class(groups), c("ordered", "factor"))
   partitions <- if (ordinary_factor && !anyNA(levels(groups))) {
     missing <- anyNA(groups)
-    if (!missing && nlevels(groups) <= length(groups)) {
+    if (!missing && nlevels(groups) == 1L) {
+      list(values)
+    } else if (!missing && nlevels(groups) <= length(groups)) {
       by_group <- split(values, groups)
       observed <- lengths(by_group) > 0L
       if (all(observed)) by_group else by_group[observed]
