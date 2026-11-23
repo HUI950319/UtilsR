@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plain console P-value styling writes threshold markers into one vector without nested result selection.
+
 * Console wrapping returns single printable ASCII lines directly when their width and spacing already fit.
 
 * Headers only filter converted components if a missing or empty part is present.

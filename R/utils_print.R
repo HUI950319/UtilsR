@@ -567,7 +567,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   # without colour, stars carry the significance instead
   if (!._pr_colour()) {
     two <- sig & below(0.01)
-    stars <- ifelse(strong, "***", ifelse(two, "**", ifelse(sig, "*", "")))
+    stars <- character(length(txt))
+    stars[sig] <- "*"
+    stars[two] <- "**"
+    stars[strong] <- "***"
     return(paste0(ifelse(is.na(txt), "NA", txt), stars))
   }
   out <- as.character(cli::col_grey(ifelse(is.na(txt), "NA", txt)))

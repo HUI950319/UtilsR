@@ -2594,3 +2594,15 @@ test_that("short ordinary lines bypass full ANSI word wrapping", {
   expect_identical(._pr_wrap("alpha  beta", 18L), as.character(original("alpha  beta", width = 18L)))
   expect_equal(paste0(._pr_wrap(strrep("论", 4L), 4L), collapse = ""), strrep("论", 4L))
 })
+
+test_that("plain console P-value stars use one output vector", {
+  fn <- ._p_cells
+  environment(fn) <- list2env(list("ifelse" = function(test, yes, no) {
+    if (identical(substitute(test), quote(strong))) stop("unnecessary ifelse in ._p_cells")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  withr::local_options(cli.num_colors = 1L)
+  x <- c(.0001, .002, .04, .5, NA)
+  expect_identical(fn(x), c("<0.001***", "0.002**", "0.040*", "0.500", "NA"))
+  expect_identical(fn(c("0.0499", "<0.001", ">0.05")), c("0.0499*", "<0.001***", ">0.05"))
+})
