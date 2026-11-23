@@ -1441,7 +1441,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       # Report identifiers without drawing one bar per distinct value.
       if (!is.null(factor_tally)) {
         counts <- factor_tally$counts
-        if (present > bins && !any(counts > 1L)) {
+        if (present > bins && max(counts) == 1L) {
           return(c("", sprintf("%d unique values", present), na))
         }
         k <- nlevels(v)

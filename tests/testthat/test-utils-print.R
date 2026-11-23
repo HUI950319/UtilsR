@@ -2461,3 +2461,14 @@ test_that("date sparklines reuse endpoints for bins and captions", {
   d$time <- as.POSIXct("2024-10-01 07:00:00", tz = "Asia/Shanghai") + c(0, 9, 12, 55, NA)
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("factor identifier sparklines use the maximum count", {
+  fn <- pr_spark
+  environment(fn) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(counts))) stop("dense flags for factor sparkle counts")
+    base::">"(e1, e2)
+  }), parent = environment(fn))
+  d <- data.frame(id = factor(rep(letters[1L:26L], 1L)))
+  expect_identical(capture.output(fn(d, bins = 5L)), capture.output(pr_spark(d, bins = 5L)))
+  expect_match(paste(capture.output(fn(d, bins = 5L)), collapse = " "), "26 unique values")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor sparklines detect unique observed labels from the largest frequency.
+
 * Date and timestamp sparklines share their observed endpoints between the bins and displayed range.
 
 * Confidence interval scale inference uses log1p directly when every relative contrast is in its stable range.
