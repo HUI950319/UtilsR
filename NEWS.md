@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reference lines use the native facet-safe path as soon as a dynamic lookup is detected.
+
 * Reference lines bypass the additional-control scan when no extra arguments are passed.
 
 * Axis formatting filters child plots only when a layout contains an inset.

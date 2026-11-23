@@ -1636,10 +1636,13 @@ fmt_ref <- function(plot,
       if (length(facets)) {
         # Native layers cannot supply our helper columns as spurious facet values.
         dynamic <- any(vapply(facets, function(facet) dynamic_facet(rlang::get_expr(facet)), logical(1)))
-        facet_text <- c(names(facets), unlist(lapply(facets, function(facet) {
-          deparse(rlang::get_expr(facet))
-        }), use.names = FALSE))
-        native <- dynamic || any(grepl(".fmt_ref_", facet_text, fixed = TRUE))
+        native <- dynamic
+        if (!native) {
+          facet_text <- c(names(facets), unlist(lapply(facets, function(facet) {
+            deparse(rlang::get_expr(facet))
+          }), use.names = FALSE))
+          native <- any(grepl(".fmt_ref_", facet_text, fixed = TRUE))
+        }
       }
     }
     plot_layers <- if (native) {

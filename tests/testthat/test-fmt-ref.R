@@ -604,3 +604,18 @@ test_that("reference layers recognize empty additional controls immediately", {
   out <- ggplot2::ggplot_build(fn(p, x = c(2, 4), na.rm = TRUE))$data
   expect_equal(out[[2L]]$xintercept, c(2, 4))
 })
+
+test_that("dynamic reference facets do not deparse expressions after detection", {
+  fn <- fmt_ref
+  environment(fn) <- list2env(list("deparse" = function(expr, ...) {
+    if (is.call(expr) && identical(expr[[1L]], quote(get))) stop("unnecessary deparse in fmt_ref")
+    base::deparse(expr, ...)
+  }), parent = environment(fn))
+  field <- "g"
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(get(field)))
+  result <- fn(p, x = c(1, 2))
+  expect_length(result$layers, 3L)
+  expect_setequal(ggplot2::ggplot_build(result)$layout$layout[["get(field)"]], c("a", "b"))
+})
