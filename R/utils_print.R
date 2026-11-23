@@ -212,8 +212,12 @@
   } else as.list(x)
   keep <- !vapply(x, is.null, logical(1))
   if (!any(keep)) return(character())
-  keys <- ._pr_escape(keys[keep])
-  vals <- vapply(x[keep], function(v) {
+  if (!all(keep)) {
+    keys <- keys[keep]
+    x <- x[keep]
+  }
+  keys <- ._pr_escape(keys)
+  vals <- vapply(x, function(v) {
     v <- ._pr_restore(v)
     if (!is.atomic(v)) return(._obj_desc(v))
     size <- length(v)

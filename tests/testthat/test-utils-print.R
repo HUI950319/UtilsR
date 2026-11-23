@@ -2558,3 +2558,16 @@ test_that("complete factor console labels bypass a second missing mask", {
   f <- structure(c(1L, 2L, NA_integer_), levels = c("z", NA_character_), class = "factor")
   expect_identical(fn(f), c("z", "<NA>", NA_character_))
 })
+
+test_that("complete key-value fields are not sliced after validation", {
+  fn <- ._kv_lines
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (is.logical(i) && all(i) && identical(substitute(i), quote(keep))) stop("unnecessary [ in ._kv_lines")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  withr::local_options(cli.num_colors = 1L)
+  expect_identical(fn(list(a = "one", longer = 10L), width = 65L),
+                   ._kv_lines(list(a = "one", longer = 10L), width = 65L))
+  expect_identical(fn(list(a = "one", gone = NULL, longer = 10L), width = 65L),
+                   fn(list(a = "one", longer = 10L), width = 65L))
+})

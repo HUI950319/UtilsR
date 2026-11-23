@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console key-value output retains the original field and key vectors when no settings are NULL.
+
 * Console conversion skips a second missingness mask when a factor's labels are complete.
 
 * Console text conversion preserves plain character vectors and their missing values without coercing or masking them.
