@@ -195,7 +195,7 @@ PlotScatter2 <- function(
   for (col in need_cols) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
@@ -233,7 +233,7 @@ PlotScatter2 <- function(
     if (x == col) x <- axis_col
     if (y == col) y <- axis_col
   }
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     if (inherits(df[[col]], "integer64")) df[[col]] <- .scatter_axis_values(df[[col]])
   }
   df[[group]] <- .scatter_group_factor(df[[group]])

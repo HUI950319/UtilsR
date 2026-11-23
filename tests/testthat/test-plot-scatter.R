@@ -2189,3 +2189,15 @@ test_that("plain incomplete grouping uses one typed scatter dictionary", {
   }
   expect_identical(.scatter_group_factor(c(NA_character_, NA_character_)), factor(rep(NA_character_, 2L)))
 })
+
+test_that("scatter axes need no duplicate scan for their two validated names", {
+  d <- data.frame(a = 1:16, b = c(1.2, 5.4, 2.3, 7.7, 13.1, 4.4, 6.8, 8.9, 16.1, 11.2, 12.3, 2.4, 9.7, 6.7, 10.1, 14.2), g = rep(c("low", "high"), each = 8L))
+  for (entry in list(PlotScatter1, PlotScatter2, PlotScatter3)) {
+    fn <- entry
+    environment(fn) <- list2env(list(unique = function(x, ...) {
+      if (identical(substitute(x), quote(c(x, y)))) stop("hashed a pair of scatter axis names")
+      base::unique(x, ...)
+    }), parent = environment(fn))
+    expect_true(inherits(fn(d, "a", "b", "g"), "ggplot"))
+  }
+})

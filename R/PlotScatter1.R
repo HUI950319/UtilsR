@@ -176,7 +176,7 @@ PlotScatter1 <- function(
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
@@ -206,7 +206,7 @@ PlotScatter1 <- function(
     group_col <- make.unique(c(names(df), ".scatter1_group"))[ncol(df) + 1L]
     df[[group_col]] <- df[[group]]
   }
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     if (inherits(df[[col]], "integer64")) df[[col]] <- .scatter_axis_values(df[[col]])
   }
   for (value in list(df[[group_col]], group_levels)) {

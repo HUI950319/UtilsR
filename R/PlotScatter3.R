@@ -204,7 +204,7 @@ PlotScatter3 <- function(
       stop("Column '", col, "' not found in data.", call. = FALSE)
     }
   }
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
@@ -231,7 +231,7 @@ PlotScatter3 <- function(
   raw_x <- data[[x]]
   raw_y <- data[[y]]
   encoded_pairs <- inherits(raw_x, "integer64") || inherits(raw_y, "integer64")
-  for (col in unique(c(x, y))) {
+  for (col in if (x == y) x else c(x, y)) {
     if (inherits(data[[col]], "integer64")) data[[col]] <- .scatter_axis_values(data[[col]])
   }
   for (value in list(data[[group]], group_levels)) {
