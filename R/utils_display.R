@@ -864,7 +864,10 @@ show_color <- function(x, rev = FALSE) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)
     swatch_ids <- if (anyDuplicated(hex)) vctrs::vec_group_id(hex)
-    ids <- if (is.null(swatch_ids)) seq_along(hex) else which(!duplicated(swatch_ids))
+    ids <- if (is.null(swatch_ids)) seq_along(hex) else {
+      distinct <- attr(swatch_ids, "n")
+      if (distinct == 1L) 1L else which(!duplicated(swatch_ids, nmax = distinct))
+    }
     if (rev || !is.null(swatch_ids) || !is.null(lookup)) {
       source <- if (rev) length(hex) - ids + 1L else ids
       if (!is.null(lookup)) source <- lookup[source]

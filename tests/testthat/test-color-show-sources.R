@@ -3572,3 +3572,15 @@ test_that("complete palette previews reuse their existing display attributes", {
   expect_identical(fn(cols, 2L), .pal_resize(cols, 2L))
   expect_identical(fn(cols, 1L), .pal_resize(cols, 1L))
 })
+
+test_that("large repeated swatches choose one ANSI preview index", {
+  fn <- show_color
+  environment(fn) <- list2env(list("duplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(swatch_ids)) && identical(attr(x, "n"), 1L)) stop("unnecessary duplicated in show_color")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  withr::local_options(cli.num_colors = 16777216L)
+  x <- rep(c("blue", "#0000FF"), 125L)
+  expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
+  expect_identical(capture.output(fn(x, rev = TRUE)), capture.output(show_color(x, rev = TRUE)))
+})

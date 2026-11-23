@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console colour previews avoid scanning duplicate occurrences when all decoded swatches are the same.
+
 * Palette previews reuse a full character dictionary when its attributes already match the displayed result.
 
 * Palette application avoids coercing an ordinary character result whose only possible attribute is its name vector.
