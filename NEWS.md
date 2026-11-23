@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Complete double scatter groups obtain first-occurrence labels without allocating a mask across all observations.
+
 * Missingness matrices avoid allocating the percentage summary and its internal factor codes.
 
 * Rank-correlation aesthetic means use their extrema to avoid a zero mask when every mean is strictly positive or strictly negative.

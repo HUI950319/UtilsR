@@ -2137,3 +2137,16 @@ test_that("default marginal scatter shape legend uses native inside coordinates"
   expect_identical(p[[1L]]$theme$legend.position, "inside")
   expect_equal(p[[1L]]$theme$legend.position.inside, c(.15, .15))
 })
+
+test_that("complete double scatter labels avoid full row flags", {
+  f <- .scatter_group_factor
+  environment(f) <- list2env(list(duplicated = function(x, ...) {
+    if (length(x) == 28L) stop("allocated a row-wide scatter group flag")
+    base::duplicated(x, ...)
+  }), parent = environment(f))
+  x <- stats::setNames(rep(c(1 + 2^-52, 1, -0, Inf), 7L), as.character(1:28))
+  y <- f(x)
+  expect_identical(levels(y), c("1.0000000000000002", "1", "-0", "Inf"))
+  expect_identical(names(y), names(x))
+  expect_identical(as.integer(y), rep(1:4, 7L))
+})

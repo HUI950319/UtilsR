@@ -563,7 +563,8 @@ PlotScatter1 <- function(
     names(codes) <- names(value)
     n_groups <- attr(ids, "n")
     values <- if (n_groups == length(value)) value else
-      if (n_groups == 1L) value[1L] else value[!duplicated(ids, nmax = n_groups)]
+      if (n_groups == 1L) value[1L] else
+        if (is.double(value)) unique(value, nmax = n_groups) else value[!duplicated(ids, nmax = n_groups)]
     if (is.double(values)) values <- .butterfly_category_labels(values)
     return(structure(codes, levels = as.character(values), class = "factor"))
   }
