@@ -98,15 +98,22 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   if (!all(supported)) {
     cli::cli_abort("Columns must be one-dimensional atomic vectors; unsupported columns: {.val {names(data_for_impute)[!supported]}}.")
   }
-  integer64_cols <- vapply(data_for_impute, inherits, logical(1), what = "integer64")
+  classed <- vapply(data_for_impute, is.object, logical(1))
+  classed_data <- if (any(classed)) data_for_impute[classed]
+  has_class <- function(what) {
+    result <- classed
+    if (length(classed_data)) result[classed] <- vapply(classed_data, inherits, logical(1), what = what)
+    result
+  }
+  integer64_cols <- has_class("integer64")
   if (any(integer64_cols) && !requireNamespace("bit64", quietly = TRUE)) {
     cli::cli_abort("Inspecting integer64 columns requires package {.pkg bit64}.")
   }
-  time_methods <- vapply(data_for_impute, inherits, logical(1), what = c("Duration", "Period", "Interval"))
+  time_methods <- has_class(c("Duration", "Period", "Interval"))
   if (any(time_methods) && !requireNamespace("lubridate", quietly = TRUE)) {
     cli::cli_abort("Inspecting time-span columns requires package {.pkg lubridate}.")
   }
-  labelled_cols <- vapply(data_for_impute, inherits, logical(1), what = "haven_labelled")
+  labelled_cols <- has_class("haven_labelled")
   if (any(labelled_cols) && !requireNamespace("haven", quietly = TRUE)) {
     cli::cli_abort("Inspecting labelled columns requires package {.pkg haven}.")
   }

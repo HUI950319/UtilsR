@@ -1101,3 +1101,16 @@ test_that("ordinary KNN columns skip bounds-warning handlers", {
   d$z[1L] <- Inf
   expect_error(fn(d, k = 1L, verbose = FALSE), "finite numeric observations")
 })
+
+test_that("plain KNN frames skip optional class inspections", {
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(inherits = function(x, what, ...) {
+    if (identical(what, "haven_labelled") && !is.object(x) && length(x) == 12L)
+      stop("checked optional class for ordinary KNN data")
+    base::inherits(x, what, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = c(1, NA, 3:12), z = 1:12)
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+  d$z <- haven::labelled(d$z, c(one = 1L))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})
