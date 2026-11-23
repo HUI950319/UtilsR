@@ -873,7 +873,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     vals <- if (is.character(first)) {
       encodeString(first, quote = "\"")
     } else if (is.factor(first)) {
-      ifelse(is.na(first), "NA", encodeString(as.character(first)))
+      encodeString(as.character(first))
     } else if (is.integer(first) && !is.object(first)) {
       as.character(first)
     } else if (is.numeric(first) && !is.object(first)) {

@@ -2606,3 +2606,15 @@ test_that("plain console P-value stars use one output vector", {
   expect_identical(fn(x), c("<0.001***", "0.002**", "0.040*", "0.500", "NA"))
   expect_identical(fn(c("0.0499", "<0.001", ">0.05")), c("0.0499*", "<0.001***", ">0.05"))
 })
+
+test_that("console factor descriptions reuse their computed missing flags", {
+  fn <- ._obj_desc
+  environment(fn) <- list2env(list("ifelse" = function(test, yes, no) {
+    if (identical(substitute(test), quote(is.na(first)))) stop("unnecessary ifelse in ._obj_desc")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  x <- structure(c(1L, 2L, NA_integer_), levels = c("x", NA_character_), class = "factor")
+  expect_identical(fn(x), ._obj_desc(x))
+  expect_match(fn(x), "x")
+  expect_match(fn(x), "NA")
+})
