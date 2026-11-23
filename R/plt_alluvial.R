@@ -433,7 +433,7 @@ plt_alluvial <- function(
     } else next
     keep <- if (is.null(keep)) valid else keep & valid
   }
-  removed <- if (is.null(keep)) 0L else sum(!keep)
+  removed <- if (is.null(keep)) 0L else length(keep) - sum(keep)
   if (removed > 0L) {
     cli::cli_inform(c(
       "i" = "Removed {removed} row{?s} with missing values in required columns."

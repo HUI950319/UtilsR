@@ -1520,3 +1520,15 @@ test_that("alluvial tibble preparation narrows columns before coercion", {
   expect_identical(act$data, plt_alluvial(as.data.frame(d), "a", "g",
     label_args = list(style = "none"))$data)
 })
+
+test_that("alluvial removal counts reuse the retained-row mask", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(a = c("one", NA, "two", "one"), g = c("A", "B", "B", NA))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list("!" = function(x) {
+    if (identical(substitute(x), quote(keep))) stop("allocated the inverse alluvial row mask")
+    base::"!"(x)
+  }), parent = environment(fn))
+  expect_message(p <- fn(d, "a", "g"), "Removed 2 rows")
+  expect_equal(sum(p$data$count), 2)
+})

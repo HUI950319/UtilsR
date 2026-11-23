@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial missing-row notices use the count of retained rows directly.
+
 * Alluvial preparation keeps unrelated tibble columns out of the frame coercion.
 
 * Sankey paths build their successor nodes from the next stage columns and keep terminal nodes missing.
