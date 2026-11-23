@@ -218,7 +218,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   numeric_bounds <- lapply(data_for_impute, function(x) {
     if (is.double(x) && !is.object(x)) {
-      suppressWarnings(c(min(x, na.rm = TRUE), max(x, na.rm = TRUE)))
+      c(min(Inf, x, na.rm = TRUE), max(-Inf, x, na.rm = TRUE))
     }
   })
   non_finite <- vapply(seq_along(data_for_impute), function(i) {

@@ -1089,3 +1089,15 @@ test_that("complete tibble KNN inputs return before frame coercion", {
   d$x[1L] <- NA_integer_
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("ordinary KNN columns skip bounds-warning handlers", {
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list("suppressWarnings" = function(expr, ...) {
+    if (identical(substitute(expr), quote(c(min(x, na.rm = TRUE), max(x, na.rm = TRUE))))) stop("unnecessary suppressWarnings in impute_na_knn")
+    base::suppressWarnings(expr, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = c(1, 2, NA, 4), z = c(8, 9, 10, 11), g = factor(c("a", "a", "b", "b")))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+  d$z[1L] <- Inf
+  expect_error(fn(d, k = 1L, verbose = FALSE), "finite numeric observations")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN preprocessing obtains missing-tolerant numeric bounds without installing warning handlers per column.
+
 * Scatter grouping derives nonmissing character, integer and logical levels directly from numeric group IDs.
 
 * Point sampling only checks fixed aesthetic lengths when controls are supplied.
