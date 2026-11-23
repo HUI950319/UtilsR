@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank data preparation reuses a full group's observations from its known row locations.
+
 * Rank preparation uses the sole ordinary data frame directly when no cross-group row bind is needed.
 
 * Top-rank scaling reads the first and last already ordered scores without rescanning each displayed group.

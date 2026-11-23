@@ -1015,3 +1015,17 @@ test_that("single ordinary rank panels keep their bound frame", {
   expect_identical(out$Score, c(10.5, 10.5, 9.2, 5.5))
   expect_identical(out$Label, c("level3", "level4", "level1", "level2"))
 })
+
+test_that("complete rank group locations need no sequence comparison", {
+  d <- data.frame(Group = "solo", Label = paste0("a", 1:20), Score = seq_len(20))
+  f <- .pr_parse
+  environment(f) <- list2env(list(seq_along = function(x) {
+    if (identical(substitute(x), quote(scores))) stop("recreated full rank group positions")
+    base::seq_along(x)
+  }), parent = environment(f))
+  expect_identical(f(d, "Group", "Label", "Score", NULL),
+                   list(solo = stats::setNames(d$Score, d$Label)))
+  d$Group[1L] <- "other"
+  expect_identical(f(d, "Group", "Label", "Score", "solo"),
+                   list(solo = stats::setNames(d$Score[-1L], d$Label[-1L])))
+})
