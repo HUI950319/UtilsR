@@ -554,7 +554,7 @@ plt_dist <- function(data,
     plotdata <- data %>%
       dplyr::count(dplyr::across(dplyr::all_of(grp_vars)), name = count_name)
     plotdata <- tibble::as_tibble(plotdata)
-    group_id <- vctrs::vec_group_id(plotdata[c(x_var, facet)])
+    group_id <- vctrs::vec_group_id(if (is.null(facet)) plotdata[[x_var]] else plotdata[c(x_var, facet)])
     counts <- plotdata[[count_name]]
     plotdata[[prop_name]] <- if (attr(group_id, "n") == length(counts)) {
       rep.int(1, length(counts))

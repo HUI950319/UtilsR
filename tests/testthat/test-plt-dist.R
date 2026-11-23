@@ -1152,3 +1152,14 @@ test_that("distribution legend fallback accepts named theme positions", {
                             legend_args = list(position = "none"))
   expect_identical(explicit$theme$legend.position, "none")
 })
+
+test_that("unfaceted distribution proportions group from the axis column", {
+  d <- data.frame(a = c("one", "one", "one", "two", "two"), b = c("x", "x", "y", "x", "y"))
+  g <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), "a")) stop("hashed an unfaceted distribution frame")
+    g(x)
+  }, .package = "vctrs")
+  p <- plt_dist(d, c("a", "b"), type = "bar", label_args = list(style = "none"))
+  expect_equal(p$data$prop, c(2/3, 1/3, .5, .5))
+})

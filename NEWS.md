@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked distribution bars group unfaceted proportions directly by the x values.
+
 * Palette ramps detect source alpha without building a per-stop transparency vector.
 
 * Integer64 paired differences test complete ordinary double endpoints with scalar range checks before exact conversion.
