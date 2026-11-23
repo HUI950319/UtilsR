@@ -1508,3 +1508,15 @@ test_that("near ratio CI components use their relative extrema", {
   args <- list(est, lo, hi, matrix(.01, 4L, 3L), TRUE, rep(TRUE, 4L))
   expect_identical(do.call(fn, args), do.call(.ci_scale, args))
 })
+
+test_that("parsed precision reuses its upper bound before the P-only return", {
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(d)) && identical(e2, 7881L) && length(e1) > 1L)
+      stop("built a high precision mask before returning P-values")
+    base::">"(e1, e2)
+  }), parent = environment(f))
+  x <- c("2.0 (1.0,3.0)", "3.00 (2.00,4.00)", "5.00 (4.00,6.00)")
+  for (output in c("p", "p_star"))
+    expect_identical(f(x, output = output, exp = FALSE), stat_ci_parse(x, output = output, exp = FALSE))
+})

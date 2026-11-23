@@ -332,11 +332,12 @@ stat_ci_parse <- function(x,
 
   # --- Rebuild the CI string in its original bracket/separator style ---
   if (!all_valid) d[!valid] <- 0L
-  if (anyNA(d) || min(d) < 0 || max(d) > 8190L) {
+  upper_digits <- if (!anyNA(d)) max(d)
+  if (is.null(upper_digits) || min(d) < 0 || upper_digits > 8190L) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
   # Only very high precision can require the formatted-number byte checks below.
-  if (output %in% c("p", "p_star") && !any(d > 7881L)) {
+  if (output %in% c("p", "p_star") && upper_digits <= 7881L) {
     out <- if (output == "p") pval else stat_pval(pval, map_signif = map_signif)
     names(out) <- names(x)
     return(out)

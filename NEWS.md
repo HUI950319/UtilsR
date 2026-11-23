@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-only confidence interval requests decide whether byte-length validation is needed from the existing upper precision bound.
+
 * Inset placement checks existing inset names at their reference cells before building a list of neighboring names.
 
 * Facet inspection recognizes literal data-pronoun references and does not treat environment-pronoun names as data columns.
