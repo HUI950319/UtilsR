@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console width checks avoid building the duplicate expansion index when all labels already fit.
+
 * Sankey stages with one level keep their existing codes when reversed.
 
 * Sankey plots use complete stage label strings directly when only names are displayed.

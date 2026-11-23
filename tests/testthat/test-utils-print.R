@@ -2522,3 +2522,16 @@ test_that("repeated labels without width overflow keep their original vector", {
   x2 <- rep(c("a", strrep("b", 25L)), 700L)
   expect_identical(f(x2, width = 12L), ._pr_trim(x2, width = 12L))
 })
+
+test_that("fitting repeated console labels defer reverse lookup", {
+  fn <- ._pr_trim
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(text)) && max(nchar(x)) <= 10L)
+      stop("matched repeated text needing no trimming")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- setNames(rep(c("plain", "small"), 1000L), paste0("k", 1:2000))
+  expect_identical(fn(x, 10L), x)
+  y <- setNames(rep(c("small", strrep("z", 25)), 1000L), names(x))
+  expect_identical(fn(y, 10L), ._pr_trim(y, 10L))
+})
