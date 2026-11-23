@@ -744,3 +744,15 @@ test_that("repeated panel themes reuse the most recent cached theme", {
   draw <- function(f) lapply(f(plots, grid = "major"), function(p) p$theme)
   expect_identical(draw(fn), draw(fmt_panel))
 })
+
+test_that("keeping panel styles with empty controls skips theme creation", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  f <- fmt_panel
+  environment(f) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, ggplot2::theme) && !length(args)) stop("built an empty panel theme")
+    base::do.call(what, args, ...)
+  }), parent = environment(f))
+  expect_identical(f(p, grid = "keep"), p)
+  expect_identical(f(list(p, p), grid = "keep"), list(p, p))
+  expect_error(f(list(p, 1), grid = "keep"), "Input must be")
+})

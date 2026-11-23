@@ -3020,8 +3020,9 @@ fmt_panel <- function(plot,
   if (!is.null(bg)) {
     theme_args$panel.background <- ggplot2::element_rect(fill = bg, colour = NA)
   }
-  panel_theme <- do.call(ggplot2::theme, theme_args)
   extra_args <- list(...)
+  panel_theme <- if (grid != "keep" || length(theme_args) || length(extra_args))
+    do.call(ggplot2::theme, theme_args)
   if (length(extra_args)) panel_theme <- panel_theme + do.call(ggplot2::theme, extra_args)
 
   # ---- Apply to plots ----

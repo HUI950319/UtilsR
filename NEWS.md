@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel formatting preserves existing panel styles without building a theme when no styling control is requested.
+
 * Position scale updates reuse constructor argument names when including inherited options.
 
 * Tile axes with all tick labels omitted retain the complete band geometry and use missing break indices directly.
