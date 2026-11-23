@@ -919,7 +919,7 @@ plt_cat <- function(data,
     if (distinct == length(ids)) {
       counts <- rep.int(1L, distinct)
     } else {
-      first <- !duplicated(ids)
+      first <- if (distinct == 1L) 1L else !duplicated(ids, nmax = distinct)
       stat_code <- stat_code[first]
       group_code <- group_code[first]
       counts <- tabulate(ids, distinct)

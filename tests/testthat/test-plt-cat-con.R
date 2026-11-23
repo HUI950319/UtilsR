@@ -2339,3 +2339,17 @@ test_that("a single complete sparse factor level uses a constant membership resu
   vals[2L] <- NA
   expect_identical(fn(vals, "keep"), setNames(c(TRUE, FALSE, TRUE, TRUE), letters[1:4]))
 })
+
+test_that("a single populated category pair uses one representative row", {
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list("duplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(ids)) && attr(x, "n") == 1L) stop("unnecessary duplicated in .prepare_cat_data")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(rep("yes", 1500L), c("no", "yes")),
+    b = factor(rep("left", 1500L), c("left", "right")))
+  out <- fn(d, "a", "b", "count")
+  expect_equal(out$n, 1500)
+  expect_identical(as.character(out$stat_var), "yes")
+  expect_identical(fn(d, "a", "b", "percent")$value, 100)
+})
