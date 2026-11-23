@@ -1565,3 +1565,18 @@ test_that("finite nonzero rank scores skip exceptional replacements", {
   }
   expect_identical(f(fn), f(PlotRankCor))
 })
+
+test_that("a single rank correlation display group uses its first key", {
+  d <- rank_cor_data()
+  d$group <- "one"
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(group_id)) && attr(x, "n") == 1L)
+      stop("built row flags for one rank correlation group")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  run <- function(f, d) suppressMessages(f(d, "item", "score", "group", "method", show.label = FALSE))
+  expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
+  d$group <- factor(rep(c("x", "y"), each = nrow(d)/2))
+  expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
+})

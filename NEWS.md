@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation avoids a full duplicate mask for one repeated display group.
+
 * Factor combinations only create a character sorting permutation when the observed dictionary needs reordering.
 
 * Jaccard heatmaps reuse complete ordinary group dictionaries directly.
