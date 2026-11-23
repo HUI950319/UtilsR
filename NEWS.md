@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The ggrastr backend accepts an ordinary plot directly without making and restoring a one-item list.
+
 * Pairwise comparison validation deduplicates existing character groups without reconverting them.
 
 * Axis text settings reuse the side-specific theme keys as each inherited element is updated.

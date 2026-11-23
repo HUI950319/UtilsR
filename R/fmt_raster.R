@@ -240,6 +240,7 @@ fmt_raster <- function(
     p
   }
 
+  if (inherits(plot, "gg") && !inherits(plot, "patchwork")) return(raster_one(plot))
   info <- .to_plot_list(plot)
   updated <- lapply(info$plots, raster_one)
   if (identical(updated, info$plots)) return(plot)

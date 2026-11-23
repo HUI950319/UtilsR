@@ -1200,3 +1200,17 @@ test_that("a repeated raster panel span is measured directly", {
   tab$layout$r[10L] <- 2L
   expect_identical(fn(tab, 1:10, "width", NULL, "cm", c(1, 2, 4)), c(rep(7, 9L), 3))
 })
+
+test_that("one ordinary ggrastr plot goes directly through the layer adapter", {
+  fn <- .fmt_raster_ggrastr
+  environment(fn) <- list2env(list(".to_plot_list" = function(plot, ...) {
+    if (inherits(plot, "gg") && !inherits(plot, "patchwork")) stop("unnecessary .to_plot_list in .fmt_raster_ggrastr")
+    .to_plot_list(plot, ...)
+  }), parent = environment(fn))
+  base <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg))
+  line <- base + ggplot2::geom_line()
+  expect_identical(fn(line, 100, "cairo"), line)
+  point <- base + ggplot2::geom_point()
+  expect_identical(ggplot2::ggplot_build(fn(point, 100, "cairo"))$data,
+    ggplot2::ggplot_build(point)$data)
+})
