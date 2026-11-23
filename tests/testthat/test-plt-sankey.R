@@ -1132,3 +1132,16 @@ test_that("built Sankey labels use native node codes with matching levels", {
       reverse_levels = rev))$layers[[3L]]$data
   for (rev in c(FALSE, TRUE)) expect_identical(run(fn, rev), run(plt_sankey, rev))
 })
+
+test_that("adjacent Sankey nodes are laid out without row successor indexes", {
+  d <- data.frame(a = factor(c("a", "b", "c")), b = c("p", "", NA), c = c("x", "y", "z"))
+  fn <- .sankey_path_rows
+  environment(fn) <- list2env(list(seq_along = function(x) {
+    if (identical(substitute(x), quote(nodes))) stop("indexed every Sankey successor row")
+    base::seq_along(x)
+  }), parent = environment(fn))
+  result <- fn(d, c("b", "a", "c"))
+  expect_identical(result$next_node, c("a", "x", NA, "b", "y", NA, "c", "z", NA))
+  expect_identical(fn(d, "a")$next_node, rep(NA_character_, 3L))
+  expect_identical(fn(d[0L, ], names(d))$next_node, character())
+})

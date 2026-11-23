@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey paths build their successor nodes from the next stage columns and keep terminal nodes missing.
+
 * Continuous bars with one complete factor group derive their mean and error span using the original observations.
 
 * Continuous dot counts use vector grouping directly when there is only one grouping variable.
