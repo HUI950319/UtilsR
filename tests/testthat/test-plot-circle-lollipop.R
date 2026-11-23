@@ -1668,3 +1668,22 @@ test_that("one circular sector skips membership comparisons", {
   expect_length(colors, 4L)
   expect_true(all(colors == "navy"))
 })
+
+test_that("circular top selection skips grouping for one sector", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = "single", name = letters[1:4], value = c(.4, .7, .7, .3))
+  group_by <- dplyr::group_by
+  local_mocked_bindings(group_by = function(.data, ...) {
+    if (identical(names(.data), c("group", "score", "row_id"))) stop("grouped one circular sector")
+    group_by(.data, ...)
+  }, .package = "dplyr")
+  seen <- numeric()
+  draw <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    seen <<- c(seen, y)
+    draw(x, y, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, top_n = 3L, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(seen, c(.7, .7, .4))
+})

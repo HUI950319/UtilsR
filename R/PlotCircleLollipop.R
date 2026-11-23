@@ -276,8 +276,8 @@ PlotCircleLollipop <- function(
       score = if (integer64_scores) data[[value_col]] else numeric_values,
       row_id = seq_len(nrow(data))
     )
+    if (length(group_labels) > 1L) ranking <- dplyr::group_by(ranking, .data[["group"]])
     selected <- ranking |>
-      dplyr::group_by(.data[["group"]]) |>
       dplyr::slice_max(order_by = .data[["score"]], n = top_n, with_ties = FALSE) |>
       dplyr::pull("row_id")
     columns <- unique(c(group_col, name_col, value_col, intersect(color_col, names(data))))
