@@ -1578,8 +1578,9 @@ fmt_ref <- function(plot,
   line_styles <- function(values) {
     n <- length(values)
     if (!n) return(NULL)
-    list(colour = rep_len(color, n), linetype = rep_len(linetype, n),
-         linewidth = rep_len(linewidth, n), alpha = rep_len(alpha, n))
+    recycle <- function(x) if (length(x) == n && is.null(attributes(x))) x else rep_len(x, n)
+    list(colour = recycle(color), linetype = recycle(linetype),
+         linewidth = recycle(linewidth), alpha = recycle(alpha))
   }
   x_styles <- line_styles(x)
   y_styles <- if (length(y) == length(x)) x_styles else line_styles(y)

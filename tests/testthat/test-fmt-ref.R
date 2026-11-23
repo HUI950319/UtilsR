@@ -494,7 +494,7 @@ test_that("reference styles recycle once per axis across leaves", {
   actual <- fn(plots, x = 1:3, y = 1:2, color = color)
   expect_equal(lapply(actual, function(q) ggplot2::ggplot_build(q)$data),
     lapply(expected, function(q) ggplot2::ggplot_build(q)$data))
-  expect_identical(sort(seen), 2:3)
+  expect_identical(seen, 3L)
 })
 
 test_that("reference line leaves reuse inputs without sharing stateful layers", {
@@ -581,7 +581,7 @@ test_that("matching horizontal and vertical reference sizes share recycled style
   reads <- 0L
   fn <- fmt_ref
   environment(fn) <- list2env(list(rep_len = function(x, length.out) {
-    if (identical(substitute(x), quote(color))) {
+    if (identical(x, c("red", "blue"))) {
       reads <<- reads + 1L
       if (reads > 1L) stop("recycled identical reference styles on both axes")
     }
@@ -618,4 +618,17 @@ test_that("dynamic reference facets do not deparse expressions after detection",
   result <- fn(p, x = c(1, 2))
   expect_length(result$layers, 3L)
   expect_setequal(ggplot2::ggplot_build(result)$layout$layout[["get(field)"]], c("a", "b"))
+})
+
+test_that("reference layer styles reuse vectors with the target size", {
+  fn <- fmt_ref
+  environment(fn) <- list2env(list("rep_len" = function(x, length.out) {
+    if (length(x) > 1L && length(x) == length.out && is.null(attributes(x))) stop("unnecessary rep_len in fmt_ref")
+    base::rep_len(x, length.out)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg))
+  result <- fn(p, x = c(2, 4, 6), color = c("red", "black", "green"), linewidth = c(.2, .3, .5))
+  built <- ggplot2::ggplot_build(result)$data[[1L]]
+  expect_identical(as.character(built$colour), c("red", "black", "green"))
+  expect_equal(as.double(built$linewidth), c(.2, .3, .5))
 })

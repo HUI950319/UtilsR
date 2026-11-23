@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Batched reference lines keep ordinary style vectors that already have the required length.
+
 * Alluvial counts avoid constructing a two-column grouping frame when integer facet and category codes fit together.
 
 * Alluvial plots with one observed group reuse existing pair codes for counts instead of generating combined grid indices.
