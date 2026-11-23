@@ -977,3 +977,16 @@ test_that("single complete rank groups keep their score and label storage", {
   d$group[seq(1L, nrow(d), by = 2L)] <- "two"
   expect_identical(read(fn, d), read(.pr_parse, d))
 })
+
+test_that("strictly ascending ordinary scores select ranks without sorting", {
+  x <- stats::setNames(seq_len(1200L) / 10, paste0("p", 1:1200))
+  f <- PlotRank
+  environment(f) <- list2env(list(order = function(...) {
+    if (identical(list(...)[[1L]], x)) stop("reordered an already sorted score vector")
+    base::order(...)
+  }), parent = environment(f))
+  out <- f(x, max_show = 24L, return_type = "data")
+  rows <- 1200:1177
+  expect_identical(out$Score, unname(x[rows]))
+  expect_identical(out$Label, names(x)[rows])
+})

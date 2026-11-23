@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plots select descending leaders directly from strictly increasing ordinary scores and retain the existing tie handling elsewhere.
+
 * P-only confidence interval requests decide whether byte-length validation is needed from the existing upper precision bound.
 
 * Inset placement checks existing inset names at their reference cells before building a list of neighboring names.

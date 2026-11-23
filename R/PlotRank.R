@@ -231,6 +231,8 @@ PlotRank <- function(
     }
     shown <- if (n == 1L && !is.object(scores)) {
       scores[which.max(scores)]
+    } else if (!is.object(scores) && !is.unsorted(scores, strictly = TRUE)) {
+      scores[seq.int(length(scores), length.out = n, by = -1L)]
     } else if (!is.null(candidates)) {
       positions <- order(scores[candidates], decreasing = TRUE, method = "radix")[seq_len(n)]
       scores[candidates[positions]]
