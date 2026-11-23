@@ -1587,3 +1587,17 @@ test_that("one observed alluvial group uses its pair codes as count keys", {
   expect_equal(p$data$count, c(2, 1, 2))
   expect_equal(p$data$percent, c(1, 1, 1))
 })
+
+test_that("bounded alluvial facet pairs group packed integer codes", {
+  d <- data.frame(category = factor(rep(c("A", "A", "B", "C"), 2L), c("C", "B", "A")),
+    group = rep(c("g2", "g1"), each = 4L), facet = rep(c("right", "left"), each = 2L))
+  ref <- plt_alluvial(d, "category", "group", facet = "facet", stratum_args = list(gap = 0))
+  old <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), c(".facet", ".cat_var")))
+      stop("grouped a bounded frame of facet and category codes")
+    old(x)
+  }, .package = "vctrs")
+  result <- plt_alluvial(d, "category", "group", facet = "facet", stratum_args = list(gap = 0))
+  expect_identical(result$data, ref$data)
+})

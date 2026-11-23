@@ -505,8 +505,14 @@ plt_alluvial <- function(
   # Count only observed facet/category pairs, keeping zero-count group strata.
   pair_columns <- c(".facet", ".cat_var")
   multiple_facets <- length(facet_levels) > 1L
-  pair_id <- if (multiple_facets) vctrs::vec_group_id(plot_input[pair_columns]) else
+  pair_id <- if (!multiple_facets) {
     as.integer(plot_input$.cat_var)
+  } else if (as.double(length(cat_levels)) * length(facet_levels) <= .Machine$integer.max) {
+    codes <- as.integer(plot_input$.cat_var) + (as.integer(plot_input$.facet) - 1L) * length(cat_levels)
+    vctrs::vec_group_id(codes)
+  } else {
+    vctrs::vec_group_id(plot_input[pair_columns])
+  }
   n_pairs <- if (multiple_facets) attr(pair_id, "n") else length(cat_levels)
   n_strata <- as.double(n_pairs) * n_groups
   n_gaps <- if (stratum_args$gap > 0) max(0L, n_groups - 1L) else 0L
