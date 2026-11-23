@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness plotting only collects fallback label positions when the name map leaves a variable unmapped.
+
 * Plot flattening skips filtering inherited layout parameters if the call supplies no replacements.
 
 * Axis text formatting avoids trigonometric alignment calculations when horizontal and vertical justification are supplied.

@@ -743,3 +743,15 @@ test_that("one variable missingness matrices use the column mask", {
   expect_identical(p$data$value, c(FALSE, TRUE, FALSE, TRUE))
   expect_identical(p$data$id, 1:4)
 })
+
+test_that("complete missingness name maps skip a fallback mask", {
+  fn <- plt_na
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(mapped)) && !anyNA(x)) stop("unnecessary is.na in plt_na")
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- data.frame(a = c(1, NA, 3), b = c(1, NA, NA))
+  result <- fn(d, name.map = c(a = "First", b = "Second"), output = "matrix")
+  expect_setequal(levels(result$data$label), c("First", "Second"))
+  expect_setequal(levels(fn(d, name.map = c(a = "First"), output = "matrix")$data$label), c("First", "b"))
+})
