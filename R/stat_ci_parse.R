@@ -488,7 +488,7 @@ stat_ci_parse <- function(x,
     g <- lapply(g, "[", paired)
     text <- text[paired]
   }
-  end <- matched[hit] + attr(matched, "match.length")[hit]
+  end <- 1L + attr(matched, "match.length")[hit]
   extra <- which(end <= nchar(text))
   has_trailing <- logical(length(hit))
   if (length(extra)) has_trailing[extra] <- grepl("[^\\h\\v]",

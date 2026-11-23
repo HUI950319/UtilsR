@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval parsing reads the known first character position without allocating a vector of identical match offsets.
+
 * Decimal P-value annotations only collect the rows that advance past each tied numeric cutoff once.
 
 * Decimal P-value annotation uses the comparison results to locate ties without building a separate missing mask.

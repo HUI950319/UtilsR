@@ -1520,3 +1520,16 @@ test_that("parsed precision reuses its upper bound before the P-only return", {
   for (output in c("p", "p_star"))
     expect_identical(f(x, output = output, exp = FALSE), stat_ci_parse(x, output = output, exp = FALSE))
 })
+
+test_that("anchored interval parsing reuses the known match origin", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(matched))) stop("unnecessary [ in .ci_extract")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  x <- c("0.2 (0.1, 0.3)", "4 [2 to 8] after", "invalid", "8 [6, 9) wrong")
+  parsed <- fn(x)
+  expect_identical(parsed$valid, c(TRUE, TRUE, FALSE, FALSE))
+  expect_identical(parsed$trailing, c(FALSE, TRUE, FALSE, FALSE))
+  expect_identical(parsed$estimate, c(.2, 4, NA_real_, NA_real_))
+})
