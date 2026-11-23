@@ -1184,3 +1184,15 @@ test_that("name-only Sankey captions keep complete labels", {
   d$a[1L] <- NA
   expect_true("NA" %in% levels(fn(d, theme_use = ggplot2::theme_void(), vars = names(d), show_text = "name")$data$label))
 })
+
+test_that("reversing one complete Sankey level reuses dense codes", {
+  fn <- plt_sankey
+  environment(fn) <- list2env(list("-" = function(e1, e2) {
+    if (!missing(e2) && identical(substitute(e2), quote(codes)) && length(unique(e2)) == 1L) stop("unnecessary - in plt_sankey")
+    if (missing(e2)) base::`-`(e1) else base::`-`(e1, e2)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(rep("one", 6L)), b = factor(rep(c("x", "y"), 3L)))
+  draws <- fn(d, theme_use = ggplot2::theme_void(), vars = names(d), reverse_levels = TRUE, show_text = "name")
+  expect_identical(as.character(draws$data$label), rep(c("one", "x", "one", "y"), 3L))
+  expect_identical(levels(draws$data$label), c("one", "y", "x"))
+})

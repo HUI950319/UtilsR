@@ -316,7 +316,7 @@ plt_sankey <- function(data,
     node_labels[[i]] <- stats::setNames(labels, node_levels)
     node_pct[[i]] <- stats::setNames(proportion, node_levels)
     if (!missing && length(observed) == nlevels(value)) {
-      node_codes <- if (reverse_levels) nlevels(value) - codes + 1L else codes
+      node_codes <- if (reverse_levels && length(observed) > 1L) length(observed) - codes + 1L else codes
     } else if (!missing && nlevels(value) <= total) {
       lookup <- rep.int(NA_integer_, nlevels(value))
       lookup[observed] <- seq_along(observed)
