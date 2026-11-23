@@ -731,3 +731,15 @@ test_that("incomplete ordinary columns use their existing missing classification
   p <- fn(d, output = "matrix")
   expect_identical(p$data$value, c(FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE))
 })
+
+test_that("one variable missingness matrices use the column mask", {
+  f <- .plt_na_plot
+  environment(f) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, base::rbind) && length(args) == 1L) stop("reshaped a single missing column")
+    base::do.call(what, args, ...)
+  }), parent = environment(f))
+  local_mocked_bindings(.plt_na_plot = f, .package = "UtilsR")
+  p <- plt_na(data.frame(g = c("a", NA, "b", NA)), output = "matrix")
+  expect_identical(p$data$value, c(FALSE, TRUE, FALSE, TRUE))
+  expect_identical(p$data$id, 1:4)
+})

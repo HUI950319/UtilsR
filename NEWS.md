@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Single-variable missingness plots use their existing missing-value vector as the tile data.
+
 * Missingness matrices keep masks of ordinary columns that were already found to have missing rows.
 
 * Deferred position scales check duplicate names only when normalized aliases actually collide.

@@ -321,8 +321,12 @@ plt_na <- function(
       show_y_labels = TRUE,
       gap_side = NULL) {
     n <- nrow(missing_data)
-    value <- do.call(rbind, unname(missing_data))
-    dim(value) <- NULL
+    if (length(missing_vars) == 1L) {
+      value <- unname(missing_data[[1L]])
+    } else {
+      value <- do.call(rbind, unname(missing_data))
+      dim(value) <- NULL
+    }
     labels <- factor(unname(variable_keys[missing_vars]), levels = variable_levels)
     matrix_data <- tibble::tibble(
       id = rep(seq_len(n), each = length(missing_vars)),
