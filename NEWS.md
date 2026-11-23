@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel styling bypasses line-argument filtering when no grid line is being edited.
+
 * Panel formatting avoids creating a blank element if the call keeps existing elements or adds a visible border.
 
 * Reference lines use the native facet-safe path as soon as a dynamic lookup is detected.

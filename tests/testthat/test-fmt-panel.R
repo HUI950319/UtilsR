@@ -770,3 +770,14 @@ test_that("keeping panel styling skips creation of unused blank elements", {
   expect_identical(calls, 0L)
   expect_s3_class(fmt_panel(p, grid = "keep", border = FALSE)$theme$panel.border, "element_blank")
 })
+
+test_that("hidden panel grids skip filtering unused line styles", {
+  fn <- fmt_panel
+  environment(fn) <- list2env(list("Filter" = function(f, x) {
+    if (identical(substitute(x), quote(line_args))) stop("unnecessary Filter in fmt_panel")
+    base::Filter(f, x)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot()
+  expect_identical(fn(p, grid = "keep"), p)
+  expect_equal(fn(p, grid = "major", grid_color = "blue")$theme$panel.grid.major$colour, "blue")
+})

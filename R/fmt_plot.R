@@ -3011,8 +3011,9 @@ fmt_panel <- function(plot,
     c(hidden_groups, setdiff(grid_elements, enabled))
   blank <- if (length(hidden) || isFALSE(border)) ggplot2::element_blank()
   theme_args <- stats::setNames(rep(list(blank), length(hidden)), hidden)
-  line_args <- list(colour = grid_color, linewidth = grid_linewidth, linetype = grid_linetype)
-  line_args <- Filter(Negate(is.null), line_args)
+  line_args <- if (length(enabled)) {
+    Filter(Negate(is.null), list(colour = grid_color, linewidth = grid_linewidth, linetype = grid_linetype))
+  }
   if (length(enabled) && length(line_args)) {
     visible_groups <- switch(grid,
       "major" = "panel.grid.major", "minor" = "panel.grid.minor",
