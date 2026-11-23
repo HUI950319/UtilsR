@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Decimal P-value annotation uses the comparison results to locate ties without building a separate missing mask.
+
 * P-value annotations skip the interval lookup when every observed value exceeds the largest significance cutoff.
 
 * Plain P-value formatting checks for signed zeros only when a vector can use duplicate formatting.

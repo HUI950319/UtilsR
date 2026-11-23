@@ -1180,3 +1180,14 @@ test_that("missing P-values do not force significance work above all limits", {
   expect_identical(fn(text, add_star_p = rep(NA_real_, length(text))), text)
   expect_identical(fn("cell", add_star_p = .001), "cell***")
 })
+
+test_that("decimal star ties drop missing comparisons without a separate mask", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(pvals)) && !anyNA(x)) stop("unnecessary is.na in stat_pval")
+    base::is.na(x)
+  }), parent = environment(fn))
+  x <- c("0.049999999999999999", "0.050000000000000001", "0.06", NA_character_)
+  expect_identical(fn(x), c("0.050*", "0.050.", "0.060.", NA_character_))
+  expect_identical(fn("0.05", map_signif = c("!" = 0.05)), "0.050!")
+})

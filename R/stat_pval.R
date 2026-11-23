@@ -143,7 +143,7 @@ stat_pval <- function(x,
     }
     if (anyDuplicated(map)) map <- map[!duplicated(map)]
     index <- findInterval(pvals, map, left.open = TRUE) + 1L
-    tied <- which(!is.na(pvals) & pvals == unname(map[index]))
+    tied <- which(pvals == unname(map[index]))
     decimal <- function(text) {
       mantissa <- sub("[eE].*$", "", text)
       exponent <- as.numeric(ifelse(grepl("[eE]", text), sub("^.*[eE]", "", text), "0"))
