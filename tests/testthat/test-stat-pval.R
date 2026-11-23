@@ -1157,3 +1157,14 @@ test_that("empty P-value inputs skip finite-range evaluation", {
   expect_identical(f(numeric(), mode = "stars"), character())
   expect_error(f(numeric(), mode = "stars", map_signif = c("*" = Inf)), "map_signif")
 })
+
+test_that("small plain P-value vectors bypass duplicate eligibility scans", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("==" = function(e1, e2) {
+    if (identical(substitute(e1), quote(x_num)) && length(e1) <= 1024L) stop("unnecessary == in stat_pval")
+    base::`==`(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(c(-0, 0, 0.04), mode = "plain"), c("-0.00", "0.00", "0.04"))
+  x <- rep(c(-0, 0, .95), 650L)
+  expect_identical(fn(x, mode = "plain"), rep(c("-0.00", "0.00", "0.95"), 650L))
+})

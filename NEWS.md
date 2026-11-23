@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plain P-value formatting checks for signed zeros only when a vector can use duplicate formatting.
+
 * Legend lookups retain complete aesthetic mappings directly after checking for disabled entries.
 
 * Legend mappings reuse a fully named unique aesthetic dictionary when no layer aesthetic is fixed.
