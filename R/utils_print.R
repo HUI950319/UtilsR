@@ -574,8 +574,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     return(paste0(ifelse(is.na(txt), "NA", txt), stars))
   }
   out <- as.character(cli::col_grey(ifelse(is.na(txt), "NA", txt)))
-  out[sig]    <- cli::col_red(txt[sig])
-  out[strong] <- cli::style_bold(cli::col_red(txt[strong]))
+  if (any(sig)) out[sig] <- cli::col_red(txt[sig])
+  if (any(strong)) out[strong] <- cli::style_bold(cli::col_red(txt[strong]))
   out
 }
 

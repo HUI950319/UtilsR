@@ -2631,3 +2631,14 @@ test_that("console descriptions only interpolate labels for matched codes", {
   x <- haven::labelled(c(2, 3, 4, NA), c(y = 1))
   expect_identical(fn(x), ._obj_desc(x))
 })
+
+test_that("nonsignificant console P-values bypass colour replacement", {
+  withr::local_options(cli.num_colors = 256L)
+  original <- cli::col_red
+  local_mocked_bindings(col_red = function(x) {
+    if (!length(x)) stop("coloured a zero-length P-value subset")
+    original(x)
+  }, .package = "cli")
+  expect_identical(cli::ansi_strip(._p_cells(c(.2, .6, NA))), c("0.200", "0.600", "NA"))
+  expect_identical(cli::ansi_strip(._p_cells(c(.001, .06, .0002))), c("0.001", "0.060", "<0.001"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value tables leave the base text style in place when there are no significant values.
+
 * Descriptions join value labels only for the codes that actually have labels.
 
 * Console object descriptions encode factor labels once and use the existing missing positions.
