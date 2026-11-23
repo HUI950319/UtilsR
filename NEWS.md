@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection table preparation only allocates all-missing masks for ordinary inputs that contain a missing value.
+
 * Object size tables share the same explicit summary row for Markdown and text styling.
 
 * Console tree formatting builds the standard attribute list once and adds S7 properties only for the nodes that carry them.

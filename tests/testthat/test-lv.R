@@ -2014,3 +2014,16 @@ test_that("long character frequency listings render only labels shown", {
   expect_identical(seen, do_print(lv.data.frame, d))
   expect_true(any(grepl("(21 others)", seen, fixed = TRUE)))
 })
+
+test_that("complete text inspection tables avoid missing flags", {
+  d <- data.frame(x = rep(letters[1:3], 3L), y = rep(NA_character_, 9L))
+  f <- lv.data.frame
+  environment(f) <- list2env(list(all = function(..., na.rm = FALSE) {
+    args <- as.list(substitute(list(...)))[-1L]
+    if (identical(args, alist(is.na(x))) && identical(get("x", parent.frame()), d$x))
+      stop("masked a complete inspection text column")
+    base::all(..., na.rm = na.rm)
+  }), parent = environment(f))
+  render <- function(fn) capture.output(suppressMessages(fn(d)))
+  expect_identical(render(f), render(lv.data.frame))
+})

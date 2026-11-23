@@ -793,7 +793,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     df[] <- lapply(df, function(x) {
       x <- .label_na_level(.spss_missing_to_na(x))
       if ((is.character(x) || is.complex(x) || inherits(x, c("Date", "POSIXt")) ||
-           (is.factor(x) && nlevels(x) == 0L)) && all(is.na(x))) {
+           (is.factor(x) && nlevels(x) == 0L)) &&
+          (is.object(x) || anyNA(x)) && all(is.na(x))) {
         return(rep(NA, length(x)))
       }
       if (inherits(x, "difftime")) x <- as.numeric(x)
