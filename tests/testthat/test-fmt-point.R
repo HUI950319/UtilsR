@@ -1345,3 +1345,15 @@ test_that("single complete sampling strata reuse row order", {
   d$g[1L] <- NA
   expect_identical(fn(d, map, 10L, 813L), .fmt_point_sample(d, map, 10L, 813L))
 })
+
+test_that("complete fixed point attributes skip empty mapping validation", {
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("lengths" = function(x, ...) {
+    if (identical(substitute(x), quote(fixed)) && !length(x)) stop("unnecessary lengths in .fmt_point_sample")
+    base::lengths(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = 1:20, y = 20:1)
+  map <- ggplot2::aes(x, y)
+  expect_identical(fn(d, map, 5L, 121L), .fmt_point_sample(d, map, 5L, 121L))
+  expect_error(fn(d, map, 5L, 121L, fixed = list(colour = c("red", "blue"))), "scalar fixed")
+})

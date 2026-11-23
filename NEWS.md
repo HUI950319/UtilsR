@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling only checks fixed aesthetic lengths when controls are supplied.
+
 * Point sampling uses the full row sequence directly when a factor defines one complete stratum.
 
 * Point shape conversion keeps values above the remapping range even when some shapes are missing.

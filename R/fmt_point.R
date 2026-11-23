@@ -401,7 +401,7 @@ fmt_point <- function(plot,
       return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
   }
-  if (any(lengths(fixed) > 1L)) {
+  if (length(fixed) && any(lengths(fixed) > 1L)) {
     cli::cli_abort("Sampling requires scalar fixed aesthetics; put row vectors in {.arg data} and map its columns.")
   }
   external_vector <- function(expr, env) {
