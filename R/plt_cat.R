@@ -651,8 +651,10 @@ plt_cat <- function(data,
     })))
     colors <- level_colors(all_levels)
   }
-  missing <- names(colors) %in% missing_levels
-  if (any(missing)) colors[missing] <- .resolve_color_values(NA_color, "NA_color")
+  if (length(missing_levels)) {
+    missing <- names(colors) %in% missing_levels
+    if (any(missing)) colors[missing] <- .resolve_color_values(NA_color, "NA_color")
+  }
 
   # --- Auto aspect.ratio for polar types --------------------------------------
   if (is.null(aspect.ratio) && type %in% c("rose", "ring", "pie")) {

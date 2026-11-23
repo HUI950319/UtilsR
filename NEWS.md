@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical palette construction only compares labels with a nonempty missing-level set.
+
 * Sparse percentage counts use their sorted subgroup codes to detect groups containing one cell.
 
 * Sparse category counts avoid allocating duplicate flags when all retained rows share the same pair.

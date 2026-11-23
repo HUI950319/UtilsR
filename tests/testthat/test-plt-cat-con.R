@@ -2365,3 +2365,16 @@ test_that("already sorted count groups identify single cells without hashing", {
   d$b <- factor(c("left", "left", "right"))
   expect_identical(fn(d, "a", "b", "percent")$value, c(50, 50, 100))
 })
+
+test_that("complete categorical palettes skip missing-colour lookups", {
+  fn <- plt_cat
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (identical(substitute(table), quote(missing_levels)) && !length(table)) stop("unnecessary %in% in plt_cat")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  d <- data.frame(status = factor(c("A", "A", "B")))
+  draw <- function(f, d) suppressMessages(f(d, "status", type = "bar"))
+  expect_identical(draw(fn, d)$data, draw(plt_cat, d)$data)
+  d$status[1L] <- NA
+  expect_identical(draw(fn, d)$data, draw(plt_cat, d)$data)
+})
