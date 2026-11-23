@@ -267,7 +267,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       length(breaks) > 1L && !anyNA(breaks) &&
       !is.unsorted(breaks, strictly = TRUE)) {
     codes <- .bincode(x, breaks, right = TRUE, include.lowest = TRUE)
-    labels <- as.character(labels)
+    if (!is.character(labels) || !is.null(attributes(labels))) labels <- as.character(labels)
     if (!anyNA(labels) && !anyDuplicated(labels)) {
       return(structure(codes, levels = labels, class = "factor"))
     }

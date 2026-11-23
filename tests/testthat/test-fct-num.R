@@ -442,3 +442,17 @@ test_that("plain integer quantile bins do not precompute numeric bounds", {
   expect_identical(fn(x[-length(x)], nbins = 4), fct_num(x[-length(x)], nbins = 4))
   expect_error(fn(rep(3L, 101L), nbins = 4), "constant")
 })
+
+test_that("plain bin labels enter the factor dictionary without coercion", {
+  fn <- .fct_num_cut
+  environment(fn) <- list2env(list("as.character" = function(x, ...) {
+    if (identical(substitute(x), quote(labels)) && is.null(attributes(x)) && is.character(x)) stop("unnecessary as.character in .fct_num_cut")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  x <- c(0, 1, 1.5, 2, 3, NA)
+  breaks <- c(0, 1, 2, 3)
+  expect_identical(fn(x, breaks, c("low", "mid", "high")), cut(x, breaks, c("low", "mid", "high"), include.lowest = TRUE))
+  expect_identical(fn(x, breaks, c(a = "first", b = "second", c = "third")),
+                   cut(x, breaks, c("first", "second", "third"), include.lowest = TRUE))
+  expect_identical(levels(fn(x, breaks, c(1L, 2L, 1L))), c("1", "2"))
+})

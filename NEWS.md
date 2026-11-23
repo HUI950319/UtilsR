@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric binning retains unadorned character levels instead of converting the same dictionary again.
+
 * A sparse recode with one fully observed source category fills the new code without matching all rows.
 
 * UpSet selection with missing values enabled directly unions matches with the missing rows.
