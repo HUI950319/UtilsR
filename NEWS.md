@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey plots use complete stage label strings directly when only names are displayed.
+
 * Sankey plots keep generated stage names directly when they do not collide with source columns.
 
 * Single-group rank data use the scaled score vector directly for full-group scaling.

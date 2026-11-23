@@ -310,7 +310,7 @@ plt_sankey <- function(data,
       "all_wrap" = sprintf("%s\n(%s, %s)", names_at, counts, pct),
       "n"    = sprintf("%s (%s)", names_at, counts),
       "pct"  = sprintf("%s (%s)", names_at, pct),
-      "name" = sprintf("%s", names_at)
+      "name" = if (anyNA(names_at)) sprintf("%s", names_at) else names_at
     )
     node_levels <- if (length(observed)) paste0(".sankey_", i, "_", seq_along(observed)) else character()
     node_labels[[i]] <- stats::setNames(labels, node_levels)

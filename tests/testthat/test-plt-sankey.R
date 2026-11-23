@@ -1172,3 +1172,15 @@ test_that("uncontested Sankey stage names are used directly", {
   names(d)[2L] <- "a_label"
   expect_identical(fn(d, theme_use = ggplot2::theme_void(), vars = names(d))$data, plt_sankey(d, theme_use = ggplot2::theme_void(), vars = names(d))$data)
 })
+
+test_that("name-only Sankey captions keep complete labels", {
+  fn <- plt_sankey
+  environment(fn) <- list2env(list("sprintf" = function(fmt, ...) {
+    if (identical(fmt, "%s") && !anyNA(list(...)[[1L]])) stop("unnecessary sprintf in plt_sankey")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(c("x", "y", "x")), b = factor(c("m", "n", "m")))
+  expect_setequal(levels(fn(d, theme_use = ggplot2::theme_void(), vars = names(d), show_text = "name")$data$label), c("x", "y", "m", "n"))
+  d$a[1L] <- NA
+  expect_true("NA" %in% levels(fn(d, theme_use = ggplot2::theme_void(), vars = names(d), show_text = "name")$data$label))
+})
