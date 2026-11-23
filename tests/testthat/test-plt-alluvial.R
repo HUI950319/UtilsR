@@ -1507,3 +1507,16 @@ test_that("bounded alluvial count grid uses integer positions", {
     label_args = list(style = "none")))$data
   for (facet in list(NULL, "panel")) expect_identical(run(fn, facet), run(plt_alluvial, facet))
 })
+
+test_that("alluvial tibble preparation narrows columns before coercion", {
+  skip_if_not_installed("ggalluvial")
+  d <- tibble::tibble(a = rep(c("A", "B"), 6L), g = rep(c("x", "y"), each = 6L), extra = seq_len(12))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(as.data.frame = function(x, ...) {
+    if ("extra" %in% names(x)) stop("coerced unrelated alluvial input columns")
+    base::as.data.frame(x, ...)
+  }), parent = environment(fn))
+  act <- fn(d, "a", "g", label_args = list(style = "none"))
+  expect_identical(act$data, plt_alluvial(as.data.frame(d), "a", "g",
+    label_args = list(style = "none"))$data)
+})
