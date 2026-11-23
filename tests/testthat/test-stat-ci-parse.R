@@ -1473,3 +1473,14 @@ test_that("ordinary intervals do not compute absent tight logarithms", {
                         output = "p"), stat_ci_parse(x, exp = startsWith(x[[1L]], "1.000"), output = "p"))
   }
 })
+
+test_that("parsed finite intervals skip full component finiteness flags", {
+  x <- sprintf("%d (%d,%d)", 2:8, 1:7, 3:9)
+  fn <- .ci_extract
+  environment(fn) <- list2env(list(is.finite = function(x) {
+    if (length(x) > 1L) stop("computed full finite flags for parsed intervals")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  expect_identical(fn(x), .ci_extract(x))
+  expect_identical(.ci_extract(c(x, "1e309 (0,2)"))$valid, c(rep(TRUE, length(x)), FALSE))
+})

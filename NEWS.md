@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI parsing builds row-level finiteness flags only when a parsed number can be non-finite.
+
 * Confidence intervals and SD strings inspect only incomplete inputs when building the joint row filter.
 
 * Named butterfly palettes identify duplicates without gathering names on valid mappings.

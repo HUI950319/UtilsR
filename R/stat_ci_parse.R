@@ -491,7 +491,9 @@ stat_ci_parse <- function(x,
   if (length(extra)) has_trailing[extra] <- grepl("[^\\h\\v]",
     substring(text[extra], end[extra]), perl = TRUE)
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
-  ok <- Reduce(`&`, lapply(values, is.finite))
+  finite <- vapply(values, function(v) !length(v) ||
+    (is.finite(min(v)) && is.finite(max(v))), logical(1))
+  ok <- if (all(finite)) TRUE else Reduce(`&`, lapply(values, is.finite))
   if (!all(ok)) {
     hit <- hit[ok]
     g <- lapply(g, "[", ok)
