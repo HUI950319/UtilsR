@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value cells use their minimum to skip extra rounding checks for observations above the thresholds.
+
 * Grob margins measure a sole child directly while retaining maximum sizing for lists of several grobs.
 
 * Continuous dot plots retain their container directly when every size scale already has the joint limits.

@@ -2497,3 +2497,15 @@ test_that("wide tree children avoid growing the shown child vector", {
     expect_identical(capture.output(f(d, max_items = 150L, max_lines = cap)), ref)
   }
 })
+
+test_that("large P-value columns bypass near-cutoff rounding flags", {
+  f <- ._p_cells
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(v < 0.001)) && !any(x))
+      stop("looked for tiny values in a large P-value column")
+    base::which(x, ...)
+  }), parent = environment(f))
+  v <- c(.15, .35, .45, .98)
+  expect_identical(f(v), ._p_cells(v))
+  expect_identical(f(c(.0002, .0099, .0499)), ._p_cells(c(.0002, .0099, .0499)))
+})
