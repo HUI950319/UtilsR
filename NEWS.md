@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis formatting filters child plots only when a layout contains an inset.
+
 * All three scatter entry points compare their two validated axis names directly before normalizing encoded axes.
 
 * Plot means convert a single observed integer64 value directly instead of computing both arithmetic limbs.

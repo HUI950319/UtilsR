@@ -527,3 +527,16 @@ test_that("integer axis selectors skip fractional validation", {
   expect_error(f(plots, x.axis = c(1.5, 2)), "finite positive integer")
   expect_error(f(plots, x.axis = 3L), "exceed")
 })
+
+test_that("axis layout walks keep lists of occupied children intact", {
+  fn <- fmt_axis
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(children)) && is.logical(i) && all(i)) stop("unnecessary [ in fmt_axis")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  plots <- (p + p) / (p + p)
+  res <- fn(plots, plot_dims = c(2L, 2L))
+  expected <- fmt_axis(plots, plot_dims = c(2L, 2L))
+  expect_identical(res[[1L]][[2L]]$theme, expected[[1L]][[2L]]$theme)
+})

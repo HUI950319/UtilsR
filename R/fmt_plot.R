@@ -181,7 +181,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
         inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
           match("inset_patch", class(p)) < match("patchwork", class(p)))
       }, logical(1))
-      children <- children[!insets]
+      if (any(insets)) children <- children[!insets]
       count <- length(children)
       if (!count) return(invisible(NULL))
       areas <- lay$design
