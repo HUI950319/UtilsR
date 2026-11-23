@@ -1076,3 +1076,16 @@ test_that("KNN starts observed rows from the first column mask", {
   expect_identical(fn(d, k = 1L, verbose = FALSE),
                    impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("complete tibble KNN inputs return before frame coercion", {
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(as.data.frame = function(x, ...) {
+    if (inherits(x, "tbl_df") && !any(vapply(x, anyNA, logical(1)))) stop("coerced a complete tibble")
+    base::as.data.frame(x, ...)
+  }), parent = environment(fn))
+  d <- tibble::tibble(x = 1:7, group = rep(letters[1:2], length.out = 7L))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), d)
+  skip_if_not_installed("VIM")
+  d$x[1L] <- NA_integer_
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})

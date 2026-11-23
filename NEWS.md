@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN checks native tibble columns for missing values and returns a complete tibble directly.
+
 * The printed system report and returned metadata use the same timestamp.
 
 * Inspection tables avoid assigning colour bands to percentages that are all zero.
