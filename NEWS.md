@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables use formatted text directly for columns whose displayed values have no missing cells.
+
 * Significance formatting returns empty star suffixes directly for observations above all thresholds.
 
 * P-value formatting avoids scanning for rounded-zero rows when its smallest value is above the display cutoff.

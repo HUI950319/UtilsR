@@ -2402,3 +2402,16 @@ test_that("complete console wrapping skips replacement of missing text", {
   expect_identical(fn(x, width = 8), ._pr_wrap(x, width = 8))
   expect_identical(fn(c(x, NA), width = 8), ._pr_wrap(c(x, NA), width = 8))
 })
+
+test_that("complete console labels skip missing replacements", {
+  fn <- pr_table
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(is.na(txt))) && !any(test))
+      stop("rebuilt complete text cells")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  d <- data.frame(field = c("a", "b", ""), value = c(1L, 2L, 3L))
+  expect_identical(capture.output(fn(d, width = 60)), capture.output(pr_table(d, width = 60)))
+  d$field[2L] <- NA_character_
+  expect_identical(capture.output(fn(d, width = 60)), capture.output(pr_table(d, width = 60)))
+})
