@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis tiles share the baseline field names across all edited plot leaves.
+
 * The ggrastr backend accepts an ordinary plot directly without making and restoring a one-item list.
 
 * Pairwise comparison validation deduplicates existing character groups without reconverting them.

@@ -3893,6 +3893,9 @@ fmt_axisTile <- function(plot,
 
   info <- .to_plot_list(plot, recurse = TRUE)
   base_theme <- NULL
+  baseline_fields <- c("axis.text", "axis.ticks", "axis.text.x", "axis.text.y",
+    "axis.ticks.x", "axis.ticks.y", paste0("axis.text.", c("x.top", "x.bottom", "y.left", "y.right")),
+    paste0("axis.ticks.", c("x.top", "x.bottom", "y.left", "y.right")))
   format_one <- function(p) {
     if (!inherits(p$coordinates, "CoordCartesian")) {
       cli::cli_abort("fmt_axisTile() supports Cartesian coordinates only, including coord_flip().")
@@ -3914,9 +3917,6 @@ fmt_axisTile <- function(plot,
       } else return(p)
     }
     if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
-    baseline_fields <- c("axis.text", "axis.ticks", "axis.text.x", "axis.text.y",
-      "axis.ticks.x", "axis.ticks.y", paste0("axis.text.", c("x.top", "x.bottom", "y.left", "y.right")),
-      paste0("axis.ticks.", c("x.top", "x.bottom", "y.left", "y.right")))
     baseline <- as.list(base_theme + p$theme + original$params$theme)[baseline_fields]
     settings <- list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,

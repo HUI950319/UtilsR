@@ -745,3 +745,18 @@ test_that("tile axes with no breaks skip empty label lookups", {
   expect_identical(key$.fmt_label, c(FALSE, FALSE))
   expect_identical(key$.fmt_break_at, rep(NA_integer_, 2L))
 })
+
+test_that("tile axes share baseline theme field names across edited plots", {
+  fn <- fmt_axisTile
+  calls <- 0L
+  environment(fn) <- list2env(list(paste0 = function(..., collapse = NULL, recycle0 = FALSE) {
+    if (identical(substitute(list(...)), quote(list("axis.text.", c("x.top", "x.bottom", "y.left", "y.right")))))
+      calls <<- calls + 1L
+    base::paste0(..., collapse = collapse, recycle0 = recycle0)
+  }), parent = environment(fn))
+  d <- data.frame(x = c("a", "b"), y = c(1, 2))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_col()
+  result <- fn(list(p, p, p), colors = c(a = "red", b = "blue"))
+  expect_true(all(vapply(result, function(q) inherits(q$guides$guides$x, "AxisTileGuide"), logical(1))))
+  expect_identical(calls, 1L)
+})
