@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter2 supplies inside shape-legend coordinates through the ggplot2 3.5 position interface.
+
 * Scatter grouping sizes its first-occurrence lookup by the number of observed levels and preserves the original labels.
 
 * UpSet list input reuses an already unique atomic member dictionary while still stripping its generated names.

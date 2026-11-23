@@ -2128,3 +2128,12 @@ test_that("scatter bounds first-occurrence hashing by observed groups", {
   expect_identical(fn(rep("a", 20)), factor(rep("a", 20)))
   expect_identical(fn(numeric()), factor())
 })
+
+test_that("default marginal scatter shape legend uses native inside coordinates", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  d <- data.frame(x = 1:8, y = 2:9, colour = rep(c("b", "a"), each = 4L),
+                  shape = rep(c("j", "k"), 4L))
+  expect_warning(p <- PlotScatter2(d, "x", "y", "colour", group2 = "shape"), NA)
+  expect_identical(p[[1L]]$theme$legend.position, "inside")
+  expect_equal(p[[1L]]$theme$legend.position.inside, c(.15, .15))
+})

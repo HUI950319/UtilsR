@@ -411,10 +411,14 @@ PlotScatter2 <- function(
 
   # Shape legend position
   if (!is.null(group2)) {
-    p_main <- p_main +
+    shape_position <- if (identical(legend_shape_pos, "none")) legend_color_pos else legend_shape_pos
+    placement <- if (is.numeric(shape_position)) {
+      ggplot2::theme(legend.position = "inside", legend.position.inside = shape_position)
+    } else {
+      ggplot2::theme(legend.position = shape_position)
+    }
+    p_main <- p_main + placement +
       ggplot2::theme(
-        legend.position = if (identical(legend_shape_pos, "none"))
-          legend_color_pos else legend_shape_pos,
         legend.background = ggplot2::element_blank(),
         legend.title = ggplot2::element_text(size = base_size * 0.7),
         legend.text = ggplot2::element_text(size = base_size * 0.7)
