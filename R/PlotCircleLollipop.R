@@ -312,7 +312,8 @@ PlotCircleLollipop <- function(
       level_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_levels) else group_levels
       ids <- vctrs::vec_match(level_keys, group_keys)
       group_levels <- as.character(group_levels)
-      group_levels[!is.na(ids)] <- group_labels[ids[!is.na(ids)]]
+      found <- !is.na(ids)
+      group_levels[found] <- group_labels[ids[found]]
     }
     df$group <- factor(df$group, levels = group_levels)
   } else if (is.factor(data[[group_col]])) {

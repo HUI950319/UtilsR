@@ -1755,3 +1755,17 @@ test_that("one sector draws the same points without splitting rows", {
   expect_identical(run(fn, "none"), run(PlotCircleLollipop, "none"))
   expect_identical(run(fn, "group"), run(PlotCircleLollipop, "group"))
 })
+
+test_that("circular collision labels reuse requested-level match positions", {
+  withr::local_pdf(NULL)
+  fn <- PlotCircleLollipop
+  matches <- 0L
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(ids))) matches <<- matches + 1L
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- data.frame(group = rep(c(1, 1 + .Machine$double.eps), each = 3L),
+    value = seq(.1, .6, by = .1), name = letters[1:6])
+  expect_no_error(fn(d, group_levels = unique(d$group), show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE))
+  expect_identical(matches, 1L)
+})
