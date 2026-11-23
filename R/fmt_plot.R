@@ -3620,14 +3620,15 @@ fmt_axisText <- function(plot,
       if (!is.null(guide_angle)) fields$angle <- guide_angle
       sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
       parent <- paste0("axis.text.", axis)
-      elements <- c(parent, paste0(parent, ".", sides),
+      side_elements <- paste0(parent, ".", sides)
+      elements <- c(parent, side_elements,
                       paste0("axis.text.", if (axis == "x") "theta" else "r"))
       elements <- intersect(elements, element_names)
       for (name in elements) {
         element <- theme[[name]]
-        side <- if (name %in% paste0(parent, ".", sides)) sub(".*\\.", "", name) else sides[1L]
+        side <- if (name %in% side_elements) sub(".*\\.", "", name) else sides[1L]
         if (is.null(element) && name != parent &&
-            (is.null(fields$angle) || !(name %in% paste0(parent, ".", sides)) ||
+            (is.null(fields$angle) || !(name %in% side_elements) ||
              inherits(theme[[parent]], "element_blank"))) next
         if (inherits(element, "element_blank")) {
           args[[name]] <- element

@@ -461,3 +461,15 @@ test_that("axis rotation with both justifications skips angle-derived defaults",
   expect_equal(result$theme$axis.text.x$vjust, .4)
   expect_identical(fn(p, x = 90)$theme, fmt_axisText(p, x = 90)$theme)
 })
+
+test_that("axis side elements share their constructed theme names", {
+  fn <- fmt_axisText
+  calls <- 0L
+  environment(fn) <- list2env(list(paste0 = function(..., collapse = NULL, recycle0 = FALSE) {
+    if (identical(substitute(list(...)), quote(list(parent, ".", sides)))) calls <<- calls + 1L
+    base::paste0(..., collapse = collapse, recycle0 = recycle0)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot()
+  expect_identical(fn(p, x = 35, y = 60)$theme, fmt_axisText(p, x = 35, y = 60)$theme)
+  expect_identical(calls, 2L)
+})
