@@ -2027,3 +2027,17 @@ test_that("complete text inspection tables avoid missing flags", {
   render <- function(fn) capture.output(suppressMessages(fn(d)))
   expect_identical(render(f), render(lv.data.frame))
 })
+
+test_that("character inspection avoids flagging absent blanks", {
+  d <- data.frame(grp = c("one", "two", "two"), x = c("v1", "v2", "v2"))
+  f <- lv.data.frame
+  environment(f) <- list2env(list("%in%" = function(x, table) {
+    if (length(x) > 1L && identical(table, "") && !"" %in% x)
+      stop("checked every inspection label for absent blanks")
+    base::"%in%"(x, table)
+  }), parent = environment(f))
+  render <- function(fn, value) cli::ansi_strip(capture.output(suppressMessages(fn(value))))
+  expect_identical(render(f, d), render(lv.data.frame, d))
+  d$x[1L] <- ""
+  expect_identical(render(f, d), render(lv.data.frame, d))
+})

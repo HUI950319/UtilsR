@@ -813,8 +813,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       blank <- levels(x) %in% ""
       if (any(blank) && !"(blank)" %in% levels(x)) levels(x)[blank] <- "(blank)"
     } else if (is.character(x)) {
-      blank <- x %in% ""
-      if (any(blank) && !"(blank)" %in% x) x[blank] <- "(blank)"
+      if ("" %in% x && !"(blank)" %in% x) x[x %in% ""] <- "(blank)"
     }
     x
   }
