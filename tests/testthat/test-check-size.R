@@ -660,3 +660,14 @@ test_that("size inspection uses scalar bounds for large numeric selections", {
     expect_error(draw(fn, bad), "finite integers within")
   }
 })
+
+test_that("external size selections skip reconstructing argument expressions", {
+  env <- list2env(list(a = raw(13), b = raw(170)))
+  f <- check_size
+  environment(f) <- list2env(list(as.list = function(x, ...) {
+    if (is.call(x) && identical(x[[1L]], as.name("list"))) stop("inspected unrelated size selector expressions")
+    base::as.list(x, ...)
+  }), parent = environment(f))
+  act <- f(c("a", "b"), envir = env)
+  expect_identical(act[["_data"]][["Object"]], c("**TOTAL**", "b", "a"))
+})

@@ -115,8 +115,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
       selections <- vector("list", length(selected_objects))
       # A bare symbol evaluated in `envir` is most likely the object the user
       # meant to inspect.
-      selected_exprs <- as.list(substitute(list(...)))[-1L]
       called_from_envir <- identical(parent.frame(), envir)
+      selected_exprs <- if (called_from_envir) as.list(substitute(list(...)))[-1L]
       for (i in seq_along(selected_objects)) {
         obj <- selected_objects[[i]]
         if (is.object(obj) || !is.null(dim(obj))) {

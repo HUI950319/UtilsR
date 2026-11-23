@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Object size inspection reads selector expressions only when the call comes from the inspected environment.
+
 * KNN combines row availability without allocating an initial all-false vector.
 
 * KNN skips the labelled conversion assignment for ordinary inputs and uses the selected labelled columns when conversion is needed.
