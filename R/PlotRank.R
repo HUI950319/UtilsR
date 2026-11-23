@@ -182,6 +182,15 @@ PlotRank <- function(
       stop("'", arg, "' must contain unique, non-missing values in a one-dimensional vector.", call. = FALSE)
   }
 
+  if (return_type != "data" || !is.null(filename)) {
+    for (arg in c("label_size", "point_size", "base_size")) {
+      value <- get(arg)
+      if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+          length(value) != 1L || !is.finite(value) || value < 0)
+        stop("'", arg, "' must be a single finite non-negative number.", call. = FALSE)
+    }
+  }
+
   # ---- Parse input into named list of named numeric vectors ----
   score_list <- .pr_parse(data, group_col, name_col, value_col, groups)
 
@@ -312,12 +321,6 @@ PlotRank <- function(
   if (return_type == "data" && is.null(filename)) return(plot_df)
 
   # ---- Build plot ----
-  for (arg in c("label_size", "point_size", "base_size")) {
-    value <- get(arg)
-    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
-        length(value) != 1L || !is.finite(value) || value < 0)
-      stop("'", arg, "' must be a single finite non-negative number.", call. = FALSE)
-  }
   is_single <- length(score_list) == 1L
 
   if (is_single) {

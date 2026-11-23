@@ -1042,3 +1042,11 @@ test_that("rank score lists keep all nonempty groups without slicing", {
   d$Score[5:8] <- NA_integer_
   expect_equal(nrow(f(d, group_col = "Group", name_col = "Label", value_col = "Score", return_type = "data")), 4L)
 })
+
+test_that("rank plot size checks do not inspect input data", {
+  expect_error(PlotRank(stop("rank data were evaluated"), point_size = -1), "point_size")
+  d <- c(a = 4, b = 1, c = 3)
+  expect_identical(PlotRank(d, base_size = NA, return_type = "data"), PlotRank(d, return_type = "data"))
+  expect_error(PlotRank(stop("rank data were evaluated"), return_type = "data",
+                        filename = tempfile(fileext = ".pdf"), label_size = -1), "label_size")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plots check drawing sizes before sorting scores and building data, while data-only returns retain their existing behavior.
+
 * Alluvial columns with one observed level and many unused levels reuse the observed code without a row lookup.
 
 * Alluvial counts reuse existing category codes when a facet has one observed level.
