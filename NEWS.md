@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Named distribution palettes only build a missing-category diagnostic when a name is absent.
+
 * Free continuous facets resolve scale-to-feature positions together instead of looking up each scale against the full layout.
 
 * Continuous dot layers avoid a grouping-order pass after aggregation returns only one cell.

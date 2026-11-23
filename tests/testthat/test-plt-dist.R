@@ -1172,3 +1172,15 @@ test_that("one stacked distribution group shares one total", {
   out <- fn(d, c("x", "group"), type = "bar", label_args = list(style = "none"))
   expect_identical(out$data$prop, c(.6, .4))
 })
+
+test_that("complete named distribution colours skip a missing-name subset", {
+  fn <- plt_dist
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(idx)) && !anyNA(x)) stop("unnecessary is.na in plt_dist")
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- data.frame(a = rep(c("one", "two"), each = 2L), b = rep(c("A", "B"), 2L))
+  draw <- function(f, colors) suppressMessages(f(d, dis_vars = c("a", "b"), type = "bar", color = colors))
+  expect_identical(draw(fn, c(A = "red", B = "blue"))$data, draw(plt_dist, c(A = "red", B = "blue"))$data)
+  expect_error(draw(fn, c(A = "red")), "missing")
+})

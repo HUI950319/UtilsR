@@ -475,8 +475,8 @@ plt_dist <- function(data,
       cli::cli_abort("Named {.arg color} values must have unique, non-empty category names, except for an observed empty category.")
     }
     idx <- match(needed_levels, color_names)
-    missing_colors <- needed_levels[is.na(idx)]
-    if (length(missing_colors)) {
+    if (anyNA(idx)) {
+      missing_colors <- needed_levels[is.na(idx)]
       cli::cli_abort("Named {.arg color} must include every observed fill category; missing {.val {missing_colors}}.")
     }
     named_palette <- .resolve_color_values(color[idx], "color")
