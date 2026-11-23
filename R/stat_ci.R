@@ -95,6 +95,12 @@ stat_ci <- function(x, y = NULL, z = NULL,
       }
     }
   }
+  .observed <- function(...) {
+    inputs <- list(...)
+    incomplete <- vapply(inputs, function(x) is.object(x) || anyNA(x), logical(1))
+    if (!any(incomplete)) return(TRUE)
+    !Reduce(`|`, lapply(inputs[incomplete], is.na))
+  }
   .drop_signed_zero <- function(text) {
     pattern <- "-0(?=(?:\\.0+)?(?:[^0-9.]|$))"
     hit <- which(grepl("-0", text, fixed = TRUE))
@@ -199,9 +205,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_abort("All vectors must have the same length.")
     }
     d <- digits %||% 2L
-    complete <- !is.object(x) && !is.object(y) && !is.object(z) &&
-      !anyNA(x) && !anyNA(y) && !anyNA(z)
-    observed <- if (complete) TRUE else !(is.na(x) | is.na(y) | is.na(z))
+    observed <- .observed(x, y, z)
     if (n && !any(observed)) return(stats::setNames(rep.int(NA_character_, n), input_names))
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     if (all(observed)) {
@@ -228,8 +232,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     cli::cli_abort("All vectors must have the same length.")
   }
   d <- digits %||% 1L
-  complete <- !is.object(x) && !is.object(y) && !anyNA(x) && !anyNA(y)
-  observed <- if (complete) TRUE else !(is.na(x) | is.na(y))
+  observed <- .observed(x, y)
   if (length(x) && !any(observed)) {
     return(stats::setNames(rep.int(NA_character_, length(x)), input_names))
   }

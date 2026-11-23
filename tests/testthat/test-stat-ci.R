@@ -407,3 +407,17 @@ test_that("all incomplete numeric intervals skip formatting work", {
   expect_identical(fn(x, y), expected)
   expect_identical(fn(x, y, rep(5, 3L)), expected)
 })
+
+test_that("numeric intervals mask only incomplete inputs", {
+  x <- stats::setNames(as.double(1:5), letters[1:5])
+  y <- c(.2, .4, NA_real_, NaN, .3)
+  z <- as.double(3:7)
+  fn <- stat_ci
+  environment(fn) <- list2env(list(is.na = function(value) {
+    if (identical(value, x) || identical(value, z)) stop("masked a complete interval component")
+    base::is.na(value)
+  }), parent = environment(fn))
+  expect_identical(fn(x, y, z), stat_ci(x, y, z))
+  expect_identical(fn(x, y), stat_ci(x, y))
+  expect_identical(fn(x, y, z)[3:4], stats::setNames(c(NA_character_, NA_character_), c("c", "d")))
+})

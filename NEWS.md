@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence intervals and SD strings inspect only incomplete inputs when building the joint row filter.
+
 * Named butterfly palettes identify duplicates without gathering names on valid mappings.
 
 * Alluvial plots preserve numeric group identity without converting all observation values to labels.
