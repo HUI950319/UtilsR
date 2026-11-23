@@ -1332,3 +1332,16 @@ test_that("unmapped numeric shape codes with missing entries skip the lookup", {
   expect_identical(fn(NA_integer_), NA_integer_)
   expect_identical(fn(c(1L, NA_integer_, 25L)), c(21, NA_real_, 25))
 })
+
+test_that("single complete sampling strata reuse row order", {
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("split" = function(x, f, ...) {
+    if (is.factor(f) && nlevels(f) == 1L && !anyNA(f)) stop("unnecessary split in .fmt_point_sample")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = seq_len(50L), y = 50:1, g = factor("only"))
+  map <- ggplot2::aes(x, y, colour = g)
+  expect_identical(fn(d, map, 10L, 813L), .fmt_point_sample(d, map, 10L, 813L))
+  d$g[1L] <- NA
+  expect_identical(fn(d, map, 10L, 813L), .fmt_point_sample(d, map, 10L, 813L))
+})

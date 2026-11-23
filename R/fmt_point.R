@@ -552,7 +552,10 @@ fmt_point <- function(plot,
         ordinary <- identical(class(groups), "factor") || identical(class(groups), c("ordered", "factor"))
         groups <- if (ordinary) as.integer(groups) else droplevels(groups, exclude = NULL)
       }
-      rows <- split(seq_len(nrow(data)), groups)
+      one_group <- (identical(class(groups), "factor") ||
+        identical(class(groups), c("ordered", "factor"))) &&
+        nlevels(groups) == 1L && !anyNA(unclass(groups))
+      rows <- if (one_group) list(seq_len(nrow(data))) else split(seq_len(nrow(data)), groups)
       observed <- lengths(rows) > 0L
       if (!all(observed)) rows <- rows[observed]
     } else {
