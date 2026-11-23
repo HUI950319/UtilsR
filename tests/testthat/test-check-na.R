@@ -1067,3 +1067,16 @@ test_that("special patterns without matches retain their remaining row indices",
   expect_identical(fn(c("abc", "def", "ghi", NA), c("abc", "not here", "ghi")), c(TRUE, FALSE, TRUE, FALSE))
   expect_identical(fn(c("A A", "B"), c("never", "\\bB\\b")), c(FALSE, TRUE))
 })
+
+test_that("one sparse factor code shares its count across all rows", {
+  fn <- .factor_tally
+  environment(fn) <- list2env(list("tabulate" = function(bin, ...) {
+    if (length(bin) >= 1024L && identical(attr(bin, "n"), 1L)) stop("unnecessary tabulate in .factor_tally")
+    base::tabulate(bin, ...)
+  }), parent = environment(fn))
+  labels <- paste0("level", 1:3000)
+  d <- factor(rep("level4", 1600L), levels = labels)
+  expect_identical(fn(d), list(codes = 4L, counts = 1600L, row_codes = rep(4L, 1600L)))
+  d[1:1600] <- NA
+  expect_identical(fn(d), list(codes = integer(), counts = integer(), row_codes = rep(NA_integer_, 1600L)))
+})

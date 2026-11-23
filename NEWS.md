@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Wide sparse factor tallies use the row count when all rows have the same observed code.
+
 * Custom quality markers retain their candidate positions when a pattern makes no matches.
 
 * Character quality checks skip slicing the dictionary when no category matches a special value.
