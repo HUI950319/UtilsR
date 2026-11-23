@@ -1145,3 +1145,15 @@ test_that("nonsignificant P-values bypass interval searches", {
   expect_identical(f(c("0.100", "0.900"), mode = "stars", map_signif = levels), c("0.100", "0.900"))
   expect_identical(f(c(0.05, 0.009), mode = "stars", map_signif = levels), c("0.050*", "0.009**"))
 })
+
+test_that("empty P-value inputs skip finite-range evaluation", {
+  f <- stat_pval
+  environment(f) <- list2env(list(min = function(...) {
+    if (identical(as.list(substitute(list(...)))[[2L]], quote(p)) && !length(list(...)[[1L]]))
+      stop("scanned limits of empty P-values")
+    base::min(...)
+  }), parent = environment(f))
+  expect_identical(f(numeric(), mode = "pvalue"), character())
+  expect_identical(f(numeric(), mode = "stars"), character())
+  expect_error(f(numeric(), mode = "stars", map_signif = c("*" = Inf)), "map_signif")
+})

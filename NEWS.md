@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Empty P-value inputs return their empty result while still validating requested significance thresholds.
+
 * Scale inference carries the base axis mapping and data through layer inspection.
 
 * Factor conversion obtains repeated numeric labels directly with the observed dictionary size and retains exact floating-point labels.

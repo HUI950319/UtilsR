@@ -113,6 +113,7 @@ stat_pval <- function(x,
   add_star_p <- .normalize_spss(add_star_p)
 
   .validate_p <- function(p, arg) {
+    if (!length(p)) return(invisible(NULL))
     invalid <- if (!is.object(p)) {
       suppressWarnings(min(p, na.rm = TRUE) < 0 || max(p, na.rm = TRUE) > 1)
     } else any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))
