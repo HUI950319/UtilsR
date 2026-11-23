@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop plots reject impossible angular gaps before allocating row groups.
+
 * Console trimming avoids re-expanding a deduplicated text vector when none of its labels needs trimming.
 
 * Console colour previews only build opacity position flags when a decoded swatch has source transparency.

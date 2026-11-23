@@ -1710,3 +1710,12 @@ test_that("circular feature memberships use exact packed sector keys", {
                      common_color = "red", unique_color = "black")
   expect_identical(actual, c("red", "red", "black", "black", "red", "black", "black", "black"))
 })
+
+test_that("circular row splitting follows angular gap validation", {
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(split = function(...) stop("grouped rows before validating gaps")),
+    parent = environment(fn))
+  d <- data.frame(group = rep(c("A", "B", "C"), each = 3L),
+    name = letters[1:9], value = seq_len(9L))
+  expect_error(fn(d, gap_after = 140, gap_between = 120), "positive angular span")
+})
