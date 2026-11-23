@@ -217,8 +217,8 @@ PlotButterfly <- function(
     if (anyNA(palette_names) || (any(!nzchar(palette_names)) && !"" %in% categories)) {
       cli::cli_abort("Named {.arg palette} must use non-missing category names.")
     }
-    duplicates <- unique(palette_names[duplicated(palette_names)])
-    if (length(duplicates)) {
+    if (anyDuplicated(palette_names)) {
+      duplicates <- unique(palette_names[duplicated(palette_names)])
       cli::cli_abort("Named {.arg palette} has duplicate names: {.val {duplicates}}.")
     }
     cols <- .resolve_color_values(palette, "palette")

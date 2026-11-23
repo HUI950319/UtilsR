@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Named butterfly palettes identify duplicates without gathering names on valid mappings.
+
 * Alluvial plots preserve numeric group identity without converting all observation values to labels.
 
 * Sankey percentages reuse one formatted label for nodes with the same proportion within a stage.

@@ -1485,3 +1485,18 @@ test_that("plain categories bypass time key discovery", {
   days <- as.Date(c("2026-11-20", "2026-11-23"))
   expect_identical(fn(days), days)
 })
+
+test_that("plain butterfly palette names allocate a duplicate list only on failure", {
+  fn <- PlotButterfly
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(palette_names)) && !anyDuplicated(x))
+      stop("built duplicate flags for unique butterfly palette names")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(var = rep(c("a", "b"), 2L), wing = rep(c("left", "right"), each = 2L),
+                  score = c(1, 2, 3, 4))
+  call <- function(pal) fn(d, stat.by = "var", value.by = "score", group.by = "wing", fill.by = "var",
+                           palette = pal)
+  expect_s3_class(call(c(a = "red", b = "blue")), "patchwork")
+  expect_error(call(c(a = "red", a = "blue")), "duplicate names")
+})
