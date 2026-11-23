@@ -343,7 +343,7 @@ PlotButterfly <- function(
     colnames(full_grid) <- grid_keys
     data <- merge(full_grid, data, by = grid_keys,
                   all.x = TRUE)
-    data[[value.by]][is.na(data[[value.by]])] <- 0
+    if (anyNA(data[[value.by]])) data[[value.by]][is.na(data[[value.by]])] <- 0
 
     # Factor levels: support "up" / "down" auto-sort by mean value
     if (is.character(levels) && length(levels) == 1L && levels %in% c("up", "down")) {

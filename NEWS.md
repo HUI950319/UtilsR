@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly bars retain their merged values without building a missing mask for complete grids.
+
 * Circular plots use one set of matched positions when restoring labels for distinct numeric group keys.
 
 * Rank correlation directly orders factor observations by code when the factor dictionary is strictly sorted.

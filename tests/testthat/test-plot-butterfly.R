@@ -1500,3 +1500,19 @@ test_that("plain butterfly palette names allocate a duplicate list only on failu
   expect_s3_class(call(c(a = "red", b = "blue")), "patchwork")
   expect_error(call(c(a = "red", a = "blue")), "duplicate names")
 })
+
+test_that("complete merged butterfly bar scores reuse their values", {
+  fn <- PlotButterfly
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(data[[value.by]])) && !anyNA(x)) stop("unnecessary is.na in PlotButterfly")
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- expand.grid(category = c("A", "B"), side = c("left", "right"), fill = c("u", "v"))
+  d$score <- 1:8
+  run <- function(f, d) f(d, stat.by = "category", group.by = "side", value.by = "score", fill.by = "fill", type = "bar")
+  ref <- run(PlotButterfly, d)
+  p <- run(fn, d)
+  expect_identical(p[[1L]]$data, ref[[1L]]$data)
+  d <- d[-1L, ]
+  expect_identical(run(fn, d)[[1L]]$data, run(PlotButterfly, d)[[1L]]$data)
+})
