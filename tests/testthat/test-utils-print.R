@@ -2483,3 +2483,17 @@ test_that("console tree reuses the standard attribute exclusion list", {
   d <- list(first = structure(2L, note = "alpha"), second = structure(c(1, 2), note = "beta"))
   expect_identical(capture.output(fn(d)), capture.output(pr_tree(d)))
 })
+
+test_that("wide tree children avoid growing the shown child vector", {
+  f <- pr_tree
+  environment(f) <- list2env(list(c = function(...) {
+    if (identical(as.list(substitute(list(...)))[-1L], alist(kids, kid)))
+      stop("grew the console tree child vector one at a time")
+    base::c(...)
+  }), parent = environment(f))
+  d <- stats::setNames(as.list(1:200), paste0("child", seq_len(200L)))
+  for (cap in c(0L, 6L, 30L, Inf)) {
+    ref <- capture.output(pr_tree(d, max_items = 150L, max_lines = cap))
+    expect_identical(capture.output(f(d, max_items = 150L, max_lines = cap)), ref)
+  }
+})

@@ -1087,10 +1087,15 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       }
       had_stub <- FALSE
       take_children <- min(length(p), max_items)
+      kids <- character(min(take_children, max(0, max_lines - rows$n) + shown))
+      displayed <- 0L
       for (k in seq_len(take_children)) {
         if (rows$n >= max_lines && depth + 1L >= max_depth && !is.object(p)) {
           rows$n <- rows$n + take_children - k + 1L
-          if (shown && !had_stub) kids <- c(kids, add(paste0(id, "/", k), ""))
+          if (shown && !had_stub) {
+            displayed <- displayed + 1L
+            kids[displayed] <- add(paste0(id, "/", k), "")
+          }
           break
         }
         child <- p[[k]]
@@ -1123,8 +1128,12 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                                            max(width - 2L * (depth + 1L), 10L))
         }
         kid <- node(child, paste0(id, "/", k), child_label, depth + 1, h)
-        if (h != "count") kids <- c(kids, kid)
+        if (h != "count") {
+          displayed <- displayed + 1L
+          kids[displayed] <- kid
+        }
       }
+      length(kids) <- displayed
       if (length(p) > max_items) {
         h <- slot(shown)
         if (h != "count") kids <- c(kids, add(paste0(id, "/more"), if (h == "show") {

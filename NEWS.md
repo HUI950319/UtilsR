@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console trees store displayed child identifiers in one bounded vector and preserve the branch stubs for cut-off lines.
+
 * Inspection table preparation only allocates all-missing masks for ordinary inputs that contain a missing value.
 
 * Object size tables share the same explicit summary row for Markdown and text styling.
