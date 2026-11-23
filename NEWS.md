@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Text formatting skips label recycling for ordinary input values matching the leaf count.
+
 * Panel styling bypasses line-argument filtering when no grid line is being edited.
 
 * Panel formatting avoids creating a blank element if the call keeps existing elements or adds a visible border.

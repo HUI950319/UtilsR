@@ -399,3 +399,15 @@ test_that("scale inference reads the base mapping only once", {
   expect_identical(f(p, "x"), "scale_x_discrete")
   expect_identical(reads, 1L)
 })
+
+test_that("plot text uses already sized ordinary label vectors", {
+  fn <- fmt_text
+  environment(fn) <- list2env(list("rep_len" = function(x, length.out) {
+    if (length(x) == length.out && is.character(x) && is.null(attributes(x))) stop("unnecessary rep_len in fmt_text")
+    base::rep_len(x, length.out)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot()
+  out <- fn(list(p, p), title = c("One", "Two"), subtitle = "Shared")
+  expect_identical(lapply(out, function(x) x$labels$title), list("One", "Two"))
+  expect_identical(lapply(out, function(x) x$labels$subtitle), list("Shared", "Shared"))
+})
