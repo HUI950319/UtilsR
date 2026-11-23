@@ -215,7 +215,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     cli::cli_abort("Raw vectors are not supported; convert them explicitly before combining.")
   }
   lens <- vapply(args, length, integer(1L))
-  if (length(unique(lens)) != 1L) {
+  if (min(lens) != max(lens)) {
     cli::cli_abort(c(
       "All inputs must have the same length.",
       "i" = "Got lengths: {paste(lens, collapse = ', ')}."

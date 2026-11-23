@@ -748,3 +748,14 @@ test_that("ordered character combination keys skip a sorting permutation", {
   x <- rev(x)
   expect_identical(fn(x, rep(TRUE, length(x))), fct_to_combine(x, rep(TRUE, length(x))))
 })
+
+test_that("factor combination lengths are checked without allocating a dictionary", {
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(lens))) stop("hashed all combination input lengths")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(1:3, c(TRUE, TRUE, FALSE)), fct_to_combine(1:3, c(TRUE, TRUE, FALSE)))
+  expect_error(fn(1:3, c(TRUE, FALSE)), "same length")
+  expect_length(fn(integer(), logical()), 0L)
+})
