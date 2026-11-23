@@ -294,9 +294,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
                        (length(complete_columns) && !anyNA(data_for_impute[[complete_columns[[1L]]]]))) {
     TRUE
   } else {
-    observed <- rep(FALSE, nrow(data_for_impute))
+    observed <- NULL
     for (column in data_for_impute) {
-      observed <- observed | !is.na(column)
+      present <- !is.na(column)
+      observed <- if (is.null(observed)) present else observed | present
       if (all(observed)) break
     }
     observed

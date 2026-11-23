@@ -1063,3 +1063,16 @@ test_that("ordinary KNN data bypass empty labelled conversion", {
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("KNN starts observed rows from the first column mask", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(a = c(1, NA, 3, 4, 8, 9), b = c(1, 2, NA, 4, 8, 9))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list(rep = function(x, ...) {
+    if (isFALSE(x) && identical(substitute(list(...))[[2L]], quote(nrow(data_for_impute))))
+      stop("allocated an empty KNN eligibility mask")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE),
+                   impute_na_knn(d, k = 1L, verbose = FALSE))
+})
