@@ -1320,3 +1320,14 @@ test_that("unique facet keys use their positional strip labels directly", {
   expect_identical(unname(labeller(vals[c(1, 2, 2, 3), , drop = FALSE])[[1L]]),
     labels[c(1L, 2L, 2L, 3L)])
 })
+
+test_that("plain strip replacements reuse their complete label order", {
+  fn <- .fmt_strip_labeller
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(x, c("a", "b"))) stop("unnecessary unique in .fmt_strip_labeller")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  lookup <- fn(ggplot2::label_value, "facet", c("A", "B"))
+  expect_identical(lookup(data.frame(facet = c("a", "b"))), list(facet = c("A", "B")))
+  expect_identical(lookup(data.frame(facet = c("a", "b", "a"))), list(facet = c("A", "B", "A")))
+})

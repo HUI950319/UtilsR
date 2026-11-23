@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Strip relabelling skips deduplication when the input facet labels are already unique.
+
 * Inset placement obtains a single panel's boundaries directly, while preserving reductions over multiple panels.
 
 * Panel sizing takes the sole shared spanning range directly without a panel-sized duplicate mask.

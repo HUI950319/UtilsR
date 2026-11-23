@@ -1955,7 +1955,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
       mapped <- rep_len(replacement, length(values[[variable]]))
     } else if (is.null(names(replacement))) {
       # Use facet order, which may differ from first appearance in the data.
-      levels <- unique(values[[variable]])
+      labels <- values[[variable]]
+      levels <- if (!is.object(labels) && isFALSE(is.unsorted(labels, strictly = TRUE))) labels else unique(labels)
       if (length(replacement) != length(levels)) {
         cli::cli_warn(c(
           "{.fn fmt_strip} got {length(replacement)} labels for {length(levels)} \\
