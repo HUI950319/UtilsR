@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Strip labellers calculate unmatched row positions only when the replacement mapping has a gap.
+
 * Categorical background mapping only allocates missing-group flags for axes that have an unmatched row.
 
 * Dense categorical percentage tables divide directly when every group has observations.

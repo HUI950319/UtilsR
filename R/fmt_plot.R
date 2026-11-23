@@ -1972,8 +1972,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
         cli::cli_warn("{.arg label} names {.val {unmatched}} match no level of {.field {variable}}.")
       }
       mapped <- unname(replacement[keys])
-      kept <- is.na(mapped)
-      if (any(kept)) {
+      if (anyNA(mapped)) {
+        kept <- is.na(mapped)
         single <- values[variable]
         for (nm in c("type", "facet")) attr(single, nm) <- attr(values, nm)
         current <- original(single)[[1L]]

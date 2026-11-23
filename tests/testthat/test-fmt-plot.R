@@ -351,3 +351,17 @@ test_that("unfaceted plots skip the facet expression walk", {
   facets <- p + ggplot2::facet_wrap(ggplot2::vars(Species))
   expect_identical(fn(facets), "Species")
 })
+
+test_that("complete named facet labels do not allocate replacement flags", {
+  f <- .fmt_strip_labeller
+  environment(f) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(mapped)) && !anyNA(x))
+      stop("masked completely replaced strip labels")
+    base::is.na(x)
+  }), parent = environment(f))
+  values <- data.frame(g = c("a", "b", "a"))
+  actual <- f(ggplot2::label_value, "g", c(a = "A", b = "B"))
+  expect_identical(actual(values), list(g = c("A", "B", "A")))
+  partial <- f(ggplot2::label_value, "g", c(a = "A"))
+  expect_identical(partial(values), list(g = c("A", "b", "A")))
+})
