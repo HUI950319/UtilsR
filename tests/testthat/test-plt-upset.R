@@ -1321,3 +1321,15 @@ test_that("UpSet membership flattening avoids generating named rows", {
   expect_identical(out$.element, c("alpha", "beta", "gamma"))
   expect_identical(as.character(out$intersect_group), c("a", "a/b", "b"))
 })
+
+test_that("sorted membership positions bypass deduplication sorting", {
+  d <- list(a = c("a", "a", "b", "c"), b = c("a", "c"), c = c("c", "b", "a"))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(sort = function(x, ...) {
+    if (identical(x, c(1L, 3L))) stop("sorted an already ordered UpSet row subset")
+    base::sort(x, ...)
+  }), parent = environment(fn))
+  out <- fn(d, output = "data")
+  expect_identical(out$.element, letters[1:3])
+  expect_identical(as.character(out$intersect_group), c("a/b/c", "a/c", "a/b/c"))
+})

@@ -327,7 +327,9 @@ plt_upset <- function(data,
       set_list <- Map(function(start, end) {
         if (start == end) return(integer())
         rows <- seq.int(start + 1, end)
-        if (is.null(indices)) rows else sort(unique(indices[rows]))
+        if (is.null(indices)) return(rows)
+        rows <- indices[rows]
+        if (is.unsorted(rows, strictly = TRUE)) sort(unique(rows)) else rows
       }, start, end)
       names(set_list) <- names(data)
     } else set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
