@@ -477,3 +477,19 @@ test_that("behind insets skip tie indexing at finite background free offsets", {
   expect_identical(result$layout$name[order(result$layout$z)], c("inset", "panel", "symbol"))
   expect_equal(min(result$layout$z), -1)
 })
+
+test_that("independent inset placements skip full collision masks", {
+  u <- grid::unit(rep(1, 3L), "cm")
+  g <- gtable::gtable(u, u)
+  g <- gtable::gtable_add_grob(g, grid::rectGrob(), t = 2, l = 2, name = "panel")
+  g <- gtable::gtable_add_grob(g, grid::circleGrob(), t = 1, l = 1, name = "inset")
+  f <- grob_insert
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(gt$layout$t == ref_t & gt$layout$b == ref_b &
+        gt$layout$l == ref_l & gt$layout$r == ref_r))) stop("checked every layout cell for a remote inset")
+    base::which(x, ...)
+  }), parent = environment(f))
+  expect_identical(f(g, grid::rectGrob())$layout$name, c("panel", "inset", "inset"))
+  twice <- grob_insert(grob_insert(g, grid::rectGrob()), grid::rectGrob())
+  expect_identical(twice$layout$name, c("panel", "inset", "inset", "inset.1"))
+})

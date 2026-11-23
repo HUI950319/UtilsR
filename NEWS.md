@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inset placement checks existing inset names at their reference cells before building a list of neighboring names.
+
 * Facet inspection recognizes literal data-pronoun references and does not treat environment-pronoun names as data columns.
 
 * Strip labellers calculate unmatched row positions only when the replacement mapping has a gap.
