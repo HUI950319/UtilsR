@@ -1017,3 +1017,21 @@ test_that("single-panel histogram overlays reuse the full row sequence", {
   faceted <- p + ggplot2::facet_wrap(ggplot2::vars(y %% 2L))
   expect_identical(draw(fn, faceted), draw(fmt_his, faceted))
 })
+
+test_that("finite overlay panels skip complete input flags", {
+  p <- ggplot2::ggplot(data.frame(x = seq(.5, 9.5, by = .5), y = seq_len(19L)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  p <- fmt_his(p, binwidth = 1)
+  expected <- ggplot2::ggplot_build(p)$data
+  layer <- p$layers[[2L]]
+  parent <- layer$stat
+  f <- environment(parent$compute_panel)$f
+  environment(f) <- list2env(list(is.finite = function(x) {
+    if (length(x) > 1L && all(base::is.finite(x)))
+      stop("flagged wholly finite histogram overlay inputs")
+    base::is.finite(x)
+  }), parent = environment(f))
+  p$layers[[2L]]$stat <- ggplot2::ggproto(NULL, parent, compute_panel = f)
+  expect_warning(actual <- ggplot2::ggplot_build(p)$data, NA)
+  expect_identical(actual, expected)
+})

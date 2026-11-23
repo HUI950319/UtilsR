@@ -5700,8 +5700,11 @@ fmt_his <- function(plot,
           if (binned) data$x <- scales$x$map(data$x)
           else if (!is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
         }
-        finite <- is.finite(data$x)
-        if (!all(finite)) data <- data[finite, , drop = FALSE]
+        values <- data$x
+        if (is.object(values) || !length(values) || !is.finite(min(values)) || !is.finite(max(values))) {
+          finite <- is.finite(values)
+          if (!all(finite)) data <- data[finite, , drop = FALSE]
+        }
         if (!nrow(data)) return(data.frame())
         if (is.null(scales$x)) return(parent_stat$compute_panel(data, scales, ...))
         x_scale <- scales$x$clone()
