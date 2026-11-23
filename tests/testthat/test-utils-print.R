@@ -2618,3 +2618,16 @@ test_that("console factor descriptions reuse their computed missing flags", {
   expect_match(fn(x), "x")
   expect_match(fn(x), "NA")
 })
+
+test_that("console descriptions only interpolate labels for matched codes", {
+  fn <- ._obj_desc
+  environment(fn) <- list2env(list("sprintf" = function(fmt, ...) {
+    if (identical(fmt, "%s [%s]") && length(list(...)[[1L]]) > 1L) stop("unnecessary sprintf in ._obj_desc")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  x <- haven::labelled(c(1, 4, 5, NA), c(y = 1))
+  expect_identical(fn(x), ._obj_desc(x))
+  expect_match(fn(x), "1 \\[y\\]")
+  x <- haven::labelled(c(2, 3, 4, NA), c(y = 1))
+  expect_identical(fn(x), ._obj_desc(x))
+})

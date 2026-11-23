@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Descriptions join value labels only for the codes that actually have labels.
+
 * Console object descriptions encode factor labels once and use the existing missing positions.
 
 * Plain console P-value styling writes threshold markers into one vector without nested result selection.

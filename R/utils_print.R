@@ -886,7 +886,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     vals[missing] <- "NA"
     if (length(names(labs))) {
       hit  <- names(labs)[match(unclass(first), unclass(labs))]
-      vals <- ifelse(is.na(hit) | missing, vals, sprintf("%s [%s]", vals, ._pr_escape(hit)))
+      labelled <- which(!is.na(hit) & !missing)
+      if (length(labelled)) {
+        vals[labelled] <- sprintf("%s [%s]", vals[labelled], ._pr_escape(hit[labelled]))
+      }
     }
     if (colour) vals[missing] <- cli::col_red(vals[missing])
     vals
