@@ -158,25 +158,6 @@ plt_na <- function(
   }
 
   counts <- missing_counts[sort(missing_vars, method = "radix")]
-  n_rows <- nrow(df)
-  numbers <- as.vector(rbind(n_rows - counts, counts))
-  if (max(counts) < n_rows) {
-    columns <- rep(seq_along(counts), each = 2L)
-    isna <- rep.int(c(FALSE, TRUE), length(counts))
-  } else {
-    included <- which(numbers > 0)
-    numbers <- numbers[included]
-    columns <- (included + 1L) %/% 2L
-    isna <- included %% 2L == 0L
-  }
-  missing_summary <- tibble::tibble(
-    name = names(counts)[columns],
-    isna = isna,
-    num = numbers,
-    total = n_rows,
-    pct = numbers / n_rows * 100
-  )
-
   ordering <- order(counts, decreasing = sort == "desc")
   ordered_names <- names(counts)[ordering]
   display_labels <- map_name(ordered_names)
@@ -184,10 +165,29 @@ plt_na <- function(
   names(display_labels) <- variable_levels
   variable_keys <- stats::setNames(variable_levels, ordered_names)
 
-  codes <- integer(length(ordering))
-  codes[ordering] <- seq_along(ordering)
-  missing_summary$label <- structure(codes[columns],
-                                     levels = variable_levels, class = "factor")
+  missing_summary <- if (output != "matrix") {
+    n_rows <- nrow(df)
+    numbers <- as.vector(rbind(n_rows - counts, counts))
+    if (max(counts) < n_rows) {
+      columns <- rep(seq_along(counts), each = 2L)
+      isna <- rep.int(c(FALSE, TRUE), length(counts))
+    } else {
+      included <- which(numbers > 0)
+      numbers <- numbers[included]
+      columns <- (included + 1L) %/% 2L
+      isna <- included %% 2L == 0L
+    }
+    codes <- integer(length(ordering))
+    codes[ordering] <- seq_along(ordering)
+    tibble::tibble(
+      name = names(counts)[columns],
+      isna = isna,
+      num = numbers,
+      total = n_rows,
+      pct = numbers / n_rows * 100,
+      label = structure(codes[columns], levels = variable_levels, class = "factor")
+    )
+  }
 
   .plt_na_plot(
     missing_data = if (keep_masks) vctrs::new_data_frame(missing_data[missing_vars], n = nrow(df)),

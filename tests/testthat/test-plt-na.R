@@ -404,7 +404,10 @@ test_that("missingness plots skip masks for complete plain columns", {
   matrix <- fn(d, output = "matrix")
   expect_identical(examined, nrow(d))
   expect_identical(matrix$missing_data$partial, is.na(d$partial))
-  expect_identical(result$missing_summary, matrix$missing_summary)
+  expect_null(matrix$missing_summary)
+  both <- fn(d, output = "both")
+  expect_identical(both$missing_summary, result$missing_summary)
+  expect_identical(both$missing_data, matrix$missing_data)
   expect_identical(d, before)
 })
 
@@ -702,4 +705,17 @@ test_that("partly observed columns keep complete missingness summary pairs", {
   expect_identical(run(fn, d)$isna, rep(c(FALSE, TRUE), 2L))
   d$c <- NA
   expect_identical(run(fn, d), run(plt_na, d))
+})
+
+test_that("matrix output skips percentages", {
+  d <- data.frame(b = c(NA, 1, 2), a = c(1, NA, NA))
+  original <- tibble::tibble
+  local_mocked_bindings(tibble = function(...) {
+    values <- list(...)
+    if ("pct" %in% names(values)) stop("built percentages for a matrix-only plot")
+    do.call(original, values)
+  }, .package = "tibble")
+  p <- plt_na(d, output = "matrix")
+  expect_identical(p$data$value, c(TRUE, FALSE, FALSE, TRUE, FALSE, TRUE))
+  expect_identical(levels(p$data$label), c("a", "b"))
 })

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness matrices avoid allocating the percentage summary and its internal factor codes.
+
 * Rank-correlation aesthetic means use their extrema to avoid a zero mask when every mean is strictly positive or strictly negative.
 
 * Rank correlation groups ordinary method labels and encodes their rows in one lookup while retaining factor level order.
