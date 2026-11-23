@@ -591,8 +591,9 @@ stat_ci_parse <- function(x,
                 asymmetric = ok & a_lin - r_lin > 0.2))
   }
   pos <- ok & lo > 0 & est > 0
+  all_positive <- all(pos)
   if (isTRUE(exp)) {
-    invalid <- invalid | (ok & !pos)
+    if (!all_positive) invalid <- invalid | (ok & !pos)
     ok <- pos
   }
   if (!any(pos)) {
@@ -612,7 +613,7 @@ stat_ci_parse <- function(x,
     out[!close] <- log(a[!close]) - log(b[!close])
     out
   }
-  if (all(pos)) {
+  if (all_positive) {
     w <- log_ratio(hi, lo)
     a_log <- abs(log_ratio(hi, est) - log_ratio(est, lo)) / w
     r_log <- (ul / lo / 2 + uh / hi / 2 + ue / est) / w

@@ -1559,3 +1559,15 @@ test_that("repeated identical interval components select their first row directl
   one <- fn(2, 1, 4, unit[1L, , drop = FALSE], "auto", TRUE)
   expect_identical(out, lapply(one, rep, times = 1056L))
 })
+
+test_that("valid positive intervals preserve the original invalidity flags", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list("|" = function(e1, e2) {
+    if (identical(substitute(e1), quote(invalid)) && !any(e2))
+      stop("recombined validity for entirely positive intervals")
+    base::"|" (e1, e2)
+  }), parent = environment(fn))
+  unit <- matrix(.01, 2L, 3L)
+  expect_identical(fn(c(2, 4), c(1, 2), c(4, 8), unit, TRUE, c(TRUE, TRUE))$invalid, c(FALSE, FALSE))
+  expect_identical(fn(c(2, 4), c(1, 0), c(4, 8), unit, TRUE, c(TRUE, TRUE))$invalid, c(FALSE, TRUE))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Log-scale interval checks avoid combining validity masks when every interval is eligible.
+
 * Confidence interval scale classification can select a single repeated component row without searching its group IDs.
 
 * A vector containing a single confidence interval spelling reuses its parsed row without matching all input strings.
