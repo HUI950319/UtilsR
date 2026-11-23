@@ -181,7 +181,8 @@ stat_pval <- function(x,
         above[equal_power] <- a > b
       }
       if (!is.null(lookup)) above <- above[lookup]
-      index[rows[above]] <- index[rows[above]] + 1L
+      advance <- rows[above]
+      if (length(advance)) index[advance] <- index[advance] + 1L
     }
     stars <- c(names(map), "")[index]
     if (anyNA(pvals)) stars[is.na(pvals)] <- ""

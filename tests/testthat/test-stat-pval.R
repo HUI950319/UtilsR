@@ -1191,3 +1191,15 @@ test_that("decimal star ties drop missing comparisons without a separate mask", 
   expect_identical(fn(x), c("0.050*", "0.050.", "0.060.", NA_character_))
   expect_identical(fn("0.05", map_signif = c("!" = 0.05)), "0.050!")
 })
+
+test_that("decimal significance rows are indexed once per cutoff", {
+  fn <- stat_pval
+  calls <- 0L
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(rows)) && identical(substitute(i), quote(above))) calls <<- calls + 1L
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  x <- c("0.049999999999999999", "0.050000000000000001")
+  expect_identical(fn(x), stat_pval(x))
+  expect_identical(calls, 1L)
+})
