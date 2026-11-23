@@ -923,8 +923,12 @@ plt_con <- function(data,
                        unit > sqrt(.Machine$double.xmax))) {
         if (paired) {
           difference <- if (is.null(complete)) x - y else x[complete] - y[complete]
-          if (length(difference) && all(is.finite(difference)) && any(difference != 0)) {
-            unit <- max(abs(range(difference)))
+          limits <- if (length(difference) && !is.object(difference)) {
+            c(min(difference), max(difference))
+          } else if (length(difference) && all(is.finite(difference))) range(difference)
+          difference_unit <- if (length(limits) && all(is.finite(limits))) max(abs(limits)) else 0
+          if (difference_unit > 0) {
+            unit <- difference_unit
             x <- difference
             y <- numeric(length(difference))
           }

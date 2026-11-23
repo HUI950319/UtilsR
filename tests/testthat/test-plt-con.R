@@ -2743,3 +2743,17 @@ test_that("stacked violins reuse rows when all strata are estimable", {
   p <- con_plot(d, c("x", "y"), "g", type = "violin", stack = TRUE)
   expect_equal(nrow(p$layers[[1L]]$data), nrow(d) * 2L)
 })
+
+test_that("extreme paired tests reuse finite difference limits", {
+  f <- .con_pairwise_test
+  environment(f) <- list2env(list(is.finite = function(x) {
+    if (identical(substitute(x), quote(difference)) && !is.object(x))
+      stop("built finite flags for extreme paired differences")
+    base::is.finite(x)
+  }), parent = environment(f))
+  x <- c(9, 8, 7, 9, 8) * 1e200
+  y <- c(4, 5, 3, 4, 5) * 1e200
+  expected <- stats::t.test((x - y) / 1e200, rep(0, 5L), paired = TRUE)
+  actual <- f("t.test")(x, y, paired = TRUE)
+  expect_equal(actual$p.value, expected$p.value)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired t-tests use finite difference endpoints to rescale extreme pairs without creating per-row validity or nonzero flags.
+
 * Stacked violins subset rows only when at least one feature-group combination has fewer than two observations.
 
 * Continuous comparison preflight slices user pairs and cached test results only after rejecting a comparison.
