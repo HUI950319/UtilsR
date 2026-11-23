@@ -1188,3 +1188,15 @@ test_that("a single native geometry run keeps the existing children", {
   expect_s3_class(out$children[[1L]]$children[[2L]], "rastergrob")
   expect_equal(dim(out$children[[1L]]$children[[2L]]$raster), c(20L, 20L))
 })
+
+test_that("a repeated raster panel span is measured directly", {
+  fn <- .resolve_panel_size
+  environment(fn) <- list2env(list("duplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(span_ids)) && attr(x, "n") == 1L) stop("unnecessary duplicated in .resolve_panel_size")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  tab <- list(layout = data.frame(l = rep(1L, 10L), r = rep(3L, 10L)))
+  expect_identical(fn(tab, 1:10, "width", NULL, "cm", c(1, 2, 4)), rep(7, 10L))
+  tab$layout$r[10L] <- 2L
+  expect_identical(fn(tab, 1:10, "width", NULL, "cm", c(1, 2, 4)), c(rep(7, 9L), 3))
+})

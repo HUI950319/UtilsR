@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel sizing takes the sole shared spanning range directly without a panel-sized duplicate mask.
+
 * Object size inspection skips row-length missing flags when every object is readable.
 
 * Rank plots use the returned ranks to flag highlighted items without concatenating two logical vectors.

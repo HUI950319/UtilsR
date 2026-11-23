@@ -569,7 +569,8 @@ fmt_raster <- function(
         vctrs::vec_group_id(vctrs::new_data_frame(list(from = from[spanning], to = to[spanning])))
       }
       same_spans <- !is.null(span_ids) && attr(span_ids, "n") < length(spanning)
-      distinct <- if (same_spans) spanning[!duplicated(span_ids)] else spanning
+      distinct <- if (!same_spans) spanning else if (attr(span_ids, "n") == 1L) spanning[1L] else
+        spanning[!duplicated(span_ids, nmax = attr(span_ids, "n"))]
       totals <- vapply(distinct, function(i) {
         sum(cell_sizes[from[i]:to[i]])
       }, numeric(1L))
