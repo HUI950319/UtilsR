@@ -2547,3 +2547,14 @@ test_that("ordinary bare text retains its existing missing strings", {
   expect_identical(fn(setNames(x, seq_along(x))), unname(x))
   expect_identical(fn(factor(c("a", NA), exclude = NULL)), c("a", "<NA>"))
 })
+
+test_that("complete factor console labels bypass a second missing mask", {
+  fn <- ._as_text
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(text)) && !anyNA(x)) stop("unnecessary is.na in ._as_text")
+    base::is.na(x)
+  }), parent = environment(fn))
+  expect_identical(fn(factor(c("z", "a", "z"))), c("z", "a", "z"))
+  f <- structure(c(1L, 2L, NA_integer_), levels = c("z", NA_character_), class = "factor")
+  expect_identical(fn(f), c("z", "<NA>", NA_character_))
+})

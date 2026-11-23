@@ -189,7 +189,10 @@
     if (is.language(v)) rep(FALSE, length(v)) else is.na(v)
   text <- as.character(v)
   if (any(missing)) text[missing] <- NA_character_
-  if (is.factor(v) && any(!missing & is.na(text))) text[!missing & is.na(text)] <- "<NA>"
+  if (is.factor(v) && anyNA(text)) {
+    coded_na <- !missing & is.na(text)
+    if (any(coded_na)) text[coded_na] <- "<NA>"
+  }
   text
 }
 
