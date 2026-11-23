@@ -2793,3 +2793,15 @@ test_that("large comparison P-values skip cutoff-vector selection", {
   expect_identical(label(.001), "**")
   expect_identical(label(NA_real_), NA_character_)
 })
+
+test_that("one populated continuous dot cell skips a multi-key permutation", {
+  fn <- .con_dot_counts
+  environment(fn) <- list2env(list("lapply" = function(X, FUN, ...) {
+    if (identical(substitute(X), quote(counts[by])) && nrow(X) == 1L) stop("unnecessary lapply in .con_dot_counts")
+    base::lapply(X, FUN, ...)
+  }), parent = environment(fn))
+  d <- data.frame(g = rep("high", 9L), bin = rep(1, 9L))
+  expect_identical(fn(d, names(d)), data.frame(g = "high", bin = 1, n = 9L))
+  d$g[1L] <- "low"
+  expect_identical(fn(d, names(d)), .con_dot_counts(d, names(d)))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot layers avoid a grouping-order pass after aggregation returns only one cell.
+
 * Continuous plot annotations return the existing nonsignificant label when all thresholds are at or below the result.
 
 * KNN preprocessing avoids repeatedly testing ordinary columns for optional labelled and time storage.

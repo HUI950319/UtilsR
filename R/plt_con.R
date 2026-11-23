@@ -833,7 +833,7 @@ plt_con <- function(data,
     counts <- as.data.frame(groups[first, , drop = FALSE])
     counts$n <- tabulate(ids, n_keys)
   }
-  if (length(by) < 2L) {
+  if (length(by) < 2L || nrow(counts) < 2L) {
     rownames(counts) <- NULL
     return(counts)
   }
