@@ -1333,3 +1333,21 @@ test_that("sorted membership positions bypass deduplication sorting", {
   expect_identical(out$.element, letters[1:3])
   expect_identical(as.character(out$intersect_group), c("a/b/c", "a/c", "a/b/c"))
 })
+
+test_that("different factor set dictionaries only remap query labels", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(c(base::levels(values), base::levels(query))))) stop("unnecessary unique in plt_upset")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(c("yes", "no", "yes", NA), c("yes", "no", "unused")),
+    b = factor(c("no", "yes", "yes", NA), c("no", "yes")))
+  query <- factor(c("yes", "extra"), c("extra", "yes", "not used"))
+  result <- fn(d, vars = c("a", "b"), levels = query, output = "data")
+  expect_identical(as.character(result$intersect_group), c("a", "b", "a/b", "None"))
+  d$a <- addNA(d$a)
+  query <- addNA(query)
+  query[1L] <- NA
+  expect_identical(fn(d, vars = c("a", "b"), levels = query, output = "data"),
+                   plt_upset(d, vars = c("a", "b"), levels = query, output = "data"))
+})

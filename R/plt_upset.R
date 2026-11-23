@@ -263,9 +263,8 @@ plt_upset <- function(data,
       if (identical(base::levels(values), base::levels(query))) {
         return(as.integer(values) %in% as.integer(query))
       }
-      pool <- unique(c(base::levels(values), base::levels(query)))
-      values <- match(base::levels(values), pool)[as.integer(values)]
-      query <- match(base::levels(query), pool)[as.integer(query)]
+      query_codes <- match(base::levels(query), base::levels(values), nomatch = 0L)
+      return(as.integer(values) %in% query_codes[as.integer(query)])
     }
     values %in% query
   }
