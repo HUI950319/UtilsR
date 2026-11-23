@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value formatting avoids scanning for rounded-zero rows when its smallest value is above the display cutoff.
+
 * CI parsing builds row-level finiteness flags only when a parsed number can be non-finite.
 
 * Confidence intervals and SD strings inspect only incomplete inputs when building the joint row filter.

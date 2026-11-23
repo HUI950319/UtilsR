@@ -334,9 +334,12 @@ stat_pval <- function(x,
   if (mode != "plain" && length(out)) {
     # Include a small margin for the binary approximation to the decimal boundary.
     magnitude <- if (is.object(format_x)) abs(format_x) else format_x
-    maybe_zero <- which(magnitude <= 0.5 * 10^-d * (1 + 4 * .Machine$double.eps))
-    zero <- maybe_zero[grepl("^-?0\\.0*$", out[maybe_zero])]
-    if (length(zero)) out[zero] <- paste0("<0.", strrep("0", d - 1L), "1")
+    cutoff <- 0.5 * 10^-d * (1 + 4 * .Machine$double.eps)
+    if (is.object(magnitude) || !isTRUE(min(magnitude) > cutoff)) {
+      maybe_zero <- which(magnitude <= cutoff)
+      zero <- maybe_zero[grepl("^-?0\\.0*$", out[maybe_zero])]
+      if (length(zero)) out[zero] <- paste0("<0.", strrep("0", d - 1L), "1")
+    }
   }
   if (mode == "stars") {
     endpoints <- if (is.character(x)) {

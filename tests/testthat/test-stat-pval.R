@@ -1121,3 +1121,15 @@ test_that("interior decimal P-values do not allocate endpoint flags", {
   expect_identical(fn(x, mode = "stars"), stat_pval(x, mode = "stars"))
   expect_identical(fn(x, mode = "plain"), stat_pval(x, mode = "plain"))
 })
+
+test_that("P-values above the rounding boundary skip candidate flags", {
+  f <- stat_pval
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (is.call(substitute(x)) && identical(substitute(x)[[2L]], quote(magnitude)))
+      stop("looked for rounded zeros in interior P-values")
+    base::which(x, ...)
+  }), parent = environment(f))
+  x <- c(a = .014, b = .121, c = NA_real_)
+  expect_identical(f(x, mode = "pvalue"), c(a = "0.014", b = "0.121", c = NA_character_))
+  expect_identical(stat_pval(c(0, .00023), mode = "pvalue"), rep("<0.001", 2L))
+})
