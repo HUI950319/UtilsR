@@ -282,6 +282,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
       ids <- vctrs::vec_group_id(v)
       values <- if (attr(ids, "n") == length(v)) v else v[!duplicated(ids)]
       order_at <- order(values)
+      if (!is.unsorted(order_at)) return(list(codes = as.integer(ids), labels = as.character(values)))
       positions <- integer(length(order_at))
       positions[order_at] <- seq_along(order_at)
       return(list(codes = positions[ids], labels = as.character(values[order_at])))

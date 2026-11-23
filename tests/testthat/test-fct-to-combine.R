@@ -706,3 +706,16 @@ test_that("single input combination can group its codes without a frame", {
   expect_identical(fct_to_combine(d), expected)
   expect_identical(levels(expected), c("1", "2", "3"))
 })
+
+test_that("ordered character dictionaries keep existing group codes", {
+  x <- rep(c("alpha", "epsilon", "zeta"), 1024L)
+  f <- fct_to_combine.default
+  environment(f) <- list2env(list(integer = function(length = 0L) {
+    if (identical(substitute(length), quote(length(order_at))))
+      stop("reindexed an already ordered character dictionary")
+    base::integer(length)
+  }), parent = environment(f))
+  result <- f(x, TRUE | seq_along(x) > 2L)
+  expect_identical(levels(result), paste(c("alpha", "epsilon", "zeta"), "TRUE", sep = " & "))
+  expect_identical(as.integer(result), rep(1:3, 1024L))
+})

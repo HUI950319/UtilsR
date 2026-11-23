@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations retain first-occurrence codes directly when character labels are in their resulting order.
+
 * Deduplicating UpSet member positions reuses rows already in strict index order.
 
 * UpSet flattens set vectors without synthesizing per-member names that the membership dictionary does not use.
