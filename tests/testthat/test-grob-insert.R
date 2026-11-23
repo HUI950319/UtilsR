@@ -493,3 +493,16 @@ test_that("independent inset placements skip full collision masks", {
   twice <- grob_insert(grob_insert(g, grid::rectGrob()), grid::rectGrob())
   expect_identical(twice$layout$name, c("panel", "inset", "inset", "inset.1"))
 })
+
+test_that("single panel bounds use existing cell coordinates", {
+  fn <- .grob_panel_bounds
+  environment(fn) <- list2env(list("min" = function(..., na.rm = FALSE) {
+    if (length(list(...)[[1L]]) == 1L) stop("unnecessary min in .grob_panel_bounds")
+    base::min(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  d <- data.frame(name = c("title", "panel"), t = c(1L, 2L), b = c(1L, 4L),
+    l = c(1L, 3L), r = c(5L, 3L))
+  expect_identical(fn(d), c(t = 2L, b = 4L, l = 3L, r = 3L))
+  d$name <- c("panel-1", "panel-2")
+  expect_identical(fn(d), c(t = 1L, b = 4L, l = 1L, r = 5L))
+})
