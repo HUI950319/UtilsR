@@ -288,6 +288,8 @@ PlotRank <- function(
       plot_df$Score <- mapply(function(s, g) {
         scale_scores(s, orig_ranges[[match(as.character(g), names(orig_ranges))]])
       }, plot_df$Score, as.character(plot_df$Group))
+    } else if (length(all_df) == 1L) {
+      plot_df$Score <- as.double(scale_scores(plot_df$Score, orig_ranges[[1L]]))
     } else {
       values <- Map(function(part, bounds) scale_scores(part$Score, bounds), all_df, orig_ranges)
       plot_df$Score <- as.double(unlist(values, use.names = FALSE))

@@ -1065,3 +1065,15 @@ test_that("rank top markers reuse the returned rank sequence", {
     expect_identical(unname(result$Score), 12:4)
   }
 })
+
+test_that("one ordinary ranked group uses its scaled score vector directly", {
+  fn <- PlotRank
+  environment(fn) <- list2env(list("Map" = function(f, ...) {
+    if (identical(substitute(list(...)), quote(list(all_df, orig_ranges)))) stop("unnecessary Map in PlotRank")
+    base::Map(f, ...)
+  }), parent = environment(fn))
+  x <- c(a = 0L, b = 1L, c = 3L, d = 10L)
+  result <- fn(x, value_scale = "group", return_type = "data", max_show = 3L)
+  expect_identical(result$Score, c(1, .3, .1))
+  expect_identical(result$Rank, 1:3)
+})
