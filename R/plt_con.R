@@ -1237,11 +1237,12 @@ plt_con <- function(data,
   ggplot2::ggproto(NULL, facet,
     init_scales = function(layout, x_scale = NULL, y_scale = NULL, params) {
       result <- facet$init_scales(layout, x_scale, y_scale, params)
-      decreasing <- length(result$y) && .con_decreasing_scale(y_scale$get_transformation())
+      if (!length(result$y)) return(result)
+      decreasing <- .con_decreasing_scale(y_scale$get_transformation())
+      features <- as.character(layout$feature[match(seq_along(result$y), layout$SCALE_Y)])
       for (i in seq_along(result$y)) {
-        feature <- as.character(layout$feature[match(i, layout$SCALE_Y)])
         scale <- result$y[[i]]
-        bounds <- scale$transform(limits[[feature]])
+        bounds <- scale$transform(limits[[features[[i]]]])
         if (decreasing) bounds <- rev(bounds)
         scale$limits <- bounds
         scale$oob <- scales::oob_keep

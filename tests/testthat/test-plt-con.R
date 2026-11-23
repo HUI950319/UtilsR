@@ -2805,3 +2805,18 @@ test_that("one populated continuous dot cell skips a multi-key permutation", {
   d$g[1L] <- "low"
   expect_identical(fn(d, names(d)), .con_dot_counts(d, names(d)))
 })
+
+test_that("free continuous facet scales resolve all feature names together", {
+  fn <- .con_facet_scales
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (length(x) == 1L && identical(substitute(table), quote(layout$SCALE_Y)))
+      stop("looked up a single facet scale against the whole layout")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = rep(1:3, 2L), y = 1:6, feature = rep(c("A", "B"), each = 3L))
+  layout <- ggplot2::facet_wrap(ggplot2::vars(feature), scales = "free_y")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  limits <- list(A = c(0, 5), B = c(0, 10))
+  build <- ggplot2::ggplot_build(p + fn(layout, limits))
+  expect_identical(lapply(build$layout$panel_scales_y, function(scale) scale$limits), limits |> unname())
+})

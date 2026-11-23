@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Free continuous facets resolve scale-to-feature positions together instead of looking up each scale against the full layout.
+
 * Continuous dot layers avoid a grouping-order pass after aggregation returns only one cell.
 
 * Continuous plot annotations return the existing nonsignificant label when all thresholds are at or below the result.
