@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point shape conversion keeps values above the remapping range even when some shapes are missing.
+
 * True-color previews apply a common foreground directly without a per-swatch selection.
 
 * Console colour previews avoid scanning duplicate occurrences when all decoded swatches are the same.

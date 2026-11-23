@@ -1320,3 +1320,15 @@ test_that("point sampling reads ordinary symbol grouping columns directly", {
   }, .package = "rlang")
   expect_identical(.fmt_point_sample(d, mapping, 2L, 73L), ref)
 })
+
+test_that("unmapped numeric shape codes with missing entries skip the lookup", {
+  fn <- .shape_convert
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (is.numeric(x) && anyNA(x) && all(x[!is.na(x)] > 20L)) stop("unnecessary match in .shape_convert")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  shape <- c(a = 21L, b = NA_integer_, c = 25L)
+  expect_identical(fn(shape), shape)
+  expect_identical(fn(NA_integer_), NA_integer_)
+  expect_identical(fn(c(1L, NA_integer_, 25L)), c(21, NA_real_, 25))
+})

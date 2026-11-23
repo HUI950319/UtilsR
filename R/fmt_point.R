@@ -608,7 +608,7 @@ fmt_point <- function(plot,
             "2" = 24, "17" = 24,
             "5" = 23, "18" = 23, "6" = 25)
   numeric_shape <- !is.object(x) && (is.integer(x) || is.double(x))
-  if (numeric_shape && length(x) && isTRUE(min(x) > 20L)) return(x)
+  if (numeric_shape && length(x) && min(Inf, x, na.rm = TRUE) > 20L) return(x)
   index <- if (numeric_shape) match(x, as.integer(names(dict))) else as.character(x)
   converted <- unname(dict[index])
   mapped <- !is.na(converted)
