@@ -384,3 +384,19 @@ test_that("grid units validate numeric extrema before compound operands", {
   expect_true(fn(grid::unit(0.1, "npc") + grid::unit(1, "pt")))
   expect_false(fn(grid::unit(0.1, "npc") + grid::unit(Inf, "pt")))
 })
+
+test_that("one measured side grob uses its original size", {
+  u <- grid::unit(1, "cm")
+  main <- gtable::gtable_add_grob(gtable::gtable(u, u), grid::rectGrob(),
+                                  t = 1L, l = 1L, name = "panel")
+  side <- grid::textGrob("Single margin")
+  f <- grob_add
+  environment(f) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, grid::unit.pmax) && length(args) == 1L) stop("maximized one measured margin")
+    base::do.call(what, args, ...)
+  }), parent = environment(f))
+  a <- f(main, list(side), position = "top")
+  b <- grob_add(main, side, position = "top")
+  expect_identical(a$heights, b$heights)
+  expect_identical(a$layout, b$layout)
+})

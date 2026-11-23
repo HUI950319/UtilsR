@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grob margins measure a sole child directly while retaining maximum sizing for lists of several grobs.
+
 * Continuous dot plots retain their container directly when every size scale already has the joint limits.
 
 * Point sampling reads grouping symbols from plain data frames without evaluating a data mask.
