@@ -1549,3 +1549,19 @@ test_that("rank correlation methods use observed ordered factor codes", {
   }, .package = "vctrs")
   expect_identical(quiet_rank_cor(d)$data, ref$data)
 })
+
+test_that("finite nonzero rank scores skip exceptional replacements", {
+  d <- expand.grid(item = letters[1:5], method = c("A", "B"), stringsAsFactors = FALSE)
+  d$score <- as.double(c(1:5, c(3, 2, 1, 5, 4)))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(scores)) && !anyNA(x))
+      stop("flagged missing values in complete pivot scores")
+    base::is.na(x)
+  }), parent = environment(fn))
+  f <- function(fun) {
+    invisible(capture.output(p <- fun(d, stat.by = "item", value.by = "score", method.by = "method")))
+    p$data
+  }
+  expect_identical(f(fn), f(PlotRankCor))
+})

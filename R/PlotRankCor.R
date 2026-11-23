@@ -394,8 +394,9 @@ PlotRankCor <- function(
     first <- if (!complete) !duplicated(ids)
     pivot_data <- if (complete) pivot_data[pivot_keys] else pivot_data[first, pivot_keys, drop = FALSE]
     scores <- as.double(if (complete) values else values[first])
-    scores[is.na(scores)] <- NaN
-    scores[which(scores == 0)] <- 0
+    if (anyNA(scores)) scores[is.na(scores)] <- NaN
+    if (length(scores) && !isTRUE(min(scores) > 0 || max(scores) < 0))
+      scores[which(scores == 0)] <- 0
     if (!complete) {
       repeated <- tabulate(ids, nbins = n_keys) > 1L
       rows <- which(repeated[ids])
