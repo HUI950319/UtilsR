@@ -422,7 +422,8 @@ PlotScatter3 <- function(
       diff_values[is.finite(diff_values) & diff_values >= lower & diff_values <= upper]
     median_line_yend <- 1
     if (length(visible) && length(hist_bin_breaks) > 1L) {
-      hdata <- graphics::hist(visible / hist_scale, breaks = hist_bin_breaks / hist_scale, plot = FALSE)
+      hdata <- if (hist_scale == 1) graphics::hist(visible, breaks = hist_bin_breaks, plot = FALSE) else
+        graphics::hist(visible / hist_scale, breaks = hist_bin_breaks / hist_scale, plot = FALSE)
       median_line_yend <- max(max(hdata$counts) * 0.8, 1)
     }
   }

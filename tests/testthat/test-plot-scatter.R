@@ -2150,3 +2150,15 @@ test_that("complete double scatter labels avoid full row flags", {
   expect_identical(names(y), names(x))
   expect_identical(as.integer(y), rep(1:4, 7L))
 })
+
+test_that("unscaled scatter histograms do not divide their observations", {
+  withr::local_pdf(NULL)
+  d <- data.frame(x = 1:8, y = c(2, 3, 1, 5, 5, 2, 8, 9), g = rep(c("A", "B"), each = 4L))
+  f <- PlotScatter3
+  environment(f) <- list2env(list("/" = function(e1, e2) {
+    if (identical(substitute(e1), quote(visible)) && identical(e2, 1))
+      stop("divided the complete scatter differences by one")
+    base::"/"(e1, e2)
+  }), parent = environment(f))
+  expect_no_error(f(d, "x", "y", "g", test_method = "none", cor_method = "none"))
+})
