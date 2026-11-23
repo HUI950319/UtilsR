@@ -387,8 +387,10 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       for (p in special[-1L]) {
         if (!length(remaining)) break
         matched <- grepl(paste0("(*UCP)", p), values[remaining], ignore.case = TRUE, perl = TRUE)
-        hit[remaining[matched]] <- TRUE
-        remaining <- remaining[!matched]
+        if (any(matched)) {
+          hit[remaining[matched]] <- TRUE
+          remaining <- remaining[!matched]
+        }
       }
     }
     if (is.null(present)) return(hit)

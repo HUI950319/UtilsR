@@ -1056,3 +1056,14 @@ test_that("empty special marker matches do not copy the category dictionary", {
   expect_identical(fn(x, "^[s]"), 500)
   expect_identical(fn(c(NA, "??", "Unknown", "ok"), NULL), 2)
 })
+
+test_that("special patterns without matches retain their remaining row indices", {
+  fn <- .is_special_value
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(remaining)) && is.logical(i) &&
+        identical(substitute(i), quote(!matched)) && all(i)) stop("unnecessary [ in .is_special_value")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(c("abc", "def", "ghi", NA), c("abc", "not here", "ghi")), c(TRUE, FALSE, TRUE, FALSE))
+  expect_identical(fn(c("A A", "B"), c("never", "\\bB\\b")), c(FALSE, TRUE))
+})

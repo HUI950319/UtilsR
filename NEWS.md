@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Custom quality markers retain their candidate positions when a pattern makes no matches.
+
 * Character quality checks skip slicing the dictionary when no category matches a special value.
 
 * Log-scale interval checks avoid combining validity masks when every interval is eligible.
