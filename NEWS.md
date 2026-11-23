@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* White-border point formatting keeps fillable numeric shapes in their existing storage.
+
 * Point sampling combines factor strata without expanding unused level labels, and keeps explicit and uncoded missing strata separate.
 
 * Sparkline binning recognizes ordinary integer columns without rounding the observations to verify their storage.

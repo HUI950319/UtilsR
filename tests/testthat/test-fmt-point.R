@@ -1281,3 +1281,13 @@ test_that("factor sampling tuples need codes without synthetic levels", {
   expect_equal(sum(is.na(as.integer(out$g))), 2L)
   expect_equal(nrow(out), 6L)
 })
+
+test_that("converted fill shapes skip mapping a second time", {
+  f <- .shape_convert
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (is.integer(x) && identical(x, 21:25)) stop("matched already fillable point shapes")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  expect_identical(f(21:25), 21:25)
+  expect_identical(f(c(a = 19, b = 24, c = NA)), c(a = 21, b = 24, c = NA_real_))
+})
