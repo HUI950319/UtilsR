@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend lookups retain complete aesthetic mappings directly after checking for disabled entries.
+
 * Legend mappings reuse a fully named unique aesthetic dictionary when no layer aesthetic is fixed.
 
 * Legend mapping skips recursive expression inspection on stats with no default aesthetics.

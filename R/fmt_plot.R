@@ -842,7 +842,8 @@ fmt_tag <- function(plot,
   if (length(fixed) || length(mapping) != length(names(mapping)) || anyDuplicated(names(mapping))) {
     mapping <- mapping[setdiff(names(mapping), fixed)]
   }
-  mapping[!vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))]
+  disabled <- vapply(mapping, function(value) is.null(rlang::get_expr(value)), logical(1))
+  if (any(disabled)) mapping[!disabled] else mapping
 }
 
 .set_legend_title <- function(p, label) {

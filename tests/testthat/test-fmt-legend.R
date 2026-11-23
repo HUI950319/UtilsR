@@ -1328,3 +1328,15 @@ test_that("legend fixed-aesthetic filtering skips empty parameter sets", {
   layer$aes_params[["colour"]] <- "red"
   expect_setequal(names(fn(layer, ggplot2::aes(x, y))), c("x", "y"))
 })
+
+test_that("explicit empty legend mappings avoid an extra aesthetic subset", {
+  fn <- .legend_layer_mapping
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(mapping)) && is.logical(i) && all(i)) stop("unnecessary [ in .legend_layer_mapping")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  layer <- ggplot2::geom_point(ggplot2::aes(colour = x))
+  expect_setequal(names(fn(layer, ggplot2::aes(x, y))), c("x", "y", "colour"))
+  layer <- ggplot2::geom_point(ggplot2::aes(colour = NULL))
+  expect_setequal(names(fn(layer, ggplot2::aes(x, y))), c("x", "y"))
+})
