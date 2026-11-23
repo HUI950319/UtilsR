@@ -1002,3 +1002,16 @@ test_that("top rank scaling reads the displayed endpoints", {
   result <- f(d, max_show = 4L, value_scale = "top_n", return_type = "data")
   expect_identical(result$Score, (c(24, 22, 20, 13) - 13) / 11)
 })
+
+test_that("single ordinary rank panels keep their bound frame", {
+  x <- stats::setNames(c(9.2, 5.5, 10.5, 10.5, 2.1), paste0("level", 1:5))
+  f <- PlotRank
+  environment(f) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, base::rbind) && identical(substitute(args), quote(all_df)))
+      stop("bound one ordinary rank frame")
+    base::do.call(what, args, ...)
+  }), parent = environment(f))
+  out <- f(x, top_n = 3L, max_show = 4L, return_type = "data")
+  expect_identical(out$Score, c(10.5, 10.5, 9.2, 5.5))
+  expect_identical(out$Label, c("level3", "level4", "level1", "level2"))
+})

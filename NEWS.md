@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank preparation uses the sole ordinary data frame directly when no cross-group row bind is needed.
+
 * Top-rank scaling reads the first and last already ordered scores without rescanning each displayed group.
 
 * Rank plots select descending leaders directly from strictly increasing ordinary scores and retain the existing tie handling elsewhere.

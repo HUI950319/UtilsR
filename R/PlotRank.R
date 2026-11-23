@@ -257,7 +257,8 @@ PlotRank <- function(
       stringsAsFactors = FALSE
     )
   })
-  plot_df <- do.call(rbind, all_df)
+  plot_df <- if (length(all_df) == 1L && !is.object(all_df[[1L]]$Score)) all_df[[1L]] else
+    do.call(rbind, all_df)
 
   # ---- Per-group value scaling (value_scale) ----
   scale_scores <- function(x, rng) {
