@@ -212,20 +212,20 @@
          (identical(accessor, "[[") && rlang::is_string(expr[[3L]])))
       if (defer && !direct_column) return(NULL)
     }
+    column <- if (is.symbol(expr)) as.character(expr) else if (direct_column) as.character(expr[[3L]]) else ""
     if (defer && is.symbol(expr) &&
-        !(is.data.frame(data) && as.character(expr) %in% names(data))) {
+        !(is.data.frame(data) && column %in% names(data))) {
       binding_env <- rlang::get_env(var_quo)
       while (!identical(binding_env, emptyenv())) {
-        if (exists(as.character(expr), envir = binding_env, inherits = FALSE)) {
-          if (bindingIsActive(as.character(expr), binding_env) ||
-              rlang::env_binding_are_lazy(binding_env, as.character(expr))[[1L]])
+        if (exists(column, envir = binding_env, inherits = FALSE)) {
+          if (bindingIsActive(column, binding_env) ||
+              rlang::env_binding_are_lazy(binding_env, column)[[1L]])
             return(NULL)
           break
         }
         binding_env <- parent.env(binding_env)
       }
     }
-    column <- if (is.symbol(expr)) as.character(expr) else if (direct_column) as.character(expr[[3L]]) else ""
     ordinary_data <- identical(class(data), "data.frame") ||
       identical(class(data), c("tbl_df", "tbl", "data.frame"))
     d <- if (ordinary_data && nzchar(column) && column %in% names(data) &&

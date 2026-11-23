@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scale detection uses the same mapping identifier for data lookup and for promise checks.
+
 * Continuous bar range calculations retain the value vector when the grouping dictionary has one code.
 
 * Plots of a single incomplete column bypass alphabetical sorting of variable names.

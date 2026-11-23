@@ -647,3 +647,16 @@ test_that("unaliased deferred scale arguments skip duplicate row flags", {
   expect_identical(scale$limits, c(1, 7))
   expect_identical(scale$breaks, c(2, 6))
 })
+
+test_that("bare scale mapping symbols reuse their resolved name", {
+  fn <- .detect_scale_type
+  n <- 0L
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(substitute(x), quote(expr)) && identical(x, quote(z))) n <<- n + 1L
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  z <- c(1L, 2L, 3L)
+  p <- ggplot2::ggplot(data.frame(y = 1:3), ggplot2::aes(z, y)) + ggplot2::geom_point()
+  expect_identical(fn(p, "x", defer = TRUE), "scale_x_continuous")
+  expect_lte(n, 2L)
+})
