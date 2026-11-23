@@ -613,8 +613,11 @@ PlotDumbbell <- function(
     if (length(y) == 1L) y <- rep_len(y, n)
   }
   if (!inherits(y, "integer64")) {
-    if ((is.integer(y) && !is.object(y)) ||
-        all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))) {
+    representable <- if (!is.object(y) && is.integer(y)) TRUE else if (
+      !is.object(y) && is.double(y) && length(y) && !anyNA(y)) {
+      min(y) > -2^63 && max(y) < 2^63 && all(y == trunc(y))
+    } else all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))
+    if (representable) {
       y <- bit64::as.integer64(y)
     } else {
       step <- 2^32

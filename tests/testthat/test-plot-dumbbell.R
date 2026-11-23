@@ -1168,3 +1168,16 @@ test_that("integer64 means convert only the limb totals on ordinary vectors", {
   expect_identical(fn(x), 1.5)
   expect_identical(fn(x, na.rm = FALSE), NA_real_)
 })
+
+test_that("complete integral double endpoints avoid mixed range flags", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740993", "9007199254740995", "4"))
+  y <- c(9007199254740992, 9007199254740994, 3)
+  f <- .dumbbell_integer64_difference
+  environment(f) <- list2env(list(abs = function(x) {
+    if (identical(x, y)) stop("built absolute flags for complete integral endpoints")
+    base::abs(x)
+  }), parent = environment(f))
+  expect_identical(f(x, y), bit64::as.integer64(rep(1, 3)))
+  expect_identical(f(x, c(NA_real_, y[2:3])), bit64::as.integer64(c(NA, 1, 1)))
+})

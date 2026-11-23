@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Integer64 paired differences test complete ordinary double endpoints with scalar range checks before exact conversion.
+
 * Scatter histograms share paired-difference extrema between automatic limits and their visibility check.
 
 * Scatter difference histograms skip copying observations and breaks on the ordinary unit scale.
