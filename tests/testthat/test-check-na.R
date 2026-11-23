@@ -1032,3 +1032,15 @@ test_that("known zero percentages skip small positive flags", {
   d$a[1L] <- NA_character_
   expect_match(suppressMessages(f(d))[["_data"]]$missing_combined[1L], "<0.1%", fixed = TRUE)
 })
+
+test_that("columns without missingness skip computing shading bands", {
+  f <- check_na
+  environment(f) <- list2env(list(findInterval = function(x, ...) {
+    if (length(x) && all(x == 0)) stop("built shade bands for unshaded rows")
+    base::findInterval(x, ...)
+  }), parent = environment(f))
+  d <- data.frame(a = c("x", "?"), b = c("x", "y"))
+  out <- f(d, show_all = TRUE)
+  expect_s3_class(out, "gt_tbl")
+  expect_identical(out[["_data"]]$special_combined, c("1 (50.0%)", "0 (0.0%)"))
+})

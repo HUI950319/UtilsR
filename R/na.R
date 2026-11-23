@@ -227,6 +227,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     )
 
   shading_rows <- function(percent, limits) {
+    if (!length(percent) || max(percent) == 0) return(list())
     bands <- findInterval(percent, c(0, limits), left.open = TRUE)
     rows <- which(bands > 0L)
     groups <- structure(4L - bands[rows], levels = c("high", "medium", "low"), class = "factor")

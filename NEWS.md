@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection tables avoid assigning colour bands to percentages that are all zero.
+
 * Missingness tables check formatting bounds before allocating the per-variable low-percentage flags.
 
 * Rank plots prune empty score vectors only when group selection has produced one.
