@@ -775,7 +775,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     out <- cols
   }
 
-  if (reverse) {
+  if (reverse && (is.object(out) || length(out) > 1L)) {
     if (!is.null(names(out))) {
       out <- stats::setNames(rev(out), names(out))
     } else {

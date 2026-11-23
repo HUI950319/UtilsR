@@ -3536,3 +3536,15 @@ test_that("ordinary numeric palette ramps reuse the checked endpoint span", {
   expect_identical(endpoints, 1L)
   expect_identical(fn(c(-1.5e308, 0, 1.5e308), TRUE)$at, c(1, .5, 0))
 })
+
+test_that("scalar ordinary palettes do not reverse a single stop", {
+  fn <- .pal_apply
+  environment(fn) <- list2env(list("rev" = function(x) {
+    if (length(x) == 1L && !is.object(x)) stop("unnecessary rev in .pal_apply")
+    base::rev(x)
+  }), parent = environment(fn))
+  expect_identical(fn(c(a = "red"), reverse = TRUE), "red")
+  expect_identical(fn(c(a = "red"), x = "name", reverse = TRUE), c(name = "red"))
+  expect_identical(fn(c("red", "blue"), reverse = TRUE), c("blue", "red"))
+  expect_identical(fn(c("red", "blue"), x = c("b", "a"), reverse = TRUE), c(b = "blue", a = "red"))
+})

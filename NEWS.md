@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette application skips reverse order for an ordinary single-colour result.
+
 * Numeric palette scaling uses the already computed range width for interpolation.
 
 * Categorical background bands only filter implicit missing axis labels when those labels occur.
