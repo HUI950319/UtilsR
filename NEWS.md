@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend mapping skips recursive expression inspection on stats with no default aesthetics.
+
 * Strip relabelling skips deduplication when the input facet labels are already unique.
 
 * Inset placement obtains a single panel's boundaries directly, while preserving reductions over multiple panels.

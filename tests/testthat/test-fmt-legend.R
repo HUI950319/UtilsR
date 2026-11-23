@@ -1303,3 +1303,15 @@ test_that("identical stored legend titles skip building the labs object", {
   expect_identical(.set_legend_title(named, label)$labels, named$labels)
   expect_identical(.set_legend_title(cleared, NULL)$labels, cleared$labels)
 })
+
+test_that("legend calculation keeps empty default mappings without callbacks", {
+  fn <- .stat_calculated_aes
+  environment(fn) <- list2env(list("vapply" = function(X, FUN, FUN.VALUE, ...) {
+    if (!length(X)) stop("unnecessary vapply in .stat_calculated_aes")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }), parent = environment(fn))
+  expect_length(fn(ggplot2::StatIdentity), 0L)
+  actual <- fn(ggplot2::StatCount)
+  expect_true("y" %in% names(actual))
+  expect_identical(actual, .stat_calculated_aes(ggplot2::StatCount))
+})

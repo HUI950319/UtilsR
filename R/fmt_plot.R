@@ -826,6 +826,7 @@ fmt_tag <- function(plot,
     any(vapply(as.list(expr)[-1L], calculated, logical(1)))
   }
   defaults <- stat$default_aes
+  if (!length(defaults)) return(defaults[logical()])
   defaults[vapply(defaults, calculated, logical(1))]
 }
 
