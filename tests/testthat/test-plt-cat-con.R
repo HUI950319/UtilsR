@@ -2313,3 +2313,16 @@ test_that("complete dense categorical totals skip zero denominator flags", {
   d$b <- factor(d$b, levels = c("a", "b", "empty"))
   expect_identical(f(d, "a", "b", "percent", keep_empty = TRUE)$value, c(rep(50, 4L), 0, 0))
 })
+
+test_that("complete background groups reuse consistency comparisons", {
+  d <- data.frame(g = factor(rep(c("a", "b"), each = 3L)), bg = rep(c("left", "right"), each = 3L))
+  f <- .build_bg_layer
+  environment(f) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(group_codes)) && !anyNA(x))
+      stop("flagged missing groups on a complete axis")
+    base::is.na(x)
+  }), parent = environment(f))
+  expect_identical(f(d, "g", "bg", .35)$data, .build_bg_layer(d, "g", "bg", .35)$data)
+  expect_identical(f(d, "g", "bg", .35, axis_levels = "a")$data,
+                   .build_bg_layer(d, "g", "bg", .35, axis_levels = "a")$data)
+})

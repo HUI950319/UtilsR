@@ -1310,7 +1310,8 @@ plt_cat <- function(data,
   bg_map <- values[match(group_ids, group_codes)]
   by_code <- rep.int(NA, length(axis_levels))
   by_code[group_ids] <- bg_map
-  consistent <- is.na(group_codes) | values == by_code[group_codes]
+  consistent <- values == by_code[group_codes]
+  if (anyNA(group_codes)) consistent[is.na(group_codes)] <- TRUE
 
   if (!isTRUE(all(consistent))) {
     cli::cli_warn(
