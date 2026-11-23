@@ -728,11 +728,13 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       d <- if (digits == 0L || all(fin == round(fin))) 0L else digits
       # 0.0003 would print as 0.00: give the column two significant digits.
       if (d > 0L) {
-        tiny <- abs(fin[fin != 0])
-        if (length(tiny)) {
-          smallest <- min(tiny)
-          if (smallest < 0.5 * 10^-d) d <- min(6L, as.integer(ceiling(-log10(smallest))) + 1L)
+        lower <- min(fin)
+        upper <- max(fin)
+        smallest <- if (lower > 0) lower else if (upper < 0) -upper else {
+          nonzero <- abs(fin[fin != 0])
+          if (length(nonzero)) min(nonzero) else Inf
         }
+        if (smallest < 0.5 * 10^-d) d <- min(6L, as.integer(ceiling(-log10(smallest))) + 1L)
       }
       # Sign-bit differences at zero can affect fixed-point output.
       distinct <- if (.pal_use_unique(v) && !any(fin == 0)) unique(v) else v

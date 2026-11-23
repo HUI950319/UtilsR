@@ -2415,3 +2415,13 @@ test_that("complete console labels skip missing replacements", {
   d$field[2L] <- NA_character_
   expect_identical(capture.output(fn(d, width = 60)), capture.output(pr_table(d, width = 60)))
 })
+
+test_that("same-sign console numbers use scalar smallest magnitudes", {
+  fn <- pr_table
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (identical(substitute(x), quote(fin[fin != 0]))) stop("sliced a same-sign console column")
+    base::abs(x)
+  }), parent = environment(fn))
+  d <- data.frame(x = c(.5, 1e-7, .25), y = c(-.5, -1e-7, -.25))
+  expect_identical(capture.output(fn(d, n = NULL, width = 75)), capture.output(pr_table(d, n = NULL, width = 75)))
+})

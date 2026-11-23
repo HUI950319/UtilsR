@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables use finite extrema to set decimal significance when all observed values have the same sign.
+
 * Console tables use formatted text directly for columns whose displayed values have no missing cells.
 
 * Significance formatting returns empty star suffixes directly for observations above all thresholds.
