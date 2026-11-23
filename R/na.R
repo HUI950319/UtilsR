@@ -315,14 +315,15 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     n <- tally$counts
   } else {
     u <- distinct %||% unique(x)
-    markers <- u[.is_special_value(u, special) & !is.na(u)]
+    hit <- .is_special_value(u, special)
+    if (is.object(u)) hit[is.na(u)] <- FALSE
+    markers <- u[hit]
     if (!length(markers)) return(0)
     if (length(markers) == length(u)) return(length(x) + 0)
     if (!is.object(x) && length(x) == length(u)) return(length(markers) + 0)
     return(sum(x %in% markers) + 0)
   }
   hit <- .is_special_value(u, special)
-  if (anyNA(u)) hit[is.na(u)] <- FALSE
   if (!any(hit)) return(0)
   sum(n[hit]) + 0
 }

@@ -1005,3 +1005,16 @@ test_that("wide sparse factor counts use the observed code dictionary", {
   expect_identical(fn(x), list(codes = c(4L, 9000L), counts = c(260L, 520L), row_codes = row_codes))
   expect_identical(fn(rep(x[1L], 1040L))$counts, 1040L)
 })
+
+test_that("special marker counts reuse the predicate's missing handling", {
+  fn <- .count_special_values
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(u))) stop("remasked missing special-value labels")
+    base::is.na(x)
+  }), parent = environment(fn))
+  x <- c("NA", NA_character_, "?", "valid", "NA")
+  expect_identical(fn(x), 3)
+  expect_identical(fn(addNA(x)), 3)
+  expect_identical(fn(x, "^[?]$"), 1)
+  expect_identical(fn(addNA(x), "^[?]$"), 1)
+})
