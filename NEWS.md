@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet flattens set vectors without synthesizing per-member names that the membership dictionary does not use.
+
 * UpSet combines the bits of full sets once before filling sparse membership rows.
 
 * Complete double scatter groups obtain first-occurrence labels without allocating a mask across all observations.

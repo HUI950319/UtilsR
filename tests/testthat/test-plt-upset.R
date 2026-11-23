@@ -1307,3 +1307,17 @@ test_that("full UpSet memberships are initialized in one vector", {
   expect_identical(fn(sets), expected)
   expect_identical(fn(list(integer(), integer()), 0L), integer())
 })
+
+test_that("UpSet membership flattening avoids generating named rows", {
+  d <- list(a = c(first = "alpha", second = "alpha", third = "beta"),
+            b = c(fourth = "gamma", fifth = "beta"))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(unlist = function(x, recursive = TRUE, use.names = TRUE) {
+    if (identical(substitute(x), quote(data)) && use.names)
+      stop("generated unused UpSet membership names")
+    base::unlist(x, recursive = recursive, use.names = use.names)
+  }), parent = environment(fn))
+  out <- fn(d, output = "data")
+  expect_identical(out$.element, c("alpha", "beta", "gamma"))
+  expect_identical(as.character(out$intersect_group), c("a", "a/b", "b"))
+})
