@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness matrices keep masks of ordinary columns that were already found to have missing rows.
+
 * Deferred position scales check duplicate names only when normalized aliases actually collide.
 
 * Histogram overlays filter invalid transformed observations only when extrema indicate that filtering is needed.

@@ -125,13 +125,13 @@ plt_na <- function(
     }
     ordinary_factor <- identical(class(x), "factor") ||
       identical(class(x), c("ordered", "factor"))
-    if (((!is.object(x) && is.atomic(x)) || ordinary_factor) &&
-        !(if (ordinary_factor) anyNA(unclass(x)) else anyNA(x))) {
-      return(if (keep_masks) NULL else 0L)
-    }
+    known_missing <- if (ordinary_factor) {
+      anyNA(unclass(x))
+    } else if (!is.object(x) && is.atomic(x) && !is.expression(x)) anyNA(x)
+    if (isFALSE(known_missing)) return(if (keep_masks) NULL else 0L)
     mask <- is.na(if (is.expression(x)) as.list(x) else x)
     if (keep_masks) {
-      if (any(mask)) mask else NULL
+      if (isTRUE(known_missing) || any(mask)) mask else NULL
     } else sum(mask)
   }
   if (keep_masks) {

@@ -719,3 +719,15 @@ test_that("matrix output skips percentages", {
   expect_identical(p$data$value, c(TRUE, FALSE, FALSE, TRUE, FALSE, TRUE))
   expect_identical(levels(p$data$label), c("a", "b"))
 })
+
+test_that("incomplete ordinary columns use their existing missing classification", {
+  d <- data.frame(b = c(2, NA, 3, 4), a = factor(c("X", "Y", NA, "X")))
+  fn <- plt_na
+  environment(fn) <- list2env(list(any = function(..., na.rm = FALSE) {
+    if (identical(as.list(substitute(list(...)))[-1L], alist(mask)))
+      stop("rescanned a known incomplete column mask")
+    base::any(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  p <- fn(d, output = "matrix")
+  expect_identical(p$data$value, c(FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE))
+})
