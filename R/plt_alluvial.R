@@ -503,16 +503,17 @@ plt_alluvial <- function(
 
   # Count only observed facet/category pairs, keeping zero-count group strata.
   pair_columns <- c(".facet", ".cat_var")
-  pair_id <- if (facet_used) vctrs::vec_group_id(plot_input[pair_columns]) else
+  multiple_facets <- length(facet_levels) > 1L
+  pair_id <- if (multiple_facets) vctrs::vec_group_id(plot_input[pair_columns]) else
     as.integer(plot_input$.cat_var)
-  n_pairs <- if (facet_used) attr(pair_id, "n") else length(cat_levels)
+  n_pairs <- if (multiple_facets) attr(pair_id, "n") else length(cat_levels)
   n_strata <- as.double(n_pairs) * n_groups
   n_gaps <- if (stratum_args$gap > 0) max(0L, n_groups - 1L) else 0L
   if (n_strata + as.double(n_pairs) * n_gaps >= 2^31) {
     cli::cli_abort("The alluvial stratum grid must contain fewer than 2^31 cells. Reduce the number of categories or groups.")
   }
   unique_pairs <- n_pairs == length(pair_id)
-  if (facet_used) {
+  if (multiple_facets) {
     pairs <- if (unique_pairs) plot_input[pair_columns] else
       plot_input[!duplicated(pair_id), pair_columns]
     pair_order <- order(pairs$.cat_var, pairs$.facet)

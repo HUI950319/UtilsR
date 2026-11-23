@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial counts reuse existing category codes when a facet has one observed level.
+
 * Circular axes obtain the single observed categorical key directly and bound duplicate indexing for multiple keys.
 
 * Factor combinations compare input lengths without hashing them.

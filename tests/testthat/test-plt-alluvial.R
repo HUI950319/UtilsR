@@ -1545,3 +1545,19 @@ test_that("ordinary numeric alluvial levels format only group keys", {
   expect_identical(levels(p$data$.cat_var), format(unique(d$a), digits = 17, trim = TRUE))
   expect_identical(levels(p$data$.group)[c(1L, 3L)], c("TRUE", "FALSE"))
 })
+
+test_that("one observed facet reuses alluvial category codes", {
+  d <- data.frame(stage = factor(c("last", "first", "last", "first"), c("first", "last")),
+    group = c("B", "B", "A", "A"), region = factor("kept", levels = c("unused", "kept")))
+  g <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), c(".facet", ".cat_var")))
+      stop("built a dictionary for one alluvial facet")
+    g(x)
+  }, .package = "vctrs")
+  p <- plt_alluvial(d, "stage", "group", facet = "region", label_args = list(style = "none"))
+  expect_identical(levels(p$data$.facet), "kept")
+  expect_identical(levels(p$data$.cat_var), c("first", "last"))
+  expect_equal(p$data$count[!p$data$.is_gap], rep(1, 4L))
+  expect_s3_class(p$facet, "FacetWrap")
+})
