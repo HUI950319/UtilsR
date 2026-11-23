@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN skips the labelled conversion assignment for ordinary inputs and uses the selected labelled columns when conversion is needed.
+
 * Panel rasterization reuses the existing child list when all geometry is captured in draw order as one run.
 
 * Factor sparklines detect unique observed labels from the largest frequency.

@@ -181,13 +181,15 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     data_for_impute[[var_name]] <- if (inherits(x, "POSIXlt")) as.double(as.POSIXct(x)) else as.double(x)
   }
 
-  data_for_impute[labelled_cols] <- lapply(
-    data_for_impute[labelled_cols],
-    labelled::to_factor,
-    levels = "values",
-    sort_levels = "none",
-    user_na_to_na = TRUE
-  )
+  if (length(labelled_original)) {
+    data_for_impute[labelled_cols] <- lapply(
+      labelled_original,
+      labelled::to_factor,
+      levels = "values",
+      sort_levels = "none",
+      user_na_to_na = TRUE
+    )
+  }
   labelled_lookup <- list()
   for (var_name in names(labelled_original)) {
     original <- labelled_original[[var_name]]

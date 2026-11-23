@@ -1051,3 +1051,15 @@ test_that("complete labelled integer predictors skip restoration code conversion
   }), parent = environment(fn))
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("ordinary KNN data bypass empty labelled conversion", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(1, 2, 3, NA), group = factor(c("a", "a", "b", "b")))
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (identical(substitute(i), quote(labelled_cols)) && !any(i))
+      stop("replaced an empty KNN labelled selection")
+    base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(fn))
+  expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
+})
