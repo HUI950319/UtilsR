@@ -1031,7 +1031,8 @@ plt_cat <- function(data,
   if (stat == "percent") {
     total <- if (dense) rep(.colSums(as.double(df$n), n_stat, n_group), each = n_stat) else
       ave(df$n, df$group_var, FUN = sum)
-    df$value <- ifelse(total > 0, df$n / total * 100, 0)
+    df$value <- if (dense && length(total) && min(total) > 0) df$n / total * 100 else
+      ifelse(total > 0, df$n / total * 100, 0)
     df$label_text <- sprintf("%.1f%%", df$value)
     df <- dplyr::as_tibble(df)
   } else {

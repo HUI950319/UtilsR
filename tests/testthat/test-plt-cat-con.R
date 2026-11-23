@@ -2299,3 +2299,17 @@ test_that("one observed categorical group uses a shared count sum", {
   expect_equal(counts$value, c(50, 25, 25))
   expect_identical(counts$label_text, c("50.0%", "25.0%", "25.0%"))
 })
+
+test_that("complete dense categorical totals skip zero denominator flags", {
+  d <- data.frame(a = factor(rep(c("A", "B"), each = 4L)),
+                  b = factor(rep(c("a", "b"), 4L)))
+  f <- .prepare_cat_data
+  environment(f) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(total > 0)) && all(test))
+      stop("masked complete dense categorical denominators")
+    base::ifelse(test, yes, no)
+  }), parent = environment(f))
+  expect_identical(f(d, "a", "b", "percent", keep_empty = TRUE)$value, rep(50, 4L))
+  d$b <- factor(d$b, levels = c("a", "b", "empty"))
+  expect_identical(f(d, "a", "b", "percent", keep_empty = TRUE)$value, c(rep(50, 4L), 0, 0))
+})
