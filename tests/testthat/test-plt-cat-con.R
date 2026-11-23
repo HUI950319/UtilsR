@@ -2326,3 +2326,16 @@ test_that("complete background groups reuse consistency comparisons", {
   expect_identical(f(d, "g", "bg", .35, axis_levels = "a")$data,
                    .build_bg_layer(d, "g", "bg", .35, axis_levels = "a")$data)
 })
+
+test_that("a single complete sparse factor level uses a constant membership result", {
+  fn <- .cat_set_members
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && !anyNA(x) && length(table) == 1L) stop("unnecessary match in .cat_set_members")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  vals <- stats::setNames(factor(rep("keep", 4L), c("keep", paste0("u", 1:100))), letters[1:4])
+  expect_identical(fn(vals, "keep"), setNames(rep(TRUE, 4L), letters[1:4]))
+  expect_identical(fn(vals, "drop"), setNames(rep(FALSE, 4L), letters[1:4]))
+  vals[2L] <- NA
+  expect_identical(fn(vals, "keep"), setNames(c(TRUE, FALSE, TRUE, TRUE), letters[1:4]))
+})

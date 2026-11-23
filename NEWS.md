@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Set membership for a complete repeated sparse category avoids rematching its row codes.
+
 * Inspection only masks the distinct character dictionary when counting and displaying observed labels.
 
 * Logical inspection frequencies share one presence mask between labels and counts.
