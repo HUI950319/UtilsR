@@ -1168,3 +1168,15 @@ test_that("small plain P-value vectors bypass duplicate eligibility scans", {
   x <- rep(c(-0, 0, .95), 650L)
   expect_identical(fn(x, mode = "plain"), rep(c("-0.00", "0.00", "0.95"), 650L))
 })
+
+test_that("missing P-values do not force significance work above all limits", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("findInterval" = function(x, vec, ...) {
+    if (length(x) > 100L && !any(x < max(vec), na.rm = TRUE)) stop("unnecessary findInterval in stat_pval")
+    base::findInterval(x, vec, ...)
+  }), parent = environment(fn))
+  text <- rep(c("observed", "missing"), 600L)
+  expect_identical(fn(text, add_star_p = rep(c(.5, NA), 600L)), text)
+  expect_identical(fn(text, add_star_p = rep(NA_real_, length(text))), text)
+  expect_identical(fn("cell", add_star_p = .001), "cell***")
+})

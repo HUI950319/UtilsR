@@ -127,7 +127,7 @@ stat_pval <- function(x,
     .validate_signif_map(map)
     if (!length(map)) return(rep.int("", length(pvals)))
     if (is.unsorted(map)) map <- sort(map)
-    if (length(pvals) && !is.object(pvals) && isTRUE(min(pvals) > map[[length(map)]]))
+    if (!is.object(pvals) && min(Inf, pvals, na.rm = TRUE) > map[[length(map)]])
       return(rep.int("", length(pvals)))
     if (is.null(endpoints) && (!is.object(pvals) || identical(class(pvals), "AsIs"))) {
       index <- findInterval(pvals, map, left.open = TRUE) + 1L
