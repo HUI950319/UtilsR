@@ -976,7 +976,7 @@ plt_con <- function(data,
   available <- if (ordinary_factor) {
     group_levels[tally$codes]
   } else if (!is.object(groups) && !anyNA(groups)) {
-    unique(as.character(groups))
+    unique(if (is.character(groups) && is.null(dim(groups))) groups else as.character(groups))
   } else unique(as.character(groups[!is.na(groups)]))
   pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) group_levels[pair] else pair)
   keep <- vapply(pairs, function(pair) {

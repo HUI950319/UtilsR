@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pairwise comparison validation deduplicates existing character groups without reconverting them.
+
 * Axis text settings reuse the side-specific theme keys as each inherited element is updated.
 
 * Scale detection uses the same mapping identifier for data lookup and for promise checks.

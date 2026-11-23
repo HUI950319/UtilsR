@@ -2833,3 +2833,16 @@ test_that("one ordinary continuous-bar group skips splitting", {
   expect_identical(fn(x, rep(c("a", "b"), length.out = length(x))),
                    .con_bar_range(x, rep(c("a", "b"), length.out = length(x))))
 })
+
+test_that("ordinary text groups supply their existing labels to pairwise validation", {
+  fn <- .con_comparisons
+  environment(fn) <- list2env(list("as.character" = function(x, ...) {
+    if (identical(substitute(x), quote(groups)) && is.character(x)) stop("unnecessary as.character in .con_comparisons")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  groups <- rep(c("a", "b"), each = 6L)
+  x <- c(1:6, 8:13)
+  out <- fn(list(c("a", "b")), groups, "value", x, "t.test")
+  expect_identical(out[[1L]], c("a", "b"))
+  expect_length(out, 1L)
+})
