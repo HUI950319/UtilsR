@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter grouping derives nonmissing character, integer and logical levels directly from numeric group IDs.
+
 * Point sampling only checks fixed aesthetic lengths when controls are supplied.
 
 * Point sampling uses the full row sequence directly when a factor defines one complete stratum.

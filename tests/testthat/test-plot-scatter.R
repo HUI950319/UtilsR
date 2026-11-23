@@ -2175,3 +2175,17 @@ test_that("automatic scatter histograms reuse the paired difference extrema", {
   f(d, "x", "y", "g", test_method = "none", cor_method = "none")
   expect_identical(hits, 1L)
 })
+
+test_that("plain incomplete grouping uses one typed scatter dictionary", {
+  original <- vctrs::vec_unique
+  local_mocked_bindings(vec_unique = function(x, ...) {
+    if (is.atomic(x) && !is.object(x) && anyNA(x))
+      stop("looked up incomplete ordinary groups separately")
+    original(x, ...)
+  }, .package = "vctrs")
+  for (x in list(c("b", NA, "a", "b"), c(3L, NA, 1L, 3L), c(TRUE, NA, FALSE, TRUE))) {
+    names(x) <- letters[1:4]
+    expect_identical(.scatter_group_factor(x), factor(x, levels = unique(x)))
+  }
+  expect_identical(.scatter_group_factor(c(NA_character_, NA_character_)), factor(rep(NA_character_, 2L)))
+})
