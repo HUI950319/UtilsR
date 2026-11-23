@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plots of a single incomplete column bypass alphabetical sorting of variable names.
+
 * Butterfly bars retain their merged values without building a missing mask for complete grids.
 
 * Circular plots use one set of matched positions when restoring labels for distinct numeric group keys.

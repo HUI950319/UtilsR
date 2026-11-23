@@ -755,3 +755,17 @@ test_that("complete missingness name maps skip a fallback mask", {
   expect_setequal(levels(result$data$label), c("First", "Second"))
   expect_setequal(levels(fn(d, name.map = c(a = "First"), output = "matrix")$data$label), c("First", "b"))
 })
+
+test_that("single missingness variables do not compute a sorting permutation", {
+  fn <- plt_na
+  environment(fn) <- list2env(list("sort" = function(x, ...) {
+    if (identical(substitute(x), quote(missing_vars)) && length(x) == 1L) stop("unnecessary sort in plt_na")
+    base::sort(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(z = c(NA, 1, 2), a = c(1, 4, 8))
+  p <- fn(d, output = "percentage")
+  expect_identical(levels(p$data$label), "z")
+  expect_equal(p$data$num, c(2, 1))
+  d$a[2L] <- NA
+  expect_identical(levels(fn(d, output = "percentage")$data$label), c("a", "z"))
+})

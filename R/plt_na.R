@@ -159,8 +159,8 @@ plt_na <- function(
     return(NULL)
   }
 
-  counts <- missing_counts[sort(missing_vars, method = "radix")]
-  ordering <- order(counts, decreasing = sort == "desc")
+  counts <- missing_counts[if (length(missing_vars) == 1L) missing_vars else sort(missing_vars, method = "radix")]
+  ordering <- if (length(counts) == 1L) 1L else order(counts, decreasing = sort == "desc")
   ordered_names <- names(counts)[ordering]
   display_labels <- map_name(ordered_names)
   variable_levels <- if (anyDuplicated(display_labels)) make.unique(display_labels) else display_labels
