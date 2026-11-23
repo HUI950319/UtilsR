@@ -198,8 +198,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     stringsAsFactors = FALSE
   )
 
-  failed <- is.na(object_info$Size)
-  if (any(failed)) {
+  failed <- if (anyNA(object_info$Size)) is.na(object_info$Size)
+  if (length(failed)) {
     reasons <- vapply(object_metrics[failed], `[[`, character(1), "error")
     warning("Could not inspect objects: ",
             paste0(object_info$Object[failed], " (", reasons, ")", collapse = ", "),
@@ -212,7 +212,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   object_count <- nrow(object_info)
   total_mb <- sum(object_info$Size)
   if (method == "lobstr" && object_count > 1L) {
-    values <- unname(lapply(object_metrics[!failed], `[[`, "value"))
+    readable <- if (length(failed)) object_metrics[!failed] else object_metrics
+    values <- unname(lapply(readable, `[[`, "value"))
     total_bytes <- do.call(lobstr::obj_size, c(values, list(env = envir)), quote = TRUE)
     total_mb <- as.numeric(total_bytes) / (1024^2)
   }

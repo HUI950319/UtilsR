@@ -684,3 +684,17 @@ test_that("size reports use one shared summary row position", {
   expect_identical(seen, 1L)
   expect_no_error(gt::as_raw_html(f(pattern = "^does_not_exist$", envir = env)))
 })
+
+test_that("complete size tables avoid a failure mask", {
+  fn <- check_size
+  environment(fn) <- list2env(list(is.na = function(x) {
+    if (identical(substitute(x), quote(object_info$Size)) && !anyNA(x))
+      stop("masked all readable object sizes")
+    base::is.na(x)
+  }), parent = environment(fn))
+  data <- list2env(list(a = integer(10), b = "x"), parent = emptyenv())
+  a <- fn(envir = data)
+  b <- check_size(envir = data)
+  expect_identical(a[["_data"]], b[["_data"]])
+  expect_gt(nrow(a[["_data"]]), 0L)
+})

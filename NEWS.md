@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Object size inspection skips row-length missing flags when every object is readable.
+
 * Rank plots use the returned ranks to flag highlighted items without concatenating two logical vectors.
 
 * Rank plots check drawing sizes before sorting scores and building data, while data-only returns retain their existing behavior.
