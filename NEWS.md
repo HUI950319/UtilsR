@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plots prune empty score vectors only when group selection has produced one.
+
 * Empty P-value inputs return their empty result while still validating requested significance thresholds.
 
 * Scale inference carries the base axis mapping and data through layer inspection.

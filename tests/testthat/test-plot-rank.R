@@ -1029,3 +1029,16 @@ test_that("complete rank group locations need no sequence comparison", {
   expect_identical(f(d, "Group", "Label", "Score", "solo"),
                    list(solo = stats::setNames(d$Score[-1L], d$Label[-1L])))
 })
+
+test_that("rank score lists keep all nonempty groups without slicing", {
+  d <- data.frame(Group = rep(c("a", "b"), each = 4L), Label = letters[1:8], Score = 1:8)
+  f <- PlotRank
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(score_list)) && is.logical(i) && all(i))
+      stop("sliced a complete rank group list")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  expect_identical(f(d, group_col = "Group", name_col = "Label", value_col = "Score", return_type = "data"), PlotRank(d, group_col = "Group", name_col = "Label", value_col = "Score", return_type = "data"))
+  d$Score[5:8] <- NA_integer_
+  expect_equal(nrow(f(d, group_col = "Group", name_col = "Label", value_col = "Score", return_type = "data")), 4L)
+})

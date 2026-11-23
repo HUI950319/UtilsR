@@ -193,7 +193,8 @@ PlotRank <- function(
     if (!is.object(v) && !anyNA(v)) return(v)
     v[!is.na(v)]
   })
-  score_list <- score_list[lengths(score_list) > 0L]
+  nonempty <- lengths(score_list) > 0L
+  if (!all(nonempty)) score_list <- score_list[nonempty]
   if (!length(score_list)) stop("No valid scores remain after group selection.", call. = FALSE)
 
   # ---- Keep original full ranges for "group" scaling ----
