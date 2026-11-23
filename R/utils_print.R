@@ -180,6 +180,7 @@
 # factors, dates and other classed vectors through their as.character()
 ._as_text <- function(v) {
   v <- ._pr_restore(v)
+  if (is.character(v) && is.null(attributes(v))) return(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
   if (!is.object(v) && (is.character(v) || is.numeric(v) || is.logical(v)) && !anyNA(v)) {
     return(as.character(v))

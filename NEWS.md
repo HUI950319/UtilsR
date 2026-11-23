@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console text conversion preserves plain character vectors and their missing values without coercing or masking them.
+
 * Console width checks avoid building the duplicate expansion index when all labels already fit.
 
 * Sankey stages with one level keep their existing codes when reversed.

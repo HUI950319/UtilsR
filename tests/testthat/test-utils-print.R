@@ -2535,3 +2535,15 @@ test_that("fitting repeated console labels defer reverse lookup", {
   y <- setNames(rep(c("small", strrep("z", 25)), 1000L), names(x))
   expect_identical(fn(y, 10L), ._pr_trim(y, 10L))
 })
+
+test_that("ordinary bare text retains its existing missing strings", {
+  fn <- ._as_text
+  environment(fn) <- list2env(list("as.character" = function(x, ...) {
+    if (is.character(x) && is.null(attributes(x))) stop("unnecessary as.character in ._as_text")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  x <- rep(c("NA", NA_character_, "plain", "论文"), 200L)
+  expect_identical(fn(x), x)
+  expect_identical(fn(setNames(x, seq_along(x))), unname(x))
+  expect_identical(fn(factor(c("a", NA), exclude = NULL)), c("a", "<NA>"))
+})
