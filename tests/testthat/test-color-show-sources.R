@@ -3496,3 +3496,17 @@ test_that("palette ramps decide alpha preservation from source minima", {
   expect_identical(f(c("#FF0000", "#0000FF"), at, 1), expected(c("#FF0000", "#0000FF"), FALSE))
   expect_identical(f(c("#FF000066", "#0000FF"), at, 1), expected(c("#FF000066", "#0000FF"), TRUE))
 })
+
+test_that("complete opaque console palettes avoid compositing flags", {
+  withr::local_options(cli.num_colors = 16777216L)
+  fn <- show_color
+  environment(fn) <- list2env(list("<" = function(e1, e2) {
+    if (length(e1) > 1L && identical(e2, 255L) && all(e1 == 255L))
+      stop("built opacity flags for opaque console swatches")
+    base::"<"(e1, e2)
+  }), parent = environment(fn))
+  vals <- c("#FF0F15", "royalblue", "#FFFFFF")
+  expect_identical(capture.output(fn(vals)), capture.output(show_color(vals)))
+  mixed <- c(vals, "#CCCCCC60")
+  expect_identical(capture.output(fn(mixed)), capture.output(show_color(mixed)))
+})

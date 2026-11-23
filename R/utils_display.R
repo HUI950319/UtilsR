@@ -838,7 +838,8 @@ show_color <- function(x, rev = FALSE) {
   }
 
   width <- console_width()
-  label_width <- if (any(rgba[4L, ] < 255L)) 9L else 7L
+  has_alpha <- ncol(rgba) > 0L && min(rgba[4L, ]) < 255L
+  label_width <- if (has_alpha) 9L else 7L
   padding <- max(0L, min(2L, width - label_width))
   left_pad <- if (padding >= 1L) " " else ""
   right_pad <- if (padding == 2L) " " else ""
@@ -871,9 +872,10 @@ show_color <- function(x, rev = FALSE) {
     }
     preview <- hex[ids]
     preview_rgb <- rgba[1:3, , drop = FALSE]
-    translucent <- rgba[4L, ] < 255L
-    if (any(translucent)) {
-      a <- rgba[4L, translucent] / 255
+    if (has_alpha) {
+      alpha <- rgba[4L, ]
+      translucent <- alpha < 255L
+      a <- alpha[translucent] / 255
       preview[translucent] <- grDevices::rgb(
         rgba[1L, translucent] * a + 255 * (1 - a),
         rgba[2L, translucent] * a + 255 * (1 - a),

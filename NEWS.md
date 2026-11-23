@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console colour previews only build opacity position flags when a decoded swatch has source transparency.
+
 * Rank-correlation reshaping only normalizes missing values and signed zeros when they can occur in the score vector.
 
 * Rank correlation uses existing method codes in factor order and retains the handling of unused and missing levels.
