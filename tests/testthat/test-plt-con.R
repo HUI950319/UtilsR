@@ -2687,3 +2687,13 @@ test_that("ordinary continuous panel limits skip unchanged coordinate cloning", 
   }, .package = "ggplot2")
   expect_identical(draw(p, coord), ref)
 })
+
+test_that("one dimensional dot counts reuse the vector keys", {
+  d <- data.frame(bin = c(9, 1, 9, 2, 1))
+  group <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), "bin")) stop("hashed a frame for one dot-count key")
+    group(x)
+  }, .package = "vctrs")
+  expect_identical(.con_dot_counts(d, "bin"), data.frame(bin = c(9, 1, 2), n = c(2L, 2L, 1L)))
+})

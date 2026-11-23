@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot counts use vector grouping directly when there is only one grouping variable.
+
 * Special-value counters use the marker predicate's existing missing-label semantics without rechecking each label.
 
 * Factor tallies with many unused levels extract distinct integer codes with a bounded dictionary.

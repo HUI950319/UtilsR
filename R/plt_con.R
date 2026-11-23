@@ -823,7 +823,7 @@ plt_con <- function(data,
 
 .con_dot_counts <- function(data, by) {
   groups <- data[by]
-  ids <- vctrs::vec_group_id(groups)
+  ids <- vctrs::vec_group_id(if (length(by) == 1L) groups[[1L]] else groups)
   n_keys <- attr(ids, "n")
   if (n_keys == length(ids)) {
     counts <- as.data.frame(groups)
