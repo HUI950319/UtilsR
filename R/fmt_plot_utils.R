@@ -631,7 +631,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
   } else {
     plot_objects <- unname(lapply(all_subplots, "[[", "plot"))
   }
-  layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
+  if (length(dots)) layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
   # As in wrap_plots(), axis titles follow an explicit `axes` unless given.
   if ("axes" %in% names(dots) && !"axis_titles" %in% names(dots)) {
     layout_args$axis_titles <- NULL

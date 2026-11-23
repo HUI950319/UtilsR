@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot flattening skips filtering inherited layout parameters if the call supplies no replacements.
+
 * Axis text formatting avoids trigonometric alignment calculations when horizontal and vertical justification are supplied.
 
 * Text formatting skips label recycling for ordinary input values matching the leaf count.

@@ -411,3 +411,15 @@ test_that("plot text uses already sized ordinary label vectors", {
   expect_identical(lapply(out, function(x) x$labels$title), list("One", "Two"))
   expect_identical(lapply(out, function(x) x$labels$subtitle), list("Shared", "Shared"))
 })
+
+test_that("flattening without overrides retains existing layout arguments", {
+  fn <- fmt_flatten
+  environment(fn) <- list2env(list("setdiff" = function(x, y) {
+    if (identical(substitute(x), quote(names(layout_args))) && !length(y)) stop("unnecessary setdiff in fmt_flatten")
+    base::setdiff(x, y)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot()
+  result <- fn(list(p, p))
+  expect_length(result, 2L)
+  expect_equal(fn(list(p, p), ncol = 1L)$patches$layout$ncol, 1L)
+})
