@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Tile axes with all tick labels omitted retain the complete band geometry and use missing break indices directly.
+
 * Stacked distributions divide by a single sum when all displayed counts belong to one x and facet combination.
 
 * Stacked distribution bars group unfaceted proportions directly by the x values.

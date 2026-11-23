@@ -730,3 +730,18 @@ test_that("complete axis tile colors skip empty fallback assignments", {
   local_mocked_bindings(.axis_tile_guide = fn)
   expect_true(nrow(axis_tile_rects(ggplot2::ggplotGrob(fmt_axisTile(axis_tile_plot(), axis_tile_colors)))) > 0L)
 })
+
+test_that("tile axes with no breaks skip empty label lookups", {
+  f <- .axis_tile_guide
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(x, c("a", "b")) && is.null(table)) stop("matched an axis without break labels")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  parent <- ggplot2::ggproto(NULL, ggplot2::GuideAxis, extract_key = function(...) NULL)
+  scale <- ggplot2::scale_x_discrete(limits = c("a", "b"), breaks = NULL)
+  guide <- f(parent, list(mode = "tile", check_names = FALSE))
+  key <- guide$extract_key(scale, "x")
+  expect_identical(key$.value, c("a", "b"))
+  expect_identical(key$.fmt_label, c(FALSE, FALSE))
+  expect_identical(key$.fmt_break_at, rep(NA_integer_, 2L))
+})

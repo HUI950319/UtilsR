@@ -3971,10 +3971,16 @@ fmt_axisTile <- function(plot,
       full <- data.frame(.value = values, .fmt_lower = positions - 0.5,
                            .fmt_upper = positions + 0.5)
       full[[aesthetic]] <- positions
-      index <- match(values, key$.value)
-      full$.label <- if (is.null(key)) rep(NA_character_, length(values)) else key$.label[index]
-      full$.fmt_label <- !is.na(index)
-      full$.fmt_break_at <- index
+      if (is.null(key)) {
+        full$.label <- NA_character_
+        full$.fmt_label <- FALSE
+        full$.fmt_break_at <- NA_integer_
+      } else {
+        index <- match(values, key$.value)
+        full$.label <- key$.label[index]
+        full$.fmt_label <- !is.na(index)
+        full$.fmt_break_at <- index
+      }
       full
     },
     extract_decor = function(scale, aesthetic, position, key, ...) {
