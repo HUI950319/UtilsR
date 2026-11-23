@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend mappings reuse a fully named unique aesthetic dictionary when no layer aesthetic is fixed.
+
 * Legend mapping skips recursive expression inspection on stats with no default aesthetics.
 
 * Strip relabelling skips deduplication when the input facet labels are already unique.

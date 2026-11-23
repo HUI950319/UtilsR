@@ -1315,3 +1315,16 @@ test_that("legend calculation keeps empty default mappings without callbacks", {
   expect_true("y" %in% names(actual))
   expect_identical(actual, .stat_calculated_aes(ggplot2::StatCount))
 })
+
+test_that("legend fixed-aesthetic filtering skips empty parameter sets", {
+  fn <- .legend_layer_mapping
+  environment(fn) <- list2env(list("setdiff" = function(x, y) {
+    if (identical(substitute(x), quote(names(mapping))) && !length(y)) stop("unnecessary setdiff in .legend_layer_mapping")
+    base::setdiff(x, y)
+  }), parent = environment(fn))
+  layer <- ggplot2::geom_point(ggplot2::aes(colour = x))
+  mapped <- fn(layer, ggplot2::aes(x, y))
+  expect_setequal(names(mapped), c("x", "y", "colour"))
+  layer$aes_params[["colour"]] <- "red"
+  expect_setequal(names(fn(layer, ggplot2::aes(x, y))), c("x", "y"))
+})
