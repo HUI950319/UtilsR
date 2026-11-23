@@ -2054,3 +2054,15 @@ test_that("distinct inspection labels need no numeric regrouping", {
   expect_true(any(grepl("1.25", text, fixed = TRUE)))
   expect_true(any(grepl("8.5", text, fixed = TRUE)))
 })
+
+test_that("sorted numeric frequency keys keep the original observed vector", {
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (!missing(i) && identical(substitute(x), quote(values)) &&
+        identical(substitute(i), quote(observed)) && identical(i, seq_along(x))) stop("unnecessary [ in lv.data.frame")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = rep(c(1, 2, 5, 7), 20L), y = rep(c(6, NA, 3, Inf), 20L))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

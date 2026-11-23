@@ -537,10 +537,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         distinct <- attr(ids, "n")
         unique_rows <- distinct == length(x)
         values <- if (unique_rows) x else x[!duplicated(ids)]
-        observed <- if (!anyNA(values) && !is.unsorted(values)) seq_along(values) else
+        observed <- if (anyNA(values) || is.unsorted(values))
           order(values, na.last = NA, method = "radix")
-        valid <- values[observed]
-        n <- if (unique_rows) rep.int(1L, length(observed)) else tabulate(ids, distinct)[observed]
+        valid <- if (is.null(observed)) values else values[observed]
+        n <- if (unique_rows) rep.int(1L, length(valid)) else {
+          counts <- tabulate(ids, distinct)
+          if (is.null(observed)) counts else counts[observed]
+        }
       } else {
         valid <- .get_levels(x, complete = !anyNA(x))
         n <- tabulate(match(x, valid), length(valid))
