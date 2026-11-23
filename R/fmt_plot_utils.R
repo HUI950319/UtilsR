@@ -108,6 +108,13 @@
         !inherits(pw_orig, c("patchwork", "spacer", "guide_area", "inset_patch", "wrapped_patch"))) {
       return(plot_list[[1L]])
     }
+    special <- c("patchwork", "spacer", "guide_area", "inset_patch", "wrapped_patch", "free_plot")
+    if (!was_patchwork && is.list(pw_orig) && !is.object(pw_orig) && is.null(dim(pw_orig)) &&
+        length(pw_orig) == length(plot_list) && all(vapply(pw_orig, function(p) {
+          inherits(p, "gg") && !inherits(p, special)
+        }, logical(1)))) {
+      return(stats::setNames(plot_list, names(pw_orig)))
+    }
     i <- 0L
     return(.map_plot_leaves(pw_orig, function(p) {
       i <<- i + 1L

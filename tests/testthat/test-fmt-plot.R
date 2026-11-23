@@ -372,3 +372,14 @@ test_that("facet column discovery distinguishes data and environment pronouns", 
     ggplot2::facet_wrap(ggplot2::vars(f = .data$cyl, g = .env$panel, h = .data[["gear"]]))
   expect_setequal(.plot_facet_columns(p), c("f", "g", "h", "cyl", "gear"))
 })
+
+test_that("flat plot lists restore names without recursive traversal", {
+  p <- ggplot2::ggplot() + ggplot2::labs(title = "Original")
+  a <- p + ggplot2::labs(title = "First")
+  b <- p + ggplot2::labs(title = "Second")
+  f <- .from_plot_list
+  environment(f) <- list2env(list(.map_plot_leaves = function(...) stop("remapped flat plot leaves")),
+                             parent = environment(f))
+  expect_identical(f(list(a, b), FALSE, FALSE, list(left = p, right = p), TRUE),
+                   list(left = a, right = b))
+})
