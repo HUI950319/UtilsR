@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop plots use existing row order directly in a single sector.
+
 * Wide sparse factor tallies use the row count when all rows have the same observed code.
 
 * Custom quality markers retain their candidate positions when a pattern makes no matches.

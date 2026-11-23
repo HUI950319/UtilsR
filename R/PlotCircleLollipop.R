@@ -334,7 +334,11 @@ PlotCircleLollipop <- function(
   total_gap <- (nlevels(df$group) - 1L) * gap_between + gap_after
   if (!is.finite(total_gap) || total_gap >= 360)
     stop("'gap_after' and 'gap_between' must leave a positive angular span for sectors.", call. = FALSE)
-  sector_rows <- split(seq_len(nrow(df)), df$group)
+  sector_rows <- if (length(sector_keys) == 1L) {
+    stats::setNames(list(seq_len(nrow(df))), levels(df$group))
+  } else {
+    split(seq_len(nrow(df)), df$group)
+  }
 
   # ---- Per-group x positions (uniform spacing within each sector) ----
   positions <- numeric(nrow(df))

@@ -1732,3 +1732,26 @@ test_that("a repeated circular group reads the first key without scanning duplic
   d$group <- NA_character_
   expect_error(fn(d, show_labels = FALSE), "must not be missing")
 })
+
+test_that("one sector draws the same points without splitting rows", {
+  withr::local_pdf(NULL)
+  d <- data.frame(group = "solo", name = letters[1:4], value = c(3, 1, 2, 4))
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(split = function(x, f, ...) {
+    if (identical(substitute(f), quote(df$group))) stop("split one circular sector before drawing")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  drawn <- list()
+  points <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    drawn[[length(drawn) + 1L]] <<- list(x = x, y = y)
+    points(x, y, ...)
+  }, .package = "circlize")
+  run <- function(f, mode) {
+    drawn <<- list()
+    f(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE, value_scale = mode)
+    drawn
+  }
+  expect_identical(run(fn, "none"), run(PlotCircleLollipop, "none"))
+  expect_identical(run(fn, "group"), run(PlotCircleLollipop, "group"))
+})
