@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* A one-sector circular plot assigns the unique-feature colour without comparing memberships.
+
 * Full-group circular scaling only partitions the original observations after top-N selection.
 
 * PlotScatter2 supplies inside shape-legend coordinates through the ggplot2 3.5 position interface.

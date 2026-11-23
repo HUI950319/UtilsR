@@ -1648,3 +1648,23 @@ test_that("unfiltered circular scales reuse their displayed groups", {
   f(d, value_scale = "group", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_equal(points, c(0, .25, 1, 0, .75, 1))
 })
+
+test_that("one circular sector skips membership comparisons", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = "A", name = c("a", "a", "b", "b"), value = c(.2, .3, .4, .5))
+  f <- PlotCircleLollipop
+  environment(f) <- list2env(list(unique = function(x, ...) {
+    if (identical(substitute(x), quote(df$name))) stop("looked up shared features inside one sector")
+    base::unique(x, ...)
+  }), parent = environment(f))
+  colors <- character()
+  draw <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    colors <<- c(colors, col)
+    draw(x, y, col = col, ...)
+  }, .package = "circlize")
+  f(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE, unique_color = "navy")
+  expect_length(colors, 4L)
+  expect_true(all(colors == "navy"))
+})

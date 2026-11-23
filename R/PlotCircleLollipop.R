@@ -442,14 +442,18 @@ PlotCircleLollipop <- function(
   # ---- Shared features for automatic colours and inner arcs ----
   custom_colors <- !is.null(color_col) && color_col %in% colnames(data)
   if (!custom_colors || show_links) {
-    features <- unique(df$name)
-    feature_ids <- match(df$name, features)
-    sectors <- as.integer(df$group)
-    missing <- is.na(df$name)
-    pairs <- data.frame(feature = feature_ids, sector = sectors)
-    if (any(missing)) pairs <- pairs[!missing, , drop = FALSE]
-    pairs <- vctrs::vec_unique(pairs)
-    shared <- !missing & tabulate(pairs$feature, length(features))[feature_ids] > 1L
+    if (length(sector_keys) == 1L) {
+      shared <- rep.int(FALSE, nrow(df))
+    } else {
+      features <- unique(df$name)
+      feature_ids <- match(df$name, features)
+      sectors <- as.integer(df$group)
+      missing <- is.na(df$name)
+      pairs <- data.frame(feature = feature_ids, sector = sectors)
+      if (any(missing)) pairs <- pairs[!missing, , drop = FALSE]
+      pairs <- vctrs::vec_unique(pairs)
+      shared <- !missing & tabulate(pairs$feature, length(features))[feature_ids] > 1L
+    }
   }
 
   if (custom_colors) {
