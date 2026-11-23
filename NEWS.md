@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial plots preserve numeric group identity without converting all observation values to labels.
+
 * Sankey percentages reuse one formatted label for nodes with the same proportion within a stage.
 
 * Butterfly category labels keep unclassed categories out of the date and duration adapters.

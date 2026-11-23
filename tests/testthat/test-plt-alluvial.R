@@ -863,7 +863,7 @@ test_that("alluvial missing checks avoid extra text conversions of ordinary colu
   }
   environment(fn) <- env
   p <- fn(d, cat_var = "stage", group = "group")
-  expect_identical(conversions, 1L)
+  expect_identical(conversions, 0L)
   expect_equal(sum(p$data$count), nrow(d))
   expect_identical(levels(p$data$.cat_var), c("1", "2"))
 })
@@ -1531,4 +1531,17 @@ test_that("alluvial removal counts reuse the retained-row mask", {
   }), parent = environment(fn))
   expect_message(p <- fn(d, "a", "g"), "Removed 2 rows")
   expect_equal(sum(p$data$count), 2)
+})
+
+test_that("ordinary numeric alluvial levels format only group keys", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(a = rep(c(1 + 2^-52, 1, 7), 12L), g = rep(c(TRUE, FALSE), 18L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(x, d$a)) stop("formatted every alluvial category observation")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  p <- fn(d, "a", "g", label_args = list(style = "none"))
+  expect_identical(levels(p$data$.cat_var), format(unique(d$a), digits = 17, trim = TRUE))
+  expect_identical(levels(p$data$.group)[c(1L, 3L)], c("TRUE", "FALSE"))
 })

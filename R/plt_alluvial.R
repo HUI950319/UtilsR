@@ -458,9 +458,14 @@ plt_alluvial <- function(
       new_codes <- cumsum(observed)
       return(structure(new_codes[codes], levels = value_levels[observed], class = class(value)))
     }
-    if (is.character(value) && !is.object(value)) {
+    if (!is.object(value) && typeof(value) %in% c("character", "integer", "double", "logical")) {
       codes <- vctrs::vec_group_id(value)
-      value_levels <- if (attr(codes, "n") == length(value)) value else value[!duplicated(codes)]
+      n_levels <- attr(codes, "n")
+      keys <- if (n_levels == length(value)) value else if (n_levels == 1L) value[1L] else
+        value[!duplicated(codes, nmax = n_levels)]
+      value_levels <- as.character(keys)
+      if (anyDuplicated(value_levels))
+        value_levels <- make.unique(format(keys, digits = 17, trim = TRUE))
       return(structure(as.integer(codes), levels = unname(value_levels), class = "factor"))
     }
     value_chr <- as.character(value)
