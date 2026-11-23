@@ -829,7 +829,8 @@ plt_con <- function(data,
     counts <- as.data.frame(groups)
     counts$n <- rep.int(1L, n_keys)
   } else {
-    counts <- as.data.frame(groups[!duplicated(ids), , drop = FALSE])
+    first <- if (n_keys == 1L) 1L else !duplicated(ids, nmax = n_keys)
+    counts <- as.data.frame(groups[first, , drop = FALSE])
     counts$n <- tabulate(ids, n_keys)
   }
   if (length(by) < 2L) {

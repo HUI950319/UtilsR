@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot counts avoid a row-length duplicate mask when all rows share a bin.
+
 * Circular lollipop plots reject impossible angular gaps before allocating row groups.
 
 * Console trimming avoids re-expanding a deduplicated text vector when none of its labels needs trimming.

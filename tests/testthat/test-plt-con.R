@@ -2768,3 +2768,15 @@ test_that("matching dot size limits skip the plot restoration", {
                              parent = environment(f))
   expect_identical(f(plots), plots)
 })
+
+test_that("continuous dot counts take one representative for one key", {
+  fn <- .con_dot_counts
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(ids)) && attr(x, "n") == 1L)
+      stop("built duplicate flags for one dot bin")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(bin = rep(12, 3000L))
+  expect_identical(fn(d, "bin"), data.frame(bin = 12, n = 3000L))
+  expect_identical(fn(rbind(d, data.frame(bin = -1)), "bin"), data.frame(bin = c(12, -1), n = c(3000L, 1L)))
+})
