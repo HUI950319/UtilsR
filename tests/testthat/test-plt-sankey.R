@@ -1158,3 +1158,17 @@ test_that("equal Sankey proportions use one percentage formatting call", {
     label_args = list(pct_accuracy = .1), theme_use = ggplot2::theme_void()))
   expect_identical(levels(p$data$label), paste0(c(rev(letters[1:5]), rev(LETTERS[1:5])), " (20.0%)"))
 })
+
+test_that("uncontested Sankey stage names are used directly", {
+  fn <- plt_sankey
+  environment(fn) <- list2env(list("make.unique" = function(names, ...) {
+    if (identical(names, c("a", "b", "a_label", "b_label"))) stop("unnecessary make.unique in plt_sankey")
+    base::make.unique(names, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = c("yes", "no", "yes"), b = c("x", "x", "z"))
+  p <- fn(d, theme_use = ggplot2::theme_void(), vars = c(a = "First", b = "Second"))
+  expect_identical(levels(p$data$x), c("a_label", "b_label"))
+  expect_identical(unname(p$scales$get_scales("x")$labels), c("First", "Second"))
+  names(d)[2L] <- "a_label"
+  expect_identical(fn(d, theme_use = ggplot2::theme_void(), vars = names(d))$data, plt_sankey(d, theme_use = ggplot2::theme_void(), vars = names(d))$data)
+})

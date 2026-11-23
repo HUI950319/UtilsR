@@ -265,11 +265,15 @@ plt_sankey <- function(data,
   }
 
   # Add count + percentage labels to each variable
-  label_vars <- utils::tail(make.unique(c(names(data), paste0(vars, "_label"))), length(vars))
+  default_labels <- paste0(vars, "_label")
+  labels_collide <- any(default_labels %in% names(data))
+  label_vars <- if (labels_collide) {
+    utils::tail(make.unique(c(names(data), default_labels)), length(vars))
+  } else default_labels
   if (!is.null(var_labels)) {
     names(var_labels) <- label_vars
-  } else if (any(label_vars != paste0(vars, "_label"))) {
-    var_labels <- stats::setNames(paste0(vars, "_label"), label_vars)
+  } else if (labels_collide) {
+    var_labels <- stats::setNames(default_labels, label_vars)
   }
   node_labels <- node_pct <- vector("list", length(vars))
   observed_levels <- integer(length(vars))
