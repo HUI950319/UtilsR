@@ -1050,3 +1050,18 @@ test_that("rank plot size checks do not inspect input data", {
   expect_error(PlotRank(stop("rank data were evaluated"), return_type = "data",
                         filename = tempfile(fileext = ".pdf"), label_size = -1), "label_size")
 })
+
+test_that("rank top markers reuse the returned rank sequence", {
+  fn <- PlotRank
+  environment(fn) <- list2env(list("rep" = function(x, ...) {
+    if (is.logical(x) && length(x) == 1L && !is.na(x)) stop("unnecessary rep in PlotRank")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  x <- setNames(seq_len(12L), letters[1:12])
+  for (k in c(0L, 4L, 30L)) {
+    result <- fn(x, top_n = k, max_show = 9L, return_type = "data")
+    expect_identical(result$Rank, 1:9)
+    expect_identical(result$IsTop, seq_len(9L) <= k)
+    expect_identical(unname(result$Score), 12:4)
+  }
+})
