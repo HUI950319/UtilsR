@@ -561,7 +561,9 @@ PlotScatter1 <- function(
     ids <- vctrs::vec_group_id(value)
     codes <- as.integer(ids)
     names(codes) <- names(value)
-    values <- if (attr(ids, "n") == length(value)) value else value[!duplicated(ids)]
+    n_groups <- attr(ids, "n")
+    values <- if (n_groups == length(value)) value else
+      if (n_groups == 1L) value[1L] else value[!duplicated(ids, nmax = n_groups)]
     if (is.double(values)) values <- .butterfly_category_labels(values)
     return(structure(codes, levels = as.character(values), class = "factor"))
   }

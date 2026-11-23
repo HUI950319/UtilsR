@@ -2114,3 +2114,17 @@ test_that("automatic scatter histogram endpoints avoid a finite difference copy"
   d$Treat[1L] <- NA
   expect_identical(draw(fn, d), draw(PlotScatter3, d))
 })
+
+test_that("scatter bounds first-occurrence hashing by observed groups", {
+  x <- stats::setNames(rep(c(1 + 2^-52, 1, Inf), 5), letters[1:15])
+  fn <- .scatter_group_factor
+  environment(fn) <- list2env(list(duplicated = function(x, ..., nmax = NA_integer_) {
+    if (is.integer(x) && length(x) == 15L) expect_identical(nmax, 3L)
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  expected <- structure(rep(1:3, 5), names = names(x),
+                        levels = c("1.0000000000000002", "1", "Inf"), class = "factor")
+  expect_identical(fn(x), expected)
+  expect_identical(fn(rep("a", 20)), factor(rep("a", 20)))
+  expect_identical(fn(numeric()), factor())
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter grouping sizes its first-occurrence lookup by the number of observed levels and preserves the original labels.
+
 * UpSet list input reuses an already unique atomic member dictionary while still stripping its generated names.
 
 * Rank plotting retains full source vectors when the group includes every source row in order.
