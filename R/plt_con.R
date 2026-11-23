@@ -1731,14 +1731,15 @@ plt_con <- function(data,
   if (type == "violin") {
     groups <- vctrs::vec_group_id(dat_long[c("feature", "group.by")])
     counts <- tabulate(groups, nbins = attr(groups, "n"))
-    keep <- counts[groups] >= 2L
-    if (any(!keep)) {
-      omitted <- sum(counts == 1L)
+    eligible <- counts >= 2L
+    all_eligible <- all(eligible)
+    if (!all_eligible) {
+      omitted <- sum(!eligible)
       cli::cli_warn("Omitted violin density for {omitted} feature-group combination{?s} with < 2 obs.")
     }
-    if (any(keep)) {
+    if (any(eligible)) {
       p <- p + .con_component(ggplot2::geom_violin,
-        data = dat_long[keep, , drop = FALSE],
+        data = if (all_eligible) dat_long else dat_long[eligible[groups], , drop = FALSE],
         scale = "width", trim = TRUE, alpha = alpha,
         position = .con_component(ggplot2::position_dodge)
       )

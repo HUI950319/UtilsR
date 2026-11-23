@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked violins subset rows only when at least one feature-group combination has fewer than two observations.
+
 * Continuous comparison preflight slices user pairs and cached test results only after rejecting a comparison.
 
 * Plot formatters reuse modified leaves directly when their input is a flat ordinary plot list.

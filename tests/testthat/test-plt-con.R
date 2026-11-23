@@ -2729,3 +2729,17 @@ test_that("complete pairwise comparisons retain their existing list", {
                  "unavailable groups")
   expect_length(attr(part, ".con_test_cache"), 2L)
 })
+
+test_that("stacked violins reuse rows when all strata are estimable", {
+  d <- data.frame(x = 1:14, y = 21:34, g = rep(c("left", "right"), 7L))
+  f <- .plt_con_stacked
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (is.data.frame(x) && identical(substitute(x), quote(dat_long)) &&
+        identical(substitute(i), quote(keep)) && all(i))
+      stop("copied all complete stacked violin rows")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(f))
+  local_mocked_bindings(.plt_con_stacked = f, .package = "UtilsR")
+  p <- con_plot(d, c("x", "y"), "g", type = "violin", stack = TRUE)
+  expect_equal(nrow(p$layers[[1L]]$data), nrow(d) * 2L)
+})
