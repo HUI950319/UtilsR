@@ -481,7 +481,11 @@ fmt_point <- function(plot,
       aesthetic <- rlang::new_quosure(expr, rlang::get_env(aesthetic, default = baseenv()))
     }
     if (is_late(expr)) next
-    values <- rlang::eval_tidy(aesthetic, data = data)
+    column <- if (is.symbol(expr)) as.character(expr)
+    values <- if (identical(class(data), "data.frame") && length(column) &&
+                  !column %in% c(".data", ".env") && column %in% names(data)) {
+      data[[column]]
+    } else rlang::eval_tidy(aesthetic, data = data)
     if (inherits(values, "integer64") && !requireNamespace("bit64", quietly = TRUE))
       cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")
     if (!is.null(values) &&

@@ -1307,3 +1307,16 @@ test_that("fillable integer point panels avoid foreground row flags", {
   expect_s3_class(out, "points")
   expect_length(out$pch, 20L)
 })
+
+test_that("point sampling reads ordinary symbol grouping columns directly", {
+  d <- data.frame(x = 1:18, group = factor(rep(c("a", "b", "c"), 6L)))
+  mapping <- ggplot2::aes(group = group)
+  ref <- .fmt_point_sample(d, mapping, 2L, 73L)
+  evaluation <- rlang::eval_tidy
+  local_mocked_bindings(eval_tidy = function(expr, data = NULL, ...) {
+    if (identical(data, d) && identical(rlang::get_expr(expr), quote(group)))
+      stop("constructed a data mask for point grouping")
+    evaluation(expr, data = data, ...)
+  }, .package = "rlang")
+  expect_identical(.fmt_point_sample(d, mapping, 2L, 73L), ref)
+})
