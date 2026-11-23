@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Character sparklines count complete inputs directly and subset observations only when needed.
+
 * Console tables use finite extrema to set decimal significance when all observed values have the same sign.
 
 * Console tables use formatted text directly for columns whose displayed values have no missing cells.

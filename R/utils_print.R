@@ -1467,7 +1467,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         tab <- c("FALSE" = present - n_true, "TRUE" = n_true)
         tab <- tab[tab > 0L]
       } else {
-        ok <- v[!missing]
+        ok <- if (!is.object(v) && length(missing) == 1L && !missing) v else v[!missing]
         if (length(ok) > bins && !anyDuplicated(ok)) {
           return(c("", sprintf("%d unique values", length(ok)), na))
         }

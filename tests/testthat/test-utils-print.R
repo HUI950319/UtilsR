@@ -2425,3 +2425,16 @@ test_that("same-sign console numbers use scalar smallest magnitudes", {
   d <- data.frame(x = c(.5, 1e-7, .25), y = c(-.5, -1e-7, -.25))
   expect_identical(capture.output(fn(d, n = NULL, width = 75)), capture.output(pr_table(d, n = NULL, width = 75)))
 })
+
+test_that("complete character sparklines retain their value vector", {
+  fn <- pr_spark
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(v)) && identical(substitute(i), quote(!missing)) &&
+        length(i) == 1L && isTRUE(i) && is.character(x)) stop("copied complete sparkline categories")
+    base::"["(x, i, ...)
+  }), parent = environment(fn))
+  d <- data.frame(cat = rep(c("low", "mid", "high"), 40L))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+  d$cat[1L] <- NA_character_
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})
