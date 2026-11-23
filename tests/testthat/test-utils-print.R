@@ -2472,3 +2472,14 @@ test_that("factor identifier sparklines use the maximum count", {
   expect_identical(capture.output(fn(d, bins = 5L)), capture.output(pr_spark(d, bins = 5L)))
   expect_match(paste(capture.output(fn(d, bins = 5L)), collapse = " "), "26 unique values")
 })
+
+test_that("console tree reuses the standard attribute exclusion list", {
+  fn <- pr_tree
+  environment(fn) <- list2env(list(attr = function(x, which, ...) {
+    if (identical(which, "S7_class") && is.atomic(x) && !is.object(x))
+      stop("looked up an absent S7 descriptor for a tree leaf")
+    base::attr(x, which, ...)
+  }), parent = environment(fn))
+  d <- list(first = structure(2L, note = "alpha"), second = structure(c(1, 2), note = "beta"))
+  expect_identical(capture.output(fn(d)), capture.output(pr_tree(d)))
+})

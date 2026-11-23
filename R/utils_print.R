@@ -1039,13 +1039,14 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   # attributes beyond those a type keeps for itself (factor levels, a time
   # zone, value labels, a formula's environment, S7 properties), as str()
   # lists them on every node
+  standard <- c(drop_attr, "levels", "contrasts", "tzone", "units", "labels", "balanced",
+                ".Environment", ".internal.selfref", "S7_class")
   extra <- function(v) {
     attrs <- names(attributes(v))
     if (!length(attrs) || isS4(v) || is.environment(v) || is.function(v)) return(character())
-    own <- c(drop_attr, "levels", "contrasts", "tzone", "units", "labels", "balanced",
-             ".Environment", ".internal.selfref", "S7_class",
-             names(attr(attr(v, "S7_class", exact = TRUE), "properties", exact = TRUE)))
-    a <- setdiff(attrs, own)
+    properties <- if ("S7_class" %in% attrs)
+      names(attr(attr(v, "S7_class", exact = TRUE), "properties", exact = TRUE))
+    a <- setdiff(attrs, if (length(properties)) c(standard, properties) else standard)
     if (length(a) > 3L) c(a[1:3], cli::symbol$ellipsis) else a
   }
   rows <- new.env(parent = emptyenv())

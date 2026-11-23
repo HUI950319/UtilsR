@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tree formatting builds the standard attribute list once and adds S7 properties only for the nodes that carry them.
+
 * Inspection listings normalize the visible character labels before collapsing the remaining levels into their count.
 
 * Object size inspection reads selector expressions only when the call comes from the inspected environment.
