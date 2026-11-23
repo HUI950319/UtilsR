@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor conversion obtains repeated numeric labels directly with the observed dictionary size and retains exact floating-point labels.
+
 * Factor combinations find representative rows from their encounter-order IDs and size their lookup by the observed combination count.
 
 * Circular link and colour selection count exact feature-sector pairs without constructing a per-observation data frame when the keys fit.

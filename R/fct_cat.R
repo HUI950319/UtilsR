@@ -389,7 +389,9 @@ fct_cat <- function(x, ...,
   if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x))) {
     if (.pal_use_unique(x)) {
       ids <- vctrs::vec_group_id(x)
-      keys <- x[!duplicated(ids)]
+      n_keys <- attr(ids, "n")
+      keys <- if (n_keys == length(x)) x else if (n_keys == 1L) x[1L] else
+        unique(x, nmax = n_keys)
       order_at <- order(keys, na.last = NA)
       positions <- rep.int(NA_integer_, length(keys))
       positions[order_at] <- seq_along(order_at)

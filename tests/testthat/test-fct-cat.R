@@ -1106,3 +1106,15 @@ test_that("character factor orders reuse matched level positions", {
   expect_error(fn(x, c("nope", "nope")), "not found")
   expect_error(fn(x, c("c", "c")), "duplicated")
 })
+
+test_that("repeated ordinary numeric factors avoid row-wide dictionary flags", {
+  f <- .as_factor
+  environment(f) <- list2env(list(duplicated = function(x, ...) {
+    if (length(x) > 1000L) stop("built a row-wide flag for numeric factor labels")
+    base::duplicated(x, ...)
+  }), parent = environment(f))
+  x <- stats::setNames(rep(c(1.5, 1 + 2^-52, 1, NA_real_, NaN), 300L), as.character(1:1500))
+  expected <- structure(rep(c(3L, 2L, 1L, NA_integer_, NA_integer_), 300L),
+    names = names(x), levels = c("1", "1.0000000000000002", "1.5"), class = "factor")
+  expect_identical(f(x), expected)
+})
