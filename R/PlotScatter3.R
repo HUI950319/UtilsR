@@ -395,9 +395,12 @@ PlotScatter3 <- function(
     ggplot2::coord_cartesian(clip = "off")
 
   # ---- Histogram ----
+  diff_bounds <- if (length(diff_values) && (is.null(hist_x_limits) || is.null(median_line_yend))) {
+    c(min(diff_values), max(diff_values))
+  }
+  finite_bounds <- length(diff_bounds) && all(is.finite(diff_bounds))
   if (is.null(hist_x_limits)) {
-    bounds <- c(min(diff_values), max(diff_values))
-    if (!all(is.finite(bounds))) bounds <- suppressWarnings(range(diff_values, finite = TRUE))
+    bounds <- if (finite_bounds) diff_bounds else suppressWarnings(range(diff_values, finite = TRUE))
     if (!all(is.finite(bounds))) stop("No finite paired differences to plot.", call. = FALSE)
     hist_extent <- max(abs(bounds))
     if (hist_extent == 0) hist_extent <- 1
@@ -416,8 +419,7 @@ PlotScatter3 <- function(
   if (is.null(median_line_yend)) {
     lower <- hist_bin_breaks[1L]
     upper <- utils::tail(hist_bin_breaks, 1L)
-    complete <- length(diff_values) && !anyNA(diff_values) &&
-      min(diff_values) >= lower && max(diff_values) <= upper
+    complete <- finite_bounds && diff_bounds[1L] >= lower && diff_bounds[2L] <= upper
     visible <- if (complete) diff_values else
       diff_values[is.finite(diff_values) & diff_values >= lower & diff_values <= upper]
     median_line_yend <- 1

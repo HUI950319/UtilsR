@@ -2162,3 +2162,16 @@ test_that("unscaled scatter histograms do not divide their observations", {
   }), parent = environment(f))
   expect_no_error(f(d, "x", "y", "g", test_method = "none", cor_method = "none"))
 })
+
+test_that("automatic scatter histograms reuse the paired difference extrema", {
+  withr::local_pdf(NULL)
+  d <- data.frame(x = 1:8, y = c(2, 3, 1, 5, 5, 2, 8, 9), g = rep(c("A", "B"), each = 4L))
+  hits <- 0L
+  f <- PlotScatter3
+  environment(f) <- list2env(list(min = function(...) {
+    if (identical(as.list(substitute(list(...)))[[2L]], quote(diff_values))) hits <<- hits + 1L
+    base::min(...)
+  }), parent = environment(f))
+  f(d, "x", "y", "g", test_method = "none", cor_method = "none")
+  expect_identical(hits, 1L)
+})

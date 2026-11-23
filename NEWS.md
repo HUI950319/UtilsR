@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter histograms share paired-difference extrema between automatic limits and their visibility check.
+
 * Scatter difference histograms skip copying observations and breaks on the ordinary unit scale.
 
 * Rank data preparation reuses a full group's observations from its known row locations.
