@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation groups ordinary method labels and encodes their rows in one lookup while retaining factor level order.
+
 * One-sector circular selections pass scores directly to top-N selection, preserving the order of ties.
 
 * A one-sector circular plot assigns the unique-feature colour without comparing memberships.

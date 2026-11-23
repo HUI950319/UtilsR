@@ -1511,3 +1511,15 @@ test_that("finite rank aesthetic pairs skip missing pair masks", {
   d$weight[2L] <- NA_real_
   expect_identical(draw(fn, d), draw(PlotRankCor, d))
 })
+
+test_that("plain rank method rows reuse exact codes", {
+  d <- rank_cor_data()
+  d$method <- as.character(d$method)
+  match_keys <- vctrs::vec_match
+  local_mocked_bindings(vec_match = function(needles, haystack, ...) {
+    if (identical(substitute(needles), quote(method_values))) stop("rematched the rank method field")
+    match_keys(needles, haystack, ...)
+  }, .package = "vctrs")
+  p <- quiet_rank_cor(d)
+  expect_equal(nrow(p$data), length(unique(d$item)))
+})
