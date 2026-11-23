@@ -1301,7 +1301,7 @@ plt_cat <- function(data,
     group_values <- as.character(groups)
     if (is.null(axis_levels)) {
       axis_levels <- levels(if (is.factor(groups)) groups else factor(groups))
-      axis_levels <- axis_levels[!is.na(axis_levels)]
+      if (anyNA(axis_levels)) axis_levels <- axis_levels[!is.na(axis_levels)]
       if (anyNA(group_values)) axis_levels <- c(axis_levels, NA_character_)
     }
     group_codes <- match(group_values, axis_levels)

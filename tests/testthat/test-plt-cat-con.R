@@ -2378,3 +2378,15 @@ test_that("complete categorical palettes skip missing-colour lookups", {
   d$status[1L] <- NA
   expect_identical(draw(fn, d)$data, draw(plt_cat, d)$data)
 })
+
+test_that("complete background axes reuse their levels without a missing mask", {
+  fn <- .build_bg_layer
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(axis_levels)) && !anyNA(x)) stop("unnecessary is.na in .build_bg_layer")
+    base::is.na(x)
+  }), parent = environment(fn))
+  d <- data.frame(g = c("a", "b", "b"), bg = c("shade", "clear", "clear"))
+  layer <- fn(d, "g", "bg", .2)
+  expect_identical(layer$data, .build_bg_layer(d, "g", "bg", .2)$data)
+  expect_equal(nrow(layer$data), 2)
+})

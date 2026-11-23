@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical background bands only filter implicit missing axis labels when those labels occur.
+
 * Categorical palette construction only compares labels with a nonempty missing-level set.
 
 * Sparse percentage counts use their sorted subgroup codes to detect groups containing one cell.
