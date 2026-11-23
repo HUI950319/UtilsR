@@ -1533,3 +1533,17 @@ test_that("anchored interval parsing reuses the known match origin", {
   expect_identical(parsed$trailing, c(FALSE, TRUE, FALSE, FALSE))
   expect_identical(parsed$estimate, c(.2, 4, NA_real_, NA_real_))
 })
+
+test_that("repeated identical confidence intervals reuse a single parse index", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (length(table) == 1L && length(x) > 1024L) stop("unnecessary match in .ci_extract")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- "0.2 [0.1, 0.7]"
+  out <- fn(rep(x, 1200L))
+  one <- fn(x)
+  expect_identical(out$estimate, rep(one$estimate, 1200L))
+  expect_identical(out$unit, one$unit[rep.int(1L, 1200L), , drop = FALSE])
+  expect_identical(out$trailing, rep(FALSE, 1200L))
+})
