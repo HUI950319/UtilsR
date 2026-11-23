@@ -5735,8 +5735,9 @@ fmt_his <- function(plot,
   fn <- getExportedValue("ggplot2", fn_name)
   arg_names <- names(args)
   arg_calls <- arg_calls[arg_names]
-  allowed <- setdiff(names(formals(fn)), "...")
-  if ("..." %in% names(formals(fn))) {
+  constructor_args <- names(formals(fn))
+  allowed <- setdiff(constructor_args, "...")
+  if ("..." %in% constructor_args) {
     forwarded <- if (grepl("_discrete$", fn_name)) ggplot2::discrete_scale else ggplot2::continuous_scale
     allowed <- union(allowed, setdiff(names(formals(forwarded)), "..."))
   }

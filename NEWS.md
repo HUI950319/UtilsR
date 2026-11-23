@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Position scale updates reuse constructor argument names when including inherited options.
+
 * Tile axes with all tick labels omitted retain the complete band geometry and use missing break indices directly.
 
 * Stacked distributions divide by a single sum when all displayed counts belong to one x and facet combination.

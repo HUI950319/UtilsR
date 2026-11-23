@@ -621,3 +621,16 @@ test_that("literal data-pronoun scale inference uses column storage", {
   expect_identical(fn(p, "y", defer = TRUE), "scale_y_continuous")
   expect_identical(fn(p, "x"), "scale_x_discrete")
 })
+
+test_that("position scale validation reads constructor formals once", {
+  f <- .update_position_scale
+  seen <- 0L
+  environment(f) <- list2env(list(formals = function(fun) {
+    if (identical(substitute(fun), quote(fn))) seen <<- seen + 1L
+    base::formals(fun)
+  }), parent = environment(f))
+  scale <- f(NULL, list(limits = c(3, 7), name = "Numeric axis"), "x", "scale_x_continuous")
+  expect_identical(scale$limits, c(3, 7))
+  expect_identical(scale$name, "Numeric axis")
+  expect_identical(seen, 1L)
+})
