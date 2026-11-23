@@ -113,7 +113,8 @@
     }
   }
   over <- which(cli::ansi_nchar(working, type = "width") > width)
-  if (length(over)) working[over] <- cli::ansi_strtrim(working[over], width)
+  if (!length(over)) return(text)
+  working[over] <- cli::ansi_strtrim(working[over], width)
   if (is.null(lookup)) return(working)
   text[] <- working[lookup]
   text

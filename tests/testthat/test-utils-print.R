@@ -2509,3 +2509,16 @@ test_that("large P-value columns bypass near-cutoff rounding flags", {
   expect_identical(f(v), ._p_cells(v))
   expect_identical(f(c(.0002, .0099, .0499)), ._p_cells(c(.0002, .0099, .0499)))
 })
+
+test_that("repeated labels without width overflow keep their original vector", {
+  f <- ._pr_trim
+  environment(f) <- list2env(list("[<-" = function(x, i, ..., value) {
+    if (length(x) == 1400L && is.character(x) && all(nchar(x) < 20L))
+      stop("expanded complete repeat labels after a width check")
+    if (missing(i)) base::"[<-"(x, , ..., value = value) else base::"[<-"(x, i, ..., value = value)
+  }), parent = environment(f))
+  x <- stats::setNames(rep(c("first", "second"), 700L), seq_len(1400L))
+  expect_identical(f(x, width = 20L), x)
+  x2 <- rep(c("a", strrep("b", 25L)), 700L)
+  expect_identical(f(x2, width = 12L), ._pr_trim(x2, width = 12L))
+})
