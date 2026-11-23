@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor releveling replicates the remapped code when every row in a sparse dictionary uses the same level.
+
 * KNN checks native tibble columns for missing values and returns a complete tibble directly.
 
 * The printed system report and returned metadata use the same timestamp.

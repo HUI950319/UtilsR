@@ -1118,3 +1118,17 @@ test_that("repeated ordinary numeric factors avoid row-wide dictionary flags", {
     names = names(x), levels = c("1", "1.0000000000000002", "1.5"), class = "factor")
   expect_identical(f(x), expected)
 })
+
+test_that("sparse factors with one present code reuse the same remapped row code", {
+  d <- ordered(rep("x5", 15L), levels = paste0("x", 1:2000L))
+  f <- .relevel_factor
+  environment(f) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(tally$row_codes)) && !anyNA(x))
+      stop("rehash of one complete relevelled code")
+    base::match(x, table, ...)
+  }), parent = environment(f))
+  reordered <- rev(levels(d))
+  expect_identical(f(d, reordered), ordered(rep("x5", 15L), levels = reordered))
+  d[1L] <- NA
+  expect_identical(f(d, reordered), ordered(as.character(d), levels = reordered))
+})

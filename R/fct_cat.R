@@ -340,7 +340,10 @@ fct_cat <- function(x, ...,
       (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))) {
     tally <- .factor_tally(x)
     observed <- tally$codes
-    out <- match(old_levels[observed], new_levels)[match(tally$row_codes, observed)]
+    positions <- match(old_levels[observed], new_levels)
+    out <- if (length(observed) == 1L && tally$counts[[1L]] == length(x)) {
+      rep.int(positions, length(x))
+    } else positions[match(tally$row_codes, observed)]
   } else {
     out <- match(old_levels, new_levels)[x]
   }
