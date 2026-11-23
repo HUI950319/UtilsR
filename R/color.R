@@ -693,11 +693,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       values <- keys
     }
   }
-  at <- if (!is.finite(ends[[2L]] - ends[[1L]])) {
+  span <- ends[[2L]] - ends[[1L]]
+  at <- if (!is.finite(span)) {
     # Halving finite endpoints keeps their span representable.
     (values / 2 - ends[[1L]] / 2) / (ends[[2L]] / 2 - ends[[1L]] / 2)
   } else {
-    (values - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
+    (values - ends[[1L]]) / span
   }
   if (reverse) at <- 1 - at
   index <- NULL

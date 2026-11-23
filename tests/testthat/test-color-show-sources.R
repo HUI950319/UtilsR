@@ -3522,3 +3522,17 @@ test_that("missing palette values are discarded after establishing ordinary char
   expect_identical(fn(c(NA_character_, NA_character_)), character())
   expect_identical(fn(matrix(c("a", NA, "b", "a"), 2L)), c("a", "b"))
 })
+
+test_that("ordinary numeric palette ramps reuse the checked endpoint span", {
+  fn <- .pal_numeric_positions
+  endpoints <- 0L
+  environment(fn) <- list2env(list("-" = function(e1, e2) {
+    if (missing(e2)) return(base::"-"(e1))
+    if (identical(substitute(e1), quote(ends[[2L]])) && identical(substitute(e2), quote(ends[[1L]])))
+      endpoints <<- endpoints + 1L
+    base::"-"(e1, e2)
+  }), parent = environment(fn))
+  expect_identical(fn(c(-2, 0, 4), FALSE)$at, c(0, 1/3, 1))
+  expect_identical(endpoints, 1L)
+  expect_identical(fn(c(-1.5e308, 0, 1.5e308), TRUE)$at, c(1, .5, 0))
+})
