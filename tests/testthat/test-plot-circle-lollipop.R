@@ -1629,3 +1629,22 @@ test_that("circular score spans retain partly and wholly missing groups", {
   expect_error(fn(d, value_scale = "group", show_labels = FALSE), "circular layout reached")
   expect_error(fn(d, value_scale = "top_n", show_labels = FALSE, top_n = 2L), "circular layout reached")
 })
+
+test_that("unfiltered circular scales reuse their displayed groups", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("b", "a"), 3L), name = letters[1:6], value = c(1, 2, 3, 5, 9, 6))
+  f <- PlotCircleLollipop
+  environment(f) <- list2env(list(split = function(x, f, ...) {
+    if (identical(substitute(f), quote(original_group))) stop("resplit unfiltered circular groups")
+    base::split(x, f, ...)
+  }), parent = environment(f))
+  points <- numeric()
+  draw <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    points <<- c(points, y)
+    draw(x, y, ...)
+  }, .package = "circlize")
+  f(d, value_scale = "group", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_equal(points, c(0, .25, 1, 0, .75, 1))
+})

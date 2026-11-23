@@ -381,7 +381,7 @@ PlotCircleLollipop <- function(
       suppressWarnings(as.numeric(lo)) / 2
     out / (suppressWarnings(as.numeric(hi)) / 2 - suppressWarnings(as.numeric(lo)) / 2)
   }
-  original_rows <- if (value_scale == "group") {
+  original_rows <- if (value_scale == "group" && !is.null(selected)) {
     original_group <- if (anyNA(group_labels)) group_labels[group_ids] else
       structure(group_ids, levels = group_labels, class = "factor")
     split(seq_along(group_ids), original_group)
@@ -392,9 +392,8 @@ PlotCircleLollipop <- function(
     group_indices <- match(names(sector_rows), names(original_rows))
     for (i in seq_along(sector_rows)) {
       rows <- sector_rows[[i]]
-      reference <- if (value_scale == "group") {
+      reference <- if (is.null(original_rows)) scores[rows] else
         data_orig[[value_col]][original_rows[[group_indices[i]]]]
-      } else scores[rows]
       scaled[rows] <- scale_integer64(scores[rows], reference)
     }
     df$value <- scaled
@@ -405,9 +404,11 @@ PlotCircleLollipop <- function(
     group_indices <- match(names(sector_rows), names(original_rows))
     for (i in seq_along(sector_rows)) {
       rows <- sector_rows[[i]]
-      reference <- numeric_values[original_rows[[group_indices[i]]]]
+      values <- df$value[rows]
+      reference <- if (is.null(original_rows)) values else
+        numeric_values[original_rows[[group_indices[i]]]]
       bounds <- score_range(reference)
-      scaled[rows] <- scale_values(df$value[rows], bounds[1L], bounds[2L])
+      scaled[rows] <- scale_values(values, bounds[1L], bounds[2L])
     }
     df$value <- scaled
 
