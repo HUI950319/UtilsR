@@ -2353,3 +2353,15 @@ test_that("a single populated category pair uses one representative row", {
   expect_identical(as.character(out$stat_var), "yes")
   expect_identical(fn(d, "a", "b", "percent")$value, 100)
 })
+
+test_that("already sorted count groups identify single cells without hashing", {
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list("anyDuplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(j))) stop("unnecessary anyDuplicated in .prepare_cat_data")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(c("A", "B", "C")), b = factor(c("left", "middle", "right")))
+  expect_identical(fn(d, "a", "b", "percent")$value, rep(100, 3L))
+  d$b <- factor(c("left", "left", "right"))
+  expect_identical(fn(d, "a", "b", "percent")$value, c(50, 50, 100))
+})

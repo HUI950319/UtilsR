@@ -938,7 +938,7 @@ plt_cat <- function(data,
       n = counts
     )
     if (stat == "percent") {
-      if (length(j) && !anyDuplicated(j)) {
+      if (length(j) && !is.unsorted(j, strictly = TRUE)) {
         df$value <- rep.int(100, length(j))
         df$label_text <- rep.int(sprintf("%.1f%%", 100), length(j))
       } else {
