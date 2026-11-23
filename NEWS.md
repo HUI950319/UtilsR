@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval formatting identifies signed-zero candidates only when the rounded values can contain zero.
+
 * Opaque palette viewers calculate text contrast from their original RGB channels directly.
 
 * Palette opacity only constructs literal-NA replacement flags when the input contains that colour spelling.

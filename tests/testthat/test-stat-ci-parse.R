@@ -1484,3 +1484,13 @@ test_that("parsed finite intervals skip full component finiteness flags", {
   expect_identical(fn(x), .ci_extract(x))
   expect_identical(.ci_extract(c(x, "1e309 (0,2)"))$valid, c(rep(TRUE, length(x)), FALSE))
 })
+
+test_that("ordinary rounded CI values avoid zero flag allocation", {
+  f <- stat_ci_parse
+  environment(f) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(v == 0))) stop("flagged zero in a positive CI component")
+    base::which(x, ...)
+  }), parent = environment(f))
+  x <- c("2.50 (1.30,3.50)", "9.00 (7.80,10.20)")
+  expect_identical(f(x, output = "ci"), stat_ci_parse(x, output = "ci"))
+})
