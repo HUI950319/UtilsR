@@ -383,3 +383,19 @@ test_that("flat plot lists restore names without recursive traversal", {
   expect_identical(f(list(a, b), FALSE, FALSE, list(left = p, right = p), TRUE),
                    list(left = a, right = b))
 })
+
+test_that("scale inference reads the base mapping only once", {
+  p <- ggplot2::ggplot(data.frame(a = c("d", "u"), b = c(1, 2)), ggplot2::aes(a, b)) +
+    ggplot2::geom_vline(xintercept = 1) +
+    ggplot2::geom_vline(xintercept = 2) +
+    ggplot2::geom_point()
+  reads <- 0L
+  f <- .detect_scale_type
+  environment(f) <- list2env(list("$" = function(x, name) {
+    field <- as.character(substitute(name))
+    if (identical(substitute(x), quote(plot)) && identical(field, "data")) reads <<- reads + 1L
+    do.call(base::"$", list(x, field))
+  }), parent = environment(f))
+  expect_identical(f(p, "x"), "scale_x_discrete")
+  expect_identical(reads, 1L)
+})

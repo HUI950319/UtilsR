@@ -186,9 +186,11 @@
   }
 
   layers <- if (length(plot$layers)) plot$layers else list(NULL)
+  plot_mapping <- plot$mapping[[axis]]
+  plot_data <- plot$data
   for (layer in layers) {
-    var_quo <- plot$mapping[[axis]]
-    data <- plot$data
+    var_quo <- plot_mapping
+    data <- plot_data
     if (!is.null(layer)) {
       if (axis %in% names(layer$aes_params)) next
       if (!isTRUE(layer$inherit.aes) || axis %in% names(layer$mapping)) {
