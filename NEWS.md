@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console wrapping returns single printable ASCII lines directly when their width and spacing already fit.
+
 * Headers only filter converted components if a missing or empty part is present.
 
 * Console key-value output retains the original field and key vectors when no settings are NULL.

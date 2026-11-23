@@ -122,6 +122,9 @@
 ._pr_wrap <- function(text, width, exdent = 0L) {
   width <- max(1L, floor(width))
   if (anyNA(text)) text[is.na(text)] <- "NA"
+  if (length(text) == 1L && is.character(text) && is.null(attributes(text)) &&
+      nzchar(text) && nchar(text, type = "bytes") <= width &&
+      !grepl("^ | $| {2}|[^ -~]", text, useBytes = TRUE)) return(text)
   if (length(text) == 1L && grepl("\033", text, fixed = TRUE) &&
       cli::ansi_nchar(text, type = "width") == 0L) {
     plain <- cli::ansi_strip(text)

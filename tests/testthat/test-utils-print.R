@@ -2583,3 +2583,14 @@ test_that("a complete headline keeps all converted parts without slicing", {
   expect_identical(capture.output(fn("sample", "", "first", NA_character_, 8L)),
                    capture.output(pr_head("sample", "first", 8L)))
 })
+
+test_that("short ordinary lines bypass full ANSI word wrapping", {
+  original <- cli::ansi_strwrap
+  local_mocked_bindings(ansi_strwrap = function(x, ...) {
+    if (identical(x, "alpha beta")) stop("wrapped a short ordinary line")
+    original(x, ...)
+  }, .package = "cli")
+  expect_identical(._pr_wrap("alpha beta", 12L, exdent = 2L), "alpha beta")
+  expect_identical(._pr_wrap("alpha  beta", 18L), as.character(original("alpha  beta", width = 18L)))
+  expect_equal(paste0(._pr_wrap(strrep("论", 4L), 4L), collapse = ""), strrep("论", 4L))
+})
