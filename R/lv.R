@@ -553,7 +553,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       missing_n <- sum(tab$n[missing])
     }
     # Keep the full blank-label check when the preview contains a blank.
-    if (ordinary_factor && length(n) > 15L && all(nzchar(valid[1:14]))) {
+    if ((ordinary_factor || (is.character(valid) && !is.object(valid))) &&
+        length(n) > 15L && all(nzchar(valid[1:14]))) {
       valid <- valid[1:14]
     }
     # spans with their units, unpadded; date-times keep the time at midnight,

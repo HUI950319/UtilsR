@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection listings normalize the visible character labels before collapsing the remaining levels into their count.
+
 * Object size inspection reads selector expressions only when the call comes from the inspected environment.
 
 * KNN combines row availability without allocating an initial all-false vector.

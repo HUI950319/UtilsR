@@ -1999,3 +1999,18 @@ test_that("inspection cross-tabulations reuse a common formatted share", {
   draw <- function(f) cli::ansi_strip(utils::capture.output(suppressMessages(f(d, count = c("a", "b", "c")))))
   expect_identical(draw(fn), draw(lv.data.frame))
 })
+
+test_that("long character frequency listings render only labels shown", {
+  d <- data.frame(label = paste0("term_", 1:35))
+  f <- lv.data.frame
+  environment(f) <- list2env(list(as.character = function(x, ...) {
+    if (length(x) == 35L && is.call(substitute(x)) &&
+        identical(substitute(x)[[1L]], quote(.label_blank)))
+      stop("formatted all hidden character frequencies")
+    base::as.character(x, ...)
+  }), parent = environment(f))
+  do_print <- function(fn, x) cli::ansi_strip(capture.output(suppressMessages(fn(x))))
+  seen <- do_print(f, d)
+  expect_identical(seen, do_print(lv.data.frame, d))
+  expect_true(any(grepl("(21 others)", seen, fixed = TRUE)))
+})
