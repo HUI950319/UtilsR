@@ -735,3 +735,16 @@ test_that("factor combinations bound first-row lookup by their unique keys", {
   expect_identical(as.character(out), expected)
   expect_identical(fn(rep(TRUE, 12L), rep("a", 12L)), factor(rep("TRUE & a", 12L)))
 })
+
+test_that("ordered character combination keys skip a sorting permutation", {
+  x <- rep(c("alpha", "beta", "gamma"), 500L)
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list(order = function(...) {
+    if (identical(substitute(list(...)), quote(list(values))) && !is.unsorted(...))
+      stop("sorted a complete ordered character dictionary")
+    base::order(...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, rep(TRUE, length(x))), fct_to_combine(x, rep(TRUE, length(x))))
+  x <- rev(x)
+  expect_identical(fn(x, rep(TRUE, length(x))), fct_to_combine(x, rep(TRUE, length(x))))
+})

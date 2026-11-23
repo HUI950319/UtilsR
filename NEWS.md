@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations only create a character sorting permutation when the observed dictionary needs reordering.
+
 * Jaccard heatmaps reuse complete ordinary group dictionaries directly.
 
 * Discrete palettes remove missing values from the character dictionary instead of scanning and subsetting all observations.
