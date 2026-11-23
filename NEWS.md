@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* True-color previews apply a common foreground directly without a per-swatch selection.
+
 * Console colour previews avoid scanning duplicate occurrences when all decoded swatches are the same.
 
 * Palette previews reuse a full character dictionary when its attributes already match the displayed result.

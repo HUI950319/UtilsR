@@ -3584,3 +3584,16 @@ test_that("large repeated swatches choose one ANSI preview index", {
   expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
   expect_identical(capture.output(fn(x, rev = TRUE)), capture.output(show_color(x, rev = TRUE)))
 })
+
+test_that("a common foreground styles every ANSI preview directly", {
+  fn <- show_color
+  environment(fn) <- list2env(list("==" = function(e1, e2) {
+    if (identical(substitute(e1), quote(foreground_cols)) && length(unique(e1)) == 1L) stop("unnecessary == in show_color")
+    base::`==`(e1, e2)
+  }), parent = environment(fn))
+  withr::local_options(cli.num_colors = 16777216L)
+  x <- c("#000000", "#030609", "#051313")
+  expect_identical(capture.output(fn(x)), capture.output(show_color(x)))
+  mixed <- c(x, "white")
+  expect_identical(capture.output(fn(mixed)), capture.output(show_color(mixed)))
+})

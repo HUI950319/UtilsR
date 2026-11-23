@@ -957,9 +957,14 @@ show_color <- function(x, rev = FALSE) {
     }
     # Apply each true-colour foreground to its labels in one call.
     if (num_colors >= 16777216L) {
-      for (fg_col in unique(foreground_cols)) {
-        selection <- foreground_cols == fg_col
-        styled[selection] <- foreground[[fg_col]](styled[selection])
+      shared <- unique(foreground_cols)
+      if (length(shared) == 1L) {
+        styled <- foreground[[shared]](styled)
+      } else {
+        for (fg_col in shared) {
+          selection <- foreground_cols == fg_col
+          styled[selection] <- foreground[[fg_col]](styled[selection])
+        }
       }
     }
     if (!is.null(swatch_ids)) styled <- styled[as.integer(swatch_ids)]
