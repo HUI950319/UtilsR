@@ -639,7 +639,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     rgba <- t(grDevices::col2rgb(cols, alpha = TRUE))
     has_alpha <- alpha == 1 && rgba[1L, 4L] < 255
   } else {
-    has_alpha <- alpha == 1 && any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
+    has_alpha <- alpha == 1 && length(cols) &&
+      min(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ]) < 255L
     rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
   }
   opacity <- if (has_alpha) {

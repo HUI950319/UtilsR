@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette ramps detect source alpha without building a per-stop transparency vector.
+
 * Integer64 paired differences test complete ordinary double endpoints with scalar range checks before exact conversion.
 
 * Scatter histograms share paired-difference extrema between automatic limits and their visibility check.

@@ -3480,3 +3480,19 @@ test_that("opaque palette previews skip alpha compositing masks", {
   expect_identical(f(with_alpha, max_colors = 5L)$data,
                    .pal_show_colors(with_alpha, max_colors = 5L)$data)
 })
+
+test_that("palette ramps decide alpha preservation from source minima", {
+  f <- .pal_ramp
+  environment(f) <- list2env(list("<" = function(e1, e2) {
+    if (length(e1) > 1L && e2 == 255) stop("built a transparency flag per ramp stop")
+    base::"<"(e1, e2)
+  }), parent = environment(f))
+  at <- c(0, .25, 1)
+  expected <- function(cols, alpha) {
+    channels <- grDevices::colorRamp(cols, alpha = alpha)(at)
+    args <- unname(as.list(as.data.frame(channels)))
+    do.call(grDevices::rgb, c(args, maxColorValue = 255))
+  }
+  expect_identical(f(c("#FF0000", "#0000FF"), at, 1), expected(c("#FF0000", "#0000FF"), FALSE))
+  expect_identical(f(c("#FF000066", "#0000FF"), at, 1), expected(c("#FF000066", "#0000FF"), TRUE))
+})
