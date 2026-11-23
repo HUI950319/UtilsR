@@ -907,9 +907,11 @@ plt_cat <- function(data,
       stat_code <- stat_code[keep]
       group_code <- group_code[keep]
     }
-    ids <- if (prod(as.double(dimensions)) <= 2^53) {
-      cells <- stat_code + (group_code - 1) * dimensions[1L]
-      vctrs::vec_group_id(cells)
+    slots <- prod(as.double(dimensions))
+    ids <- if (slots <= .Machine$integer.max) {
+      vctrs::vec_group_id(stat_code + (group_code - 1L) * dimensions[1L])
+    } else if (slots <= 2^53) {
+      vctrs::vec_group_id(stat_code + (group_code - 1) * dimensions[1L])
     } else {
       vctrs::vec_group_id(data.frame(stat_code, group_code))
     }
@@ -949,9 +951,13 @@ plt_cat <- function(data,
       }
       return(dplyr::as_tibble(df))
     }
-    row_id <- (as.double(j) - 1L) * dimensions[1L] + i
-    rownames(df) <- if (all(row_id <= .Machine$integer.max)) as.integer(row_id) else
-      format(row_id, scientific = FALSE, trim = TRUE)
+    rownames(df) <- if (slots <= .Machine$integer.max) {
+      (j - 1L) * dimensions[1L] + i
+    } else {
+      row_id <- (as.double(j) - 1L) * dimensions[1L] + i
+      if (all(row_id <= .Machine$integer.max)) as.integer(row_id) else
+        format(row_id, scientific = FALSE, trim = TRUE)
+    }
     df$value <- df$n
     df$label_text <- as.character(df$n)
     return(df)

@@ -2275,3 +2275,16 @@ test_that("complete axis factor labels skip gathering their dictionary", {
   expect_identical(fn(x[1L]), .cat_axis_factor(x[1L]))
   expect_null(attr(fn(x), "label"))
 })
+
+test_that("sparse categorical cells stay integer in bounded grids", {
+  d <- data.frame(item = factor(c(1L, 1L, 100L, 100L), levels = seq_len(100L)),
+                  group = factor(c(5L, 5L, 1L, 8L), levels = seq_len(100L)))
+  id <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    expect_type(x, "integer")
+    id(x)
+  }, .package = "vctrs")
+  a <- .prepare_cat_data(d, "item", "group", "count")
+  expect_identical(rownames(a), c("100", "401", "800"))
+  expect_identical(a$n, c(1L, 2L, 1L))
+})
