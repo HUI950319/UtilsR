@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey percentages reuse one formatted label for nodes with the same proportion within a stage.
+
 * Butterfly category labels keep unclassed categories out of the date and duration adapters.
 
 * Alluvial missing-row notices use the count of retained rows directly.

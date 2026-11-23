@@ -297,7 +297,9 @@ plt_sankey <- function(data,
     observed_levels[i] <- if (anyNA(names_at)) sum(!is.na(names_at)) else length(names_at)
     proportion <- counts / total
     pct <- if (label_style %in% c("all", "all_wrap", "pct")) {
-      scales::percent(proportion, accuracy = label_args$pct_accuracy)
+      if (length(proportion) > 1L && min(proportion) == max(proportion)) {
+        rep.int(scales::percent(proportion[1L], accuracy = label_args$pct_accuracy), length(proportion))
+      } else scales::percent(proportion, accuracy = label_args$pct_accuracy)
     }
     labels <- switch(label_style,
       "all"  = sprintf("%s (%s, %s)", names_at, counts, pct),

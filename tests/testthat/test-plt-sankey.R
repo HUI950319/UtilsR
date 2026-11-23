@@ -1145,3 +1145,16 @@ test_that("adjacent Sankey nodes are laid out without row successor indexes", {
   expect_identical(fn(d, "a")$next_node, rep(NA_character_, 3L))
   expect_identical(fn(d[0L, ], names(d))$next_node, character())
 })
+
+test_that("equal Sankey proportions use one percentage formatting call", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = rep(letters[1:5], 5L), b = rep(LETTERS[1:5], each = 5L))
+  percent <- scales::percent
+  local_mocked_bindings(percent = function(x, ...) {
+    if (length(x) > 1L && all(x == .2)) stop("formatted every equal Sankey proportion")
+    percent(x, ...)
+  }, .package = "scales")
+  p <- suppressMessages(plt_sankey(d, names(d), show_text = "pct",
+    label_args = list(pct_accuracy = .1), theme_use = ggplot2::theme_void()))
+  expect_identical(levels(p$data$label), paste0(c(rev(letters[1:5]), rev(LETTERS[1:5])), " (20.0%)"))
+})
