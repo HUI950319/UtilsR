@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse categorical percentages divide directly by a shared sum when only one group is observed.
+
 * Sparse categorical counts use exact integer cell keys when the factor grid fits and widen only for larger grids.
 
 * Console trees store displayed child identifiers in one bounded vector and preserve the branch stubs for cut-off lines.

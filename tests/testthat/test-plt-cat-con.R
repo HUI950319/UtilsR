@@ -2288,3 +2288,14 @@ test_that("sparse categorical cells stay integer in bounded grids", {
   expect_identical(rownames(a), c("100", "401", "800"))
   expect_identical(a$n, c(1L, 2L, 1L))
 })
+
+test_that("one observed categorical group uses a shared count sum", {
+  d <- data.frame(a = factor(c("x", "y", "x", "z")),
+    b = factor(rep("one", 4L), levels = c("unused", "one")))
+  f <- .prepare_cat_data
+  environment(f) <- list2env(list(rowsum = function(...) stop("looked up a single categorical total")),
+                             parent = environment(f))
+  counts <- f(d, "a", "b", "percent")
+  expect_equal(counts$value, c(50, 25, 25))
+  expect_identical(counts$label_text, c("50.0%", "25.0%", "25.0%"))
+})

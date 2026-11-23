@@ -942,7 +942,9 @@ plt_cat <- function(data,
         df$value <- rep.int(100, length(j))
         df$label_text <- rep.int(sprintf("%.1f%%", 100), length(j))
       } else {
-        df$value <- if (!length(j)) logical() else {
+        df$value <- if (!length(j)) logical() else if (j[1L] == j[length(j)]) {
+          df$n / sum(df$n) * 100
+        } else {
           totals <- rowsum(as.double(df$n), j, reorder = FALSE)
           total <- unname(totals[match(j, as.integer(rownames(totals))), 1L])
           df$n / total * 100
