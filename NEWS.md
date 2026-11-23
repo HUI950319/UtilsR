@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation directly orders factor observations by code when the factor dictionary is strictly sorted.
+
 * Rank correlation pivots avoid a duplicate scan when the wide result has one item.
 
 * Batched reference lines keep ordinary style vectors that already have the required length.

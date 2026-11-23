@@ -1593,3 +1593,18 @@ test_that("rank correlation pivots take the first row for a single item", {
   expect_identical(run(fn)$data, run(PlotRankCor)$data)
   expect_identical(run(fn)$data$item, "solo")
 })
+
+test_that("rank pivot ordering keeps an already sorted factor dictionary", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(order = function(...) {
+    if (identical(substitute(list(...))[[2L]], quote(labels)) && !is.unsorted(list(...)[[1L]]))
+      stop("sorted a rank factor dictionary already in order")
+    base::order(...)
+  }), parent = environment(fn))
+  d <- rank_cor_data()
+  d$item <- factor(d$item)
+  run <- function(f, d) suppressMessages(f(d, "item", "score", method.by = "method", show.label = FALSE))
+  expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
+  d$item <- factor(d$item, levels = rev(levels(d$item)))
+  expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
+})

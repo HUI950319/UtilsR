@@ -417,6 +417,7 @@ PlotRankCor <- function(
   key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], function(x) {
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
       labels <- levels(x)
+      if (isFALSE(is.unsorted(labels, strictly = TRUE))) return(as.integer(x))
       if (!anyDuplicated(labels)) {
         ordering <- order(labels, na.last = TRUE)
         positions <- integer(length(labels))
