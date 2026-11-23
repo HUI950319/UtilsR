@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet selection with missing values enabled directly unions matches with the missing rows.
+
 * UpSet relabelling only allocates positions for set names that have replacements.
 
 * UpSet selection retains the observation factor codes and maps only the query dictionary.

@@ -411,9 +411,7 @@ plt_upset <- function(data,
       } else member_in(values, value_levels)
       if (is.atomic(values) && !is.object(values) && !anyNA(values)) return(which(selected))
       missing <- is.na(values)
-      member <- selected & !missing
-      if (missing_levels) member <- member | missing
-      which(member)
+      if (missing_levels) which(selected | missing) else which(selected & !missing)
     })
 
   } else {

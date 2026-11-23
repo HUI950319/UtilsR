@@ -1364,3 +1364,14 @@ test_that("set display labels reuse one name lookup", {
     c("a", "Group B", "a/Group B", "None"))
   expect_identical(as.character(run(c(elsewhere = "Other"))$intersect_group), c("a", "b", "a/b", "None"))
 })
+
+test_that("UpSet selections including missing values do not build an intermediate exclusion mask", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list("&" = function(e1, e2) {
+    if (identical(substitute(e1), quote(selected)) && identical(substitute(e2), quote(!missing))) stop("unnecessary & in plt_upset")
+    base::`&`(e1, e2)
+  }), parent = environment(fn))
+  d <- data.frame(a = c("yes", NA, "no"), b = c("no", "yes", NA))
+  result <- fn(d, vars = c("a", "b"), levels = c("yes", NA), output = "data")
+  expect_identical(as.character(result$intersect_group), c("a", "a/b", "b"))
+})
