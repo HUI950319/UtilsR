@@ -325,7 +325,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
     vctrs::vec_group_id(vctrs::new_data_frame(codes, n = group_n))
   }
   keys <- attr(ids, "n")
-  first <- if (keys != group_n) match(seq_len(keys), ids)
+  first <- if (keys != group_n) {
+    if (keys == 1L) 1L else which(!duplicated(ids, nmax = keys))
+  }
   ordering_codes <- if (is.null(first)) codes else lapply(codes, function(v) v[first])
   ord <- do.call(order, unname(ordering_codes))
   first <- if (is.null(first)) ord else first[ord]

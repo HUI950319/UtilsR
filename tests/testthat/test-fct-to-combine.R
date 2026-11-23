@@ -719,3 +719,19 @@ test_that("ordered character dictionaries keep existing group codes", {
   expect_identical(levels(result), paste(c("alpha", "epsilon", "zeta"), "TRUE", sep = " & "))
   expect_identical(as.integer(result), rep(1:3, 1024L))
 })
+
+test_that("factor combinations bound first-row lookup by their unique keys", {
+  a <- rep(c("north", "north", "west", "west"), 800L)
+  b <- rep(1:2, 1600L)
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(table), quote(ids))) stop("hashed every row to find distinct factor tuples")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expected <- paste(a, b, sep = " / ")
+  actual <- fct_to_combine(a[1:4], b[1:4], sep = " / ")
+  out <- fn(a, b, sep = " / ")
+  expect_identical(levels(out), levels(actual))
+  expect_identical(as.character(out), expected)
+  expect_identical(fn(rep(TRUE, 12L), rep("a", 12L)), factor(rep("TRUE & a", 12L)))
+})
