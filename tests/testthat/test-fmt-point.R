@@ -1291,3 +1291,19 @@ test_that("converted fill shapes skip mapping a second time", {
   expect_identical(f(21:25), 21:25)
   expect_identical(f(c(a = 19, b = 24, c = NA)), c(a = 21, b = 24, c = NA_real_))
 })
+
+test_that("fillable integer point panels avoid foreground row flags", {
+  f <- .fmt_point_draw_panel
+  environment(f) <- list2env(list("%in%" = function(x, table) {
+    if (identical(x, rep(21:25, 4L))) stop("built a foreground mask for filled point shapes")
+    base::"%in%"(x, table)
+  }), parent = environment(f))
+  p <- ggplot2::ggplot(data.frame(x = 1:20, s = rep(21:25, 4L)), ggplot2::aes(x, x, shape = I(s))) +
+    ggplot2::geom_point()
+  built <- ggplot2::ggplot_build(p)
+  d <- built$data[[1L]]
+  d$shape <- as.integer(d$shape)
+  out <- f(d, built$layout$panel_params[[1L]], built$layout$coord)
+  expect_s3_class(out, "points")
+  expect_length(out$pch, 20L)
+})

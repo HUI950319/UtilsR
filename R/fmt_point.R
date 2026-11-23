@@ -615,7 +615,10 @@ fmt_point <- function(plot,
 
 .fmt_point_draw_panel <- function(data, panel_params, coord, na.rm = FALSE) {
   base <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord, na.rm = na.rm)
-  draw_foreground <- !data$shape %in% 21:25
+  shapes <- data$shape
+  if (is.integer(shapes) && !is.object(shapes) && length(shapes) &&
+      isTRUE(min(shapes) >= 21L && max(shapes) <= 25L)) return(base)
+  draw_foreground <- !shapes %in% 21:25
   if (!any(draw_foreground)) return(base)
   foreground <- if (all(draw_foreground)) data else data[draw_foreground, , drop = FALSE]
   foreground$colour <- foreground$fill

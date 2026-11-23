@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* White-border point drawing uses the native filled-shape grob directly for panels whose integer shape codes are all fillable.
+
 * White-border point formatting keeps fillable numeric shapes in their existing storage.
 
 * Point sampling combines factor strata without expanding unused level labels, and keeps explicit and uncoded missing strata separate.
