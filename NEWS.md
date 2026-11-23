@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular axes obtain the single observed categorical key directly and bound duplicate indexing for multiple keys.
+
 * Factor combinations compare input lengths without hashing them.
 
 * Rank correlation avoids a full duplicate mask for one repeated display group.

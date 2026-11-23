@@ -1719,3 +1719,16 @@ test_that("circular row splitting follows angular gap validation", {
     name = letters[1:9], value = seq_len(9L))
   expect_error(fn(d, gap_after = 140, gap_between = 120), "positive angular span")
 })
+
+test_that("a repeated circular group reads the first key without scanning duplicates", {
+  withr::local_pdf(NULL)
+  d <- data.frame(group = "solo", name = c("one", "two", "three"), value = 1:3)
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(group_ids))) stop("masked every repeated circular group")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  expect_no_error(fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+  d$group <- NA_character_
+  expect_error(fn(d, show_labels = FALSE), "must not be missing")
+})
