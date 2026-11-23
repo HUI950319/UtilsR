@@ -449,10 +449,18 @@ PlotCircleLollipop <- function(
       feature_ids <- match(df$name, features)
       sectors <- as.integer(df$group)
       missing <- is.na(df$name)
-      pairs <- data.frame(feature = feature_ids, sector = sectors)
-      if (any(missing)) pairs <- pairs[!missing, , drop = FALSE]
-      pairs <- vctrs::vec_unique(pairs)
-      shared <- !missing & tabulate(pairs$feature, length(features))[feature_ids] > 1L
+      n_features <- length(features)
+      if (as.double(n_features) * length(sector_keys) <= 2^53) {
+        keys <- feature_ids + (sectors - 1) * n_features
+        first <- !duplicated(keys)
+        if (any(missing)) first[missing] <- FALSE
+        members <- if (all(first)) feature_ids else feature_ids[first]
+      } else {
+        pairs <- data.frame(feature = feature_ids, sector = sectors)
+        if (any(missing)) pairs <- pairs[!missing, , drop = FALSE]
+        members <- vctrs::vec_unique(pairs)$feature
+      }
+      shared <- !missing & tabulate(members, n_features)[feature_ids] > 1L
     }
   }
 

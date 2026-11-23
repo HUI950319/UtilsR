@@ -825,16 +825,16 @@ test_that("circular feature sharing is computed once for colours and links", {
   withr::local_pdf(NULL)
   d <- data.frame(group = c("A", "A", "B", "B"), name = c("shared", "a", "shared", "b"),
     value = c(.2, .4, .6, .8), col = "black")
-  original <- vctrs::vec_unique
+  fn <- PlotCircleLollipop
   checks <- 0L
-  local_mocked_bindings(vec_unique = function(x, ...) {
-    if (is.data.frame(x) && identical(names(x), c("feature", "sector"))) checks <<- checks + 1L
-    original(x, ...)
-  }, .package = "vctrs")
-  PlotCircleLollipop(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE)
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (identical(substitute(x), quote(keys))) checks <<- checks + 1L
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  fn(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE)
   expect_equal(checks, 1L)
   checks <- 0L
-  PlotCircleLollipop(d, color_col = "col", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  fn(d, color_col = "col", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_equal(checks, 0L)
 })
 
@@ -1686,4 +1686,27 @@ test_that("circular top selection skips grouping for one sector", {
   }, .package = "circlize")
   PlotCircleLollipop(d, top_n = 3L, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(seen, c(.7, .7, .4))
+})
+
+test_that("circular feature memberships use exact packed sector keys", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("left", "right"), each = 4L),
+    name = c("shared", "shared", "private-left", NA, "shared", "private-right", "private-right", NA),
+    value = seq(.1, .8, by = .1))
+  orig <- vctrs::vec_unique
+  local_mocked_bindings(vec_unique = function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c("feature", "sector")))
+      stop("built full circular feature-sector rows")
+    orig(x, ...)
+  }, .package = "vctrs")
+  actual <- character()
+  draw <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    actual <<- c(actual, col)
+    draw(x, y, col = col, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE,
+                     common_color = "red", unique_color = "black")
+  expect_identical(actual, c("red", "red", "black", "black", "red", "black", "black", "black"))
 })

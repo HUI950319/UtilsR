@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular link and colour selection count exact feature-sector pairs without constructing a per-observation data frame when the keys fit.
+
 * Inspection summaries skip collision discovery when all rendered labels are already distinct.
 
 * Inspection tables skip blank-label position masks for character columns without empty values.
