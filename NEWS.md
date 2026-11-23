@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly category labels keep unclassed categories out of the date and duration adapters.
+
 * Alluvial missing-row notices use the count of retained rows directly.
 
 * Alluvial preparation keeps unrelated tibble columns out of the frame coercion.

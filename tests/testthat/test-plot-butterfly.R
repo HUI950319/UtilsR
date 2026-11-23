@@ -1472,3 +1472,16 @@ test_that("complete ordinary butterfly score blocks skip missing masks", {
   d$score[2L] <- NA_integer_
   expect_identical(run(fn, d), run(PlotButterfly, d))
 })
+
+test_that("plain categories bypass time key discovery", {
+  fn <- .butterfly_category_labels
+  environment(fn) <- list2env(list(.cat_time_key = function(x, ...) {
+    if (!is.object(x)) stop("computed a time key for an ordinary category")
+    .cat_time_key(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(stats::setNames(c("NA", "close"), c("a", "b"))),
+                   stats::setNames(c("NA", "close"), c("a", "b")))
+  expect_identical(fn(c(1 + 2^-52, 1)), c("1.0000000000000002", "1"))
+  days <- as.Date(c("2026-11-20", "2026-11-23"))
+  expect_identical(fn(days), days)
+})
