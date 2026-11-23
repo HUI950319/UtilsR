@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous comparison preflight slices user pairs and cached test results only after rejecting a comparison.
+
 * Plot formatters reuse modified leaves directly when their input is a flat ordinary plot list.
 
 * Panel formatting preserves existing panel styles without building a theme when no styling control is requested.

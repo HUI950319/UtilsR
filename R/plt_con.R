@@ -1025,8 +1025,11 @@ plt_con <- function(data,
       }
     }
   }
-  comparisons <- comparisons[keep]
-  attr(comparisons, ".con_test_cache") <- test_cache[keep]
+  if (!all(keep)) {
+    comparisons <- comparisons[keep]
+    test_cache <- test_cache[keep]
+  }
+  attr(comparisons, ".con_test_cache") <- test_cache
   comparisons
 }
 

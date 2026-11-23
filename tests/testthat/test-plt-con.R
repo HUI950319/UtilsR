@@ -2710,3 +2710,22 @@ test_that("single ordinary factor bar range avoids splitting observations", {
   expect_identical(fn(y, g), bounds)
   expect_identical(fn(y, replace(g, 2L, NA)), .con_bar_range(y, replace(g, 2L, NA)))
 })
+
+test_that("complete pairwise comparisons retain their existing list", {
+  f <- .con_comparisons
+  environment(f) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(test_cache)) && is.logical(i) && all(i))
+      stop("sliced the fully usable comparison cache")
+    base::"["(x, i, ...)
+  }), parent = environment(f))
+  g <- factor(rep(letters[1:3], each = 7))
+  y <- c(1:7, 3:9, 4:10)
+  pairs <- list(c("a", "b"), c("b", "c"))
+  v <- f(pairs, g, "response", y, "t.test")
+  cache <- attr(v, ".con_test_cache")
+  expect_length(cache, 2L)
+  expect_equal(cache[[1L]]$p.value, stats::t.test(y[g == "a"], y[g == "b"])$p.value)
+  expect_warning(part <- f(c(pairs, list(c("a", "absent"))), g, "response", y, "t.test"),
+                 "unavailable groups")
+  expect_length(attr(part, ".con_test_cache"), 2L)
+})
