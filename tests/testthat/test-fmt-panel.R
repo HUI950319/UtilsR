@@ -756,3 +756,17 @@ test_that("keeping panel styles with empty controls skips theme creation", {
   expect_identical(f(list(p, p), grid = "keep"), list(p, p))
   expect_error(f(list(p, 1), grid = "keep"), "Input must be")
 })
+
+test_that("keeping panel styling skips creation of unused blank elements", {
+  p <- ggplot2::ggplot()
+  constructor <- ggplot2::element_blank
+  calls <- 0L
+  local_mocked_bindings(element_blank = function(...) {
+    calls <<- calls + 1L
+    constructor(...)
+  }, .package = "ggplot2")
+  expect_identical(fmt_panel(p, grid = "keep"), p)
+  expect_equal(fmt_panel(p, grid = "keep", border = TRUE)$theme$panel.border$colour, "black")
+  expect_identical(calls, 0L)
+  expect_s3_class(fmt_panel(p, grid = "keep", border = FALSE)$theme$panel.border, "element_blank")
+})

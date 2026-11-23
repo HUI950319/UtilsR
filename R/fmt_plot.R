@@ -2990,8 +2990,6 @@ fmt_panel <- function(plot,
       cli::cli_abort("{.arg grid_linetype} must be a named line type, an integer from 0 to 6, or an even hexadecimal pattern without zeroes.")
     }
   }
-  blank <- ggplot2::element_blank()
-
   # ---- Assemble panel settings once ----
   enabled <- switch(grid,
     "none" = character(),
@@ -3011,6 +3009,7 @@ fmt_panel <- function(plot,
     "keep" = character())
   hidden <- if (grid == "keep") character() else
     c(hidden_groups, setdiff(grid_elements, enabled))
+  blank <- if (length(hidden) || isFALSE(border)) ggplot2::element_blank()
   theme_args <- stats::setNames(rep(list(blank), length(hidden)), hidden)
   line_args <- list(colour = grid_color, linewidth = grid_linewidth, linetype = grid_linetype)
   line_args <- Filter(Negate(is.null), line_args)
