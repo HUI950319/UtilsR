@@ -440,8 +440,9 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
 
   # Pretty output, written to stdout through the print helpers; the keys
   # are Chinese, which pr_kv() aligns by display width
+  timestamp <- Sys.time()
   pr_head("check_system", "\U0001f5a5\ufe0f \u7cfb\u7edf\u8d44\u6e90\u4fe1\u606f",
-          format(Sys.time(), "%Y-%m-%d %H:%M"))
+          format(timestamp, "%Y-%m-%d %H:%M"))
 
   pr_section("\U0001f310 \u64cd\u4f5c\u7cfb\u7edf")
   pr_kv(list(
@@ -524,7 +525,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       physical_cores = cores_physical
     ),
     warnings = memory_warnings,
-    timestamp = Sys.time()
+    timestamp = timestamp
   )
 
   if (return_result) {

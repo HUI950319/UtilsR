@@ -657,3 +657,17 @@ test_that("Linux memory fallback rejects duplicate heading fields", {
   invisible(capture.output(result <- f(return_result = TRUE)))
   expect_identical(result$system_memory$total_gb, 8)
 })
+
+test_that("system output and returned metadata share the timestamp", {
+  fn <- check_system
+  when <- as.POSIXct("2024-09-22 15:20:00", tz = "UTC")
+  verdict <- 0L
+  environment(fn) <- list2env(list(Sys.time = function() {
+    verdict <<- verdict + 1L
+    when + (verdict - 1L) * 60L
+  }), parent = environment(fn))
+  lines <- capture.output(output <- fn(return_result = TRUE))
+  expect_identical(verdict, 1L)
+  expect_identical(output$timestamp, when)
+  expect_true(any(grepl("2024-09-22 15:20", lines, fixed = TRUE)))
+})
