@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparkline binning recognizes ordinary integer columns without rounding the observations to verify their storage.
+
 * Character sparklines count complete inputs directly and subset observations only when needed.
 
 * Console tables use finite extrema to set decimal significance when all observed values have the same sign.

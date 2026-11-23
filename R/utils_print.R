@@ -1340,12 +1340,12 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   vars <- names(data)[columns]
 
   # equal-width bins, or one per value for few whole numbers
-  bin <- function(x, rng = c(min(x), max(x))) {
+  bin <- function(x, rng = c(min(x), max(x)), whole = FALSE) {
     if (rng[1L] == rng[2L]) return(length(x))
     probe <- x[seq_len(min(length(x), bins + 1))]
-    if (all(probe == round(probe))) {
+    if (whole || all(probe == round(probe))) {
       u <- unique(probe)
-      if (length(u) <= bins && (length(probe) == length(x) || all(x == round(x)))) {
+      if (length(u) <= bins && (whole || length(probe) == length(x) || all(x == round(x)))) {
         if (length(probe) < length(x)) u <- unique(x)
         if (length(u) <= bins) {
           u <- sort(u)
@@ -1421,7 +1421,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         observed <- v[!missing]
         shape <- suppressWarnings(as.numeric(observed - min(observed)))
       }
-      counts <- if (complete) bin(shape, bounds) else bin(shape)
+      whole <- is.integer(v) && !is.object(v)
+      counts <- if (complete) bin(shape, bounds, whole) else bin(shape, whole = whole)
       spread <- stats::sd(shape)
       if (length(shape) > 1L && (!is.finite(spread) ||
           (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||

@@ -2438,3 +2438,14 @@ test_that("complete character sparklines retain their value vector", {
   d$cat[1L] <- NA_character_
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("integer sparkline bins skip whole-number rescreening", {
+  fn <- pr_spark
+  environment(fn) <- list2env(list(round = function(x, ...) {
+    if (identical(substitute(x), quote(x)) || identical(substitute(x), quote(probe)))
+      stop("rounded integer sparkline observations")
+    base::round(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = rep(c(1L, 3L, 9L, NA_integer_), 40L))
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})
