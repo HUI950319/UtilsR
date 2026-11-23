@@ -1174,3 +1174,17 @@ test_that("nested empty label grobs do not turn geometry into vector text", {
   expect_true(.is_text_grob(visible, "geometry"))
   expect_false(.is_text_grob(ggplot2::zeroGrob(), "empty_label"))
 })
+
+test_that("a single native geometry run keeps the existing children", {
+  skip_if_not_installed("ragg")
+  g <- grid::grobTree(grid::rectGrob(name = "area"), grid::pointsGrob(.4, .6, name = "point"))
+  f <- .rasterize_panel_grob
+  environment(f) <- list2env(list(do.call = function(what, args, ...) {
+    if (identical(what, grid::gList) && length(args) == 2L) stop("rebuilt all geometry children")
+    base::do.call(what, args, ...)
+  }), parent = environment(f))
+  out <- f(g, w = .5, h = .5, dpi = 40, units = "in", bg = "transparent")
+  expect_length(out$children, 1L)
+  expect_s3_class(out$children[[1L]]$children[[2L]], "rastergrob")
+  expect_equal(dim(out$children[[1L]]$children[[2L]]$raster), c(20L, 20L))
+})

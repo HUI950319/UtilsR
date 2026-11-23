@@ -641,8 +641,10 @@ fmt_raster <- function(
       checked_size <<- TRUE
     }
     g_geom <- g
-    g_geom$children <- do.call(grid::gList, g$children[indices])
-    g_geom$childrenOrder <- names(g_geom$children)
+    if (!is.null(indices)) {
+      g_geom$children <- do.call(grid::gList, g$children[indices])
+      g_geom$childrenOrder <- names(g_geom$children)
+    }
     if (inherits(g$vp, "viewport")) {
       # Placement is applied by the returned gTree when the raster is drawn.
       g_geom$vp <- grid::viewport(gp = g$vp$gp, xscale = g$vp$xscale,
@@ -682,7 +684,8 @@ fmt_raster <- function(
   }
   if (start <= length(ordered)) {
     used <- used + 1L
-    output[[used]] <- capture_run(ordered[seq.int(start, length(ordered))])
+    all_geometry <- start == 1L && native_order && all_visible
+    output[[used]] <- capture_run(if (!all_geometry) ordered[seq.int(start, length(ordered))])
   }
   g <- grid::setChildren(g, do.call(grid::gList, output[seq_len(used)]))
   g

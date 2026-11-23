@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization reuses the existing child list when all geometry is captured in draw order as one run.
+
 * Factor sparklines detect unique observed labels from the largest frequency.
 
 * Date and timestamp sparklines share their observed endpoints between the bins and displayed range.
