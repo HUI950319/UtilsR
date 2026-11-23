@@ -1265,3 +1265,19 @@ test_that("sparse point sampling splits native codes without dropping all unused
   expect_identical(fn(d, mapping, sample_n = 3L, seed = 12L), expected)
   expect_identical(as.character(expected$group), rep(c("a", "b"), each = 3L))
 })
+
+test_that("factor sampling tuples need codes without synthetic levels", {
+  g <- structure(rep(c(3L, 9000L, NA_integer_, 3L, 9000L, NA_integer_), 4L),
+                 levels = c(as.character(1:8999), NA_character_), class = "factor")
+  d <- data.frame(id = seq_along(g), g = g, f = rep(c("x", "x", "x", "y", "y", "y"), 4L))
+  f <- .fmt_point_sample
+  environment(f) <- list2env(list(as.character = function(x, ...) {
+    if (identical(substitute(x), quote(seq_along(levels(x)))))
+      stop("built synthetic labels for complete factor dictionaries")
+    base::as.character(x, ...)
+  }), parent = environment(f))
+  out <- f(d, ggplot2::aes(group = g), sample_n = 1L, seed = 31L, facets = list(rlang::quo(f)))
+  expect_identical(sort(unique(as.integer(out$g))), c(3L, 9000L))
+  expect_equal(sum(is.na(as.integer(out$g))), 2L)
+  expect_equal(nrow(out), 6L)
+})

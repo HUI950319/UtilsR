@@ -516,6 +516,13 @@ fmt_point <- function(plot,
         x <- vctrs::vec_data(x)
         x[missing] <- NA
       }
+      if (length(group_values) > 1L &&
+          (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+          nlevels(x) < .Machine$integer.max) {
+        codes <- as.integer(x)
+        if (anyNA(codes)) codes[is.na(codes)] <- nlevels(x) + 1L
+        return(codes)
+      }
       if (is.factor(x) && anyNA(levels(x))) {
         if (length(group_values) == 1L && nlevels(x) > nrow(data)) {
           tally <- .factor_tally(x)
