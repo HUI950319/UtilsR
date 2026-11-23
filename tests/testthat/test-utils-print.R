@@ -2449,3 +2449,15 @@ test_that("integer sparkline bins skip whole-number rescreening", {
   d <- data.frame(x = rep(c(1L, 3L, 9L, NA_integer_), 40L))
   expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
 })
+
+test_that("date sparklines reuse endpoints for bins and captions", {
+  fn <- pr_spark
+  environment(fn) <- list2env(list(min = function(x, ...) {
+    if (identical(substitute(x), quote(x)) && is.double(x) && length(x) > 1L)
+      stop("scanned date bounds again during binning")
+    base::min(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(day = as.Date("2024-10-01") + c(0, 2, 3, 6, NA))
+  d$time <- as.POSIXct("2024-10-01 07:00:00", tz = "Asia/Shanghai") + c(0, 9, 12, 55, NA)
+  expect_identical(capture.output(fn(d)), capture.output(pr_spark(d)))
+})

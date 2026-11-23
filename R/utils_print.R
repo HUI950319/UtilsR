@@ -1400,8 +1400,9 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     if (inherits(v, c("Date", "POSIXct"))) {
       fin <- v[!missing & is.finite(v)]
       if (!length(fin)) return(c("", "no finite values", na))
-      return(c(spark(bin(as.numeric(fin))),
-               sprintf("%s to %s", format(min(fin)), format(max(fin))), na))
+      bounds <- c(min(fin), max(fin))
+      return(c(spark(bin(as.numeric(fin), as.numeric(bounds))),
+               sprintf("%s to %s", format(bounds[1L]), format(bounds[2L])), na))
     }
     if (is.numeric(v)) {
       # classed numbers (integer64, labelled) as plain doubles: mean() of an
