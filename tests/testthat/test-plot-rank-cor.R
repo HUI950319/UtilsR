@@ -1523,3 +1523,17 @@ test_that("plain rank method rows reuse exact codes", {
   p <- quiet_rank_cor(d)
   expect_equal(nrow(p$data), length(unique(d$item)))
 })
+
+test_that("positive rank aesthetic means skip zero masks", {
+  d <- expand.grid(item = letters[1:5], method = c("A", "B"), stringsAsFactors = FALSE)
+  d$score <- c(1:5, c(2, 1, 3, 5, 4))
+  d$weight <- as.double(seq_len(nrow(d)))
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(means == 0))) stop("built zero flags for positive means")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  invisible(capture.output(p <- fn(d, stat.by = "item", value.by = "score", method.by = "method",
+    size_by = "weight", show.label = FALSE)))
+  expect_identical(p$data$weight, seq(3.5, 7.5, by = 1))
+})
