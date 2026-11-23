@@ -3548,3 +3548,14 @@ test_that("scalar ordinary palettes do not reverse a single stop", {
   expect_identical(fn(c("red", "blue"), reverse = TRUE), c("blue", "red"))
   expect_identical(fn(c("red", "blue"), x = c("b", "a"), reverse = TRUE), c(b = "blue", a = "red"))
 })
+
+test_that("bare palette results keep their prepared character vector", {
+  fn <- .pal_apply
+  environment(fn) <- list2env(list("as.character" = function(x, ...) {
+    if (identical(substitute(x), quote(out)) && is.null(attributes(x))) stop("unnecessary as.character in .pal_apply")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(c("red", "blue")), c("red", "blue"))
+  expect_identical(fn(c("red", "blue"), x = c("a", "b")), c(a = "red", b = "blue"))
+  expect_identical(fn(structure(c("red", "blue"), type = "seq")), c("red", "blue"))
+})

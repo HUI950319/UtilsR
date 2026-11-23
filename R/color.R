@@ -803,6 +803,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (!is.null(keys)) out <- out[match(input, keys)]
   }
 
+  if (is.character(out) && all(names(attributes(out)) %in% "names")) {
+    if (!identical(names(out), nms)) names(out) <- nms
+    return(out)
+  }
   stats::setNames(as.character(out), nms)
 }
 

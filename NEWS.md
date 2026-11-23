@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette application avoids coercing an ordinary character result whose only possible attribute is its name vector.
+
 * Palette application skips reverse order for an ordinary single-colour result.
 
 * Numeric palette scaling uses the already computed range width for interpolation.
