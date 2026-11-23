@@ -1132,3 +1132,17 @@ test_that("sparse factors with one present code reuse the same remapped row code
   d[1L] <- NA
   expect_identical(f(d, reordered), ordered(as.character(d), levels = reordered))
 })
+
+test_that("single complete sparse category recoding skips a row match", {
+  fn <- .recode_factor
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(tally$row_codes)) && !anyNA(x)) stop("unnecessary match in .recode_factor")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- ordered(rep("g2", 6L), levels = paste0("g", 1:100))
+  recode <- list(replaced = 2L)
+  out <- fn(x, recode, checked_indices = TRUE)
+  expect_identical(out, ordered(rep("replaced", 6L)))
+  x[2L] <- NA
+  expect_identical(as.character(fn(x, recode, checked_indices = TRUE)), c("replaced", NA, rep("replaced", 4L)))
+})
