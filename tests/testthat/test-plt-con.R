@@ -2820,3 +2820,16 @@ test_that("free continuous facet scales resolve all feature names together", {
   build <- ggplot2::ggplot_build(p + fn(layout, limits))
   expect_identical(lapply(build$layout$panel_scales_y, function(scale) scale$limits), limits |> unname())
 })
+
+test_that("one ordinary continuous-bar group skips splitting", {
+  fn <- .con_bar_range
+  environment(fn) <- list2env(list("split" = function(x, f, ...) {
+    if (length(x) > 1L && length(unique(f)) == 1L) stop("unnecessary split in .con_bar_range")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  x <- rep(c(1, 3, 2, 4), 100L)
+  expect_identical(fn(x, rep("one", length(x))), .con_bar_range(x, rep("one", length(x))))
+  expect_identical(fn(x, rep(NA_character_, length(x))), .con_bar_range(x, rep(NA_character_, length(x))))
+  expect_identical(fn(x, rep(c("a", "b"), length.out = length(x))),
+                   .con_bar_range(x, rep(c("a", "b"), length.out = length(x))))
+})

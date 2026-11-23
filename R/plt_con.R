@@ -1340,7 +1340,8 @@ plt_con <- function(data,
       if (all(observed)) by_group else by_group[observed]
     } else split(values, if (missing) addNA(groups) else groups, drop = TRUE)
   } else if (!is.object(groups) && typeof(groups) %in% c("character", "logical", "integer", "double")) {
-    split(values, as.integer(vctrs::vec_group_id(groups)))
+    ids <- vctrs::vec_group_id(groups)
+    if (attr(ids, "n") == 1L) list(values) else split(values, as.integer(ids))
   } else {
     split(values, match(groups, unique(groups)))
   }

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous bar range calculations retain the value vector when the grouping dictionary has one code.
+
 * Plots of a single incomplete column bypass alphabetical sorting of variable names.
 
 * Butterfly bars retain their merged values without building a missing mask for complete grids.
