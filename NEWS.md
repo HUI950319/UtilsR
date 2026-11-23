@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation uses existing method codes in factor order and retains the handling of unused and missing levels.
+
 * Console P-value cells use their minimum to skip extra rounding checks for observations above the thresholds.
 
 * Grob margins measure a sole child directly while retaining maximum sizing for lists of several grobs.

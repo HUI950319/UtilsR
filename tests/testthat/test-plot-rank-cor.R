@@ -1537,3 +1537,15 @@ test_that("positive rank aesthetic means skip zero masks", {
     size_by = "weight", show.label = FALSE)))
   expect_identical(p$data$weight, seq(3.5, 7.5, by = 1))
 })
+
+test_that("rank correlation methods use observed ordered factor codes", {
+  d <- rank_cor_data()
+  d$method <- ordered(d$method, levels = c(rev(unique(d$method)), "unused"))
+  ref <- quiet_rank_cor(d)
+  group_keys <- vctrs::vec_unique
+  local_mocked_bindings(vec_unique = function(x, ...) {
+    if (identical(x, d$method)) stop("regrouped the ordered rank method dictionary")
+    group_keys(x, ...)
+  }, .package = "vctrs")
+  expect_identical(quiet_rank_cor(d)$data, ref$data)
+})

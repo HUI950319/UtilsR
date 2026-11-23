@@ -256,17 +256,22 @@ PlotRankCor <- function(
   }
 
   method_values <- data[[method.by]]
+  method_factor <- (identical(class(method_values), "factor") ||
+    identical(class(method_values), c("ordered", "factor"))) && !anyNA(levels(method_values))
+  method_tally <- if (method_factor) .factor_tally(method_values)
   method_ids <- if (!is.object(method_values) &&
                     typeof(method_values) %in% c("character", "integer", "double", "logical"))
     vctrs::vec_group_id(method_values)
-  method_keys <- if (is.null(method_ids)) {
+  method_keys <- if (method_factor) {
+    levels(method_values)[method_tally$codes]
+  } else if (is.null(method_ids)) {
     vctrs::vec_unique(method_values)
   } else {
     n_methods <- attr(method_ids, "n")
     if (n_methods == length(method_ids)) method_values else
       if (n_methods == 1L) method_values[1L] else method_values[!duplicated(method_ids, nmax = n_methods)]
   }
-  if (is.factor(method_values))
+  if (is.factor(method_keys))
     method_keys <- method_keys[order(as.integer(method_keys))]
   methods <- as.character(method_keys)
   if (anyNA(method_values) || anyNA(methods))
@@ -275,7 +280,10 @@ PlotRankCor <- function(
     cli::cli_abort("{.arg method.by} must have exactly 2 levels, got {length(methods)}.")
   methods <- make.unique(methods)
   method.by_internal <- tail(make.unique(c(names(data), ".method")), 1L)
-  data[[method.by_internal]] <- if (is.null(method_ids)) {
+  data[[method.by_internal]] <- if (method_factor) {
+    if (length(method_tally$codes) == nlevels(method_values)) method_tally$row_codes else
+      match(method_tally$row_codes, method_tally$codes)
+  } else if (is.null(method_ids)) {
     vctrs::vec_match(method_values, method_keys)
   } else as.integer(method_ids)
 
