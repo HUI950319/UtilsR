@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor tallies with many unused levels extract distinct integer codes with a bounded dictionary.
+
 * Factor combinations retain first-occurrence codes directly when character labels are in their resulting order.
 
 * Deduplicating UpSet member positions reuses rows already in strict index order.

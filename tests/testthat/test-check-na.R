@@ -992,3 +992,16 @@ test_that("ordinary factor labels skip empty tally slices", {
   expect_identical(fn(x, tally = tally), 0)
   expect_identical(fn(x, "local", tally = tally), 2)
 })
+
+test_that("wide sparse factor counts use the observed code dictionary", {
+  row_codes <- rep(c(4L, 9000L, NA_integer_, 9000L), 260L)
+  x <- structure(row_codes, levels = c(as.character(seq_len(8999L)), NA_character_),
+                 class = "factor")
+  fn <- .factor_tally
+  environment(fn) <- list2env(list(duplicated = function(x, ...) {
+    if (length(x) == length(row_codes)) stop("built a sparse factor row mask")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), list(codes = c(4L, 9000L), counts = c(260L, 520L), row_codes = row_codes))
+  expect_identical(fn(rep(x[1L], 1040L))$counts, 1040L)
+})

@@ -340,8 +340,10 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       return(list(codes = observed, counts = counts, row_codes = row_codes))
     }
     ids <- vctrs::vec_group_id(row_codes)
-    unique_rows <- attr(ids, "n") == length(row_codes)
-    observed <- if (unique_rows) row_codes else row_codes[!duplicated(ids)]
+    n_observed <- attr(ids, "n")
+    unique_rows <- n_observed == length(row_codes)
+    observed <- if (unique_rows) row_codes else if (n_observed == 1L) row_codes[1L] else
+      unique(row_codes, nmax = n_observed)
     order_at <- order(observed, na.last = NA)
     counts <- if (unique_rows) rep.int(1L, length(order_at)) else
       tabulate(ids, nbins = length(observed))[order_at]
