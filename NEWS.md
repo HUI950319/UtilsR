@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Significance formatting returns empty star suffixes directly for observations above all thresholds.
+
 * P-value formatting avoids scanning for rounded-zero rows when its smallest value is above the display cutoff.
 
 * CI parsing builds row-level finiteness flags only when a parsed number can be non-finite.

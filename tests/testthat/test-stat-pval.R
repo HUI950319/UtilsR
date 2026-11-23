@@ -1133,3 +1133,15 @@ test_that("P-values above the rounding boundary skip candidate flags", {
   expect_identical(f(x, mode = "pvalue"), c(a = "0.014", b = "0.121", c = NA_character_))
   expect_identical(stat_pval(c(0, .00023), mode = "pvalue"), rep("<0.001", 2L))
 })
+
+test_that("nonsignificant P-values bypass interval searches", {
+  f <- stat_pval
+  environment(f) <- list2env(list(findInterval = function(x, ...) {
+    if (length(x) && min(x) > .05) stop("searched significance thresholds for nonsignificant values")
+    base::findInterval(x, ...)
+  }), parent = environment(f))
+  levels <- c("*" = 0.05, "**" = 0.01)
+  expect_identical(f(c(.1, .9), mode = "stars", map_signif = levels), c("0.100", "0.900"))
+  expect_identical(f(c("0.100", "0.900"), mode = "stars", map_signif = levels), c("0.100", "0.900"))
+  expect_identical(f(c(0.05, 0.009), mode = "stars", map_signif = levels), c("0.050*", "0.009**"))
+})
