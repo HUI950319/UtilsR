@@ -634,3 +634,16 @@ test_that("position scale validation reads constructor formals once", {
   expect_identical(scale$name, "Numeric axis")
   expect_identical(seen, 1L)
 })
+
+test_that("unaliased deferred scale arguments skip duplicate row flags", {
+  f <- .update_position_scale
+  environment(f) <- list2env(list(duplicated = function(x, ..., fromLast = FALSE) {
+    if (isTRUE(fromLast) && identical(sort(x), c("breaks", "limits")))
+      stop("checked duplicate rows for distinct scale controls")
+    base::duplicated(x, ..., fromLast = fromLast)
+  }), parent = environment(f))
+  scale <- f(NULL, list(limits = c(1, 7), breaks = c(2, 6)), "x", "scale_x_continuous",
+             arg_calls = c(limits = 1L, breaks = 2L))
+  expect_identical(scale$limits, c(1, 7))
+  expect_identical(scale$breaks, c(2, 6))
+})

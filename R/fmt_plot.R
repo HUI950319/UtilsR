@@ -5751,13 +5751,14 @@ fmt_his <- function(plot,
   arg_names <- allowed[matched]
   arg_names[arg_names == "trans"] <- "transform"
   names(args) <- arg_names
-  if (anyDuplicated(arg_names) &&
+  repeated <- anyDuplicated(arg_names) > 0L
+  if (repeated &&
       (is.null(arg_calls) || anyDuplicated(paste(arg_names, arg_calls, sep = "\r"))))
     cli::cli_abort("{.arg {axis}} argument names must remain unique after matching.")
   if (!is.null(arg_calls)) {
     # Match against the actual scale before merging aliases from different calls.
     latest <- order(arg_calls)
-    latest <- latest[!duplicated(arg_names[latest], fromLast = TRUE)]
+    if (repeated) latest <- latest[!duplicated(arg_names[latest], fromLast = TRUE)]
     if (fn_name %in% paste0("scale_", axis, c("_date", "_datetime", "_time"))) {
       for (field in c("breaks", "labels", "minor_breaks")) {
         pair <- latest[arg_names[latest] %in% c(field, paste0("date_", field))]
