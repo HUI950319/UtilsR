@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation pivots avoid a duplicate scan when the wide result has one item.
+
 * Batched reference lines keep ordinary style vectors that already have the required length.
 
 * Alluvial counts avoid constructing a two-column grouping frame when integer facet and category codes fit together.

@@ -435,8 +435,11 @@ PlotRankCor <- function(
   method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, method_names)), 2L)
   id_cols <- unique(c(stat.by, group.by_internal))
   pair_id <- vctrs::vec_group_id(pivot_data[id_cols])
-  rank_wide <- if (attr(pair_id, "n") == length(pair_id)) pivot_data[id_cols] else
-    pivot_data[!duplicated(pair_id), id_cols, drop = FALSE]
+  n_pairs <- attr(pair_id, "n")
+  rank_wide <- if (n_pairs == length(pair_id)) pivot_data[id_cols] else {
+    first <- if (n_pairs == 1L) 1L else !duplicated(pair_id, nmax = n_pairs)
+    pivot_data[first, id_cols, drop = FALSE]
+  }
   for (i in seq_along(methods)) {
     rows <- which(pivot_data[[method.by_internal]] == i)
     column <- rep(NA_real_, nrow(rank_wide))

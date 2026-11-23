@@ -1580,3 +1580,16 @@ test_that("a single rank correlation display group uses its first key", {
   d$group <- factor(rep(c("x", "y"), each = nrow(d)/2))
   expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
 })
+
+test_that("rank correlation pivots take the first row for a single item", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list("duplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(pair_id)) && attr(x, "n") == 1L) stop("unnecessary duplicated in PlotRankCor")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(item = "solo", score = c(3, 8), method = c("left", "right"))
+  run <- function(f) suppressMessages(f(d, "item", "score", method.by = "method",
+    show.label = FALSE, use_rank = FALSE))
+  expect_identical(run(fn)$data, run(PlotRankCor)$data)
+  expect_identical(run(fn)$data$item, "solo")
+})
