@@ -536,7 +536,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         ids <- vctrs::vec_group_id(x)
         distinct <- attr(ids, "n")
         unique_rows <- distinct == length(x)
-        values <- if (unique_rows) x else x[!duplicated(ids)]
+        values <- if (unique_rows) x else if (distinct == 1L) x[1L] else
+          x[!duplicated(ids, nmax = distinct)]
         observed <- if (anyNA(values) || is.unsorted(values))
           order(values, na.last = NA, method = "radix")
         valid <- if (is.null(observed)) values else values[observed]

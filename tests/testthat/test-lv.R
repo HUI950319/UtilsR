@@ -2066,3 +2066,14 @@ test_that("sorted numeric frequency keys keep the original observed vector", {
   draw <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(draw(fn), draw(lv))
 })
+
+test_that("single distinct numeric inspection values avoid a duplicate mask", {
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("duplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(ids)) && attr(x, "n") == 1L) stop("unnecessary duplicated in lv.data.frame")
+    base::duplicated(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = rep(3.5, 800L), b = rep(NaN, 800L))
+  draw <- function(f) capture.output(suppressMessages(f(d)))
+  expect_identical(draw(fn), draw(lv))
+})

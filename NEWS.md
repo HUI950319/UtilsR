@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection frequencies use the existing first observation for one repeated numeric value.
+
 * Inspection frequencies avoid copying sorted complete numeric keys through an identity permutation.
 
 * P-value tables leave the base text style in place when there are no significant values.
