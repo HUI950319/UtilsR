@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection summaries skip collision discovery when all rendered labels are already distinct.
+
 * Inspection tables skip blank-label position masks for character columns without empty values.
 
 * Single-variable missingness plots use their existing missing-value vector as the tile data.

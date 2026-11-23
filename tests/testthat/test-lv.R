@@ -2041,3 +2041,16 @@ test_that("character inspection avoids flagging absent blanks", {
   d$x[1L] <- ""
   expect_identical(render(f, d), render(lv.data.frame, d))
 })
+
+test_that("distinct inspection labels need no numeric regrouping", {
+  d <- data.frame(a = c(1.25, 2.25, 8.5), b = rep("v", 3L))
+  f <- lv.data.frame
+  id <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (identical(x, d$a)) stop("regrouped unique numeric inspection labels")
+    id(x)
+  }, .package = "vctrs")
+  text <- cli::ansi_strip(capture.output(suppressMessages(f(d, count = "a"))))
+  expect_true(any(grepl("1.25", text, fixed = TRUE)))
+  expect_true(any(grepl("8.5", text, fixed = TRUE)))
+})

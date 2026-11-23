@@ -488,6 +488,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (unique_values && !anyDuplicated(labels)) return(labels)
     if (!(is.numeric(x) || is.complex(x) ||
           inherits(x, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")))) return(labels)
+    if (!unique_values && !anyDuplicated(labels)) return(labels)
     if (!is.object(x) && !anyNA(x)) {
       index <- vctrs::vec_group_id(x)
       first <- if (attr(index, "n") < length(x)) !duplicated(index)
