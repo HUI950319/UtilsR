@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial plots with one observed group reuse existing pair codes for counts instead of generating combined grid indices.
+
 * Missingness plotting only collects fallback label positions when the name map leaves a variable unmapped.
 
 * Plot flattening skips filtering inherited layout parameters if the call supplies no replacements.

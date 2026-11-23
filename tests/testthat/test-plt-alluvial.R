@@ -1575,3 +1575,15 @@ test_that("sparse single level alluvial factors skip row lookup", {
   expect_equal(p$data$count[!p$data$.is_gap], c(40, 40))
   expect_identical(levels(p$data$.cat_var), "only")
 })
+
+test_that("one observed alluvial group uses its pair codes as count keys", {
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list("as.integer" = function(x, ...) {
+    if (identical(substitute(x), quote(plot_input$.group)) && length(levels(x)) == 1L) stop("unnecessary as.integer in plt_alluvial")
+    base::as.integer(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = c("a", "a", "a", "b", "b"), g = "one", f = c("left", "left", "right", "right", "right"))
+  p <- fn(d, "a", "g", facet = "f", label_args = list(style = "none"))
+  expect_equal(p$data$count, c(2, 1, 2))
+  expect_equal(p$data$percent, c(1, 1, 1))
+})
