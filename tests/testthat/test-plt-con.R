@@ -2780,3 +2780,16 @@ test_that("continuous dot counts take one representative for one key", {
   expect_identical(fn(d, "bin"), data.frame(bin = 12, n = 3000L))
   expect_identical(fn(rbind(d, data.frame(bin = -1)), "bin"), data.frame(bin = c(12, -1), n = c(3000L, 1L)))
 })
+
+test_that("large comparison P-values skip cutoff-vector selection", {
+  fn <- .con_signif_mapping
+  environment(fn) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(mapping)) && e2 >= max(e1, na.rm = TRUE)) stop("unnecessary > in .con_signif_mapping")
+    base::`>`(e1, e2)
+  }), parent = environment(fn))
+  label <- fn(c("*" = .05, "***" = .001, "**" = .01))
+  expect_identical(label(.05), "NS.")
+  expect_identical(label(.04), "*")
+  expect_identical(label(.001), "**")
+  expect_identical(label(NA_real_), NA_character_)
+})
