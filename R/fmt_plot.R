@@ -3562,7 +3562,9 @@ fmt_axisText <- function(plot,
 
   # ---- Auto-compute hjust/vjust for rotated text ----
   auto_just <- function(angle, hjust, vjust, side = "bottom") {
-    if (is.null(angle)) return(list(hjust = hjust, vjust = vjust))
+    if (is.null(angle) || (!is.null(hjust) && !is.null(vjust))) {
+      return(list(hjust = hjust, vjust = vjust))
+    }
     radians <- (angle %% 360) * pi / 180
     sine <- sin(radians)
     cosine <- cos(radians)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis text formatting avoids trigonometric alignment calculations when horizontal and vertical justification are supplied.
+
 * Text formatting skips label recycling for ordinary input values matching the leaf count.
 
 * Panel styling bypasses line-argument filtering when no grid line is being edited.

@@ -447,3 +447,17 @@ test_that("repeating axis text formatting reuses guide prototypes", {
   expect_identical(p$guides$guides$x$params$theme$axis.text.x$angle, 10)
   expect_lt(abs(length(serialize(next_plot, NULL)) - length(serialize(first, NULL))), 50000L)
 })
+
+test_that("axis rotation with both justifications skips angle-derived defaults", {
+  fn <- fmt_axisText
+  environment(fn) <- list2env(list("sin" = function(x) {
+    if (isTRUE(all.equal(x, pi/4))) stop("unnecessary sin in fmt_axisText")
+    base::sin(x)
+  }), parent = environment(fn))
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg))
+  result <- fn(p, x = 45, x_hjust = .2, x_vjust = .4)
+  expect_equal(result$theme$axis.text.x$angle, 45)
+  expect_equal(result$theme$axis.text.x$hjust, .2)
+  expect_equal(result$theme$axis.text.x$vjust, .4)
+  expect_identical(fn(p, x = 90)$theme, fmt_axisText(p, x = 90)$theme)
+})
