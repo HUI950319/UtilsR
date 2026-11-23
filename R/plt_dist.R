@@ -558,6 +558,8 @@ plt_dist <- function(data,
     counts <- plotdata[[count_name]]
     plotdata[[prop_name]] <- if (attr(group_id, "n") == length(counts)) {
       rep.int(1, length(counts))
+    } else if (attr(group_id, "n") == 1L) {
+      counts / sum(counts)
     } else {
       totals <- unname(rowsum(as.double(counts), group_id, reorder = FALSE)[, 1L])
       counts / totals[group_id]

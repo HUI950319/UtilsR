@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked distributions divide by a single sum when all displayed counts belong to one x and facet combination.
+
 * Stacked distribution bars group unfaceted proportions directly by the x values.
 
 * Palette ramps detect source alpha without building a per-stop transparency vector.

@@ -1163,3 +1163,12 @@ test_that("unfaceted distribution proportions group from the axis column", {
   p <- plt_dist(d, c("a", "b"), type = "bar", label_args = list(style = "none"))
   expect_equal(p$data$prop, c(2/3, 1/3, .5, .5))
 })
+
+test_that("one stacked distribution group shares one total", {
+  d <- data.frame(x = "one", group = c("a", "b", "a", "a", "b"))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(rowsum = function(...) stop("repeated a single distribution total")),
+                             parent = environment(fn))
+  out <- fn(d, c("x", "group"), type = "bar", label_args = list(style = "none"))
+  expect_identical(out$data$prop, c(.6, .4))
+})
