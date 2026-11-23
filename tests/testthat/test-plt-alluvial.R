@@ -1561,3 +1561,17 @@ test_that("one observed facet reuses alluvial category codes", {
   expect_equal(p$data$count[!p$data$.is_gap], rep(1, 4L))
   expect_s3_class(p$facet, "FacetWrap")
 })
+
+test_that("sparse single level alluvial factors skip row lookup", {
+  d <- data.frame(a = factor(rep("only", 80L), c("only", paste0("unused", 1:150))),
+    g = rep(c("x", "y"), 40L))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && length(table) == 1L)
+      stop("looked up a single sparse alluvial level per row")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  p <- fn(d, "a", "g", label_args = list(style = "none"))
+  expect_equal(p$data$count[!p$data$.is_gap], c(40, 40))
+  expect_identical(levels(p$data$.cat_var), "only")
+})

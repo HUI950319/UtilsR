@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial columns with one observed level and many unused levels reuse the observed code without a row lookup.
+
 * Alluvial counts reuse existing category codes when a facet has one observed level.
 
 * Circular axes obtain the single observed categorical key directly and bound duplicate indexing for multiple keys.

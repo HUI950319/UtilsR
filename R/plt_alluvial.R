@@ -450,7 +450,8 @@ plt_alluvial <- function(
       value_levels <- levels(value)
       if (length(value_levels) > length(codes)) {
         observed <- sort(unique(codes))
-        return(structure(match(codes, observed), levels = value_levels[observed], class = class(value)))
+        mapped <- if (length(observed) == 1L) rep.int(1L, length(codes)) else match(codes, observed)
+        return(structure(mapped, levels = value_levels[observed], class = class(value)))
       }
       counts <- tabulate(codes, length(value_levels))
       if (min(counts) > 0L) return(structure(codes, levels = value_levels, class = class(value)))
