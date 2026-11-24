@@ -328,7 +328,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }
   hit <- .is_special_value(u, special)
   if (!any(hit)) return(0)
-  sum(n[hit]) + 0
+  sum(if (all(hit)) n else n[hit]) + 0
 }
 
 # Count observed factor codes in level order, including a coded NA level.

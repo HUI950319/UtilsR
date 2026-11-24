@@ -1104,3 +1104,16 @@ test_that("sorted unique sparse factor codes have known one-count tallies", {
   expect_identical(fn(x[c(1L, NA_integer_, 1L)]), .factor_tally(x[c(1L, NA_integer_, 1L)]))
   expect_identical(fn(x[0L]), .factor_tally(x[0L]))
 })
+
+test_that("all special factor labels count without subsetting tallies", {
+  fn <- .count_special_values
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(n)) && identical(substitute(i), quote(hit)) && all(i)) stop("unexpected [ in .count_special_values")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  x <- factor(rep(c("Unknown", "Blank", "?"), 100L))
+  expect_equal(fn(x), 300)
+  x <- factor(c(as.character(x), "known", NA_character_))
+  expect_equal(fn(x), 300)
+  expect_equal(fn(x, "^blank$"), 100)
+})

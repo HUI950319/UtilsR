@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Special-value counting uses the existing full tally when every observed factor label is a special marker.
+
 * Sparse factor tallies avoid grouping rows when observed codes are already distinct and increasing.
 
 * Factor relabelling retains the validated source column index instead of searching names again.
