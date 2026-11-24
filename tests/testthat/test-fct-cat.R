@@ -1158,3 +1158,16 @@ test_that("strictly ordered numeric categories have known row codes", {
   expect_identical(fn(c(1, 1 + .Machine$double.eps)), .as_factor(c(1, 1 + .Machine$double.eps)))
   expect_identical(fn(c(10L, NA_integer_, 5L, 10L)), factor(c(10L, NA_integer_, 5L, 10L)))
 })
+
+test_that("data frame factor relabelling reuses verified column positions", {
+  fn <- fct_label.data.frame
+  environment(fn) <- list2env(list("[[" = function(x, i, ...) {
+    if (identical(substitute(i), quote(v)) && is.data.frame(x)) stop("unexpected [[ in fct_label.data.frame")
+    base::"[["(x, i, ...)
+  }), parent = environment(fn))
+  d <- data.frame(before = 1:3, value = ordered(c("a", "b", "a")), across = 3:1)
+  expect_identical(fn(d, value, c("low", "high")), fct_label(d, value, c("low", "high")))
+  expect_error(fn(d, "absent", c("a", "b")), "not found")
+  names(d)[1L] <- "value"
+  expect_error(fn(d, "value", c("a", "b")), "more than once")
+})

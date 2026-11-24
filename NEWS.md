@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor relabelling retains the validated source column index instead of searching names again.
+
 * Combining a single sparse factor reuses its sole output code when no observations are missing.
 
 * Combining ordinary factor inputs skips reducing rowwise missing masks when no input has missing values.
