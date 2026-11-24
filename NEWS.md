@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Panel rasterization collects matching gtable indices directly and continues excluding blank panels.
+
 * Layer rasterization reuses the shared leaf walker for patchworks and retains container metadata.
 
 * Circular lollipop scaling skips splitting original row positions for a single complete group.

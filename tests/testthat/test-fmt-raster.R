@@ -617,11 +617,11 @@ test_that("ragg discovers each nested gtable panel once", {
   fn <- .fmt_raster_ragg
   env <- new.env(parent = environment(fn))
   scans <- 0L
-  env$grepl <- function(pattern, x, ...) {
+  env$grep <- function(pattern, x, ...) {
     if (identical(pattern, "^panel(-[0-9]+)*$") && length(x) && !all(grepl("^guide", x))) {
       if (any(startsWith(x, "nested")) || "panel" %in% x) scans <<- scans + 1L
     }
-    base::grepl(pattern, x, ...)
+    base::grep(pattern, x, ...)
   }
   environment(fn) <- env
   result <- fn(deep, dpi = 36, width = NULL, height = NULL, units = "in", bg = "transparent")
@@ -1229,4 +1229,20 @@ test_that("layer rasterization uses a single metadata-aware patchwork walk", {
   expect_identical(got$patches$layout, pw$patches$layout)
   expect_identical(attr(got[[1L]], "patchwork_free_settings"), attr(pw[[1L]], "patchwork_free_settings"))
   expect_length(raster_find_grobs(patchwork::patchworkGrob(got), "rasteriser"), 3L)
+})
+
+test_that("panel enumeration matches positions without an intermediate logical vector", {
+  fn <- .fmt_raster_ragg
+  environment(fn) <- list2env(list("grepl" = function(pattern, x, ...) {
+    if (identical(pattern, "^panel(-[0-9]+)*$")) stop("unexpected grepl in .fmt_raster_ragg")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("ragg")
+  u <- grid::unit(c(1, 1.5), "in")
+  gt <- gtable::gtable(u, grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, list(grid::rectGrob(), ggplot2::zeroGrob()),
+    t = 1, l = 1:2, clip = "on", name = c("panel-1", "panel-2"))
+  out <- fn(gt, 40, 1, 1, "in", "transparent")
+  expect_equal(attr(out, "size"), list(width = 2.5, height = 1, units = "in"))
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob"), 1L)
 })

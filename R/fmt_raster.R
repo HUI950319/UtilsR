@@ -264,7 +264,7 @@ fmt_raster <- function(
                     i = "Use {.code method = \"image\"} for a standalone grob."))
   }
   panel_indices <- function(gt) {
-    indices <- which(grepl("^panel(-[0-9]+)*$", gt$layout$name))
+    indices <- grep("^panel(-[0-9]+)*$", gt$layout$name)
     indices[!vapply(gt$grobs[indices], inherits, logical(1), c("zeroGrob", "null"))]
   }
   plan_panels <- function(gt) {
