@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Long repeated numeric p values expand their sole formatted result without building a matching vector.
+
 * Stat interval formatting finds negative-zero candidates without building a logical vector across formatted rows.
 
 * Interval standard errors avoid building an exception-position vector when all computed widths are finite.

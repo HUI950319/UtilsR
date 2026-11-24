@@ -1240,3 +1240,17 @@ test_that("large vectors of identical character p values restore output by repli
   x[1L] <- "<0.01"
   expect_identical(fn(x), stat_pval(x))
 })
+
+test_that("one numeric p-value key expands without row remapping", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(x_num)) && length(table) == 1L && length(x) >= 1024L) stop("unexpected match in stat_pval")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  for (v in c(0, 0.05, .85, NA_real_)) {
+    x <- stats::setNames(rep(v, 1200L), paste0("cell", 1:1200))
+    for (mode in c("plain", "pvalue", "stars")) {
+      expect_identical(fn(x, mode = mode), stats::setNames(rep(stat_pval(v, mode = mode), length(x)), names(x)))
+    }
+  }
+})

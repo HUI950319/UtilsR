@@ -312,12 +312,14 @@ stat_pval <- function(x,
   }
   # Reuse formatting work only for repeated ordinary numeric P-values.
   expand <- NULL
+  repeat_one <- FALSE
   if (is.numeric(x) && !is.object(x) && length(x_num) > 1024L &&
       (mode != "plain" || !any(x_num == 0, na.rm = TRUE)) &&
       length(unique(x_num[seq.int(1L, length(x_num), length.out = 1024L)])) < 512L) {
     keys <- unique(x_num)
     if (length(keys) < length(x_num) / 2) {
-      expand <- match(x_num, keys)
+      repeat_one <- length(keys) == 1L
+      if (!repeat_one) expand <- match(x_num, keys)
       x_num <- keys
     }
   }
@@ -361,7 +363,8 @@ stat_pval <- function(x,
     if (has_bounds) formatted[bounded] <- text[bounded]
     out <- formatted
   }
-  if (!is.null(expand)) out <- out[expand]
+  if (repeat_one) out <- rep.int(out, length(x))
+  else if (!is.null(expand)) out <- out[expand]
   names(out) <- input_names
   out
 }
