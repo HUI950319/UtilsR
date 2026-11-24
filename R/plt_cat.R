@@ -1237,9 +1237,13 @@ plt_cat <- function(data,
       observed <- unique(codes)
       if (anyNA(observed)) observed <- observed[!is.na(observed)]
       member <- levels(values)[observed] %in% selected
-      if (length(observed) == 1L && !anyNA(codes)) rep.int(member, length(codes)) else
-        member[match(codes, observed)]
-    } else (levels(values) %in% selected)[codes]
+      if (!any(member)) rep.int(FALSE, length(codes)) else
+        if (length(observed) == 1L && !anyNA(codes)) rep.int(member, length(codes)) else
+          member[match(codes, observed)]
+    } else {
+      member <- levels(values) %in% selected
+      if (any(member)) member[codes] else rep.int(FALSE, length(codes))
+    }
     if (anyNA(found)) found[is.na(found)] <- FALSE
     names(found) <- names(values)
     return(found)

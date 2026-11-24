@@ -2490,3 +2490,18 @@ test_that("sparse category row IDs use a scalar integer range guard", {
   d$b <- d$a
   expect_identical(fn(d, "a", "b", "count"), .prepare_cat_data(d, "a", "b", "count"))
 })
+
+test_that("factor set membership with no matching level skips row mapping", {
+  fn <- .cat_set_members
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(table), quote(observed)) && length(x) == 120L && isTRUE(getOption("utilsr.test.absent_set"))) stop("unexpected match in .cat_set_members")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- factor(rep(c("red", NA, "blue"), 40L), levels = c("red", "blue", paste0("unused", 1:500)))
+  names(x) <- paste0("g", seq_along(x))
+  withr::local_options(utilsr.test.absent_set = TRUE)
+  expect_identical(fn(x, "nonexistent"), stats::setNames(rep.int(FALSE, 120L), names(x)))
+  withr::local_options(utilsr.test.absent_set = FALSE)
+  expect_identical(fn(x, "red"), .cat_set_members(x, "red"))
+  expect_identical(fn(droplevels(x), "nonexistent"), .cat_set_members(droplevels(x), "nonexistent"))
+})
