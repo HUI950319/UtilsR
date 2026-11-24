@@ -2,6 +2,303 @@
 
 ## UtilsR 0.6.23
 
+- Axis tiles share the baseline field names across all edited plot
+  leaves.
+
+- The ggrastr backend accepts an ordinary plot directly without making
+  and restoring a one-item list.
+
+- Pairwise comparison validation deduplicates existing character groups
+  without reconverting them.
+
+- Axis text settings reuse the side-specific theme keys as each
+  inherited element is updated.
+
+- Scale detection uses the same mapping identifier for data lookup and
+  for promise checks.
+
+- Continuous bar range calculations retain the value vector when the
+  grouping dictionary has one code.
+
+- Plots of a single incomplete column bypass alphabetical sorting of
+  variable names.
+
+- Butterfly bars retain their merged values without building a missing
+  mask for complete grids.
+
+- Circular plots use one set of matched positions when restoring labels
+  for distinct numeric group keys.
+
+- Rank correlation directly orders factor observations by code when the
+  factor dictionary is strictly sorted.
+
+- Rank correlation pivots avoid a duplicate scan when the wide result
+  has one item.
+
+- Batched reference lines keep ordinary style vectors that already have
+  the required length.
+
+- Alluvial counts avoid constructing a two-column grouping frame when
+  integer facet and category codes fit together.
+
+- Alluvial plots with one observed group reuse existing pair codes for
+  counts instead of generating combined grid indices.
+
+- Missingness plotting only collects fallback label positions when the
+  name map leaves a variable unmapped.
+
+- Plot flattening skips filtering inherited layout parameters if the
+  call supplies no replacements.
+
+- Axis text formatting avoids trigonometric alignment calculations when
+  horizontal and vertical justification are supplied.
+
+- Text formatting skips label recycling for ordinary input values
+  matching the leaf count.
+
+- Panel styling bypasses line-argument filtering when no grid line is
+  being edited.
+
+- Panel formatting avoids creating a blank element if the call keeps
+  existing elements or adds a visible border.
+
+- Reference lines use the native facet-safe path as soon as a dynamic
+  lookup is detected.
+
+- Reference lines bypass the additional-control scan when no extra
+  arguments are passed.
+
+- Axis formatting filters child plots only when a layout contains an
+  inset.
+
+- All three scatter entry points compare their two validated axis names
+  directly before normalizing encoded axes.
+
+- Plot means convert a single observed integer64 value directly instead
+  of computing both arithmetic limbs.
+
+- Named distribution palettes only build a missing-category diagnostic
+  when a name is absent.
+
+- Free continuous facets resolve scale-to-feature positions together
+  instead of looking up each scale against the full layout.
+
+- Continuous dot layers avoid a grouping-order pass after aggregation
+  returns only one cell.
+
+- Continuous plot annotations return the existing nonsignificant label
+  when all thresholds are at or below the result.
+
+- KNN preprocessing avoids repeatedly testing ordinary columns for
+  optional labelled and time storage.
+
+- KNN preprocessing obtains missing-tolerant numeric bounds without
+  installing warning handlers per column.
+
+- Scatter grouping derives nonmissing character, integer and logical
+  levels directly from numeric group IDs.
+
+- Point sampling only checks fixed aesthetic lengths when controls are
+  supplied.
+
+- Point sampling uses the full row sequence directly when a factor
+  defines one complete stratum.
+
+- Point shape conversion keeps values above the remapping range even
+  when some shapes are missing.
+
+- True-color previews apply a common foreground directly without a
+  per-swatch selection.
+
+- Console colour previews avoid scanning duplicate occurrences when all
+  decoded swatches are the same.
+
+- Palette previews reuse a full character dictionary when its attributes
+  already match the displayed result.
+
+- Palette application avoids coercing an ordinary character result whose
+  only possible attribute is its name vector.
+
+- Palette application skips reverse order for an ordinary single-colour
+  result.
+
+- Numeric palette scaling uses the already computed range width for
+  interpolation.
+
+- Categorical background bands only filter implicit missing axis labels
+  when those labels occur.
+
+- Categorical palette construction only compares labels with a nonempty
+  missing-level set.
+
+- Sparse percentage counts use their sorted subgroup codes to detect
+  groups containing one cell.
+
+- Sparse category counts avoid allocating duplicate flags when all
+  retained rows share the same pair.
+
+- Set membership for a complete repeated sparse category avoids
+  rematching its row codes.
+
+- Inspection only masks the distinct character dictionary when counting
+  and displaying observed labels.
+
+- Logical inspection frequencies share one presence mask between labels
+  and counts.
+
+- Inspection frequencies use the existing first observation for one
+  repeated numeric value.
+
+- Inspection frequencies avoid copying sorted complete numeric keys
+  through an identity permutation.
+
+- P-value tables leave the base text style in place when there are no
+  significant values.
+
+- Descriptions join value labels only for the codes that actually have
+  labels.
+
+- Console object descriptions encode factor labels once and use the
+  existing missing positions.
+
+- Plain console P-value styling writes threshold markers into one vector
+  without nested result selection.
+
+- Console wrapping returns single printable ASCII lines directly when
+  their width and spacing already fit.
+
+- Headers only filter converted components if a missing or empty part is
+  present.
+
+- Console key-value output retains the original field and key vectors
+  when no settings are NULL.
+
+- Console conversion skips a second missingness mask when a factor’s
+  labels are complete.
+
+- Console text conversion preserves plain character vectors and their
+  missing values without coercing or masking them.
+
+- Console width checks avoid building the duplicate expansion index when
+  all labels already fit.
+
+- Sankey stages with one level keep their existing codes when reversed.
+
+- Sankey plots use complete stage label strings directly when only names
+  are displayed.
+
+- Sankey plots keep generated stage names directly when they do not
+  collide with source columns.
+
+- Single-group rank data use the scaled score vector directly for
+  full-group scaling.
+
+- Numeric binning retains unadorned character levels instead of
+  converting the same dictionary again.
+
+- A sparse recode with one fully observed source category fills the new
+  code without matching all rows.
+
+- UpSet selection with missing values enabled directly unions matches
+  with the missing rows.
+
+- UpSet relabelling only allocates positions for set names that have
+  replacements.
+
+- UpSet selection retains the observation factor codes and maps only the
+  query dictionary.
+
+- Circular lollipop plots use existing row order directly in a single
+  sector.
+
+- Wide sparse factor tallies use the row count when all rows have the
+  same observed code.
+
+- Custom quality markers retain their candidate positions when a pattern
+  makes no matches.
+
+- Character quality checks skip slicing the dictionary when no category
+  matches a special value.
+
+- Log-scale interval checks avoid combining validity masks when every
+  interval is eligible.
+
+- Confidence interval scale classification can select a single repeated
+  component row without searching its group IDs.
+
+- A vector containing a single confidence interval spelling reuses its
+  parsed row without matching all input strings.
+
+- Confidence interval parsing reads the known first character position
+  without allocating a vector of identical match offsets.
+
+- Decimal P-value annotations only collect the rows that advance past
+  each tied numeric cutoff once.
+
+- Decimal P-value annotation uses the comparison results to locate ties
+  without building a separate missing mask.
+
+- P-value annotations skip the interval lookup when every observed value
+  exceeds the largest significance cutoff.
+
+- Plain P-value formatting checks for signed zeros only when a vector
+  can use duplicate formatting.
+
+- Legend lookups retain complete aesthetic mappings directly after
+  checking for disabled entries.
+
+- Legend mappings reuse a fully named unique aesthetic dictionary when
+  no layer aesthetic is fixed.
+
+- Legend mapping skips recursive expression inspection on stats with no
+  default aesthetics.
+
+- Strip relabelling skips deduplication when the input facet labels are
+  already unique.
+
+- Inset placement obtains a single panel’s boundaries directly, while
+  preserving reductions over multiple panels.
+
+- Panel sizing takes the sole shared spanning range directly without a
+  panel-sized duplicate mask.
+
+- Object size inspection skips row-length missing flags when every
+  object is readable.
+
+- Rank plots use the returned ranks to flag highlighted items without
+  concatenating two logical vectors.
+
+- Rank plots check drawing sizes before sorting scores and building
+  data, while data-only returns retain their existing behavior.
+
+- Alluvial columns with one observed level and many unused levels reuse
+  the observed code without a row lookup.
+
+- Alluvial counts reuse existing category codes when a facet has one
+  observed level.
+
+- Circular axes obtain the single observed categorical key directly and
+  bound duplicate indexing for multiple keys.
+
+- Factor combinations compare input lengths without hashing them.
+
+- Rank correlation avoids a full duplicate mask for one repeated display
+  group.
+
+- Factor combinations only create a character sorting permutation when
+  the observed dictionary needs reordering.
+
+- Jaccard heatmaps reuse complete ordinary group dictionaries directly.
+
+- Discrete palettes remove missing values from the character dictionary
+  instead of scanning and subsetting all observations.
+
+- Continuous dot counts avoid a row-length duplicate mask when all rows
+  share a bin.
+
+- Circular lollipop plots reject impossible angular gaps before
+  allocating row groups.
+
 - Console trimming avoids re-expanding a deduplicated text vector when
   none of its labels needs trimming.
 
