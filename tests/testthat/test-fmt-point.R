@@ -1367,3 +1367,14 @@ test_that("point sampling diagnoses external row vectors read through get0", {
   expect_no_error(out <- fmt_point(p, sample_n = 5L))
   expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1L]]), 5L)
 })
+
+test_that("point sampling exits a staged expression at the first calculated piece", {
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("vapply" = function(X, FUN, FUN.VALUE, ...) {
+    if (identical(substitute(X), quote(as.list(expr)[-1L])) && length(X) > 1L) stop("unexpected vapply in .fmt_point_sample")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = 1:30)
+  mapping <- ggplot2::aes(x, colour = paste0(ggplot2::after_stat(x), "-point"))
+  expect_identical(fn(d, mapping, 3L, 40L), .fmt_point_sample(d, mapping, 3L, 40L))
+})

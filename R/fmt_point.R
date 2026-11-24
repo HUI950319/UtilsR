@@ -399,7 +399,10 @@ fmt_point <- function(plot,
     if (!is.call(expr)) return(FALSE)
     if (isTRUE(rlang::call_name(expr) %in% c("after_stat", "stat", "after_scale", "stage", "from_theme")))
       return(TRUE)
-    any(vapply(as.list(expr)[-1L], is_late, logical(1)))
+    for (arg in as.list(expr)[-1L]) {
+      if (is_late(arg)) return(TRUE)
+    }
+    FALSE
   }
   if (length(fixed) && any(lengths(fixed) > 1L)) {
     cli::cli_abort("Sampling requires scalar fixed aesthetics; put row vectors in {.arg data} and map its columns.")

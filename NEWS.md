@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling stops walking nested mapping arguments after locating a calculated aesthetic.
+
 * Point sampling recognizes external full-row vectors read by simple get0 lookups before building a layer.
 
 * Legend mapping resolution keeps mappings directly when a stat provides no calculated defaults.
