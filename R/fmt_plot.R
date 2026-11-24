@@ -5237,7 +5237,9 @@ fmt_bg <- function(plot,
           }
           list(fill = fills, edges = edges)
         }, scales[discrete], trained)
-        params$bg_panels <- geometry[match(scale_ids, distinct)]
+        params$bg_panels <- if (length(distinct) == length(scale_ids)) geometry else
+          if (length(distinct) == 1L) rep.int(geometry, length(scale_ids)) else
+            geometry[match(scale_ids, distinct)]
         ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
       },
       draw_panel = function(data, panel_params, coord, bg_panels, na.rm = FALSE) {

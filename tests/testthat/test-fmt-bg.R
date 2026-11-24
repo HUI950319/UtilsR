@@ -744,3 +744,20 @@ test_that("complete trained stripe labels skip a second missing-value mask", {
   p$data <- d
   expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
 })
+
+test_that("per-panel and shared background scales need no remapping lookup", {
+  fn <- fmt_bg
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(scale_ids)) && identical(substitute(table), quote(distinct)) &&
+      (length(x) == length(table) || length(table) == 1L)) stop("unexpected match in fmt_bg")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  environment(fn)$fmt_bg <- fn
+  d <- data.frame(g = rep(c("A", "B", "A", "C"), 3L), y = 1:12, panel = rep(1:6, each = 2L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  for (scales in c("fixed", "free_x")) {
+    q <- p + ggplot2::facet_wrap(ggplot2::vars(panel), scales = scales)
+    draw <- function(f) bg_rects(ggplot2::ggplotGrob(f(q, palcolor = bg_colors)))
+    expect_identical(draw(fn), draw(fmt_bg))
+  }
+})

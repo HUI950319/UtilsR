@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Background panel geometry reuses its native order for distinct scales and repeats one geometry for a shared scale.
+
 * Background stripe drawing keeps complete trained category labels without filtering every scale entry.
 
 * Parsed intervals avoid calculating replacement bounds at 95 percent confidence while keeping P-value and formatting behavior.
