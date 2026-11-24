@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous mean and standard deviation summaries use a zero spread for complete finite ordinary constant samples.
+
 * Categorical set membership skips row mapping when none of its factor labels are selected.
 
 * Categorical count tables decide integer row names with scalar extrema when the theoretical factor grid exceeds the integer range.

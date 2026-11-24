@@ -2947,3 +2947,22 @@ test_that("extreme spread calculations use finite extrema instead of checking ev
   expect_equal(fn(x * 0), .con_mean_sd(x * 0))
   expect_equal(suppressWarnings(fn(c(x, Inf))), suppressWarnings(.con_mean_sd(c(x, Inf))))
 })
+
+test_that("ordinary constant bar samples reuse their zero spread", {
+  fn <- .con_mean_sd
+  environment(fn) <- list2env(list("min" = function(..., na.rm = FALSE) {
+    value <- list(...)[[1L]]
+    if (identical(value, seq_len(900L))) stop("scanned the range for a nonconstant sample")
+    base::min(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  x <- rep(16, 900L)
+  sd <- stats::sd
+  local_mocked_bindings(sd = function(x, ...) {
+    if (length(x) == 900L && all(x == 16)) stop("computed spread for a constant continuous sample")
+    sd(x, ...)
+  }, .package = "stats")
+  expect_identical(fn(x), data.frame(y = 16, ymin = 16, ymax = 16))
+  expect_equal(fn(seq_len(900L)), .con_mean_sd(seq_len(900L)))
+  expect_equal(fn(c(1, 3, 5)), data.frame(y = 3, ymin = 1, ymax = 5))
+  expect_identical(fn(3)$ymax, NaN)
+})

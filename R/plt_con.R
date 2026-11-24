@@ -1338,8 +1338,11 @@ plt_con <- function(data,
 .con_mean_sd <- function(x, mult = 1) {
   if (is.object(x) || anyNA(x)) x <- x[!is.na(x)]
   centre <- mean(x)
-  spread <- if (length(x) > 1L) stats::sd(x) else NaN
-  if (length(x) > 1L && (!is.finite(spread) ||
+  n <- length(x)
+  constant <- n > 32L && !is.object(x) && is.finite(centre) &&
+    x[[1L]] == x[[n]] && min(x) == max(x)
+  spread <- if (constant) 0 else if (n > 1L) stats::sd(x) else NaN
+  if (!constant && n > 1L && (!is.finite(spread) ||
       (spread == 0 && (if (is.object(x)) any(x != x[1L]) else min(x) != max(x))) ||
       (spread > 0 && spread < sqrt(.Machine$double.xmin)))) {
     bounds <- if (!is.object(x) || all(is.finite(x))) c(min(x), max(x))
