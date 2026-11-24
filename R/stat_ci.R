@@ -125,7 +125,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
         ids <- vctrs::vec_group_id(vctrs::new_data_frame(keys))
         count <- attr(ids, "n")
         if (count < n / 2) {
-          first <- if (count == 1L) 1L else match(seq_len(count), ids)
+          first <- if (count == 1L) 1L else which(!duplicated(ids, nmax = count))
           args[varying] <- lapply(args[varying], `[`, first)
           text <- .drop_signed_zero(do.call(sprintf, c(list(fmt), args)))
           return(if (count == 1L) rep.int(text, n) else text[ids])

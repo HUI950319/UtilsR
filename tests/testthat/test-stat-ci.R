@@ -455,3 +455,14 @@ test_that("short interval inputs avoid duplicate grouping preparation", {
   expect_identical(fn(c("2.34 (1.2,3.6)", "0.07 [0.01,0.08]"), sep = ", "),
     c("2.34 (1.20, 3.60)", "0.07 (0.01, 0.08)"))
 })
+
+test_that("interval precision dictionaries take first group rows with bounded tracking", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(seq_len(count))) && identical(substitute(table), quote(ids))) stop("unexpected match in stat_ci")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  keys <- c("1.1 (0.6, 1.6)", "8.00 (7.50, 8.50)", "2.123 (1.623, 2.623)")
+  x <- rep(keys, 450L)
+  expect_identical(fn(x), rep(stat_ci(keys), 450L))
+})
