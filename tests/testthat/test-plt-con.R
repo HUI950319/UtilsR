@@ -2890,3 +2890,18 @@ test_that("paired integer comparisons promote differences beyond the integer ran
   expect_equal(pair(1:4, c(1L, 3L, 6L, 8L), paired = TRUE)$p.value,
                pair(as.double(1:4), c(1, 3, 6, 8), paired = TRUE)$p.value)
 })
+
+test_that("cached continuous tests use the number of unique sample references", {
+  fn <- .con_cached_test
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(reference_ids)) && length(x) > 50L && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in .con_cached_test")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  sample <- function(x) list2env(list(value = x), parent = emptyenv())
+  x <- sample(c(1, 2, 3)); y <- sample(c(2, 4, 6)); z <- sample(c(2, 3, 5))
+  cache <- rep(list(list(x = x, y = y, p.value = .02, warnings = character()),
+                    list(x = x, y = z, p.value = .5, warnings = character())), 80L)
+  calc <- fn(stats::wilcox.test, list(), cache)
+  expect_identical(calc(x$value, y$value)$p.value, .02)
+  expect_identical(calc(x$value, z$value)$p.value, .5)
+})

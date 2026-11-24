@@ -1071,8 +1071,11 @@ plt_con <- function(data,
   references <- unlist(lapply(cache, function(entry) entry[c("x", "y")]),
                        recursive = FALSE, use.names = FALSE)
   reference_ids <- vctrs::vec_group_id(references)
-  group_ids <- integer(attr(reference_ids, "n"))
-  for (i in which(!duplicated(reference_ids))) {
+  n_refs <- attr(reference_ids, "n")
+  group_ids <- integer(n_refs)
+  first <- if (n_refs == length(reference_ids)) seq_along(reference_ids) else
+    if (n_refs == 1L) 1L else which(!duplicated(reference_ids, nmax = n_refs))
+  for (i in first) {
     group <- references[[i]]
     at <- find_group(group[["value"]])
     if (is.na(at)) {
