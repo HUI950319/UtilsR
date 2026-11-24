@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Two-wing plots use the first factor code to order a complete two-level group without hashing all rows.
+
 * KNN checks remaining missing targets with the shared missing-value counter, including ordinary factors.
 
 * KNN means skip NA removal for complete ordinary donors and retain the existing missing and extreme-value behavior.

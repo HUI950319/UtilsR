@@ -259,7 +259,10 @@ PlotButterfly2 <- function(
   group <- data[[group.by]]
   factor_group <- identical(class(group), "factor") || identical(class(group), c("ordered", "factor"))
   wing_codes <- if (factor_group) as.integer(group) else as.character(group)
-  observed <- unique(wing_codes)
+  observed <- if (factor_group && nlevels(group) == 2L && length(wing_codes) &&
+      !anyNA(wing_codes) && min(wing_codes) == 1L && max(wing_codes) == 2L) {
+    c(wing_codes[1L], 3L - wing_codes[1L])
+  } else unique(wing_codes)
   groups <- if (factor_group) base::levels(group)[observed] else observed
   if (anyNA(groups)) cli::cli_abort("{.arg group.by} must not contain missing group values.")
   if (length(groups) != 2L)

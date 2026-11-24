@@ -1559,3 +1559,18 @@ test_that("complete named butterfly palettes avoid verifying the same coverage t
     palette = c(x = "red", y = "blue"), type = "bar")
   expect_identical(run(fn)[[1L]]$data, run(PlotButterfly)[[1L]]$data)
 })
+
+test_that("two complete factor wings derive their observed order from the first row", {
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(wing_codes)) && !anyNA(x) && length(x) > 100L) stop("unexpected unique in PlotButterfly2")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(feature = rep(c("a", "b"), 60L), score = rep(1:15, 8L),
+    wing = factor(rep(c("right", "left"), each = 60L), levels = c("left", "right")))
+  out <- fn(d, "feature", "score", "wing", type = "box")
+  expect_equal(out[[1L]]$labels$title, "right")
+  expect_equal(out[[2L]]$labels$title, "left")
+  d$wing[1L] <- NA
+  expect_error(fn(d, "feature", "score", "wing", type = "box"), "missing group values")
+})
