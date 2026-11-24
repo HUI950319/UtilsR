@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Special-value normalization collects whitespace positions without a full logical vector.
+
 * Categorical UpSet inputs with more than 31 sets allocate duplicate tracking for the observed membership groups.
 
 * Packed categorical UpSet grouping gets representative codes from the existing row IDs without rehashing membership codes.

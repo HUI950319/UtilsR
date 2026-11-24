@@ -1117,3 +1117,14 @@ test_that("all special factor labels count without subsetting tallies", {
   expect_equal(fn(x), 300)
   expect_equal(fn(x, "^blank$"), 100)
 })
+
+test_that("special marker normalization selects whitespace positions directly", {
+  fn <- .is_special_value
+  environment(fn) <- list2env(list("grepl" = function(pattern, x, ...) {
+    if (identical(pattern, "[\\h\\v]")) stop("unexpected grepl in .is_special_value")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(fn))
+  x <- c("regional", " Unknown ", NA, "", "\t", "not\u00a0available", "a.b")
+  expect_identical(fn(x), .is_special_value(x))
+  expect_identical(fn(x, c("^Unknown$", "a[.]b")), .is_special_value(x, c("^Unknown$", "a[.]b")))
+})

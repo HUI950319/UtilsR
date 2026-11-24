@@ -378,8 +378,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   if (!length(u) || (!is.null(special) && !length(special))) return(rep(FALSE, length(u)))
   # Normalize only values holding whitespace and match caselessly, so values
   # such as identifiers are not copied, lowercased or trimmed with TRE.
-  ws <- grepl("[\\h\\v]", u, perl = TRUE)
-  if (any(ws)) {
+  ws <- grep("[\\h\\v]", u, perl = TRUE)
+  if (length(ws)) {
     u[ws] <- gsub("^ | $", "", gsub("[\\h\\v]+", " ", u[ws], perl = TRUE),
                   perl = TRUE)
   }
