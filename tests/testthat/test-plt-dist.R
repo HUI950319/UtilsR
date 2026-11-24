@@ -1184,3 +1184,17 @@ test_that("complete named distribution colours skip a missing-name subset", {
   expect_identical(draw(fn, c(A = "red", B = "blue"))$data, draw(plt_dist, c(A = "red", B = "blue"))$data)
   expect_error(draw(fn, c(A = "red")), "missing")
 })
+
+test_that("time label formatting bounds first rows by observed time keys", {
+  fn <- plt_dist
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(ids)) && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in plt_dist")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  instants <- as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York")
+  d <- data.frame(x = rep(instants, 300L), group = rep(c("A", "B", "A"), 200L))
+  run <- function(f, d) suppressMessages(f(d, c("x", "group"), type = "bar"))$data
+  expect_identical(run(fn, d), run(plt_dist, d))
+  d$x <- rep(instants[1L], nrow(d))
+  expect_identical(run(fn, d), run(plt_dist, d))
+})

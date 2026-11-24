@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution plots size duplicate tracking for time labels from the observed exact timestamps.
+
 * Rank facets reuse their full data for labels if every shown row is highlighted.
 
 * Single-group rank outputs construct the group factor from its constant code without matching rows.

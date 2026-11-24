@@ -436,7 +436,10 @@ plt_dist <- function(data,
       }
       if (!is.null(key)) {
         ids <- vctrs::vec_group_id(key)
-        at <- if (attr(ids, "n") < length(ids)) which(!duplicated(ids))
+        n_keys <- attr(ids, "n")
+        at <- if (n_keys < length(ids)) {
+          if (n_keys == 1L) 1L else which(!duplicated(ids, nmax = n_keys))
+        }
         distinct <- if (is.null(at)) key else key[at]
         native_labels <- !is.object(value) ||
           class(value)[1L] %in% c("AsIs", "Date", "POSIXct", "POSIXlt", "difftime",
