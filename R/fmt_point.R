@@ -503,7 +503,12 @@ fmt_point <- function(plot,
   }
   for (facet in facets) {
     # Absent facet variables replicate the layer; ggplot2 diagnoses invalid facets.
-    values <- tryCatch(rlang::eval_tidy(facet, data = data), error = function(e) NULL)
+    expr <- rlang::get_expr(facet)
+    column <- if (is.symbol(expr)) as.character(expr)
+    values <- if (identical(class(data), "data.frame") && length(column) &&
+                  !column %in% c(".data", ".env") && column %in% names(data)) {
+      data[[column]]
+    } else tryCatch(rlang::eval_tidy(facet, data = data), error = function(e) NULL)
     if (is.null(values)) next
     if (inherits(values, "integer64") && !requireNamespace("bit64", quietly = TRUE))
       cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")

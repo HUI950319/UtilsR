@@ -1378,3 +1378,16 @@ test_that("point sampling exits a staged expression at the first calculated piec
   mapping <- ggplot2::aes(x, colour = paste0(ggplot2::after_stat(x), "-point"))
   expect_identical(fn(d, mapping, 3L, 40L), .fmt_point_sample(d, mapping, 3L, 40L))
 })
+
+test_that("facet symbol sampling reads ordinary source columns directly", {
+  d <- data.frame(x = 1:40, panel = rep(c("left", "right"), each = 20L))
+  facets <- ggplot2::vars(panel)
+  want <- .fmt_point_sample(d, ggplot2::aes(x), 4L, 10L, facets = facets)
+  evaluation <- rlang::eval_tidy
+  local_mocked_bindings(eval_tidy = function(expr, data = NULL, ...) {
+    if (identical(substitute(expr), quote(facet))) stop("evaluated a simple facet column")
+    evaluation(expr, data = data, ...)
+  }, .package = "rlang")
+  expect_identical(.fmt_point_sample(d, ggplot2::aes(x), 4L, 10L, facets = facets), want)
+  expect_equal(unname(table(want$panel)), structure(c(4L, 4L), dim = 2L, class = "table"))
+})
