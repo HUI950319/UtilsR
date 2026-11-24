@@ -3609,3 +3609,17 @@ test_that("strictly ordered numeric palette categories reuse their values", {
   expect_identical(fn(c(4L, 2L, NA_integer_, 2L)), c("4", "2"))
   expect_error(fn(c(1, 1 + .Machine$double.eps)), "same discrete colour name")
 })
+
+test_that("uniform palette alpha restores colors without a lookup vector", {
+  fn <- .pal_apply
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(input)) && length(table) == 1L && length(x) > 1024L) stop("unexpected match in .pal_apply")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- paste0("item", 1:1200)
+  cols <- rep("#246890AA", 1200L)
+  out <- fn(cols, x = x, alpha = .42)
+  expect_identical(out, stats::setNames(ggplot2::alpha(cols, .42), x))
+  cols[1L] <- "#119955"
+  expect_identical(fn(cols, x = x, alpha = .42), .pal_apply(cols, x = x, alpha = .42))
+})

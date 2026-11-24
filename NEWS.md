@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette alpha formatting retains vector color encoding and replicates the result directly for one repeated input color.
+
 * Long repeated numeric p values expand their sole formatted result without building a matching vector.
 
 * Stat interval formatting finds negative-zero candidates without building a logical vector across formatted rows.

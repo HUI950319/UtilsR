@@ -800,7 +800,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     # Use vector-sized encoding when deduplication leaves a single colour.
     if (!is.null(keys) && length(keys) == 1L) out <- rep.int(out, 2L)
     out <- ggplot2::alpha(out, alpha)
-    if (!is.null(keys)) out <- out[match(input, keys)]
+    if (!is.null(keys)) {
+      out <- if (length(keys) == 1L) rep.int(out[[1L]], length(input)) else out[match(input, keys)]
+    }
   }
 
   if (is.character(out) && all(names(attributes(out)) %in% "names")) {
