@@ -731,11 +731,17 @@ fmt_tag <- function(plot,
       holder$patches$plots <- lapply(seq_along(tagged), function(j) tagged[[j]])
       plots[[i]] <- holder
     } else {
+      facet <- plots[[i]]$facet$params
+      facets <- c(facet$facets, facet$rows, facet$cols)
+      dynamic_facets <- any(vapply(facets, function(expr) {
+        any(c("get", "get0") %in% all.names(rlang::get_expr(expr)))
+      }, logical(1)))
       plots[[i]] <- plots[[i]] + .fmt_tag_layer(
         npcx[i], npcy[i], labels[i], size = size[i], fontface = fontface,
         color = color[i], theme_family = family[i], label.size = label.size,
         label.padding = label.padding, label.r = label.r,
-        facet_columns = .plot_facet_columns(plots[[i]]), ...
+        facet_columns = if (!dynamic_facets) .plot_facet_columns(plots[[i]]),
+        dynamic_facets = dynamic_facets, ...
       )
     }
   }
@@ -757,9 +763,9 @@ fmt_tag <- function(plot,
 # used unless `...` names a `family` of its own.
 .fmt_tag_layer <- function(npcx, npcy, label, size, fontface, color,
                            theme_family, label.size, label.padding, label.r,
-                           ..., facet_columns = character()) {
+                           ..., facet_columns = character(), dynamic_facets = FALSE) {
   list(npcx, npcy, label, size, fontface, color, theme_family, label.size,
-       label.padding, label.r, facet_columns, ...)
+       label.padding, label.r, facet_columns, dynamic_facets, ...)
   tag_data <- data.frame(npcx = npcx, npcy = npcy, label = label)
   columns <- names(tag_data)
   collide <- columns %in% facet_columns
@@ -783,6 +789,14 @@ fmt_tag <- function(plot,
     label.r = label.r,
     ...
   )
+  if (dynamic_facets) {
+    # Supply the annotation only after the original layers train the facets.
+    layer$data <- data.frame(row.names = 1L)
+    layer$compute_aesthetics <- function(self, data, plot) data
+    layer$compute_statistic <- eval(quote(function(self, data, layout) {
+      data.frame(tag_data, PANEL = layout$layout$PANEL, group = -1L)
+    }), list2env(list(tag_data = tag_data), parent = baseenv()))
+  }
   # NPC belongs to the displayed panel, not the data coordinate system.
   layer$geom <- ggplot2::ggproto(NULL, ggpp::GeomLabelNpc,
     draw_panel = function(data, panel_params, coord, parse = FALSE, na.rm = FALSE,

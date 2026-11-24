@@ -603,3 +603,16 @@ test_that("tag family inheritance reuses adjacent equal plot themes", {
   expect_equal(calls, 1L)
   expect_identical(ggplot2::ggplot_build(result[[1L]])$data, expected)
 })
+
+test_that("in-panel tags keep dynamic facet inputs outside the annotation layer", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  label <- rep(c("one", "two"), each = 3L)
+  second <- rep(c("left", "right"), 3L)
+  field <- "label"
+  p <- local(ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_grid(ggplot2::vars(a = get(field)), ggplot2::vars(b = get0("second"))))
+  expected <- ggplot2::ggplot_build(p)$layout$layout
+  result <- ggplot2::ggplot_build(fmt_tag(p, labels = "Tag"))
+  expect_identical(result$layout$layout, expected)
+  expect_equal(result$data[[2L]]$label, rep("Tag", nrow(expected)))
+})
