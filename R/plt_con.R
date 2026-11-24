@@ -1119,7 +1119,9 @@ plt_con <- function(data,
 
 .con_signif_mapping <- function(mapping) {
   force(mapping)
-  upper <- if (is.numeric(mapping) && !is.object(mapping)) max(-Inf, mapping, na.rm = TRUE)
+  upper <- if (is.numeric(mapping) && !is.object(mapping)) {
+    if (is.null(names(mapping))) -Inf else max(-Inf, mapping, na.rm = TRUE)
+  }
   function(p) {
     if (!is.finite(p)) return(NA_character_)
     if (is.numeric(mapping)) {

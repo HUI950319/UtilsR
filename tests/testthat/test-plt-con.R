@@ -2865,3 +2865,16 @@ test_that("continuous Welch comparisons recover from nonfinite degrees of freedo
   layers <- ggplot2::ggplot_build(p)$data
   expect_true(any(vapply(layers, function(layer) "annotation" %in% names(layer) && nrow(layer) > 0L, logical(1))))
 })
+
+test_that("unnamed significance cutoffs have no labels to evaluate", {
+  fn <- .con_signif_mapping
+  environment(fn) <- list2env(list("which.min" = function(x) {
+    if (is.null(names(x))) stop("unexpected which.min in .con_signif_mapping")
+    base::which.min(x)
+  }), parent = environment(fn))
+  cuts <- c(0.05, 0.01, NA_real_)
+  labels <- fn(cuts)
+  expect_identical(vapply(c(0.003, 0.05, NA, Inf), labels, ""), c("NS.", "NS.", NA, NA))
+  names(cuts) <- c("*", "**", "?")
+  expect_identical(vapply(c(0.003, 0.01, 0.05), fn(cuts), ""), c("**", "*", "NS."))
+})

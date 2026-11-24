@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous comparison labels return the existing NS. value immediately for ordinary unnamed numeric cutoffs.
+
 * P-value formatting reuses bound presence detected during validation instead of rescanning input rows.
 
 * Paired comparison ID generation avoids existing bindings in facet environments, including inherited lookup names.
