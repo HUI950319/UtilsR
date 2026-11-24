@@ -1196,3 +1196,16 @@ test_that("reversing one complete Sankey level reuses dense codes", {
   expect_identical(as.character(draws$data$label), rep(c("one", "x", "one", "y"), 3L))
   expect_identical(levels(draws$data$label), c("one", "y", "x"))
 })
+
+test_that("one-stage Sankey paths require no matrix reshape", {
+  fn <- .sankey_path_rows
+  environment(fn) <- list2env(list("do.call" = function(what, args, ...) {
+    if (identical(what, base::rbind) && length(args) == 1L) stop("unexpected do.call in .sankey_path_rows")
+    base::do.call(what, args, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = factor(c("b", NA, "a")), b = c("one", "two", "two"))
+  expect_identical(fn(d, "a"), .sankey_path_rows(d, "a"))
+  expect_identical(fn(d[0L, ], "a"), .sankey_path_rows(d[0L, ], "a"))
+  expect_identical(fn(d, names(d)), .sankey_path_rows(d, names(d)))
+  expect_identical(fn(d, "a")$next_node, rep(NA_character_, nrow(d)))
+})
