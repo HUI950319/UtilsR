@@ -115,9 +115,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
     args <- list(...)
     lens <- lengths(args)
     n <- max(lens, 0L)
-    varying <- which(lens == n)
-    if (n > 1024L && !any(vapply(args, is.object, logical(1))) &&
-        all(lens %in% c(1L, n))) {
+    if (n > 1024L && all(lens %in% c(1L, n)) &&
+        !any(vapply(args, is.object, logical(1)))) {
+      varying <- which(lens == n)
       keys <- stats::setNames(args[varying], paste0("v", seq_along(varying)))
       probe <- lapply(keys, `[`, seq.int(1L, n, length.out = 1024L))
       probe_ids <- vctrs::vec_group_id(vctrs::new_data_frame(probe))

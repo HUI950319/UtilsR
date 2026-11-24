@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Short confidence interval and mean/SD formatting avoids collecting positions for duplicate grouping.
+
 * Interval formatting checks the expensive byte-width guard using the validated maximum precision.
 
 * Confidence interval formatting takes the first representative directly when every input tuple is identical.

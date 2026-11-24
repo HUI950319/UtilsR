@@ -444,3 +444,14 @@ test_that("ordinary interval precisions reuse their checked upper bound", {
   expect_identical(fn(x, sep = ", "), rep(c("0.1 (0.0, 2.0)", "0.025 (0.000, 1.000)"), 800L))
   expect_error(fn(1e300, 0, 1, digits = 8190L), "8192-byte")
 })
+
+test_that("short interval inputs avoid duplicate grouping preparation", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(lens == n))) stop("unexpected which in stat_ci")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(c(1, 3), c(.5, .4)), c("1.0(0.5)", "3.0(0.4)"))
+  expect_identical(fn(c("2.34 (1.2,3.6)", "0.07 [0.01,0.08]"), sep = ", "),
+    c("2.34 (1.20, 3.60)", "0.07 (0.01, 0.08)"))
+})
