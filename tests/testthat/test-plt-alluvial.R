@@ -1601,3 +1601,17 @@ test_that("bounded alluvial facet pairs group packed integer codes", {
   result <- plt_alluvial(d, "category", "group", facet = "facet", stratum_args = list(gap = 0))
   expect_identical(result$data, ref$data)
 })
+
+test_that("alluvial pair representatives bound duplicate tracking to observed keys", {
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(pair_id)) && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in plt_alluvial")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  d <- data.frame(stage = rep(c("second", "first", "first", "final"), 300L),
+    group = rep(c("A", "B"), each = 600L), facet = rep(c("west", "east"), 600L))
+  draw <- function(f) f(d, "stage", "group", facet = "facet", stratum_args = list(gap = 0),
+    label_args = list(style = "none"))$data
+  expect_identical(draw(fn), draw(plt_alluvial))
+  expect_equal(sum(draw(fn)$count), nrow(d))
+})

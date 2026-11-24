@@ -522,7 +522,7 @@ plt_alluvial <- function(
   unique_pairs <- n_pairs == length(pair_id)
   if (multiple_facets) {
     pairs <- if (unique_pairs) plot_input[pair_columns] else
-      plot_input[!duplicated(pair_id), pair_columns]
+      plot_input[!duplicated(pair_id, nmax = n_pairs), pair_columns]
     pair_order <- order(pairs$.cat_var, pairs$.facet)
     if (is.unsorted(pair_order)) {
       pairs <- pairs[pair_order, , drop = FALSE]
