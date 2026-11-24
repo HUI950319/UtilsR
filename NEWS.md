@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous mean and standard deviation summaries check ordinary extreme samples through their extrema.
+
 * Single-feature continuous plots avoid rowwise finiteness flags for fully finite ordinary outcomes.
 
 * Confidence interval scaling repeats the result of a shared tuple without copying the full row IDs.

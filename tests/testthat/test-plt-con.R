@@ -2935,3 +2935,15 @@ test_that("complete single continuous features bypass an observation mask", {
   q <- suppressMessages(plt_con(d, "x", "g", type = "box"))
   expect_equal(sort(q$data$value), 2:120)
 })
+
+test_that("extreme spread calculations use finite extrema instead of checking every row", {
+  fn <- .con_mean_sd
+  environment(fn) <- list2env(list("is.finite" = function(x) {
+    if (identical(substitute(x), quote(x)) && length(x) >= 100L && all(base::is.finite(x))) stop("unexpected is.finite in .con_mean_sd")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  x <- rep(c(-9e250, 2e250, 6e250), 80L)
+  expect_equal(fn(x), .con_mean_sd(x))
+  expect_equal(fn(x * 0), .con_mean_sd(x * 0))
+  expect_equal(suppressWarnings(fn(c(x, Inf))), suppressWarnings(.con_mean_sd(c(x, Inf))))
+})

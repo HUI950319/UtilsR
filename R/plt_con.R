@@ -1341,11 +1341,14 @@ plt_con <- function(data,
   spread <- if (length(x) > 1L) stats::sd(x) else NaN
   if (length(x) > 1L && (!is.finite(spread) ||
       (spread == 0 && (if (is.object(x)) any(x != x[1L]) else min(x) != max(x))) ||
-      (spread > 0 && spread < sqrt(.Machine$double.xmin))) && all(is.finite(x))) {
-    midpoint <- min(x) / 2 + max(x) / 2
-    shifted <- x - midpoint
-    scale <- if (is.object(shifted)) max(abs(shifted)) else max(abs(c(min(shifted), max(shifted))))
-    if (scale > 0) spread <- stats::sd(shifted / scale) * scale
+      (spread > 0 && spread < sqrt(.Machine$double.xmin)))) {
+    bounds <- if (!is.object(x) || all(is.finite(x))) c(min(x), max(x))
+    if (length(bounds) && all(is.finite(bounds))) {
+      midpoint <- bounds[1L] / 2 + bounds[2L] / 2
+      shifted <- x - midpoint
+      scale <- if (is.object(shifted)) max(abs(shifted)) else max(abs(c(min(shifted), max(shifted))))
+      if (scale > 0) spread <- stats::sd(shifted / scale) * scale
+    }
   }
   data.frame(y = centre, ymin = centre - mult * spread, ymax = centre + mult * spread)
 }
