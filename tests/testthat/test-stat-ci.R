@@ -433,3 +433,14 @@ test_that("one repeated interval uses its first formatting input directly", {
                    setNames(rep("0.00 (-1.20, 0.40)", length(x)), names(x)))
   expect_identical(fn(x, rep(1, length(x)), digits = 1), setNames(rep("0.0(1.0)", length(x)), names(x)))
 })
+
+test_that("ordinary interval precisions reuse their checked upper bound", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list(">" = function(e1, e2) {
+    if (identical(substitute(e1), quote(d)) && length(e1) > 1L && e2 == 7881L) stop("unexpected > in stat_ci")
+    base::">"(e1, e2)
+  }), parent = environment(fn))
+  x <- rep(c("0.1 (0, 2)", "0.025 (0, 1)"), 800L)
+  expect_identical(fn(x, sep = ", "), rep(c("0.1 (0.0, 2.0)", "0.025 (0.000, 1.000)"), 800L))
+  expect_error(fn(1e300, 0, 1, digits = 8190L), "8192-byte")
+})

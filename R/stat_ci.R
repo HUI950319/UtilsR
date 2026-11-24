@@ -81,10 +81,11 @@ stat_ci <- function(x, y = NULL, z = NULL,
     digits <- as.integer(digits)
   }
   .check_precision <- function(d, ...) {
-    if (anyNA(d) || (length(d) && (min(d) < 0 || max(d) > 8190L))) {
+    largest <- max(-Inf, d)
+    if (is.na(largest) || (length(d) && min(d) < 0) || largest > 8190L) {
       cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
     }
-    if (any(d > 7881L)) {
+    if (largest > 7881L) {
       for (values in list(...)) {
         at <- which(is.finite(values) & d > 7881L)
         widths <- nchar(sprintf("%.0f", trunc(values[at])))
