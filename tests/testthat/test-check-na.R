@@ -1080,3 +1080,15 @@ test_that("one sparse factor code shares its count across all rows", {
   d[1:1600] <- NA
   expect_identical(fn(d), list(codes = integer(), counts = integer(), row_codes = rep(NA_integer_, 1600L)))
 })
+
+test_that("one instance of every factor level takes its ordered count directly", {
+  fn <- .factor_tally
+  environment(fn) <- list2env(list("tabulate" = function(bin, nbins = max(1L, bin, na.rm = TRUE)) {
+    if (length(bin) == 250L && identical(bin, seq_len(250L))) stop("unexpected tabulate in .factor_tally")
+    base::tabulate(bin, nbins = nbins)
+  }), parent = environment(fn))
+  x <- factor(sprintf("%03d", seq_len(250L)))
+  expect_identical(fn(x), list(codes = 1:250, counts = rep.int(1L, 250L), row_codes = 1:250))
+  x <- x[c(1:249, NA_integer_)]
+  expect_identical(fn(x), .factor_tally(x))
+})

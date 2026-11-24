@@ -357,6 +357,10 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       tabulate(ids, nbins = length(observed))[order_at]
     return(list(codes = observed[order_at], counts = counts, row_codes = row_codes))
   }
+  if (k && k == length(row_codes) && isTRUE(row_codes[1L] == 1L && row_codes[k] == k) &&
+      isFALSE(is.unsorted(row_codes, strictly = TRUE))) {
+    return(list(codes = row_codes, counts = rep.int(1L, k), row_codes = row_codes))
+  }
   counts <- tabulate(row_codes, nbins = k)
   if (!k || min(counts) > 0L) {
     return(list(codes = seq_len(k), counts = counts, row_codes = row_codes))
