@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous Welch comparisons retry a nonfinite degrees-of-freedom calculation at a common scale.
+
 * Table highlights skip rebuilding row positions for a repeated text dictionary with no matching key.
 
 * Table colouring reuses the selected column names for both formatting and numeric colour mapping.

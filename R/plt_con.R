@@ -947,7 +947,20 @@ plt_con <- function(data,
         y <- y / unit
         if (!is.null(args$mu)) args$mu <- args$mu / unit
       }
-      do.call(stats::t.test, c(list(x = x, y = y), args))
+      result <- do.call(stats::t.test, c(list(x = x, y = y), args))
+      df <- result$parameter
+      if (!paired && !isTRUE(args$var.equal) && unit > 0 &&
+          is.numeric(df) && length(df) == 1L && !is.finite(df) &&
+          !is.object(x) && !is.object(y)) {
+        retry_args <- args
+        if (!is.null(args$mu)) retry_args$mu <- args$mu / unit
+        scaled <- do.call(stats::t.test, c(list(x = x / unit, y = y / unit), retry_args))
+        for (name in c("estimate", "null.value", "stderr")) scaled[[name]] <- scaled[[name]] * unit
+        scaled$conf.int[] <- scaled$conf.int * unit
+        scaled$data.name <- result$data.name
+        return(scaled)
+      }
+      result
     })
   }
   if (!identical(test, "kruskal.test") && !identical(test, "anova")) return(match.fun(test))

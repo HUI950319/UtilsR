@@ -2846,3 +2846,22 @@ test_that("ordinary text groups supply their existing labels to pairwise validat
   expect_identical(out[[1L]], c("a", "b"))
   expect_length(out, 1L)
 })
+
+test_that("continuous Welch comparisons recover from nonfinite degrees of freedom", {
+  x <- c(1, 2, 4)
+  y <- c(3, 5, 8)
+  ref <- stats::t.test(x, y, mu = -0.5, alternative = "less")
+  test <- .con_pairwise_test("t.test")
+  for (scale in c(1e-100, 1e-81, 1e100)) {
+    got <- test(x * scale, y * scale, mu = -0.5 * scale, alternative = "less")
+    expect_true(is.finite(got$p.value))
+    expect_equal(got[c("p.value", "parameter", "statistic")], ref[c("p.value", "parameter", "statistic")])
+    expect_equal(got$estimate / scale, ref$estimate)
+    expect_equal(got$conf.int / scale, ref$conf.int)
+  }
+  d <- data.frame(g = rep(c("a", "b"), each = 3L), value = c(x, y) * 1e100)
+  p <- plt_con(d, stat.by = "value", group.by = "g", type = "box",
+    comparisons = list(c("a", "b")), pairwise_method = "t.test")
+  layers <- ggplot2::ggplot_build(p)$data
+  expect_true(any(vapply(layers, function(layer) "annotation" %in% names(layer) && nrow(layer) > 0L, logical(1))))
+})
