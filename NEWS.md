@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN checks remaining missing targets with the shared missing-value counter, including ordinary factors.
+
 * KNN means skip NA removal for complete ordinary donors and retain the existing missing and extreme-value behavior.
 
 * Faceted alluvial grouping sizes duplicate tracking to the number of observed facet and category pairs.

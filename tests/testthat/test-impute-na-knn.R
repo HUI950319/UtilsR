@@ -11,7 +11,9 @@ test_that("impute_na_knn restores SPSS missingness before cold donor checks", {
   skip_if_not_installed("haven")
   skip_if_not_installed("VIM")
   fn <- impute_na_knn
-  environment(fn) <- new.env(parent = asNamespace("stats"))
+  counter <- .count_missing_values
+  environment(counter) <- baseenv()
+  environment(fn) <- list2env(list(.count_missing_values = counter), parent = asNamespace("stats"))
   directory <- withr::local_tempdir()
   fixture <- file.path(directory, "fixture.rds")
   script <- file.path(directory, "cold.R")
@@ -1131,4 +1133,15 @@ test_that("complete KNN donors skip missing-value removal in weighted means", {
   d <- data.frame(x = c(NA, 2, 8), y = 1:3)
   expect_equal(impute_na_knn(d, 1L, verbose = FALSE)$x, c(6, 2, 8))
   expect_identical(called, c(TRUE, FALSE))
+})
+
+test_that("KNN result checks reuse ordinary factor codes for complete targets", {
+  fn <- impute_na_knn
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (is.factor(x) && length(x) == 5L && !anyNA(unclass(x)) && identical(substitute(x), quote(x))) stop("unexpected is.na in impute_na_knn")
+    base::is.na(x)
+  }), parent = environment(fn))
+  skip_if_not_installed("VIM")
+  d <- data.frame(g = factor(c("a", "a", NA, "b", "b")), x = c(1, 1, 1, 8, 8))
+  expect_identical(fn(d, k = 1L, verbose = FALSE)$g, factor(c("a", "a", "a", "b", "b")))
 })
