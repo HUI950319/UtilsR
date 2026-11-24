@@ -2445,3 +2445,19 @@ test_that("packed categorical UpSet keys reuse their observed group count", {
   d$A <- d$B <- TRUE
   expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
 })
+
+test_that("wide categorical UpSet keys bound their representative search", {
+  fn <- .plt_cat_upset
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(groups)) && length(x) > 100L && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in .plt_cat_upset")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = rep(c(TRUE, FALSE, TRUE, FALSE), 70L),
+    B = rep(c(FALSE, TRUE, TRUE, FALSE), 70L))
+  for (i in 3:33) d[[paste0("other", i)]] <- FALSE
+  draw <- function(f, data) f(data, names(data), "red", stat_level = "TRUE")$data
+  expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
+  d$A <- d$B <- TRUE
+  expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
+})

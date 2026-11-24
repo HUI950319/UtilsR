@@ -425,7 +425,10 @@
     bool_mat <- vapply(stat.by, membership, logical(nrow(data)))
     dim(bool_mat) <- c(nrow(data), length(stat.by))
     groups <- vctrs::vec_group_id(as.data.frame(bool_mat))
-    combinations <- lapply(which(!duplicated(groups)), function(i) stat.by[bool_mat[i, ]])
+    n_keys <- attr(groups, "n")
+    first <- if (n_keys == nrow(data)) seq_len(n_keys) else
+      if (n_keys == 1L) 1L else which(!duplicated(groups, nmax = n_keys))
+    combinations <- lapply(first, function(i) stat.by[bool_mat[i, ]])
   }
 
   intersection_col <- utils::tail(make.unique(c(names(data), "intersection")), 1L)
