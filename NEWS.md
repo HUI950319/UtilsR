@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired comparison ID generation avoids existing bindings in facet environments, including inherited lookup names.
+
 * Facet column discovery recognizes literal get0 lookups when paired comparisons choose a private ID column.
 
 * Continuous Welch comparisons retry a nonfinite degrees-of-freedom calculation at a common scale.

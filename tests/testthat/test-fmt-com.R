@@ -985,3 +985,17 @@ test_that("private paired columns do not shadow literal get0 facets", {
   actual <- ggplot2::ggplot_build(fmt_com(p, method.args = list(paired = TRUE)))$layout$layout
   expect_identical(actual, expected)
 })
+
+test_that("paired IDs avoid names found through inherited dynamic facet lookups", {
+  d <- data.frame(x = rep(c("a", "b"), each = 3), y = c(1, 3, 5, 2, 6, 7))
+  .fmt_com_pair_id <- rep("one", 6)
+  .fmt_com_pair_id.1 <- rep("two", 6)
+  facet_name <- ".fmt_com_pair_id"
+  p <- local(ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_grid(ggplot2::vars(label = get(facet_name)), ggplot2::vars(next_label = get(paste0(facet_name, ".1")))))
+  expected <- ggplot2::ggplot_build(p)$layout$layout
+  result <- fmt_com(p, method.args = list(paired = TRUE))
+  actual <- ggplot2::ggplot_build(result)$layout$layout
+  expect_identical(actual, expected)
+  expect_true(".fmt_com_pair_id.2" %in% names(result$layers[[2L]]$data))
+})

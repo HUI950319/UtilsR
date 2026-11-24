@@ -4754,8 +4754,8 @@ fmt_com <- function(plot,
       if (ref_all) cli::cli_abort("Paired tests cannot use a pooled ref.group; select two groups.")
       comparison_values <- rep(if (compare_group) mapped_values$group else mapped_values$x,
                                length.out = nrow(source_data))
-      strata <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
-                       rlang::eval_tidy, data = source_data)
+      facets <- c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols)
+      strata <- lapply(facets, rlang::eval_tidy, data = source_data)
       if (grouped) strata <- c(strata, list(if (compare_group) mapped_values$x else mapped_values$group))
       strata_key <- if (length(strata)) do.call(interaction,
         c(lapply(strata, function(value) factor(vctrs::vec_group_id(rep(value, length.out = nrow(source_data))), exclude = NULL)),
@@ -4795,7 +4795,17 @@ fmt_com <- function(plot,
         if (missing_id || vctrs::vec_duplicate_any(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
           cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
       }
-      id_column <- utils::tail(make.unique(c(names(source_data), .plot_facet_columns(p), ".fmt_com_pair_id")), 1L)
+      occupied <- c(names(source_data), .plot_facet_columns(p))
+      prefix <- ".fmt_com_pair_id"
+      id_column <- utils::tail(make.unique(c(occupied, prefix)), 1L)
+      facet_envs <- lapply(facets, rlang::get_env, default = emptyenv())
+      binding_exists <- function(name) {
+        any(vapply(facet_envs, function(env) rlang::env_has(env, name, inherit = TRUE), logical(1)))
+      }
+      while (binding_exists(id_column)) {
+        occupied <- c(occupied, id_column)
+        id_column <- utils::tail(make.unique(c(occupied, prefix)), 1L)
+      }
       source_data[[id_column]] <- as.numeric(ids)
       source_mapping$.fmt_com_id <- rlang::new_quosure(rlang::sym(id_column), rlang::base_env())
     }
