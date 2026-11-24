@@ -469,3 +469,16 @@ test_that("distinct equal-width bin boundaries do not need a duplicate search", 
     cut(x, breaks = seq(1, 1000, length.out = 51L), labels = labels, include.lowest = TRUE))
   expect_error(fn(c(1, 1 + .Machine$double.eps), nbins = 5L, type = "equal"), "numeric precision")
 })
+
+test_that("strictly increasing quantile boundaries skip duplicate hashing", {
+  fn <- fct_num
+  environment(fn) <- list2env(list("anyDuplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(bin_breaks)) && !is.unsorted(x, strictly = TRUE)) stop("unexpected anyDuplicated in fct_num")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(fn))
+  x <- 1:1024
+  expect_identical(fn(x, nbins = 16L),
+    cut(x, breaks = stats::quantile(x, probs = (0:16) / 16), labels = paste0("g", 1:16), include.lowest = TRUE))
+  expect_warning(out <- fn(rep(1:2, each = 5L), nbins = 6L), "Ties in quantiles")
+  expect_length(out, 10L)
+})

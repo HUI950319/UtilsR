@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Quantile-based factor bins reuse strictly increasing boundaries and continue to collapse ties.
+
 * Equal-width factor bins skip duplicate tracking for strictly increasing boundaries and still detect precision collisions.
 
 * Scatter histogram breaks bypass deduplication when all numeric boundaries are distinct and ordered.
