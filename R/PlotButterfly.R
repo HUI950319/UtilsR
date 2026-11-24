@@ -228,7 +228,8 @@ PlotButterfly <- function(
     }
     # An explicit empty scale domain maps unmatched groups to grey without
     # repeating ggplot2's no-shared-level warning during scale training.
-    limits <- if (!any(categories %in% palette_names)) character() else NULL
+    limits <- if (!length(categories) ||
+      (length(missing) && !any(categories %in% palette_names))) character() else NULL
     list(values = cols, limits = limits)
   }
 

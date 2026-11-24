@@ -1545,3 +1545,17 @@ test_that("complete gradient scores use their endpoints directly", {
   d$score[1L] <- NA_integer_
   expect_identical(ranges(run(fn, d)), ranges(run(PlotButterfly2, d)))
 })
+
+test_that("complete named butterfly palettes avoid verifying the same coverage twice", {
+  fn <- PlotButterfly
+  environment(fn) <- list2env(list("%in%" = function(x, table) {
+    if (identical(substitute(x), quote(categories)) &&
+        identical(substitute(table), quote(palette_names)) && all(base::"%in%"(x, table))) stop("unexpected %in% in PlotButterfly")
+    base::"%in%"(x, table)
+  }), parent = environment(fn))
+  d <- expand.grid(cat = c("A", "B"), side = c("left", "right"), fill = c("x", "y"))
+  d$score <- 1:8
+  run <- function(f) f(d, stat.by = "cat", group.by = "side", value.by = "score", fill.by = "fill",
+    palette = c(x = "red", y = "blue"), type = "bar")
+  expect_identical(run(fn)[[1L]]$data, run(PlotButterfly)[[1L]]$data)
+})
