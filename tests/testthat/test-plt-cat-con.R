@@ -2418,3 +2418,15 @@ test_that("single-sided chord tables count existing row codes", {
   expect_identical(rownames(seen), "one")
   expect_identical(colnames(seen), c("left", "right"))
 })
+
+test_that("compound time keys use bounded representative lookup", {
+  fn <- .cat_time_key
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(seq_len(count))) && identical(substitute(table), quote(groups))) stop("unexpected match in .cat_time_key")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("lubridate")
+  period <- lubridate::period(month = rep(c(1, 2, 3), 600L), day = rep(c(2, 1, 3), 600L))
+  expect_identical(fn(period), .cat_time_key(period[1:3])[rep(1:3, 600L)])
+  expect_identical(fn(rep(period[1L], 1200L)), rep(.cat_time_key(period[1L]), 1200L))
+})

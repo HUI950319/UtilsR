@@ -1098,7 +1098,7 @@ plt_cat <- function(data,
       groups <- vctrs::vec_group_id(vctrs::new_data_frame(parts))
       count <- attr(groups, "n")
       if (count < n / 2L) {
-        at <- match(seq_len(count), groups)
+        at <- if (count == 1L) 1L else which(!duplicated(groups, nmax = count))
         parts <- lapply(parts, "[", at)
         lookup <- as.integer(groups)
       }

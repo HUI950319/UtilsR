@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated compound time values size the representative row search by the number of observed tuples.
+
 * Plot leaf collection uses the same leaf traversal without comparing or restoring untouched patchwork children.
 
 * Rank correlation pivots size duplicate tracking from the observed group count.
