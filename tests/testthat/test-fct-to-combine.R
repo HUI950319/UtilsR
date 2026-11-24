@@ -770,3 +770,17 @@ test_that("named factor groups do not build an unnamed index when all keys are s
   expect_identical(fn(x, list(M = c(1L, 3L), N = 2L)), factor(c("M", "N", "M", "D"), levels = c("M", "N", "D")))
   expect_identical(fn(x, setNames(list(1L, 2L), c(NA, ""))), fct_to_group(x, list(1L, 2L)))
 })
+
+test_that("repeated character combinations bound key lookup by the dictionary", {
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(ids)) && length(x) == 1500L && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in fct_to_combine.default")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  x <- rep(c("late", "early", "middle"), 500L)
+  y <- factor(rep(c("b", "a"), 750L))
+  expect_identical(fn(x, y), fct_to_combine(x, y))
+  x[] <- "same"
+  expect_identical(fn(x, y), fct_to_combine(x, y))
+  expect_identical(levels(fn(x, y)), c("same & a", "same & b"))
+})

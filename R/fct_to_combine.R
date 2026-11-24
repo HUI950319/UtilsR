@@ -280,7 +280,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
     }
     if (is.character(v) && !is.object(v) && !anyNA(v)) {
       ids <- vctrs::vec_group_id(v)
-      values <- if (attr(ids, "n") == length(v)) v else v[!duplicated(ids)]
+      n_keys <- attr(ids, "n")
+      values <- if (n_keys == length(v)) v else if (n_keys == 1L) v[1L] else
+        v[!duplicated(ids, nmax = n_keys)]
       if (!is.unsorted(values)) return(list(codes = as.integer(ids), labels = as.character(values)))
       order_at <- order(values)
       positions <- integer(length(order_at))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations use the observed character key count when selecting representative labels.
+
 * Palette alpha formatting retains vector color encoding and replicates the result directly for one repeated input color.
 
 * Long repeated numeric p values expand their sole formatted result without building a matching vector.
