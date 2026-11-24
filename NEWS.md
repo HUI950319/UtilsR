@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inset insertion only collects matching layout positions when an inset name already exists.
+
 * Explicit raster dimensions are assigned together when each panel covers its own layout cell.
 
 * Panel rasterization collects matching gtable indices directly and continues excluding blank panels.

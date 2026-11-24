@@ -473,7 +473,7 @@ grob_insert <- function(
 
   inset_name <- "inset"
   layout <- gt$layout
-  existing <- which(layout$name == inset_name)
+  existing <- if (inset_name %in% layout$name) which(layout$name == inset_name) else integer()
   if (length(existing) && any(layout$t[existing] == ref_t & layout$b[existing] == ref_b &
       layout$l[existing] == ref_l & layout$r[existing] == ref_r)) {
     layout_names <- layout$name[which(layout$t == ref_t & layout$b == ref_b &

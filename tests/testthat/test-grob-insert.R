@@ -506,3 +506,19 @@ test_that("single panel bounds use existing cell coordinates", {
   d$name <- c("panel-1", "panel-2")
   expect_identical(fn(d), c(t = 1L, b = 4L, l = 1L, r = 5L))
 })
+
+test_that("a first inset skips collecting collisions against absent inset names", {
+  fn <- grob_insert
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(layout$name == inset_name)) && !any(x, na.rm = TRUE)) stop("unexpected which in grob_insert")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  u <- grid::unit(rep(1, 60L), "cm")
+  gt <- gtable::gtable(u, grid::unit(1, "cm"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 60L),
+    t = 1L, l = seq_len(60L), name = c("panel", paste0("cell", 2:60)))
+  once <- fn(gt, grid::rectGrob())
+  twice <- fn(once, grid::rectGrob())
+  expect_identical(tail(once$layout$name, 1L), "inset")
+  expect_identical(tail(twice$layout$name, 2L), c("inset", "inset.1"))
+})
