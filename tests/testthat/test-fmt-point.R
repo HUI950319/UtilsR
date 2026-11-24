@@ -1419,3 +1419,16 @@ test_that("complete labelled sampling strata keep their raw values directly", {
   d$g <- haven::labelled_spss(rep(c(1, 2, 3, NA), 10L), na_values = 3)
   expect_identical(fn(d, mapping, 4L, 137L), .fmt_point_sample(d, mapping, 4L, 137L))
 })
+
+test_that("distinct sorted point strata reuse row codes", {
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (is.numeric(x) && length(x) == 200L && isFALSE(is.unsorted(x, strictly = TRUE))) stop("unexpected unique in .fmt_point_sample")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = 1:200, group = seq(4, 8, length.out = 200L))
+  mapping <- ggplot2::aes(group = group)
+  expect_identical(fn(d, mapping, 2L, 95L), .fmt_point_sample(d, mapping, 2L, 95L))
+  d$group[4L] <- NA_real_
+  expect_identical(fn(d, mapping, 2L, 95L), .fmt_point_sample(d, mapping, 2L, 95L))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling reuses row positions for distinct sorted numeric strata while retaining existing ordering for all other values.
+
 * Point sampling skips missing-value masks for complete non-SPSS labelled numeric strata.
 
 * Point shape conversion maps long uniform numeric vectors once while preserving unmapped and missing values.

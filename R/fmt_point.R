@@ -545,10 +545,14 @@ fmt_point <- function(plot,
         }
       }
       if (is.numeric(x)) {
-        # Keep exact values in legacy factor order, including NaN and NA.
-        values <- sort(unique(x), na.last = TRUE)
-        if (is.object(x) || anyNA(values)) values <- values[order(as.factor(values), na.last = TRUE)]
-        x <- match(x, values)
+        if (!is.object(x) && isFALSE(is.unsorted(x, strictly = TRUE))) {
+          x <- seq_along(x)
+        } else {
+          # Keep exact values in legacy factor order, including NaN and NA.
+          values <- sort(unique(x), na.last = TRUE)
+          if (is.object(x) || anyNA(values)) values <- values[order(as.factor(values), na.last = TRUE)]
+          x <- match(x, values)
+        }
       }
       if ((identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
           !anyNA(unclass(x))) return(x)
