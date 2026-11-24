@@ -1769,3 +1769,27 @@ test_that("circular collision labels reuse requested-level match positions", {
   expect_no_error(fn(d, group_levels = unique(d$group), show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE))
   expect_identical(matches, 1L)
 })
+
+test_that("complete integer64 score ranges skip all-missing checks on rows", {
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(reference)) && inherits(x, "integer64") && !anyNA(x)) stop("unexpected is.na in PlotCircleLollipop")
+    base::is.na(x)
+  }), parent = environment(fn))
+  skip_if_not_installed("bit64")
+  values <- bit64::as.integer64(c("9007199254740993", "9007199254740994", "9007199254740995"))
+  d <- data.frame(group = rep("A", 3L), term = c("x", "y", "z"), score = values)
+  withr::local_pdf(NULL)
+  values <- numeric()
+  local_mocked_bindings(circos.points = function(x, y, ...) values <<- c(values, y),
+    .package = "circlize")
+  run <- function(f) {
+    values <<- numeric()
+    f(d, group_col = "group", name_col = "term", value_col = "score",
+      value_scale = "group", show_labels = FALSE,
+      show_links = FALSE, show_yaxis = FALSE)
+    values
+  }
+  expect_identical(run(fn), run(PlotCircleLollipop))
+  expect_equal(sort(run(fn)), c(0, .5, 1))
+})

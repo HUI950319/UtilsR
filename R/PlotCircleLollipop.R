@@ -366,7 +366,8 @@ PlotCircleLollipop <- function(
     if (bounds[1L] == Inf) c(NA_real_, NA_real_) else bounds
   }
   scale_integer64 <- function(x, reference = x) {
-    if (all(is.na(reference))) return(rep(NA_real_, length(x)))
+    if ((is.object(reference) && !identical(class(reference), "integer64") || anyNA(reference)) &&
+        all(is.na(reference))) return(rep(NA_real_, length(x)))
     lo <- min(reference, na.rm = TRUE)
     hi <- max(reference, na.rm = TRUE)
     if (hi == lo) return(as.numeric(x - lo))
