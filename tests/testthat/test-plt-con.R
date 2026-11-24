@@ -2905,3 +2905,18 @@ test_that("cached continuous tests use the number of unique sample references", 
   expect_identical(calc(x$value, y$value)$p.value, .02)
   expect_identical(calc(x$value, z$value)$p.value, .5)
 })
+
+test_that("ordinary continuous quantile limits keep NA removal conditional", {
+  quantile <- stats::quantile
+  d <- data.frame(g = rep(c("a", "b"), each = 20L), x = 1:40, y = seq(2, 80, by = 2))
+  want <- quantile(c(d$x, d$y), c(.1, .9))
+  local_mocked_bindings(quantile = function(x, ..., na.rm = FALSE) {
+    if (!is.object(x) && !anyNA(x) && na.rm && ...length() && identical(...elt(1), c(.1, .9)))
+      stop("filtered complete continuous quantile data")
+    quantile(x, ..., na.rm = na.rm)
+  }, .package = "stats")
+  p <- plt_con(d, stat.by = c("x", "y"), group.by = "g", type = "box",
+    stack = TRUE, y.min = "q10", y.max = "q90", same.y.lims = TRUE)
+  expect_equal(unname(p$coordinates$limits$y), unname(want))
+  expect_equal(.resolve_y_limit("q50", c(1, 2, NA), "max"), c("50%" = 1.5))
+})

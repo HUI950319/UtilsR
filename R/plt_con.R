@@ -798,7 +798,7 @@ plt_con <- function(data,
     if (side == "max") max(values, na.rm = TRUE) else min(values, na.rm = TRUE)
   } else if (is.character(val)) {
     q <- as.numeric(sub("^q(\\d+)$", "\\1", val)) / 100
-    stats::quantile(values, q, na.rm = TRUE)
+    stats::quantile(values, q, na.rm = is.object(values) || anyNA(values))
   } else {
     val
   }
@@ -1740,12 +1740,12 @@ plt_con <- function(data,
     }, numeric(1L))
     feature_limits <- lapply(split(values, dat_long[["feature"]]), function(v) {
       limits <- fixed
-      limits[is_quantile] <- stats::quantile(v, probs, na.rm = TRUE, names = FALSE)
+      limits[is_quantile] <- stats::quantile(v, probs, na.rm = is.object(v) || anyNA(v), names = FALSE)
       limits
     })
   } else if (isTRUE(same.y.lims) && is.character(y.min) && is.character(y.max)) {
     probs <- as.numeric(sub("^q", "", c(y.min, y.max))) / 100
-    axis_limits <- stats::quantile(values, probs, na.rm = TRUE)
+    axis_limits <- stats::quantile(values, probs, na.rm = is.object(values) || anyNA(values))
   } else if (!all(auto_bounds)) {
     axis_limits <- c(if (auto_bounds[1L]) NA_real_ else .resolve_y_limit(y.min, values, "min"),
                      if (auto_bounds[2L]) NA_real_ else .resolve_y_limit(y.max, values, "max"))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous limit calculations avoid copying complete ordinary outcomes before quantile selection.
+
 * Repeated interval values with varying precision pick first group occurrences using bounded duplicate tracking.
 
 * Axis backgrounds retrieve distinct trained x and y scales by layout index, including shared facet scales.
