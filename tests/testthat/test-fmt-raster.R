@@ -1214,3 +1214,19 @@ test_that("one ordinary ggrastr plot goes directly through the layer adapter", {
   expect_identical(ggplot2::ggplot_build(fn(point, 100, "cairo"))$data,
     ggplot2::ggplot_build(point)$data)
 })
+
+test_that("layer rasterization uses a single metadata-aware patchwork walk", {
+  fn <- .fmt_raster_ggrastr
+  environment(fn) <- list2env(list(".to_plot_list" = function(plot, ...) {
+    if (inherits(plot, "patchwork")) stop("unexpected .to_plot_list in .fmt_raster_ggrastr")
+    UtilsR:::.to_plot_list(plot, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("ggrastr")
+  skip_if_not_installed("patchwork", "1.3.0")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  pw <- patchwork::free(p | p, side = "l") / p
+  got <- fn(pw, 36, "ragg")
+  expect_identical(got$patches$layout, pw$patches$layout)
+  expect_identical(attr(got[[1L]], "patchwork_free_settings"), attr(pw[[1L]], "patchwork_free_settings"))
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(got), "rasteriser"), 3L)
+})

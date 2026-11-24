@@ -215,14 +215,6 @@ fmt_raster <- function(
   }
 
   raster_one <- function(p) {
-    if (inherits(p, "patchwork")) {
-      for (i in seq_along(p)) {
-        child <- p[[i]]
-        updated <- raster_one(child)
-        if (!identical(updated, child)) p[[i]] <- updated
-      }
-      return(p)
-    }
     # Points and tiles, as ggrastr's own default: lines, bars and polygons are
     # few objects, and as images they only make a PDF larger.
     targets <- vapply(p$layers, function(layer) {
@@ -240,9 +232,10 @@ fmt_raster <- function(
     p
   }
 
-  if (inherits(plot, "gg") && !inherits(plot, "patchwork")) return(raster_one(plot))
+  if (inherits(plot, "patchwork")) return(.map_plot_leaves(plot, raster_one))
+  if (inherits(plot, "gg")) return(raster_one(plot))
   info <- .to_plot_list(plot)
-  updated <- lapply(info$plots, raster_one)
+  updated <- lapply(info$plots, .map_plot_leaves, fun = raster_one)
   if (identical(updated, info$plots)) return(plot)
   .from_plot_list(updated, info$is_patchwork, info$is_single,
                   pw_orig = info$pw_orig)

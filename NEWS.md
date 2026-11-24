@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Layer rasterization reuses the shared leaf walker for patchworks and retains container metadata.
+
 * Circular lollipop scaling skips splitting original row positions for a single complete group.
 
 * Circular lollipop score scaling avoids constructing missing masks for complete integer64 groups.
