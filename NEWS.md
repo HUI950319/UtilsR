@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval scale diagnostics take first occurrences from a duplicate table sized to the observed keys.
+
 * Repeated interval formatting passes uniform precision as a scalar and retains per-number byte checks.
 
 * Continuous comparison labels return the existing NS. value immediately for ordinary unnamed numeric cutoffs.

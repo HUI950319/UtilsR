@@ -1584,3 +1584,18 @@ test_that("constant parsed precision is shared by repeated formatted keys", {
   expect_identical(fn(x, exp = FALSE, digits = 7882L),
     rep(stat_ci_parse(candidates, exp = FALSE, digits = 7882L), 350L))
 })
+
+test_that("multi-key interval scaling tracks only observed representative IDs", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(seq_len(count))) && identical(substitute(table), quote(groups))) stop("unexpected match in .ci_scale")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  est <- rep(c(1, 2, 7), 600L)
+  lo <- est - 0.2
+  hi <- est + 0.3
+  unit <- matrix(0.1, length(est), 3L)
+  valid <- rep(TRUE, length(est))
+  expect_identical(fn(est, lo, hi, unit, "auto", valid),
+                   .ci_scale(est, lo, hi, unit, "auto", valid))
+})
