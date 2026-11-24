@@ -5204,7 +5204,7 @@ fmt_bg <- function(plot,
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
         trained_limits <- unlist(lapply(trained, as.character), use.names = FALSE)
-        shown <- unique(trained_limits[!is.na(trained_limits)])
+        shown <- unique(if (anyNA(trained_limits)) trained_limits[!is.na(trained_limits)] else trained_limits)
         colors <- if (!is.null(names(palcolor)) && all(shown %in% names(palcolor))) {
           palcolor[shown]
         } else if (!is.null(bg_color) && all(shown %in% lvs)) {

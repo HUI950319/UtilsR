@@ -729,3 +729,18 @@ test_that("free background stripes use trained scale indices directly", {
     expect_equal(nrow(stripes(fn)), if (axis == "x") 10L else 8L)
   }
 })
+
+test_that("complete trained stripe labels skip a second missing-value mask", {
+  fn <- fmt_bg
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(trained_limits)) && length(x) > 5L && !anyNA(x)) stop("unexpected is.na in fmt_bg")
+    base::is.na(x)
+  }), parent = environment(fn))
+  environment(fn)$fmt_bg <- fn
+  d <- data.frame(g = letters[seq_len(12L)], y = seq_len(12L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point()
+  expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
+  d$g[1L] <- NA_character_
+  p$data <- d
+  expect_identical(bg_fills(fn(p)), bg_fills(fmt_bg(p)))
+})
