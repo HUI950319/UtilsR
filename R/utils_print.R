@@ -527,7 +527,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       return(if (._pr_colour()) as.character(cli::col_grey(txt)) else as.character(txt))
     }
     parsed <- replace(txt, !valid, NA_character_)
-    bounded <- which(grepl(paste0("^", bound), parsed, perl = TRUE))
+    bounded <- grep(paste0("^", bound), parsed, perl = TRUE)
     op <- rep.int("", length(parsed))
     decimal <- parsed
     if (length(bounded)) {
@@ -537,7 +537,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     }
     exponent <- numeric(length(decimal))
     mantissa <- decimal
-    scientific <- which(grepl("[eE]", decimal))
+    scientific <- grep("[eE]", decimal)
     if (length(scientific)) {
       text <- decimal[scientific]
       exponent[scientific] <- suppressWarnings(as.numeric(sub("^.*[eE]", "", text)))

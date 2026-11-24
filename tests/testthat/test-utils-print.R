@@ -2669,3 +2669,14 @@ test_that("invalid complete text cells do not classify each value as missing", {
   expect_identical(fn(x), ._p_cells(x))
   expect_identical(cli::ansi_strip(fn(x))[2L], "NA")
 })
+
+test_that("console decimal cells collect bound positions directly", {
+  fn <- ._p_cells
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(grepl(paste0("^", bound), parsed, perl = TRUE)))) stop("unexpected which in ._p_cells")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  x <- c("<0.05", "<=0.001", "9.99E-3", "1e-4", ">0.01", "1", NA_character_, "text")
+  expect_identical(fn(x), ._p_cells(x))
+  expect_identical(fn(rep(x, 210L)), ._p_cells(rep(x, 210L)))
+})

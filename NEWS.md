@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console p-value formatting gets bound and exponent positions directly from the validated input.
+
 * Console cells preserve complete text without a rowwise missing check when no entry is a numeric p value.
 
 * Console p-value cells bypass significance comparisons when every ordinary numeric value meets the existing nonsignificant cutoff.
