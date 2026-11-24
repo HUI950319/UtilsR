@@ -413,8 +413,9 @@ PlotScatter3 <- function(
     hist_x_breaks <- unique(pretty(hist_x_limits / hist_scale, n = 4) * hist_scale)
     hist_x_breaks <- hist_x_breaks[hist_x_breaks != 0]
   }
-  hist_bin_breaks <- unique(seq(min(hist_x_limits) / hist_scale, max(hist_x_limits) / hist_scale,
-                                length.out = hist_bins + 1) * hist_scale)
+  hist_bin_breaks <- seq(min(hist_x_limits) / hist_scale, max(hist_x_limits) / hist_scale,
+                         length.out = hist_bins + 1) * hist_scale
+  if (is.unsorted(hist_bin_breaks, strictly = TRUE)) hist_bin_breaks <- unique(hist_bin_breaks)
 
   if (is.null(median_line_yend)) {
     lower <- hist_bin_breaks[1L]

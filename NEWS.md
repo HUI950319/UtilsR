@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter histogram breaks bypass deduplication when all numeric boundaries are distinct and ordered.
+
 * Scatter comparison medians skip NA removal for complete differences while preserving summaries for incomplete samples.
 
 * Continuous comparison caches bound duplicate tracking by the number of sample references.

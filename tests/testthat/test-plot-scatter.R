@@ -2218,3 +2218,16 @@ test_that("complete scatter differences do not request NA removal for the median
   expect_s3_class(p, "patchwork")
   expect_s3_class(q, "patchwork")
 })
+
+test_that("strictly ordered scatter histogram breaks need no duplicate hash", {
+  fn <- PlotScatter3
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (is.numeric(x) && length(x) == 54L && !is.unsorted(x, strictly = TRUE)) stop("unexpected unique in PlotScatter3")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = 1:6, y = c(2, 3, 5, 7, 8, 11), group = rep(c("a", "b"), 3L))
+  run <- function(f) f(d, "x", "y", "group", hist_bins = 53L, test_method = "none", cor_method = "none")
+  got <- run(fn)
+  ref <- run(PlotScatter3)
+  expect_equal(ggplot2::ggplot_build(got[[2L]])$data, ggplot2::ggplot_build(ref[[2L]])$data)
+})
