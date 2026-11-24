@@ -1599,3 +1599,14 @@ test_that("multi-key interval scaling tracks only observed representative IDs", 
   expect_identical(fn(est, lo, hi, unit, "auto", valid),
                    .ci_scale(est, lo, hi, unit, "auto", valid))
 })
+
+test_that("varying parsed precision tracks only observed format groups", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(seq_len(count))) && identical(substitute(table), quote(ids))) stop("unexpected match in stat_ci_parse")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  keys <- c("1.2 (0.9, 1.5)", "1.20 (0.90, 1.50)", "2.20 [1.90; 2.50]", "2.2 (1.9, 2.5)")
+  x <- rep(keys, 400L)
+  expect_identical(fn(x, exp = FALSE), rep(stat_ci_parse(keys, exp = FALSE), 400L))
+})

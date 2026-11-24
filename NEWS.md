@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated parsed interval and precision pairs size duplicate tracking to the observed format keys.
+
 * Confidence interval scale diagnostics take first occurrences from a duplicate table sized to the observed keys.
 
 * Repeated interval formatting passes uniform precision as a scalar and retains per-number byte checks.

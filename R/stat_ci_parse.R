@@ -374,7 +374,7 @@ stat_ci_parse <- function(x,
         ids <- vctrs::vec_group_id(vctrs::new_data_frame(list(v = v, d = d)))
         count <- attr(ids, "n")
         if (count < n / 2) {
-          first <- match(seq_len(count), ids)
+          first <- if (count == 1L) 1L else which(!duplicated(ids, nmax = count))
           return(.format_once(v[first], d[first])[ids])
         }
       }
