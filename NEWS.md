@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly gradients reuse numeric bounds without a row-length finite flag for ordinary scores.
+
 * Numeric butterfly category labels skip hashing strictly increasing ordinary numeric vectors.
 
 * Factor grouping avoids an unnamed-position mask when every group has a valid supplied name.

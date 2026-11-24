@@ -1529,3 +1529,19 @@ test_that("already increasing numeric category keys are retained without dedupli
   expect_identical(fn(x), .butterfly_category_labels(x))
   expect_false(anyDuplicated(fn(x)) > 0L)
 })
+
+test_that("complete gradient scores use their endpoints directly", {
+  fn <- PlotButterfly2
+  environment(fn) <- list2env(list("is.finite" = function(x) {
+    if (identical(substitute(x), quote(gradient_values)) && length(x) > 2L && all(base::is.finite(x))) stop("unexpected is.finite in PlotButterfly2")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  d <- data.frame(cat = rep(c("A", "B"), 6L), side = rep(c("left", "right"), each = 6L),
+    score = 1:12, fill = rep(c("one", "two"), 6L))
+  run <- function(f, d) suppressMessages(f(d, stat.by = "cat", group.by = "side", value.by = "score",
+    fill.by = "fill", type = "beeswarm", color_by = "logFC"))
+  ranges <- function(p) lapply(seq_along(p), function(i) p[[i]]$scales$get_scales("colour")$limits)
+  expect_identical(ranges(run(fn, d)), ranges(run(PlotButterfly2, d)))
+  d$score[1L] <- NA_integer_
+  expect_identical(ranges(run(fn, d)), ranges(run(PlotButterfly2, d)))
+})
