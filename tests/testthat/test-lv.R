@@ -2116,3 +2116,18 @@ test_that("repeated display values size inspection duplicate tracking to observe
   d$value[] <- 5
   expect_identical(run(fn), run(lv.data.frame))
 })
+
+test_that("distinct character frequency listings use one count per key", {
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(table), quote(valid)) && is.character(x) && length(x) >= 50L && !anyNA(x) && (length(table) == length(x) || length(table) == 1L)) stop("unexpected match in lv.data.frame")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  d <- data.frame(id = sprintf("k%03d", seq_len(130L)))
+  run <- function(f, d) cli::ansi_strip(capture.output(suppressMessages(f(d))))
+  expect_identical(run(fn, d), run(lv.data.frame, d))
+  d$id[] <- "same"
+  expect_identical(run(fn, d), run(lv.data.frame, d))
+  d$id[1L] <- NA_character_
+  expect_identical(run(fn, d), run(lv.data.frame, d))
+})

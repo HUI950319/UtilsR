@@ -553,8 +553,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           if (is.null(observed)) counts else counts[observed]
         }
       } else {
-        valid <- .get_levels(x, complete = !anyNA(x))
-        n <- tabulate(match(x, valid), length(valid))
+        complete <- !anyNA(x)
+        valid <- .get_levels(x, complete = complete)
+        n <- if (length(valid) == length(x)) rep.int(1L, length(valid)) else
+          if (length(valid) == 1L && complete) length(x) else tabulate(match(x, valid), length(valid))
       }
       missing_n <- length(x) - sum(n)
     } else {
