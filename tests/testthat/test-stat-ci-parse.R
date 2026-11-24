@@ -1623,3 +1623,14 @@ test_that("interval parsing collects notation positions directly", {
   expect_equal(got$digits, c(0, 5, 0, 2))
   expect_equal(got$unit[2L, ], c(1e-4, 1e-4, 1e-5))
 })
+
+test_that("complete interval widths need no exceptional positions", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("is.finite" = function(x) {
+    if (identical(substitute(x), quote(full)) && length(x) > 100L && all(base::is.finite(x))) stop("unexpected is.finite in stat_ci_parse")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  x <- rep(c("1.0 (0.5, 1.5)", "20.0 (10.0, 30.0)", "-0.2 (-1.2, 0.8)"), 70L)
+  expect_identical(fn(x, exp = FALSE, output = "p"), stat_ci_parse(x, exp = FALSE, output = "p"))
+  expect_equal(fn("0 (-1e308, 1e308)", exp = FALSE, output = "p"), 1)
+})

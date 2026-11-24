@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Interval standard errors avoid building an exception-position vector when all computed widths are finite.
+
 * Interval parsing selects decimal points and scientific exponents directly without an intermediate logical row vector.
 
 * Character frequency listings avoid matching rows back to the dictionary when every label appears once.

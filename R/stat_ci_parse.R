@@ -234,7 +234,8 @@ stat_ci_parse <- function(x,
     asymmetric_rows <- which(asym)
     se_of <- function(l, h) {
       full <- (h - l) / (2 * z95)
-      wide <- which(!is.finite(full))
+      wide <- if (length(full) && (!is.finite(max(full)) || !is.finite(min(full))))
+        which(!is.finite(full))
       if (length(wide)) {
         wide <- wide[is.finite(l[wide]) & is.finite(h[wide])]
         full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
