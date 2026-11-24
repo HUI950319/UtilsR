@@ -2920,3 +2920,18 @@ test_that("ordinary continuous quantile limits keep NA removal conditional", {
   expect_equal(unname(p$coordinates$limits$y), unname(want))
   expect_equal(.resolve_y_limit("q50", c(1, 2, NA), "max"), c("50%" = 1.5))
 })
+
+test_that("complete single continuous features bypass an observation mask", {
+  fn <- .plt_con_single
+  environment(fn) <- list2env(list("is.finite" = function(x) {
+    if (identical(substitute(x), quote(dat[["value"]])) && length(x) > 100L && all(base::is.finite(x))) stop("unexpected is.finite in .plt_con_single")
+    base::is.finite(x)
+  }), parent = environment(fn))
+  local_mocked_bindings(.plt_con_single = fn, .package = "UtilsR")
+  d <- data.frame(x = seq_len(120L), g = rep(c("a", "b"), each = 60L))
+  p <- plt_con(d, "x", "g", type = "box")
+  expect_identical(sort(p$data$value), seq_len(120L))
+  d$x[1L] <- NA_integer_
+  q <- suppressMessages(plt_con(d, "x", "g", type = "box"))
+  expect_equal(sort(q$data$value), 2:120)
+})

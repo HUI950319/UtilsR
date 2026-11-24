@@ -1435,9 +1435,12 @@ plt_con <- function(data,
     dat[["fill.by"]] <- factor(feature, levels = names(colors))
   }
 
-  # Remove NA values
-  finite <- is.finite(dat[["value"]])
-  if (!all(finite)) dat <- dat[finite, , drop = FALSE]
+  # Remove nonfinite values only when the outcome needs filtering.
+  outcome <- dat[["value"]]
+  if (is.object(outcome) || (length(outcome) && (!is.finite(min(outcome)) || !is.finite(max(outcome))))) {
+    finite <- is.finite(outcome)
+    if (!all(finite)) dat <- dat[finite, , drop = FALSE]
+  }
   if (nrow(dat) == 0) {
     cli::cli_warn("No finite values for {.val {feature}}. Skipping.")
     return(NULL)
