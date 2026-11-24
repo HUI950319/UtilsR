@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection disambiguation finds representative numeric and complex values with duplicate tracking bounded by the observed keys.
+
 * Missingness plots use the observed counts directly when every selected column is fully missing.
 
 * Butterfly time categories return their original values directly when only one exact timestamp is present.

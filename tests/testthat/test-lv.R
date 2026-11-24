@@ -2103,3 +2103,16 @@ test_that("missing ordinary inspection strings are removed from the dictionary",
   run <- function(f) capture.output(suppressMessages(f(d)))
   expect_identical(run(fn), run(lv))
 })
+
+test_that("repeated display values size inspection duplicate tracking to observed keys", {
+  fn <- lv.data.frame
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(index)) && length(x) > 3L && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in lv.data.frame")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  d <- expand.grid(value = c(1, 1 + .Machine$double.eps, 8), group = letters[1:6], stringsAsFactors = FALSE)
+  run <- function(f) cli::ansi_strip(capture.output(suppressMessages(f(d, count = c("value", "group")))))
+  expect_identical(run(fn), run(lv.data.frame))
+  d$value[] <- 5
+  expect_identical(run(fn), run(lv.data.frame))
+})

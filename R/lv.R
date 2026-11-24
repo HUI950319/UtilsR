@@ -494,7 +494,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (!unique_values && !anyDuplicated(labels)) return(labels)
     if (!is.object(x) && !anyNA(x)) {
       index <- vctrs::vec_group_id(x)
-      first <- if (attr(index, "n") < length(x)) !duplicated(index)
+      n_keys <- attr(index, "n")
+      first <- if (n_keys < length(x)) {
+        if (n_keys == 1L) 1L else !duplicated(index, nmax = n_keys)
+      }
       values <- if (is.null(first)) x else x[first]
       distinct <- if (is.null(first)) labels else labels[first]
       observed <- TRUE
