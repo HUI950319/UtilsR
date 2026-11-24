@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation pivots size duplicate tracking from the observed group count.
+
 * Paired continuous t test adapters promote ordinary integer samples when a pairwise difference can exceed the integer range.
 
 * Repeated parsed interval and precision pairs size duplicate tracking to the observed format keys.

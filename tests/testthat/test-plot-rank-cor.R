@@ -1608,3 +1608,16 @@ test_that("rank pivot ordering keeps an already sorted factor dictionary", {
   d$item <- factor(d$item, levels = rev(levels(d$item)))
   expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
 })
+
+test_that("rank correlations bound duplicate tracking by observed pivot keys", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(ids)) && length(x) > 100L && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in PlotRankCor")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  d <- rank_cor_data()
+  d <- d[rep(seq_len(nrow(d)), each = 50L), ]
+  run <- function(f, data) suppressMessages(f(data, "item", "score", method.by = "method", use_rank = FALSE, show.label = FALSE))
+  expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
+  expect_identical(run(fn, d)$data, run(PlotRankCor, rank_cor_data())$data)
+})

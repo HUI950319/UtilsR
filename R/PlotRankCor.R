@@ -392,7 +392,7 @@ PlotRankCor <- function(
     ids <- vctrs::vec_group_id(pivot_data[pivot_keys])
     n_keys <- attr(ids, "n")
     complete <- n_keys == length(ids)
-    first <- if (!complete) !duplicated(ids)
+    first <- if (!complete) !duplicated(ids, nmax = n_keys)
     pivot_data <- if (complete) pivot_data[pivot_keys] else pivot_data[first, pivot_keys, drop = FALSE]
     scores <- as.double(if (complete) values else values[first])
     if (anyNA(scores)) scores[is.na(scores)] <- NaN
