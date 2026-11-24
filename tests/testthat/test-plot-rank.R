@@ -1077,3 +1077,15 @@ test_that("one ordinary ranked group uses its scaled score vector directly", {
   expect_identical(result$Score, c(1, .3, .1))
   expect_identical(result$Rank, 1:3)
 })
+
+test_that("a single ranked group uses its known factor code", {
+  fn <- PlotRank
+  environment(fn) <- list2env(list("factor" = function(x, ...) {
+    if (identical(substitute(x), quote(plot_df$Group)) && length(x) > 100L && length(unique(x)) == 1L) stop("unexpected factor in PlotRank")
+    base::factor(x, ...)
+  }), parent = environment(fn))
+  x <- stats::setNames(seq_len(400L), paste0("g", seq_len(400L)))
+  d <- fn(x, max_show = 200L, return_type = "data")
+  expect_identical(d, PlotRank(x, max_show = 200L, return_type = "data"))
+  expect_identical(d$Group, factor(rep("All", 200L)))
+})

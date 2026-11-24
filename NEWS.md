@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Single-group rank outputs construct the group factor from its constant code without matching rows.
+
 * UpSet counts observed nonzero combinations with bounded bins when membership rows outnumber code slots.
 
 * UpSet reuses strictly ordered numeric member IDs when flattening disjoint sets.
