@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical count tables decide integer row names with scalar extrema when the theoretical factor grid exceeds the integer range.
+
 * Categorical and continuous backgrounds reuse a single complete factor value across all observed group positions.
 
 * Special-value normalization collects whitespace positions without a full logical vector.

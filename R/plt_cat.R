@@ -959,7 +959,7 @@ plt_cat <- function(data,
       (j - 1L) * dimensions[1L] + i
     } else {
       row_id <- (as.double(j) - 1L) * dimensions[1L] + i
-      if (all(row_id <= .Machine$integer.max)) as.integer(row_id) else
+      if (max(-Inf, row_id) <= .Machine$integer.max) as.integer(row_id) else
         format(row_id, scientific = FALSE, trim = TRUE)
     }
     df$value <- df$n

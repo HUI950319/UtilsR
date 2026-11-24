@@ -2476,3 +2476,17 @@ test_that("constant factor backgrounds skip validating every outcome row", {
   d$bg[1L] <- NA
   expect_warning(fn(d, "g", "bg", .5, c(cohort = "red"), axis_levels = c("a", "b", NA)), "Background disabled")
 })
+
+test_that("sparse category row IDs use a scalar integer range guard", {
+  fn <- .prepare_cat_data
+  environment(fn) <- list2env(list("<=" = function(e1, e2) {
+    if (identical(substitute(e1), quote(row_id)) && length(e1) > 1L) stop("unexpected <= in .prepare_cat_data")
+    base::"<="(e1, e2)
+  }), parent = environment(fn))
+  dictionary <- paste0("v", seq_len(50000L))
+  d <- data.frame(a = structure(c(1L, 2L, 3L, 4L), levels = dictionary, class = "factor"),
+    b = structure(c(2L, 50000L, 1L, 50000L), levels = dictionary, class = "factor"))
+  expect_identical(fn(d, "a", "b", "count"), .prepare_cat_data(d, "a", "b", "count"))
+  d$b <- d$a
+  expect_identical(fn(d, "a", "b", "count"), .prepare_cat_data(d, "a", "b", "count"))
+})
