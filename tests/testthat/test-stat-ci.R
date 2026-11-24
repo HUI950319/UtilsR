@@ -466,3 +466,15 @@ test_that("interval precision dictionaries take first group rows with bounded tr
   x <- rep(keys, 450L)
   expect_identical(fn(x), rep(stat_ci(keys), 450L))
 })
+
+test_that("formatted interval signs check only possible negative zeros", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(grepl("-0", text, fixed = TRUE)))) stop("unexpected which in stat_ci")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  values <- c(-0.004, -0.05, -0, 3, NA_real_)
+  got <- fn(values, rep(0.125, 5L), digits = 2L)
+  expect_identical(got, stat_ci(values, rep(0.125, 5L), digits = 2L))
+  expect_identical(got[c(1L, 3L)], rep("0.00(0.12)", 2L))
+})
