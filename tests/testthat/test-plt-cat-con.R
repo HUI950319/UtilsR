@@ -2461,3 +2461,18 @@ test_that("wide categorical UpSet keys bound their representative search", {
   d$A <- d$B <- TRUE
   expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
 })
+
+test_that("constant factor backgrounds skip validating every outcome row", {
+  fn <- .build_bg_layer
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(table), quote(group_codes)) && isTRUE(getOption("utilsr.test.background_uniform"))) stop("unexpected match in .build_bg_layer")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  d <- data.frame(g = factor(rep(c("a", NA, "b"), 80L)), bg = factor(rep("cohort", 240L)))
+  draw <- function(f) f(d, "g", "bg", .5, c(cohort = "red"), axis_levels = c("a", "b", NA))$data
+  withr::local_options(utilsr.test.background_uniform = TRUE)
+  expect_identical(draw(fn), draw(.build_bg_layer))
+  withr::local_options(utilsr.test.background_uniform = FALSE)
+  d$bg[1L] <- NA
+  expect_warning(fn(d, "g", "bg", .5, c(cohort = "red"), axis_levels = c("a", "b", NA)), "Background disabled")
+})

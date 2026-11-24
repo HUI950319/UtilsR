@@ -1311,11 +1311,17 @@ plt_cat <- function(data,
   factor_codes <- (identical(class(backgrounds), "factor") ||
     identical(class(backgrounds), c("ordered", "factor"))) && !anyNA(levels(backgrounds))
   values <- if (factor_codes) as.integer(backgrounds) else as.character(backgrounds)
-  bg_map <- values[match(group_ids, group_codes)]
-  by_code <- rep.int(NA, length(axis_levels))
-  by_code[group_ids] <- bg_map
-  consistent <- values == by_code[group_codes]
-  if (anyNA(group_codes)) consistent[is.na(group_codes)] <- TRUE
+  uniform <- factor_codes && length(values) && !anyNA(values) && min(values) == max(values)
+  if (uniform) {
+    bg_map <- rep.int(values[1L], length(group_ids))
+    consistent <- TRUE
+  } else {
+    bg_map <- values[match(group_ids, group_codes)]
+    by_code <- rep.int(NA, length(axis_levels))
+    by_code[group_ids] <- bg_map
+    consistent <- values == by_code[group_codes]
+    if (anyNA(group_codes)) consistent[is.na(group_codes)] <- TRUE
+  }
 
   if (!isTRUE(all(consistent))) {
     cli::cli_warn(
