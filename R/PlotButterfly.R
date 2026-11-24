@@ -665,7 +665,8 @@ PlotButterfly <- function(
       (is.object(value) && !identical(class(value), "AsIs") &&
        !inherits(value, "haven_labelled"))) return(value)
   raw <- unclass(value)
-  values <- unique(raw)
+  values <- if (!is.object(value) && !is.complex(raw) && is.null(dim(raw)) &&
+    isFALSE(is.unsorted(raw, strictly = TRUE))) raw else unique(raw)
   labels <- as.character(values)
   if (!anyDuplicated(labels)) return(value)
   labels <- if (is.complex(values)) {

@@ -1516,3 +1516,16 @@ test_that("complete merged butterfly bar scores reuse their values", {
   d <- d[-1L, ]
   expect_identical(run(fn, d)[[1L]]$data, run(PlotButterfly, d)[[1L]]$data)
 })
+
+test_that("already increasing numeric category keys are retained without deduplication", {
+  fn <- .butterfly_category_labels
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(raw)) && isFALSE(is.unsorted(x, strictly = TRUE))) stop("unexpected unique in .butterfly_category_labels")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  x <- setNames(seq(.1, 300, length.out = 1000L), seq_len(1000L))
+  expect_identical(fn(x), x)
+  x <- c(1, 1 + .Machine$double.eps, 2)
+  expect_identical(fn(x), .butterfly_category_labels(x))
+  expect_false(anyDuplicated(fn(x)) > 0L)
+})
