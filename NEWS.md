@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical axes fill one repeated observed factor code directly instead of matching every row.
+
 * Named butterfly palettes skip a second category search when all labels have colours.
 
 * Butterfly gradients reuse numeric bounds without a row-length finite flag for ordinary scores.

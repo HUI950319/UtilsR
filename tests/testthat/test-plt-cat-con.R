@@ -2390,3 +2390,15 @@ test_that("complete background axes reuse their levels without a missing mask", 
   expect_identical(layer$data, .build_bg_layer(d, "g", "bg", .2)$data)
   expect_equal(nrow(layer$data), 2)
 })
+
+test_that("one fully observed sparse axis level fills its remapped code", {
+  fn <- .cat_axis_factor
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(tally$row_codes)) && length(table) == 1L && !anyNA(x)) stop("unexpected match in .cat_axis_factor")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- setNames(ordered(rep("b", 6L), levels = c(paste0("u", 1:100), "b")), letters[1:6])
+  expect_identical(fn(x), setNames(ordered(rep("b", 6L)), names(x)))
+  x[2L] <- NA
+  expect_identical(fn(x), .cat_axis_factor(x))
+})
