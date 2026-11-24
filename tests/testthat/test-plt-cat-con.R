@@ -2430,3 +2430,18 @@ test_that("compound time keys use bounded representative lookup", {
   expect_identical(fn(period), .cat_time_key(period[1:3])[rep(1:3, 600L)])
   expect_identical(fn(rep(period[1L], 1200L)), rep(.cat_time_key(period[1L]), 1200L))
 })
+
+test_that("packed categorical UpSet keys reuse their observed group count", {
+  fn <- .plt_cat_upset
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(codes)) && length(x) > 100L) stop("unexpected unique in .plt_cat_upset")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = rep(c(TRUE, FALSE, TRUE, FALSE), 100L),
+    B = rep(c(FALSE, TRUE, TRUE, FALSE), 100L))
+  draw <- function(f, data) f(data, names(data), "red", stat_level = "TRUE")$data
+  expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
+  d$A <- d$B <- TRUE
+  expect_identical(draw(fn, d), draw(.plt_cat_upset, d))
+})

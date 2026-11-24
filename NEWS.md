@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Packed categorical UpSet grouping gets representative codes from the existing row IDs without rehashing membership codes.
+
 * Continuous mean and standard deviation summaries check ordinary extreme samples through their extrema.
 
 * Single-feature continuous plots avoid rowwise finiteness flags for fully finite ordinary outcomes.

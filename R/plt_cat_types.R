@@ -417,7 +417,10 @@
     codes <- .upset_row_codes(sets, nrow(data))
     groups <- vctrs::vec_group_id(codes)
     bits <- bitwShiftL(1L, seq_along(stat.by) - 1L)
-    combinations <- lapply(unique(codes), function(code) stat.by[bitwAnd(code, bits) != 0L])
+    n_keys <- attr(groups, "n")
+    observed <- if (n_keys == length(codes)) codes else if (n_keys == 1L) codes[1L] else
+      codes[!duplicated(groups, nmax = n_keys)]
+    combinations <- lapply(observed, function(code) stat.by[bitwAnd(code, bits) != 0L])
   } else {
     bool_mat <- vapply(stat.by, membership, logical(nrow(data)))
     dim(bool_mat) <- c(nrow(data), length(stat.by))
