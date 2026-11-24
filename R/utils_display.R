@@ -563,10 +563,10 @@ console_width <- function() {
         if (nlevels(values) > length(values)) {
           observed <- sort(unique(codes), na.last = NA)
           hit <- grepl(pattern, levels(values)[observed], ignore.case = TRUE)
-          which(hit[match(codes, observed)])
+          if (any(hit)) which(hit[match(codes, observed)]) else integer()
         } else {
           hit <- grepl(pattern, levels(values), ignore.case = TRUE)
-          which(hit[codes])
+          if (any(hit)) which(hit[codes]) else integer()
         }
       } else {
         n <- length(values)

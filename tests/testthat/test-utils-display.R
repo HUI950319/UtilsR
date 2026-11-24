@@ -1594,3 +1594,18 @@ test_that("unmatched repeated table highlights avoid remapping row positions", {
   result <- fn(d, highlight_pattern = "^text$", theme = "none")
   expect_equal(stats::na.omit(result[["_styles"]]$rownum) |> as.integer(), seq.int(1, 1500, by = 3L))
 })
+
+test_that("unmatched factor table highlights skip row position lookup", {
+  fn <- .cat_tb
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(hit)) && !any(x)) stop("unexpected [ in .cat_tb")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  values <- rep(c("yes", "no", NA), 40L)
+  d <- data.frame(small = factor(values),
+    sparse = factor(values, levels = c("yes", "no", paste0("unused", 1:1000))))
+  out <- fn(d, highlight_pattern = "^absent$", theme = "none")
+  expect_identical(out[["_styles"]], .cat_tb(d, highlight_pattern = "^absent$", theme = "none")[["_styles"]])
+  out <- fn(d, highlight_pattern = "^yes$", theme = "none")
+  expect_equal(sum(!is.na(out[["_styles"]]$rownum)), 80L)
+})
