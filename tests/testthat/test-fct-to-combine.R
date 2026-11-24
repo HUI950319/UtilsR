@@ -796,3 +796,15 @@ test_that("complete ordinary combinations skip combining empty masks", {
   d$x[2L] <- NA_character_
   expect_identical(fn(d$x, d$y), fct_to_combine(d$x, d$y))
 })
+
+test_that("one observed sparse factor uses its only output code", {
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(tally$row_codes)) && !anyNA(x) && length(table) == 1L) stop("unexpected match in fct_to_combine.default")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- factor(rep("live", 170L), levels = c(paste0("unused", 1:400), "live"))
+  expect_identical(fn(x), factor(rep("live", 170L)))
+  x[1L] <- NA
+  expect_identical(fn(x), fct_to_combine(x))
+})

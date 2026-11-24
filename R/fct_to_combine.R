@@ -239,7 +239,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
         ))
       }
       codes <- if (length(observed) == nlevels(x)) tally$row_codes else
-        match(tally$row_codes, observed)
+        if (length(observed) == 1L && tally$counts[[1L]] == n) rep.int(1L, n) else
+          match(tally$row_codes, observed)
       return(structure(codes, levels = lvls, class = "factor"))
     }
   }
