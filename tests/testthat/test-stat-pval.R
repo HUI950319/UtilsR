@@ -1203,3 +1203,15 @@ test_that("decimal significance rows are indexed once per cutoff", {
   expect_identical(fn(x), stat_pval(x))
   expect_identical(calls, 1L)
 })
+
+test_that("validated p-value bounds share one presence flag through formatting", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("any" = function(..., na.rm = FALSE) {
+    if (identical(substitute(list(...))[[2L]], quote(bounded))) stop("unexpected any in stat_pval")
+    base::any(..., na.rm = na.rm)
+  }), parent = environment(fn))
+  x <- rep(c("<=0", "0.01", " 0.5 ", ">=1", NA_character_), 300L)
+  for (mode in c("stars", "plain")) expect_identical(fn(x, mode = mode), stat_pval(x, mode = mode))
+  expect_error(fn(rep(c("0.1", "<0"), 300L)), "strict bound")
+  expect_error(fn(c("<words", "0.5")), "numeric bounds")
+})

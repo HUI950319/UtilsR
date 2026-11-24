@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* P-value formatting reuses bound presence detected during validation instead of rescanning input rows.
+
 * Paired comparison ID generation avoids existing bindings in facet environments, including inherited lookup names.
 
 * Facet column discovery recognizes literal get0 lookups when paired comparisons choose a private ID column.

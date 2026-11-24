@@ -230,7 +230,7 @@ stat_pval <- function(x,
     }
   }
 
-  bounded <- FALSE
+  bounded <- has_bounds <- FALSE
   x_num <- if (is.character(x)) {
     if (any(!validEnc(x) | Encoding(x) == "bytes")) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
@@ -243,7 +243,8 @@ stat_pval <- function(x,
     bound_rows <- grepl("^[<>\u2264\u2265]", observed)
     exact <- observed
     valid_bounds <- TRUE
-    if (any(bound_rows)) {
+    has_bounds <- any(bound_rows)
+    if (has_bounds) {
       bounded <- rep(FALSE, length(x))
       at <- if (is.null(present)) which(bound_rows) else present[bound_rows]
       bounded[at] <- grepl(paste0("^", prefix, number, "$"), observed[bound_rows], perl = TRUE)
@@ -256,7 +257,7 @@ stat_pval <- function(x,
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
     values <- text
-    if (any(bounded)) {
+    if (has_bounds) {
       values[bounded] <- sub(paste0("^", prefix), "", text[bounded], perl = TRUE)
     }
     missing_tokens <- values %in% c("NA", "NaN")
@@ -291,7 +292,7 @@ stat_pval <- function(x,
         if (any(negative | above_one)) {
           cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
         }
-        strict <- if (any(bounded)) bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE) else FALSE
+        strict <- if (has_bounds) bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE) else FALSE
         if (any(strict & ((startsWith(text[edge], "<") & zero) |
                           (startsWith(text[edge], ">") & one)))) {
           cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
@@ -319,7 +320,7 @@ stat_pval <- function(x,
   }
 
   # Only subset when some values do not need numeric formatting.
-  selective <- anyNA(x_num) || any(bounded)
+  selective <- anyNA(x_num) || has_bounds
   if (selective) {
     format_at <- which(!is.na(x_num) & !bounded)
     format_x <- x_num[format_at]
@@ -354,7 +355,7 @@ stat_pval <- function(x,
   if (selective) {
     formatted <- rep(NA_character_, length(x_num))
     formatted[format_at] <- out
-    if (any(bounded)) formatted[bounded] <- text[bounded]
+    if (has_bounds) formatted[bounded] <- text[bounded]
     out <- formatted
   }
   if (!is.null(expand)) out <- out[expand]
