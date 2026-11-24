@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Tied decimal p values parse exponent suffixes only for scientific notation while retaining exact threshold decisions.
+
 * Quantile-based factor bins reuse strictly increasing boundaries and continue to collapse ties.
 
 * Equal-width factor bins skip duplicate tracking for strictly increasing boundaries and still detect precision collisions.

@@ -146,7 +146,9 @@ stat_pval <- function(x,
     tied <- which(pvals == unname(map[index]))
     decimal <- function(text) {
       mantissa <- sub("[eE].*$", "", text)
-      exponent <- as.numeric(ifelse(grepl("[eE]", text), sub("^.*[eE]", "", text), "0"))
+      exponent <- numeric(length(text))
+      scientific <- grep("[eE]", text)
+      if (length(scientific)) exponent[scientific] <- as.numeric(sub("^.*[eE]", "", text[scientific]))
       places <- ifelse(grepl(".", mantissa, fixed = TRUE), nchar(sub("^.*[.]", "", mantissa)), 0L)
       coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
       list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),

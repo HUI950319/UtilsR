@@ -1215,3 +1215,16 @@ test_that("validated p-value bounds share one presence flag through formatting",
   expect_error(fn(rep(c("0.1", "<0"), 300L)), "strict bound")
   expect_error(fn(c("<words", "0.5")), "numeric bounds")
 })
+
+test_that("decimal significance exponent extraction is limited to scientific spellings", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("sub" = function(pattern, replacement, x, ...) {
+    if (identical(pattern, "^.*[eE]") && identical(substitute(x), quote(text))) stop("unexpected sub in stat_pval")
+    base::sub(pattern, replacement, x, ...)
+  }), parent = environment(fn))
+  x <- c("0.05", "0.0500000000000000001", "5e-2", "50E-3", "0.0499999999999999999")
+  expect_identical(fn(x, digits = 3L), stat_pval(x, digits = 3L))
+  result <- fn(x, digits = 3L, mode = "stars")
+  expect_identical(result, stat_pval(x, digits = 3L, mode = "stars"))
+  expect_identical(endsWith(result, "*"), c(TRUE, FALSE, TRUE, TRUE, TRUE))
+})
