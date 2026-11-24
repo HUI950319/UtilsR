@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse Jaccard intersections size duplicate tracking from the observed pairs and select the first key directly for one pair.
+
 * Jaccard feature grouping bypasses deduplication for strictly increasing ordinary numeric features.
 
 * In-panel tags with get or get0 facets expand across the trained layout without introducing new facet values.

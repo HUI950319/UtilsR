@@ -323,7 +323,7 @@ PlotHeatmapJaccard <- function(
           pairs <- keys
           counts <- rep.int(1L, distinct)
         } else {
-          pairs <- keys[!duplicated(ids)]
+          pairs <- if (distinct == 1L) keys[1L] else keys[!duplicated(ids, nmax = distinct)]
           counts <- tabulate(ids, nbins = distinct)
         }
       }

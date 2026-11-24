@@ -1237,3 +1237,20 @@ test_that("ordered Jaccard feature sets can reuse all input IDs", {
   dup <- rbind(d, d[c(10L, 1090L), ])
   expect_identical(fn(dup, return_type = "data"), result)
 })
+
+test_that("one sparse Jaccard pair uses its first overlap key", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list("duplicated" = function(x, ..., nmax = NA_integer_) {
+    if (identical(substitute(x), quote(ids)) && !identical(nmax, attr(x, "n"))) stop("unexpected duplicated in PlotHeatmapJaccard")
+    base::duplicated(x, ..., nmax = nmax)
+  }), parent = environment(fn))
+  a <- data.frame(cell_type = "a", gene = paste0("g", 1:100))
+  b <- data.frame(cell_type = "b", gene = paste0("g", 51:150))
+  rest <- data.frame(cell_type = letters[3:20], gene = paste0("private", 3:20))
+  d <- rbind(a, b, rest)
+  out <- fn(d, return_type = "data")
+  expect_equal(out["a", "b"], 1/3)
+  rest$gene[1L] <- "g90"
+  moved <- fn(rbind(a, b, rest), return_type = "data")
+  expect_equal(moved["c", c("a", "b")], c(a = .01, b = .01))
+})
