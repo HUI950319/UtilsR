@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard feature grouping bypasses deduplication for strictly increasing ordinary numeric features.
+
 * In-panel tags with get or get0 facets expand across the trained layout without introducing new facet values.
 
 * Dumbbell charts check integer delta representability with scalar extrema, preserving missing and wider differences.

@@ -269,7 +269,9 @@ PlotHeatmapJaccard <- function(
         rows <- which(group_match & non_missing)
       }
       values <- if (typed_features) vctrs::vec_slice(feature_values, rows) else feature_values[rows]
-      if (typed_features) vctrs::vec_unique(values) else unique(as.vector(values))
+      if (typed_features) return(vctrs::vec_unique(values))
+      values <- as.vector(values)
+      if (is.numeric(values) && isFALSE(is.unsorted(values, strictly = TRUE))) values else unique(values)
     }
   )
   set_sizes <- if (typed_features) {

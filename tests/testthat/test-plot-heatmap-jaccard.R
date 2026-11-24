@@ -1224,3 +1224,16 @@ test_that("complete Jaccard group orders reuse their dictionary", {
   expect_equal(p[1L, 2L], 1/3)
   expect_identical(fn(d, group_levels = c("B", NA, "A"), return_type = "data"), p)
 })
+
+test_that("ordered Jaccard feature sets can reuse all input IDs", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (is.numeric(x) && length(x) == 1000L && !is.unsorted(x, strictly = TRUE)) stop("unexpected unique in PlotHeatmapJaccard")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(cell_type = rep(c("a", "b"), each = 1000L), gene = c(1:1000, 501:1500))
+  result <- fn(d, return_type = "data")
+  expect_equal(result["a", "b"], 1/3)
+  dup <- rbind(d, d[c(10L, 1090L), ])
+  expect_identical(fn(dup, return_type = "data"), result)
+})
