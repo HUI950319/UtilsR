@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank facets reuse their full data for labels if every shown row is highlighted.
+
 * Single-group rank outputs construct the group factor from its constant code without matching rows.
 
 * UpSet counts observed nonzero combinations with bounded bins when membership rows outnumber code slots.

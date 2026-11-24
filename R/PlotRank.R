@@ -545,7 +545,7 @@ PlotRank <- function(
   } else {
     df$TopGroup <- ifelse(top, "top", "other")
   }
-  label_df <- df[top, ]
+  label_df <- if (isTRUE(all(top))) df else df[top, ]
 
   p <- ggplot2::ggplot(
     df,

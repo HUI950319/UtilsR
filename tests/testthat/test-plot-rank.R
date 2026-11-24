@@ -1089,3 +1089,18 @@ test_that("a single ranked group uses its known factor code", {
   expect_identical(d, PlotRank(x, max_show = 200L, return_type = "data"))
   expect_identical(d$Group, factor(rep("All", 200L)))
 })
+
+test_that("rank facet labels reuse data when all rows are highlighted", {
+  fn <- .pr_facet
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(df)) && identical(substitute(i), quote(top)) && all(i)) stop("unexpected [ in .pr_facet")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  d <- data.frame(Rank = rep(1:5, 2L), Score = 1:10, Label = letters[1:10],
+    Group = factor(rep(c("a", "b"), each = 5L)), IsTop = TRUE)
+  run <- function(f, d) f(d, "red", "grey50", 1, 1, "Ranks", "Score", 11, 2)
+  got <- run(fn, d)
+  expect_identical(got$layers[[2L]]$data, got$data)
+  d$IsTop[c(5L, 10L)] <- FALSE
+  expect_identical(run(fn, d)$layers[[2L]]$data$Label, d$Label[d$IsTop])
+})
