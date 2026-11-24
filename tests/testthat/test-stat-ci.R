@@ -421,3 +421,15 @@ test_that("numeric intervals mask only incomplete inputs", {
   expect_identical(fn(x, y), stat_ci(x, y))
   expect_identical(fn(x, y, z)[3:4], stats::setNames(c(NA_character_, NA_character_), c("c", "d")))
 })
+
+test_that("one repeated interval uses its first formatting input directly", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(table), quote(ids)) && length(x) == 1L) stop("unexpected match in stat_ci")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- setNames(rep(-0, 1400L), paste0("row", 1:1400))
+  expect_identical(fn(x, rep(-1.2, length(x)), rep(.4, length(x)), sep = ", "),
+                   setNames(rep("0.00 (-1.20, 0.40)", length(x)), names(x)))
+  expect_identical(fn(x, rep(1, length(x)), digits = 1), setNames(rep("0.0(1.0)", length(x)), names(x)))
+})

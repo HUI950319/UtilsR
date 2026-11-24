@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval formatting takes the first representative directly when every input tuple is identical.
+
 * Axis tiles share the baseline field names across all edited plot leaves.
 
 * The ggrastr backend accepts an ordinary plot directly without making and restoring a one-item list.
