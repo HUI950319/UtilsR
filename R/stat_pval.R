@@ -228,7 +228,8 @@ stat_pval <- function(x,
     keys <- unique(x)
     if (length(keys) < length(x) / 2) {
       formatted <- stat_pval(keys, digits = d, mode = mode, map_signif = map_signif)
-      return(stats::setNames(formatted[match(x, keys)], input_names))
+      out <- if (length(keys) == 1L) rep.int(formatted, length(x)) else formatted[match(x, keys)]
+      return(stats::setNames(out, input_names))
     }
   }
 

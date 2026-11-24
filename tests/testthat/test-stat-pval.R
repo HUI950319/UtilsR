@@ -1228,3 +1228,15 @@ test_that("decimal significance exponent extraction is limited to scientific spe
   expect_identical(result, stat_pval(x, digits = 3L, mode = "stars"))
   expect_identical(endsWith(result, "*"), c(TRUE, FALSE, TRUE, TRUE, TRUE))
 })
+
+test_that("large vectors of identical character p values restore output by replication", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(table), quote(keys)) && length(table) == 1L && length(x) > 1000L) stop("unexpected match in stat_pval")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- stats::setNames(rep("0.0499999", 1100L), paste0("g", 1:1100))
+  expect_identical(fn(x), stats::setNames(rep(stat_pval(x[[1L]]), length(x)), names(x)))
+  x[1L] <- "<0.01"
+  expect_identical(fn(x), stat_pval(x))
+})

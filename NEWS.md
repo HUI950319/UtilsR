@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated identical p-value strings expand their formatted result without matching the original rows to a single-key dictionary.
+
 * Discrete palette level discovery uses already distinct sorted ordinary numeric categories directly.
 
 * Console sparklines use zero standard deviation directly for constant complete ordinary columns with at least two observations.
