@@ -1114,3 +1114,21 @@ test_that("plain KNN frames skip optional class inspections", {
   d$z <- haven::labelled(d$z, c(one = 1L))
   expect_identical(fn(d, k = 1L, verbose = FALSE), impute_na_knn(d, k = 1L, verbose = FALSE))
 })
+
+test_that("complete KNN donors skip missing-value removal in weighted means", {
+  skip_if_not_installed("VIM")
+  weighted_mean <- stats::weighted.mean
+  called <- logical()
+  local_mocked_bindings(weighted.mean = function(x, w, ..., na.rm = FALSE) {
+    called <<- c(called, na.rm)
+    weighted_mean(x, w, ..., na.rm = na.rm)
+  }, .package = "stats")
+  local_mocked_bindings(kNN = function(data, variable, k, numFun, ...) {
+    expect_equal(numFun(c(NA, 2, 8), weights = c(1, 1, 2)), 6)
+    data[[variable]][1L] <- numFun(c(2, 8), weights = c(1, 2))
+    data
+  }, .package = "VIM")
+  d <- data.frame(x = c(NA, 2, 8), y = 1:3)
+  expect_equal(impute_na_knn(d, 1L, verbose = FALSE)$x, c(6, 2, 8))
+  expect_identical(called, c(TRUE, FALSE))
+})

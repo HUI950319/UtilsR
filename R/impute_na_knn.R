@@ -248,8 +248,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   weighted_mean <- function(x, weights = NULL, ...) {
     weights <- distance_weights(weights)
-    value <- if (is.null(weights)) mean(x, na.rm = TRUE) else
-      stats::weighted.mean(x, w = weights, na.rm = TRUE)
+    remove_na <- is.object(x) || anyNA(x)
+    value <- if (is.null(weights)) mean(x, na.rm = remove_na) else
+      stats::weighted.mean(x, w = weights, na.rm = remove_na)
     if ((!is.finite(value) || abs(value) <= .Machine$double.xmin) &&
         length(x) && all(is.finite(x))) {
       scale <- max(abs(x))

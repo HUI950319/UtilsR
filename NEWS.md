@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN means skip NA removal for complete ordinary donors and retain the existing missing and extreme-value behavior.
+
 * Faceted alluvial grouping sizes duplicate tracking to the number of observed facet and category pairs.
 
 * Point sampling reuses row positions for distinct sorted numeric strata while retaining existing ordering for all other values.
