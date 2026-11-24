@@ -1391,3 +1391,17 @@ test_that("facet symbol sampling reads ordinary source columns directly", {
   expect_identical(.fmt_point_sample(d, ggplot2::aes(x), 4L, 10L, facets = facets), want)
   expect_equal(unname(table(want$panel)), structure(c(4L, 4L), dim = 2L, class = "table"))
 })
+
+test_that("repeated numeric point shapes reuse one conversion", {
+  fn <- .shape_convert
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (is.numeric(x) && length(x) > 100L && !anyNA(x) && min(x) == max(x)) stop("unexpected match in .shape_convert")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- stats::setNames(rep(16L, 300L), as.character(seq_len(300L)))
+  expect_identical(fn(x), rep(21, 300L))
+  x[] <- 3L
+  expect_identical(fn(x), x)
+  x[2L] <- NA_integer_
+  expect_identical(fn(x), .shape_convert(x))
+})
