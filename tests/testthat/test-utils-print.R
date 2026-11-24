@@ -2642,3 +2642,17 @@ test_that("nonsignificant console P-values bypass colour replacement", {
   expect_identical(cli::ansi_strip(._p_cells(c(.2, .6, NA))), c("0.200", "0.600", "NA"))
   expect_identical(cli::ansi_strip(._p_cells(c(.001, .06, .0002))), c("0.001", "0.060", "<0.001"))
 })
+
+test_that("nonsignificant ordinary p-value columns require no row classifications", {
+  fn <- ._p_cells
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (identical(substitute(x), quote(num)) && length(x) > 100L) stop("unexpected is.na in ._p_cells")
+    base::is.na(x)
+  }), parent = environment(fn))
+  x <- stats::setNames(rep(c(.05, .3, .89), 180L), paste0("g", 1:540))
+  for (colors in c(1L, 256L)) {
+    withr::local_options(cli.num_colors = colors)
+    expect_identical(fn(x), ._p_cells(x))
+  }
+  expect_identical(fn(c(.04, .05, NA)), ._p_cells(c(.04, .05, NA)))
+})

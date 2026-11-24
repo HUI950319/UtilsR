@@ -507,6 +507,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
                                                   (values < 0.01 & shown >= 0.01))]
       txt[candidates] <- formatC(v[candidates], format = "f", digits = d)
     }
+    if (isTRUE(smallest >= 0.05)) {
+      txt <- as.character(._pr_escape(txt))
+      return(if (._pr_colour()) as.character(cli::col_grey(txt)) else txt)
+    }
     valid <- !is.na(num)
   } else {
     txt <- .trim_pvalue_space(as.character(v))

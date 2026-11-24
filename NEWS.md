@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console p-value cells bypass significance comparisons when every ordinary numeric value meets the existing nonsignificant cutoff.
+
 * Inspection disambiguation finds representative numeric and complex values with duplicate tracking bounded by the observed keys.
 
 * Missingness plots use the observed counts directly when every selected column is fully missing.
