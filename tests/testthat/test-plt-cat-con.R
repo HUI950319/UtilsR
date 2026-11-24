@@ -2402,3 +2402,19 @@ test_that("one fully observed sparse axis level fills its remapped code", {
   x[2L] <- NA
   expect_identical(fn(x), .cat_axis_factor(x))
 })
+
+test_that("single-sided chord tables count existing row codes", {
+  fn <- .plt_cat_chord
+  environment(fn) <- list2env(list("*" = function(e1, e2) {
+    if (identical(substitute(e2), quote(n_from)) && e2 == 1L) stop("unexpected * in .plt_cat_chord")
+    base::"*"(e1, e2)
+  }), parent = environment(fn))
+  withr::local_pdf(NULL)
+  d <- data.frame(a = factor("one"), b = factor(c("right", "left", "right")))
+  seen <- NULL
+  local_mocked_bindings(chordDiagram = function(x, ...) seen <<- x, .package = "circlize")
+  fn(d, names(d), c(one = "black", right = "red", left = "blue"))
+  expect_identical(as.integer(seen), c(1L, 2L))
+  expect_identical(rownames(seen), "one")
+  expect_identical(colnames(seen), c("left", "right"))
+})

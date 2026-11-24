@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Chord tables use a category's codes directly when the other dimension contains one observed level.
+
 * Categorical axes fill one repeated observed factor code directly instead of matching every row.
 
 * Named butterfly palettes skip a second category search when all labels have colours.

@@ -333,7 +333,8 @@
     cli::cli_abort("A chord frequency table must contain fewer than 2^31 cells. Reduce the number of categories.")
   }
   m <- if (direct) {
-    cells <- as.integer(from) + (as.integer(to) - 1L) * n_from
+    cells <- if (n_from == 1L) as.integer(to) else if (n_to == 1L) as.integer(from) else
+      as.integer(from) + (as.integer(to) - 1L) * n_from
     matrix(tabulate(cells, n_cells), nrow = n_from, ncol = n_to,
       dimnames = list(from = levels(from), to = levels(to)))
   } else {
