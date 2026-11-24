@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired continuous t test adapters promote ordinary integer samples when a pairwise difference can exceed the integer range.
+
 * Repeated parsed interval and precision pairs size duplicate tracking to the observed format keys.
 
 * Confidence interval scale diagnostics take first occurrences from a duplicate table sized to the observed keys.

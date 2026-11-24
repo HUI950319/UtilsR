@@ -920,6 +920,11 @@ plt_con <- function(data,
         bounds <- suppressWarnings(if (is.null(complete)) range(x, y, finite = TRUE) else
           range(x[complete], y[complete], finite = TRUE))
       }
+      if (paired && is.integer(x) && is.integer(y) && !is.object(x) && !is.object(y) &&
+          all(is.finite(bounds)) && bounds[2L] - as.double(bounds[1L]) > .Machine$integer.max) {
+        x <- as.double(x)
+        y <- as.double(y)
+      }
       unit <- if (all(is.finite(bounds))) max(abs(bounds)) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                        unit > sqrt(.Machine$double.xmax))) {

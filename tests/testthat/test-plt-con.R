@@ -2878,3 +2878,15 @@ test_that("unnamed significance cutoffs have no labels to evaluate", {
   names(cuts) <- c("*", "**", "?")
   expect_identical(vapply(c(0.003, 0.01, 0.05), fn(cuts), ""), c("**", "*", "NS."))
 })
+
+test_that("paired integer comparisons promote differences beyond the integer range", {
+  x <- c(2000000000L, 1800000000L, 1700000000L, NA_integer_)
+  y <- -c(1900000000L, 1700000000L, 1400000000L, 100L)
+  pair <- .con_pairwise_test("t.test")
+  expect_no_warning(actual <- pair(x, y, paired = TRUE))
+  expected <- stats::t.test(as.double(x), as.double(y), paired = TRUE)
+  expect_equal(actual[c("p.value", "statistic", "estimate")],
+               expected[c("p.value", "statistic", "estimate")])
+  expect_equal(pair(1:4, c(1L, 3L, 6L, 8L), paired = TRUE)$p.value,
+               pair(as.double(1:4), c(1, 3, 6, 8), paired = TRUE)$p.value)
+})
