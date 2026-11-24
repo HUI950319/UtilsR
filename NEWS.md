@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis backgrounds retrieve distinct trained x and y scales by layout index, including shared facet scales.
+
 * Tied decimal p values parse exponent suffixes only for scientific notation while retaining exact threshold decisions.
 
 * Quantile-based factor bins reuse strictly increasing boundaries and continue to collapse ties.

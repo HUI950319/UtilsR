@@ -5179,7 +5179,8 @@ fmt_bg <- function(plot,
       draw_layer = function(self, data, params, layout, coord) {
         scale_ids <- layout$layout[[if (bg_axis == "x") "SCALE_X" else "SCALE_Y"]]
         distinct <- unique(scale_ids)
-        scales <- lapply(match(distinct, scale_ids), function(i) layout$get_scales(i)[[bg_axis]])
+        panel_scales <- if (bg_axis == "x") layout$panel_scales_x else layout$panel_scales_y
+        scales <- panel_scales[distinct]
         discrete <- vapply(scales, function(scale) scale$is_discrete(), logical(1))
         trained <- lapply(scales[discrete], function(scale) scale$get_limits())
         if (!any(discrete)) {

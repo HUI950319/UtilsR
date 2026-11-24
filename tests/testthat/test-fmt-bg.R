@@ -544,7 +544,7 @@ test_that("background stripes share trained scales across fixed facets", {
     getter(i)
   }
   expect_equal(bg_rects(ggplot2::ggplot_gtable(b)), expected)
-  expect_identical(calls, 1L)
+  expect_identical(calls, 0L)
 })
 
 test_that("background stripes map a shared fixed scale once", {
@@ -709,4 +709,23 @@ test_that("background placeholders stay invisible to dynamic facet columns", {
   q <- fmt_bg(p, palcolor = bg_colors)
   expect_identical(ggplot2::ggplot_build(q)$layout$layout, ggplot2::ggplot_build(p)$layout$layout)
   expect_equal(length(bg_grobs(ggplot2::ggplotGrob(q))), 2L)
+})
+
+test_that("free background stripes use trained scale indices directly", {
+  fn <- fmt_bg
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(distinct)) && identical(substitute(table), quote(scale_ids))) stop("unexpected match in fmt_bg")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  environment(fn)$fmt_bg <- fn
+  d <- data.frame(category = c("A", "B", "A", "C", "B", "C"), value = 1:6,
+    row = rep(c("p", "q"), each = 3L), column = rep(c("r", "s", "s"), 2L))
+  for (axis in c("x", "y")) {
+    mapping <- if (axis == "x") ggplot2::aes(category, value) else ggplot2::aes(value, category)
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point() +
+      ggplot2::facet_grid(ggplot2::vars(row), ggplot2::vars(column), scales = paste0("free_", axis))
+    stripes <- function(f) bg_rects(ggplot2::ggplotGrob(f(p, bg_axis = axis, palcolor = bg_colors)))
+    expect_identical(stripes(fn), stripes(fmt_bg))
+    expect_equal(nrow(stripes(fn)), if (axis == "x") 10L else 8L)
+  }
 })
