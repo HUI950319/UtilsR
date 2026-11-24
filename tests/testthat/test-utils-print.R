@@ -2680,3 +2680,15 @@ test_that("console decimal cells collect bound positions directly", {
   expect_identical(fn(x), ._p_cells(x))
   expect_identical(fn(rep(x, 210L)), ._p_cells(rep(x, 210L)))
 })
+
+test_that("constant complete sparkline columns have exactly zero spread", {
+  d <- data.frame(x = rep(3.25, 900L), y = rep(c(1, 2, 3), 300L))
+  want <- capture.output(pr_spark(d))
+  sd <- stats::sd
+  local_mocked_bindings(sd = function(x, ...) {
+    if (length(x) == 900L && all(x == 3.25)) stop("computed standard deviation for a constant sparkline")
+    sd(x, ...)
+  }, .package = "stats")
+  expect_identical(capture.output(pr_spark(d)), want)
+  expect_match(paste(capture.output(pr_spark(d[1L, ])), collapse = "\n"), "sd NA")
+})

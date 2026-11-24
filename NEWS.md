@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console sparklines use zero standard deviation directly for constant complete ordinary columns with at least two observations.
+
 * Console p-value formatting gets bound and exponent positions directly from the validated input.
 
 * Console cells preserve complete text without a rowwise missing check when no entry is a numeric p value.

@@ -1457,7 +1457,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       }
       whole <- is.integer(v) && !is.object(v)
       counts <- if (complete) bin(shape, bounds, whole) else bin(shape, whole = whole)
-      spread <- stats::sd(shape)
+      spread <- if (complete && length(shape) > 1L && bounds[1L] == bounds[2L]) 0 else stats::sd(shape)
       if (length(shape) > 1L && (!is.finite(spread) ||
           (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||
           (spread == 0 && min(shape) != max(shape)))) {
