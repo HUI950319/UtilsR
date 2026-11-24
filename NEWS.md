@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor grouping avoids an unnamed-position mask when every group has a valid supplied name.
+
 * Short confidence interval and mean/SD formatting avoids collecting positions for duplicate grouping.
 
 * Interval formatting checks the expensive byte-width guard using the validated maximum precision.

@@ -58,7 +58,8 @@ fct_to_group <- function(x, g_lis,
   }
 
   cur_names <- names(g_lis)
-  unnamed <- if (is.null(cur_names)) seq_along(g_lis) else which(is.na(cur_names) | cur_names == "")
+  unnamed <- if (is.null(cur_names)) seq_along(g_lis) else if (anyNA(cur_names) || "" %in% cur_names)
+    which(cur_names %in% c("", NA_character_))
   if (length(unnamed)) {
     for (arg in c("name_prefix", "name_sep")) {
       value <- get(arg)

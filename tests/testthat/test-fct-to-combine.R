@@ -759,3 +759,14 @@ test_that("factor combination lengths are checked without allocating a dictionar
   expect_error(fn(1:3, c(TRUE, FALSE)), "same length")
   expect_length(fn(integer(), logical()), 0L)
 })
+
+test_that("named factor groups do not build an unnamed index when all keys are supplied", {
+  fn <- fct_to_group
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(is.na(cur_names) | cur_names == ""))) stop("unexpected which in fct_to_group")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  x <- factor(c("A", "B", "C", "D"))
+  expect_identical(fn(x, list(M = c(1L, 3L), N = 2L)), factor(c("M", "N", "M", "D"), levels = c("M", "N", "D")))
+  expect_identical(fn(x, setNames(list(1L, 2L), c(NA, ""))), fct_to_group(x, list(1L, 2L)))
+})
