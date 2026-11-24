@@ -2201,3 +2201,20 @@ test_that("scatter axes need no duplicate scan for their two validated names", {
     expect_true(inherits(fn(d, "a", "b", "g"), "ggplot"))
   }
 })
+
+test_that("complete scatter differences do not request NA removal for the median", {
+  d <- data.frame(x = 1:6, y = c(2, 3, 5, 7, 8, 11), group = rep(c("a", "b"), 3L))
+  median <- stats::median
+  seen <- logical()
+  local_mocked_bindings(median = function(x, na.rm = FALSE, ...) {
+    if (identical(substitute(x), quote(diff_values))) seen <<- c(seen, na.rm)
+    median(x, na.rm = na.rm, ...)
+  }, .package = "stats")
+  run <- function(data) PlotScatter3(data, "x", "y", "group", test_method = "none", cor_method = "none")
+  p <- run(d)
+  d$y[6L] <- NA_real_
+  q <- suppressWarnings(run(d))
+  expect_identical(seen, c(FALSE, TRUE))
+  expect_s3_class(p, "patchwork")
+  expect_s3_class(q, "patchwork")
+})

@@ -306,7 +306,7 @@ PlotScatter3 <- function(
   } else {
     y_values - x_values
   }
-  median_diff <- stats::median(diff_values, na.rm = TRUE)
+  median_diff <- stats::median(diff_values, na.rm = anyNA(diff_values))
 
   # ---- Paired test ----
   p_label <- NULL

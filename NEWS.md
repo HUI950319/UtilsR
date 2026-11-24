@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter comparison medians skip NA removal for complete differences while preserving summaries for incomplete samples.
+
 * Continuous comparison caches bound duplicate tracking by the number of sample references.
 
 * Repeated compound time values size the representative row search by the number of observed tuples.
