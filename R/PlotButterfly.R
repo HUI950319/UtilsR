@@ -651,11 +651,12 @@ PlotButterfly <- function(
   key <- if (is.object(value)) .cat_time_key(value)
   if (!is.null(key)) {
     distinct <- unique(key)
-    at <- match(distinct, key)
     ordinary_time <- identical(class(value), "Date") ||
       identical(class(value), c("POSIXct", "POSIXt")) ||
       identical(class(value), c("POSIXlt", "POSIXt")) ||
       identical(class(value), "difftime") || class(value)[1L] %in% c("Duration", "Period", "Interval")
+    if (ordinary_time && length(distinct) <= 1L) return(value)
+    at <- match(distinct, key)
     labels <- if (ordinary_time) as.character(value[at]) else as.character(value)[at]
     if (!anyDuplicated(labels)) return(value)
     collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)

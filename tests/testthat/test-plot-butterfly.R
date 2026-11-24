@@ -1574,3 +1574,17 @@ test_that("two complete factor wings derive their observed order from the first 
   d$wing[1L] <- NA
   expect_error(fn(d, "feature", "score", "wing", type = "box"), "missing group values")
 })
+
+test_that("one distinct native time label needs no representative match", {
+  fn <- .butterfly_category_labels
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(distinct)) && length(x) == 1L && length(table) > 100L) stop("unexpected match in .butterfly_category_labels")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  d <- rep(as.POSIXct("2022-07-01 16:00:00", tz = "UTC"), 500L)
+  expect_identical(fn(d), d)
+  date <- rep(as.Date(NA_character_), 500L)
+  expect_identical(fn(date), date)
+  distinct <- as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York")
+  expect_identical(fn(rep(distinct, 80L)), .butterfly_category_labels(rep(distinct, 80L)))
+})
