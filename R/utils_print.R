@@ -765,7 +765,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       }
       wide <- which(finite & nchar(txt) > max(10L, avail))
       candidates <- if (getOption("OutDec") %in% c(".", ",")) {
-        which(finite & v != 0 & abs(v) <= 0.5 * 10^-d)
+        cutoff <- 0.5 * 10^-d
+        if (length(fin) && !(min(fin) > cutoff || max(fin) < -cutoff)) {
+          which(finite & v != 0 & abs(v) <= cutoff)
+        } else integer()
       } else {
         which(finite & v != 0)
       }

@@ -2692,3 +2692,16 @@ test_that("constant complete sparkline columns have exactly zero spread", {
   expect_identical(capture.output(pr_spark(d)), want)
   expect_match(paste(capture.output(pr_spark(d[1L, ])), collapse = "\n"), "sd NA")
 })
+
+test_that("numeric table columns skip tiny-value scans beyond the rounding boundary", {
+  fn <- pr_table
+  environment(fn) <- list2env(list("abs" = function(x) {
+    if (identical(substitute(x), quote(v)) && length(x) >= 300L && min(x) > 0.1) stop("unexpected abs in pr_table")
+    base::abs(x)
+  }), parent = environment(fn))
+  d <- data.frame(x = seq(1, 2, length.out = 300L), y = -seq(2, 3, length.out = 300L))
+  run <- function(f, d) cli::ansi_strip(capture.output(f(d, n = 300L)))
+  expect_identical(run(fn, d), run(pr_table, d))
+  d$x[3L] <- 1e-12
+  expect_identical(run(fn, d), run(pr_table, d))
+})

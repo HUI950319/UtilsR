@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables avoid scanning values for rounding-to-zero candidates when the whole finite column is beyond that threshold.
+
 * Table highlighting avoids remapping factor rows when no observed level matches the pattern.
 
 * Special-value counting uses the existing full tally when every observed factor label is a special marker.
