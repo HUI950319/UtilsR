@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling recognizes external full-row vectors read by simple get0 lookups before building a layer.
+
 * Legend mapping resolution keeps mappings directly when a stat provides no calculated defaults.
 
 * Legend mapping discovery stops traversing an expression after finding a calculated aesthetic.

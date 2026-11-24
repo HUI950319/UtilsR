@@ -1357,3 +1357,13 @@ test_that("complete fixed point attributes skip empty mapping validation", {
   expect_identical(fn(d, map, 5L, 121L), .fmt_point_sample(d, map, 5L, 121L))
   expect_error(fn(d, map, 5L, 121L, fixed = list(colour = c("red", "blue"))), "scalar fixed")
 })
+
+test_that("point sampling diagnoses external row vectors read through get0", {
+  d <- data.frame(x = 1:20, y = 20:1)
+  external <- seq_len(nrow(d))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, get0("external")))
+  expect_error(fmt_point(p, sample_n = 5L), "external row vectors")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, base::get0("y")))
+  expect_no_error(out <- fmt_point(p, sample_n = 5L))
+  expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1L]]), 5L)
+})

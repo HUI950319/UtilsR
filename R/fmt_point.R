@@ -418,7 +418,7 @@ fmt_point <- function(plot,
       }
       if (is.null(value)) {
         args <- as.list(expr)[-1L]
-        if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered", "cut", "get"))) {
+        if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered", "cut", "get", "get0"))) {
           head <- expr[[1L]]
           fun <- NULL
           if (is.symbol(head)) {
@@ -438,7 +438,7 @@ fmt_point <- function(plot,
               scope <- parent.env(scope)
             }
           } else fun <- eval(head, env)
-          if (identical(fun, base::get) && length(expr) == 2L &&
+          if ((identical(fun, base::get) || identical(fun, base::get0)) && length(expr) == 2L &&
               rlang::is_string(expr[[2L]]) && nzchar(expr[[2L]]) &&
               (is.null(names(expr)) || names(expr)[2L] %in% c("", "x"))) {
             return(external_vector(as.name(expr[[2L]]), env))
