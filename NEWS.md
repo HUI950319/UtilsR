@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet reuses strictly ordered numeric member IDs when flattening disjoint sets.
+
 * Sparse Jaccard intersections size duplicate tracking from the observed pairs and select the first key directly for one pair.
 
 * Jaccard feature grouping bypasses deduplication for strictly increasing ordinary numeric features.

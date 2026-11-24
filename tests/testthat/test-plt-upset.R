@@ -1375,3 +1375,16 @@ test_that("UpSet selections including missing values do not build an intermediat
   result <- fn(d, vars = c("a", "b"), levels = c("yes", NA), output = "data")
   expect_identical(as.character(result$intersect_group), c("a", "a/b", "b"))
 })
+
+test_that("disjoint ordered numeric sets skip duplicate tracking", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list("anyDuplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(prototype)) && !is.unsorted(x, strictly = TRUE)) stop("unexpected anyDuplicated in plt_upset")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(fn))
+  sets <- list(first = 1:700, second = 701:1400)
+  expect_identical(fn(sets, output = "data"), plt_upset(sets, output = "data"))
+  sets$second <- c(700L, sets$second)
+  result <- fn(sets, output = "data")
+  expect_identical(as.character(result$intersect_group[700L]), "first/second")
+})

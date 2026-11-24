@@ -305,7 +305,9 @@ plt_upset <- function(data,
       })
       all_elements <- structure(unique(unlist(codes, use.names = FALSE)), levels = base::levels(prototype),
                                 class = class(prototype))
-    } else if (!is.null(prototype) && !is.object(prototype) && !anyDuplicated(prototype)) {
+    } else if (!is.null(prototype) && !is.object(prototype) &&
+        ((is.numeric(prototype) && !is.complex(prototype) &&
+          isFALSE(is.unsorted(prototype, strictly = TRUE))) || !anyDuplicated(prototype))) {
       all_elements <- unname(prototype)
     } else all_elements <- unique(prototype %||% character())
     homogeneous <- !any(factor_members) && all(vapply(data, function(x) {
