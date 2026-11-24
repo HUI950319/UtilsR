@@ -522,7 +522,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
     if (!any(valid)) {
-      txt <- ifelse(is.na(txt), "NA", ._pr_escape(txt))
+      if (anyNA(txt)) txt[is.na(txt)] <- "NA"
+      txt <- ._pr_escape(txt)
       return(if (._pr_colour()) as.character(cli::col_grey(txt)) else as.character(txt))
     }
     parsed <- replace(txt, !valid, NA_character_)

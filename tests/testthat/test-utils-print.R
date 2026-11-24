@@ -2656,3 +2656,16 @@ test_that("nonsignificant ordinary p-value columns require no row classification
   }
   expect_identical(fn(c(.04, .05, NA)), ._p_cells(c(.04, .05, NA)))
 })
+
+test_that("invalid complete text cells do not classify each value as missing", {
+  fn <- ._p_cells
+  environment(fn) <- list2env(list("ifelse" = function(test, yes, no) {
+    if (identical(substitute(test), quote(is.na(txt))) && length(test) == 160L && !any(test)) stop("unexpected ifelse in ._p_cells")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  x <- rep(c("not estimated", "n/a", "<oops", "  text "), 40L)
+  expect_identical(fn(x), ._p_cells(x))
+  x[2L] <- NA_character_
+  expect_identical(fn(x), ._p_cells(x))
+  expect_identical(cli::ansi_strip(fn(x))[2L], "NA")
+})
