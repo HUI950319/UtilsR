@@ -248,7 +248,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }, logical(1L)))
   missing_rows <- if (early_filter) {
     incomplete <- vapply(args, anyNA, logical(1L))
-    Reduce(`|`, lapply(args[incomplete], is.na))
+    if (any(incomplete)) Reduce(`|`, lapply(args[incomplete], is.na))
   }
   if (length(missing_rows) && all(missing_rows)) {
     return(structure(rep.int(NA_integer_, n), levels = character(), class = "factor"))

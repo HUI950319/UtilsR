@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Combining ordinary factor inputs skips reducing rowwise missing masks when no input has missing values.
+
 * Factor combinations use the observed character key count when selecting representative labels.
 
 * Palette alpha formatting retains vector color encoding and replicates the result directly for one repeated input color.

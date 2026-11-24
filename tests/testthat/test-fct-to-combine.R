@@ -784,3 +784,15 @@ test_that("repeated character combinations bound key lookup by the dictionary", 
   expect_identical(fn(x, y), fct_to_combine(x, y))
   expect_identical(levels(fn(x, y)), c("same & a", "same & b"))
 })
+
+test_that("complete ordinary combinations skip combining empty masks", {
+  fn <- fct_to_combine.default
+  environment(fn) <- list2env(list("Reduce" = function(f, x, ...) {
+    if (identical(substitute(x), quote(lapply(args[incomplete], is.na))) && !length(x)) stop("unexpected Reduce in fct_to_combine.default")
+    base::Reduce(f, x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = rep(LETTERS[1:3], 200L), y = rep(c(TRUE, FALSE), 300L))
+  expect_identical(fn(d$x, d$y), fct_to_combine(d$x, d$y))
+  d$x[2L] <- NA_character_
+  expect_identical(fn(d$x, d$y), fct_to_combine(d$x, d$y))
+})
