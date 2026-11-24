@@ -1793,3 +1793,25 @@ test_that("complete integer64 score ranges skip all-missing checks on rows", {
   expect_identical(run(fn), run(PlotCircleLollipop))
   expect_equal(sort(run(fn)), c(0, .5, 1))
 })
+
+test_that("single circular rank group keeps all reference rows for scaling", {
+  fn <- PlotCircleLollipop
+  environment(fn) <- list2env(list("split" = function(x, ...) {
+    if (identical(substitute(x), quote(seq_along(group_ids))) && length(x) > 100L) stop("unexpected split in PlotCircleLollipop")
+    base::split(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(group = "A", term = paste0("g", 1:140), score = 1:140)
+  withr::local_pdf(NULL)
+  values <- numeric()
+  local_mocked_bindings(circos.points = function(x, y, ...) values <<- c(values, y),
+    .package = "circlize")
+  run <- function(f) {
+    values <<- numeric()
+    f(d, group_col = "group", name_col = "term", value_col = "score",
+      value_scale = "group", top_n = 5L, show_labels = FALSE,
+      show_links = FALSE, show_yaxis = FALSE)
+    values
+  }
+  expect_identical(run(fn), run(PlotCircleLollipop))
+  expect_equal(sort(run(fn)), (135:139) / 139)
+})

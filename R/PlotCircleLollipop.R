@@ -391,7 +391,9 @@ PlotCircleLollipop <- function(
   original_rows <- if (value_scale == "group" && !is.null(selected)) {
     original_group <- if (anyNA(group_labels)) group_labels[group_ids] else
       structure(group_ids, levels = group_labels, class = "factor")
-    split(seq_along(group_ids), original_group)
+    if (length(group_labels) == 1L && !anyNA(group_labels) && !anyNA(group_ids)) {
+      stats::setNames(list(seq_along(group_ids)), group_labels)
+    } else split(seq_along(group_ids), original_group)
   }
   if (integer64_scores && value_scale %in% c("group", "top_n")) {
     scores <- data[[value_col]]

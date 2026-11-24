@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop scaling skips splitting original row positions for a single complete group.
+
 * Circular lollipop score scaling avoids constructing missing masks for complete integer64 groups.
 
 * Factor tallies return one count per level directly when codes cover the dictionary in order.
