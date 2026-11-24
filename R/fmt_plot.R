@@ -837,7 +837,10 @@ fmt_tag <- function(plot,
     if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
     if (!is.call(expr)) return(FALSE)
     if (any(rlang::call_name(expr) %in% c("after_stat", "stat", "stage"))) return(TRUE)
-    any(vapply(as.list(expr)[-1L], calculated, logical(1)))
+    for (arg in as.list(expr)[-1L]) {
+      if (calculated(arg)) return(TRUE)
+    }
+    FALSE
   }
   defaults <- stat$default_aes
   if (!length(defaults)) return(defaults[logical()])

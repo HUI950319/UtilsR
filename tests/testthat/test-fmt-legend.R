@@ -1340,3 +1340,15 @@ test_that("explicit empty legend mappings avoid an extra aesthetic subset", {
   layer <- ggplot2::geom_point(ggplot2::aes(colour = NULL))
   expect_setequal(names(fn(layer, ggplot2::aes(x, y))), c("x", "y"))
 })
+
+test_that("calculated legend aesthetics stop scanning after a computed expression", {
+  fn <- .stat_calculated_aes
+  environment(fn) <- list2env(list("vapply" = function(X, FUN, FUN.VALUE, ...) {
+    if (identical(substitute(X), quote(as.list(expr)[-1L])) && length(X) > 1L) stop("unexpected vapply in .stat_calculated_aes")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }), parent = environment(fn))
+  s <- ggplot2::ggproto(NULL, ggplot2::StatIdentity,
+    default_aes = ggplot2::aes(colour = paste0(ggplot2::after_stat(x), suffix), alpha = 0.5))
+  expect_named(fn(s), "colour")
+  expect_identical(rlang::get_expr(fn(s)$colour), quote(paste0(ggplot2::after_stat(x), suffix)))
+})
