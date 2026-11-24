@@ -769,3 +769,18 @@ test_that("single missingness variables do not compute a sorting permutation", {
   d$a[2L] <- NA
   expect_identical(levels(fn(d, output = "percentage")$data$label), c("a", "z"))
 })
+
+test_that("fully missing columns need only their missing bars", {
+  fn <- plt_na
+  environment(fn) <- list2env(list("rbind" = function(...) {
+    if (identical(substitute(list(...))[[2L]], quote(n_rows - counts)) && all(list(...)[[1L]] == 0)) stop("unexpected rbind in plt_na")
+    base::rbind(...)
+  }), parent = environment(fn))
+  d <- data.frame(z = rep(NA_real_, 50L), a = rep(NA_character_, 50L), b = 1:50)
+  got <- fn(d, output = "percentage")
+  expect_identical(got$data, plt_na(d, output = "percentage")$data)
+  expect_identical(got$data$isna, c(TRUE, TRUE))
+  expect_identical(got$data$pct, c(100, 100))
+  d$z[2L] <- 0
+  expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
+})

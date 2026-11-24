@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness plots use the observed counts directly when every selected column is fully missing.
+
 * Butterfly time categories return their original values directly when only one exact timestamp is present.
 
 * Two-wing plots use the first factor code to order a complete two-level group without hashing all rows.

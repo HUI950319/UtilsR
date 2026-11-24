@@ -169,15 +169,21 @@ plt_na <- function(
 
   missing_summary <- if (output != "matrix") {
     n_rows <- nrow(df)
-    numbers <- as.vector(rbind(n_rows - counts, counts))
-    if (max(counts) < n_rows) {
-      columns <- rep(seq_along(counts), each = 2L)
-      isna <- rep.int(c(FALSE, TRUE), length(counts))
+    if (min(counts) == n_rows) {
+      numbers <- unname(counts)
+      columns <- seq_along(counts)
+      isna <- rep.int(TRUE, length(counts))
     } else {
-      included <- which(numbers > 0)
-      numbers <- numbers[included]
-      columns <- (included + 1L) %/% 2L
-      isna <- included %% 2L == 0L
+      numbers <- as.vector(rbind(n_rows - counts, counts))
+      if (max(counts) < n_rows) {
+        columns <- rep(seq_along(counts), each = 2L)
+        isna <- rep.int(c(FALSE, TRUE), length(counts))
+      } else {
+        included <- which(numbers > 0)
+        numbers <- numbers[included]
+        columns <- (included + 1L) %/% 2L
+        isna <- included %% 2L == 0L
+      }
     }
     codes <- integer(length(ordering))
     codes[ordering] <- seq_along(ordering)
