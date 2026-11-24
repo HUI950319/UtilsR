@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Confidence interval scaling repeats the result of a shared tuple without copying the full row IDs.
+
 * Parsing repeated identical intervals expands vector and matrix fields directly from one parsed row.
 
 * Paired comparison data reuses unclassed facet vectors that already have one entry per observation.

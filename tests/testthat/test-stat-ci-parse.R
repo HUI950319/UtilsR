@@ -1664,3 +1664,15 @@ test_that("one parsed interval expands fields without creating row indices", {
     expect_identical(got, .ci_extract(rep(token, 1400L)))
   }
 })
+
+test_that("one exact interval tuple expands scale diagnostics without an ID vector", {
+  fn <- .ci_scale
+  environment(fn) <- list2env(list("as.integer" = function(x, ...) {
+    if (identical(substitute(x), quote(groups)) && attr(x, "n") == 1L && length(x) > 1000L) stop("unexpected as.integer in .ci_scale")
+    base::as.integer(x, ...)
+  }), parent = environment(fn))
+  n <- 1400L
+  u <- matrix(.1, n, 3L)
+  expect_identical(fn(rep(2, n), rep(1.2, n), rep(3.7, n), u, "auto", rep(TRUE, n)),
+    .ci_scale(rep(2, n), rep(1.2, n), rep(3.7, n), u, "auto", rep(TRUE, n)))
+})

@@ -570,6 +570,7 @@ stat_ci_parse <- function(x,
       if (count < n / 2L) {
         at <- if (count == 1L) 1L else which(!duplicated(groups, nmax = count))
         result <- .ci_scale(est[at], lo[at], hi[at], unit[at, , drop = FALSE], exp, valid[at])
+        if (count == 1L) return(lapply(result, rep.int, times = n))
         return(lapply(result, "[", as.integer(groups)))
       }
     }
