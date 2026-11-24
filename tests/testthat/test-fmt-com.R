@@ -974,3 +974,14 @@ test_that("unfaceted bracket layout skips the duplicate panel pass", {
   run <- function(f) ggplot2::ggplot_build(f(p, label.y = c(12, 13)))$data
   expect_identical(run(fn), run(fmt_com))
 })
+
+test_that("private paired columns do not shadow literal get0 facets", {
+  d <- data.frame(x = rep(c("a", "b"), each = 3), y = c(1, 3, 5, 2, 6, 7))
+  .fmt_com_pair_id <- rep("one", 6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(label = get0(".fmt_com_pair_id")))
+  expect_true(".fmt_com_pair_id" %in% .plot_facet_columns(p))
+  expected <- ggplot2::ggplot_build(p)$layout$layout
+  actual <- ggplot2::ggplot_build(fmt_com(p, method.args = list(paired = TRUE)))$layout$layout
+  expect_identical(actual, expected)
+})

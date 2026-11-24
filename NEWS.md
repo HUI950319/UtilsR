@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Facet column discovery recognizes literal get0 lookups when paired comparisons choose a private ID column.
+
 * Continuous Welch comparisons retry a nonfinite degrees-of-freedom calculation at a common scale.
 
 * Table highlights skip rebuilding row positions for a repeated text dictionary with no matching key.

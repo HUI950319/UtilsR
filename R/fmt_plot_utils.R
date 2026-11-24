@@ -290,7 +290,7 @@
       if (identical(expr[[2L]], quote(.env))) return(character())
       if (identical(expr[[2L]], quote(.data))) return(as.character(expr[[3L]]))
     }
-    if (identical(name, "get") && length(expr) > 1L &&
+    if ((identical(name, "get") || identical(name, "get0")) && length(expr) > 1L &&
         rlang::is_string(expr[[2L]])) return(expr[[2L]])
     unlist(lapply(as.list(expr)[-1L], symbols), use.names = FALSE)
   }
