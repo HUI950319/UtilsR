@@ -1648,3 +1648,19 @@ test_that("standard confidence levels do not rebuild an unchanged interval", {
   expect_identical(fn(x, level = .90, output = "ci_p", exp = FALSE),
     stat_ci_parse(x, level = .90, output = "ci_p", exp = FALSE))
 })
+
+test_that("one parsed interval expands fields without creating row indices", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("rep.int" = function(x, times) {
+    if (identical(x, 1L) && times == 1400L) stop("unexpected rep.int in .ci_extract")
+    base::rep.int(x, times)
+  }), parent = environment(fn))
+  for (token in c("3.25 [2.22, 4.3]", "", NA_character_)) {
+    got <- fn(rep(token, 1400L))
+    parsed <- .ci_extract(token)
+    expect_identical(got$open, rep(parsed$open, 1400L))
+    expect_identical(got$estimate, rep(parsed$estimate, 1400L))
+    expect_equal(got$unit, parsed$unit[rep(1L, 1400L), , drop = FALSE])
+    expect_identical(got, .ci_extract(rep(token, 1400L)))
+  }
+})

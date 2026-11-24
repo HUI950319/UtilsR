@@ -438,7 +438,15 @@ stat_ci_parse <- function(x,
     keys <- unique(x)
     if (length(keys) < n / 2) {
       parsed <- .ci_extract(keys)
-      index <- if (length(keys) == 1L) rep.int(1L, n) else match(x, keys)
+      if (length(keys) == 1L) {
+        return(lapply(parsed, function(value) {
+          if (!is.matrix(value)) return(rep.int(value, n))
+          expanded <- rep(value, each = n)
+          dim(expanded) <- c(n, ncol(value))
+          expanded
+        }))
+      }
+      index <- match(x, keys)
       return(lapply(parsed, function(value) {
         if (is.matrix(value)) value[index, , drop = FALSE] else value[index]
       }))

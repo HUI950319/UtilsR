@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Parsing repeated identical intervals expands vector and matrix fields directly from one parsed row.
+
 * Paired comparison data reuses unclassed facet vectors that already have one entry per observation.
 
 * Background panel geometry reuses its native order for distinct scales and repeats one geometry for a shared scale.
