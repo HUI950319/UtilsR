@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Discrete palette level discovery uses already distinct sorted ordinary numeric categories directly.
+
 * Console sparklines use zero standard deviation directly for constant complete ordinary columns with at least two observations.
 
 * Console p-value formatting gets bound and exponent positions directly from the validated input.

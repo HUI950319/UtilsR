@@ -3597,3 +3597,15 @@ test_that("a common foreground styles every ANSI preview directly", {
   mixed <- c(x, "white")
   expect_identical(capture.output(fn(mixed)), capture.output(show_color(mixed)))
 })
+
+test_that("strictly ordered numeric palette categories reuse their values", {
+  fn <- .pal_discrete_levels
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (is.numeric(x) && length(x) > 100L && isFALSE(is.unsorted(x, strictly = TRUE))) stop("unexpected unique in .pal_discrete_levels")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  x <- seq_len(500L)
+  expect_identical(fn(x), as.character(x))
+  expect_identical(fn(c(4L, 2L, NA_integer_, 2L)), c("4", "2"))
+  expect_error(fn(c(1, 1 + .Machine$double.eps)), "same discrete colour name")
+})

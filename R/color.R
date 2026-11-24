@@ -814,6 +814,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   ordinary_text <- is.character(x) && !is.object(x)
   values <- if (is.factor(x)) levels(x) else if (ordinary_text && is.null(dim(x))) {
     unique(x)
+  } else if (!is.object(x) && is.numeric(x) && !is.complex(x) &&
+             is.null(dim(x)) && isFALSE(is.unsorted(x, strictly = TRUE))) {
+    x
   } else {
     unique(if (!is.object(x) && !anyNA(x)) x else x[!is.na(x)])
   }
