@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell charts check integer delta representability with scalar extrema, preserving missing and wider differences.
+
 * Continuous limit calculations avoid copying complete ordinary outcomes before quantile selection.
 
 * Repeated interval values with varying precision pick first group occurrences using bounded duplicate tracking.

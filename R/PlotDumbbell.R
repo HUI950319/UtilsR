@@ -292,7 +292,8 @@ PlotDumbbell <- function(
       delta_values <- end_values - start_values
     } else {
       delta_values <- as.double(end_values) - as.double(start_values)
-      if (all(abs(delta_values) <= .Machine$integer.max, na.rm = TRUE)) {
+      if (min(Inf, delta_values, na.rm = TRUE) >= -.Machine$integer.max &&
+          max(-Inf, delta_values, na.rm = TRUE) <= .Machine$integer.max) {
         delta_values <- as.integer(delta_values)
       }
     }

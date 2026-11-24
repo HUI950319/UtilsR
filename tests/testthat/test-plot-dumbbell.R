@@ -1194,3 +1194,17 @@ test_that("single ordinary integer64 means use one direct conversion", {
   expect_identical(fn(c(x, NA)), .mean_plot_values(c(x, NA)))
   expect_identical(fn(bit64::NA_integer64_), NaN)
 })
+
+test_that("wide integer endpoints use scalar checks for representable deltas", {
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list("abs" = function(x) {
+    if (identical(substitute(x), quote(delta_values))) stop("unexpected abs in PlotDumbbell")
+    base::abs(x)
+  }), parent = environment(fn))
+  d <- data.frame(g = c("a", "b", "c"), x = c(2000000000L, -2000000000L, NA_integer_),
+    y = c(1999999998L, -2000000001L, 3L))
+  delta <- function(f, d) suppressWarnings(f(d, "x", "y", "g", sort_by = "none"))$data$.delta
+  expect_identical(delta(fn, d), c(-2L, -1L, NA_integer_))
+  d$y[1L] <- -1900000000L
+  expect_equal(delta(fn, d), c(-3900000000, -1, NA_real_))
+})
