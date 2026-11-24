@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Table colouring reuses the selected column names for both formatting and numeric colour mapping.
+
 * Chord tables use a category's codes directly when the other dimension contains one observed level.
 
 * Categorical axes fill one repeated observed factor code directly instead of matching every row.

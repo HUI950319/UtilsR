@@ -1566,3 +1566,16 @@ test_that("distinct forward swatches reuse their RGBA matrix", {
   }), parent = environment(fn))
   expect_identical(utils::capture.output(fn(cols)), utils::capture.output(show_color(cols)))
 })
+
+test_that("explicit table colouring visits only the selected numeric columns", {
+  fn <- .cat_tb
+  environment(fn) <- list2env(list("vapply" = function(X, FUN, FUN.VALUE, ...) {
+    if (identical(FUN, is.numeric) && identical(names(X), c("score", "other", "label"))) stop("unexpected vapply in .cat_tb")
+    base::vapply(X, FUN, FUN.VALUE, ...)
+  }), parent = environment(fn))
+  d <- data.frame(score = c(1, 2, 3), other = 6:8, label = c("A", "B", "C"))
+  result <- fn(d, numeric_columns = "score", theme = "none")
+  expected <- .cat_tb(d, numeric_columns = "score", theme = "none")
+  expect_identical(result[["_data"]], expected[["_data"]])
+  expect_identical(result[["_styles"]], expected[["_styles"]])
+})

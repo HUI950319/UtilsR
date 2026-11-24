@@ -595,8 +595,10 @@ console_width <- function() {
 
   .color_numerics <- function(tb, df, cols, palette) {
     # Always format to 2 decimals
-    num_cols <- names(df)[vapply(df, is.numeric, logical(1))]
-    fmt_cols <- if (!is.null(cols)) intersect(cols, names(df)) else num_cols
+    fmt_cols <- if (!is.null(cols)) intersect(cols, names(df))
+    candidates <- if (is.null(cols)) df else df[fmt_cols]
+    num_cols <- names(candidates)[vapply(candidates, is.numeric, logical(1))]
+    if (is.null(cols)) fmt_cols <- num_cols
     if (length(fmt_cols) > 0L) {
       tb <- gt::fmt_number(tb, columns = fmt_cols, decimals = 2)
       labelled <- intersect(fmt_cols, num_cols)
@@ -614,7 +616,7 @@ console_width <- function() {
     }
     # Colour-map only when user explicitly passed numeric_columns
     if (!is.null(cols)) {
-      for (col in intersect(cols, names(df))) {
+      for (col in fmt_cols) {
         v <- df[[col]]
         ordinary <- is.numeric(v) && !is.object(v) && !is.complex(v) && is.null(dim(v))
         domain <- if (ordinary) suppressWarnings(range(v, finite = TRUE)) else NULL
