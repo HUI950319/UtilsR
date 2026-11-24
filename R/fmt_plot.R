@@ -4775,7 +4775,11 @@ fmt_com <- function(plot,
       strata <- lapply(facets, rlang::eval_tidy, data = source_data)
       if (grouped) strata <- c(strata, list(if (compare_group) mapped_values$x else mapped_values$group))
       strata_key <- if (length(strata)) do.call(interaction,
-        c(lapply(strata, function(value) factor(vctrs::vec_group_id(rep(value, length.out = nrow(source_data))), exclude = NULL)),
+        c(lapply(strata, function(value) {
+          if (!is.null(attributes(value)) || length(value) != nrow(source_data))
+            value <- rep(value, length.out = nrow(source_data))
+          factor(vctrs::vec_group_id(value), exclude = NULL)
+        }),
           list(drop = TRUE))) else factor(rep(1L, nrow(source_data)))
       if (is.null(pair_id)) {
         counts <- split(as.character(comparison_values), strata_key)

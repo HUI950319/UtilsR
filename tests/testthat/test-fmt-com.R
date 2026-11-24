@@ -999,3 +999,17 @@ test_that("paired IDs avoid names found through inherited dynamic facet lookups"
   expect_identical(actual, expected)
   expect_true(".fmt_com_pair_id.2" %in% names(result$layers[[2L]]$data))
 })
+
+test_that("complete paired facet expressions keep their original row vectors", {
+  fn <- fmt_com
+  environment(fn) <- list2env(list("rep" = function(x, ...) {
+    if (identical(substitute(x), quote(value)) && identical(length(x), list(...)[["length.out"]])) stop("unexpected rep in fmt_com")
+    base::rep(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(x = rep(rep(c("a", "b"), each = 3L), 2L),
+    y = c(1, 3, 7, 2, 6, 9, 2, 8, 12, 3, 10, 16), panel = rep(c("left", "right"), each = 6L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(panel))
+  draw <- function(f) ggplot2::ggplot_build(f(p, method.args = list(paired = TRUE)))$data
+  expect_identical(draw(fn), draw(fmt_com))
+})
