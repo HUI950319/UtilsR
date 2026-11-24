@@ -1246,3 +1246,19 @@ test_that("panel enumeration matches positions without an intermediate logical v
   expect_equal(attr(out, "size"), list(width = 2.5, height = 1, units = "in"))
   expect_length(raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob"), 1L)
 })
+
+test_that("explicit widths for distinct single-cell panels need no conflict loop", {
+  fn <- .fmt_raster_ragg
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(assigned)) && identical(substitute(i), quote(cells))) stop("unexpected [ in .fmt_raster_ragg")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("ragg")
+  u <- grid::unit(rep(1, 4L), "in")
+  gt <- gtable::gtable(u, grid::unit(1, "in"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 4L), t = 1, l = 1:4,
+    clip = "on", name = paste0("panel-", seq_len(4L)))
+  out <- fn(gt, 40, c(.5, .75, 1, 1.25), NULL, "in", "transparent")
+  expect_equal(attr(out, "size")$width, 3.5)
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob"), 4L)
+})

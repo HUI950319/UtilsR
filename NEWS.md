@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Explicit raster dimensions are assigned together when each panel covers its own layout cell.
+
 * Panel rasterization collects matching gtable indices directly and continues excluding blank panels.
 
 * Layer rasterization reuses the shared leaf walker for patchworks and retains container metadata.

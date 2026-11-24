@@ -400,7 +400,14 @@ fmt_raster <- function(
         requested <- if (dim == "width") widths else heights
         if (is.null(requested)) next
         values <- if (dim == "width") panel_w else panel_h
-        assigned <- rep(NA_real_, length(gtable[[paste0(dim, "s")]]))
+        key <- paste0(dim, "s")
+        from <- gtable$layout[[if (dim == "width") "l" else "t"]][indices]
+        to <- gtable$layout[[if (dim == "width") "r" else "b"]][indices]
+        if (identical(from, to) && !anyDuplicated(from)) {
+          gtable[[key]][from] <- grid::unit(values, units)
+          next
+        }
+        assigned <- rep(NA_real_, length(gtable[[key]]))
         for (i in seq_along(indices)) {
           idx <- indices[i]
           cells <- if (dim == "width") gtable$layout$l[idx]:gtable$layout$r[idx] else
