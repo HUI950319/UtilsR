@@ -336,6 +336,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   k <- nlevels(x)
   row_codes <- as.integer(x)
   if (k > length(x)) {
+    if (isFALSE(is.unsorted(row_codes, strictly = TRUE))) {
+      return(list(codes = row_codes, counts = rep.int(1L, length(row_codes)), row_codes = row_codes))
+    }
     if (length(row_codes) < 1024L) {
       distinct <- unique(row_codes)
       observed <- sort(distinct, na.last = NA)

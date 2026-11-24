@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sparse factor tallies avoid grouping rows when observed codes are already distinct and increasing.
+
 * Factor relabelling retains the validated source column index instead of searching names again.
 
 * Combining a single sparse factor reuses its sole output code when no observations are missing.

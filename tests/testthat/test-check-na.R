@@ -1092,3 +1092,15 @@ test_that("one instance of every factor level takes its ordered count directly",
   x <- x[c(1:249, NA_integer_)]
   expect_identical(fn(x), .factor_tally(x))
 })
+
+test_that("sorted unique sparse factor codes have known one-count tallies", {
+  fn <- .factor_tally
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(row_codes)) && length(x) < 1024L && isFALSE(is.unsorted(x, strictly = TRUE))) stop("unexpected unique in .factor_tally")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  x <- structure(seq(1L, 220L, 3L), levels = paste0("item", 1:2000), class = "factor")
+  expect_identical(fn(x), .factor_tally(x))
+  expect_identical(fn(x[c(1L, NA_integer_, 1L)]), .factor_tally(x[c(1L, NA_integer_, 1L)]))
+  expect_identical(fn(x[0L]), .factor_tally(x[0L]))
+})
