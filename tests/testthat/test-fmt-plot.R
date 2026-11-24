@@ -423,3 +423,20 @@ test_that("flattening without overrides retains existing layout arguments", {
   expect_length(result, 2L)
   expect_equal(fn(list(p, p), ncol = 1L)$patches$layout$ncol, 1L)
 })
+
+test_that("reading nested leaves skips unchanged patchwork child comparisons", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  pw <- p + (p + patchwork::guide_area()) + patchwork::free(p)
+  expected <- .to_plot_list(pw, recurse = TRUE)
+  fn <- .to_plot_list
+  map <- .map_plot_leaves
+  env <- list2env(list(identical = function(x, y, ...) {
+    if (base::identical(substitute(x), quote(updated))) stop("compared an unchanged leaf")
+    base::identical(x, y, ...)
+  }), parent = environment(fn))
+  environment(fn) <- environment(map) <- env
+  env$.map_plot_leaves <- map
+  expect_identical(fn(pw, recurse = TRUE), expected)
+  expect_length(expected$plots, 3L)
+  expect_s3_class(expected$plots[[3L]], "free_plot")
+})

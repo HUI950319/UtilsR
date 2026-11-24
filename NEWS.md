@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot leaf collection uses the same leaf traversal without comparing or restoring untouched patchwork children.
+
 * Rank correlation pivots size duplicate tracking from the observed group count.
 
 * Paired continuous t test adapters promote ordinary integer samples when a pairwise difference can exceed the integer range.

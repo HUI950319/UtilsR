@@ -1230,9 +1230,9 @@ test_that("grid strip restoration writes each changed child once", {
   root_calls <- 0L
   visit <- .map_plot_leaves
   testthat::local_mocked_bindings(
-    .map_plot_leaves = function(plot, fun, wrapped = NULL) {
+    .map_plot_leaves = function(plot, fun, wrapped = NULL, read_only = FALSE) {
       if (identical(plot, input)) root_calls <<- root_calls + 1L
-      visit(plot, fun, wrapped)
+      visit(plot, fun, wrapped, read_only = read_only)
     }, .package = "UtilsR")
   out <- fmt_strip2(input, top_label = "Top", right_label = "Right", top_right_fill = NULL)
   expect_identical(root_calls, 1L)
