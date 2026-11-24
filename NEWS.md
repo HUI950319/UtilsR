@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Equal-width factor bins skip duplicate tracking for strictly increasing boundaries and still detect precision collisions.
+
 * Scatter histogram breaks bypass deduplication when all numeric boundaries are distinct and ordered.
 
 * Scatter comparison medians skip NA removal for complete differences while preserving summaries for incomplete samples.

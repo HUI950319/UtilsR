@@ -456,3 +456,16 @@ test_that("plain bin labels enter the factor dictionary without coercion", {
                    cut(x, breaks, c("first", "second", "third"), include.lowest = TRUE))
   expect_identical(levels(fn(x, breaks, c(1L, 2L, 1L))), c("1", "2"))
 })
+
+test_that("distinct equal-width bin boundaries do not need a duplicate search", {
+  fn <- fct_num
+  environment(fn) <- list2env(list("anyDuplicated" = function(x, ...) {
+    if (identical(substitute(x), quote(bin_breaks)) && !is.unsorted(x, strictly = TRUE)) stop("unexpected anyDuplicated in fct_num")
+    base::anyDuplicated(x, ...)
+  }), parent = environment(fn))
+  x <- 1:1000
+  labels <- paste0("g", 1:50)
+  expect_identical(fn(x, nbins = 50L, labels = labels, type = "equal"),
+    cut(x, breaks = seq(1, 1000, length.out = 51L), labels = labels, include.lowest = TRUE))
+  expect_error(fn(c(1, 1 + .Machine$double.eps), nbins = 5L, type = "equal"), "numeric precision")
+})
