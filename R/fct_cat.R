@@ -393,7 +393,10 @@ fct_cat <- function(x, ...,
                      class = "factor"))
   }
   if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x))) {
-    if (.pal_use_unique(x)) {
+    if (isFALSE(is.unsorted(x, strictly = TRUE))) {
+      distinct <- x
+      codes <- seq_along(x)
+    } else if (.pal_use_unique(x)) {
       ids <- vctrs::vec_group_id(x)
       n_keys <- attr(ids, "n")
       keys <- if (n_keys == length(x)) x else if (n_keys == 1L) x[1L] else

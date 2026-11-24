@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distinct sorted ordinary numeric categories reuse their row positions as factor codes.
+
 * Distribution plots size duplicate tracking for time labels from the observed exact timestamps.
 
 * Rank facets reuse their full data for labels if every shown row is highlighted.

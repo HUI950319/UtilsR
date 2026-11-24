@@ -1146,3 +1146,15 @@ test_that("single complete sparse category recoding skips a row match", {
   x[2L] <- NA
   expect_identical(as.character(fn(x, recode, checked_indices = TRUE)), c("replaced", NA, rep("replaced", 4L)))
 })
+
+test_that("strictly ordered numeric categories have known row codes", {
+  fn <- .as_factor
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (length(x) == 1200L && is.numeric(x) && !is.unsorted(x, strictly = TRUE)) stop("unexpected match in .as_factor")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  x <- stats::setNames(seq_len(1200L), paste0("x", seq_len(1200L)))
+  expect_identical(fn(x), factor(x))
+  expect_identical(fn(c(1, 1 + .Machine$double.eps)), .as_factor(c(1, 1 + .Machine$double.eps)))
+  expect_identical(fn(c(10L, NA_integer_, 5L, 10L)), factor(c(10L, NA_integer_, 5L, 10L)))
+})
