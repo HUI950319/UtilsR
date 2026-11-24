@@ -1352,3 +1352,16 @@ test_that("calculated legend aesthetics stop scanning after a computed expressio
   expect_named(fn(s), "colour")
   expect_identical(rlang::get_expr(fn(s)$colour), quote(paste0(ggplot2::after_stat(x), suffix)))
 })
+
+test_that("identity legend stats skip merging an empty default mapping", {
+  fn <- .legend_layer_mapping
+  environment(fn) <- list2env(list("setdiff" = function(x, y, ...) {
+    if (identical(substitute(x), quote(names(defaults))) && !length(x)) stop("unexpected setdiff in .legend_layer_mapping")
+    base::setdiff(x, y, ...)
+  }), parent = environment(fn))
+  mapping <- ggplot2::aes(x = a, colour = b, shape = NULL)
+  layer <- ggplot2::geom_point(mapping = ggplot2::aes(y = c))
+  got <- fn(layer, mapping)
+  expect_identical(got, .legend_layer_mapping(layer, mapping))
+  expect_named(got, c("x", "colour", "y"))
+})

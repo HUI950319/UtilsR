@@ -854,7 +854,7 @@ fmt_tag <- function(plot,
     mapping <- c(plot_mapping[setdiff(names(plot_mapping), names(mapping))], mapping)
   }
   defaults <- .stat_calculated_aes(layer$stat)
-  mapping <- c(mapping, defaults[setdiff(names(defaults), names(mapping))])
+  mapping <- if (length(defaults)) c(mapping, defaults[setdiff(names(defaults), names(mapping))]) else c(mapping)
   fixed <- names(layer$aes_params)
   if (length(fixed) || length(mapping) != length(names(mapping)) || anyDuplicated(names(mapping))) {
     mapping <- mapping[setdiff(names(mapping), fixed)]

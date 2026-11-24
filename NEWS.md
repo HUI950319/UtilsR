@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legend mapping resolution keeps mappings directly when a stat provides no calculated defaults.
+
 * Legend mapping discovery stops traversing an expression after finding a calculated aesthetic.
 
 * Inset insertion only collects matching layout positions when an inset name already exists.
