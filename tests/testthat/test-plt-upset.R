@@ -1388,3 +1388,21 @@ test_that("disjoint ordered numeric sets skip duplicate tracking", {
   result <- fn(sets, output = "data")
   expect_identical(as.character(result$intersect_group[700L]), "first/second")
 })
+
+test_that("large UpSet membership codes count combinations with bounded bins", {
+  fn <- plt_upset
+  environment(fn) <- list2env(list("unique" = function(x, ...) {
+    if (identical(substitute(x), quote(codes)) && length(x) > 100L) stop("unexpected unique in plt_upset")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  skip_if_not_installed("ggVennDiagram")
+  frame <- data.frame(A = rep(c(TRUE, FALSE, TRUE), 200L), B = rep(c(FALSE, TRUE, TRUE), 200L))
+  captured <- NULL
+  local_mocked_bindings(ggVennDiagram = function(x, nintersects, ...) {
+    captured <<- nintersects
+    ggplot2::ggplot()
+  }, .package = "ggVennDiagram")
+  local_mocked_bindings(.plt_upset_labels = function(p, ...) p, .package = "UtilsR")
+  expect_s3_class(fn(frame, vars = names(frame), levels = TRUE, output = "upset"), "ggplot")
+  expect_identical(captured, 3L)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet counts observed nonzero combinations with bounded bins when membership rows outnumber code slots.
+
 * UpSet reuses strictly ordered numeric member IDs when flattening disjoint sets.
 
 * Sparse Jaccard intersections size duplicate tracking from the observed pairs and select the first key directly for one pair.
