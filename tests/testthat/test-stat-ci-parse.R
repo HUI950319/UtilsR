@@ -1634,3 +1634,17 @@ test_that("complete interval widths need no exceptional positions", {
   expect_identical(fn(x, exp = FALSE, output = "p"), stat_ci_parse(x, exp = FALSE, output = "p"))
   expect_equal(fn("0 (-1e308, 1e308)", exp = FALSE, output = "p"), 1)
 })
+
+test_that("standard confidence levels do not rebuild an unchanged interval", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("qnorm" = function(p, ..., lower.tail = TRUE) {
+    if (!lower.tail && isTRUE(abs(p - 0.025) < 1e-14)) stop("unexpected qnorm in stat_ci_parse")
+    stats::qnorm(p, ..., lower.tail = lower.tail)
+  }), parent = environment(fn))
+  x <- c("1.03 (0.95, 1.11)", "2.419 (2.001, 2.835)", "-2.4 [-3.7, -1.1]",
+    "1.0e308 (2e307, 1.78e308)", "1.0e-300 (0.2e-300, 1.8e-300)")
+  expect_equal(fn(x, level = .95, output = "p", exp = FALSE),
+    stat_ci_parse(x, output = "p", exp = FALSE), tolerance = 1e-14)
+  expect_identical(fn(x, level = .90, output = "ci_p", exp = FALSE),
+    stat_ci_parse(x, level = .90, output = "ci_p", exp = FALSE))
+})

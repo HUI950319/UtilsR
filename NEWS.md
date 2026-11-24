@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Parsed intervals avoid calculating replacement bounds at 95 percent confidence while keeping P-value and formatting behavior.
+
 * The Sankey path helper constructs one-stage nodes and missing successors without binding matrices.
 
 * Console tables avoid scanning values for rounding-to-zero candidates when the whole finite column is beyond that threshold.
