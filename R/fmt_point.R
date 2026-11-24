@@ -524,9 +524,9 @@ fmt_point <- function(plot,
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {
       if (inherits(x, "haven_labelled") && is.numeric(x)) {
-        missing <- is.na(x)
-        x <- vctrs::vec_data(x)
-        x[missing] <- NA
+        raw <- vctrs::vec_data(x)
+        if (inherits(x, "haven_labelled_spss") || anyNA(raw)) raw[is.na(x)] <- NA
+        x <- raw
       }
       if (length(group_values) > 1L &&
           (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling skips missing-value masks for complete non-SPSS labelled numeric strata.
+
 * Point shape conversion maps long uniform numeric vectors once while preserving unmapped and missing values.
 
 * Point sampling reads literal facet columns in ordinary data frames without evaluating a data mask.

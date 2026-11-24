@@ -1405,3 +1405,17 @@ test_that("repeated numeric point shapes reuse one conversion", {
   x[2L] <- NA_integer_
   expect_identical(fn(x), .shape_convert(x))
 })
+
+test_that("complete labelled sampling strata keep their raw values directly", {
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list("is.na" = function(x) {
+    if (inherits(x, "haven_labelled") && !is.object(vctrs::vec_data(x)) && !anyNA(vctrs::vec_data(x)) && !inherits(x, "haven_labelled_spss")) stop("unexpected is.na in .fmt_point_sample")
+    base::is.na(x)
+  }), parent = environment(fn))
+  skip_if_not_installed("haven")
+  d <- data.frame(x = 1:40, g = haven::labelled(rep(c(1, 2), 20L), c(one = 1, two = 2)))
+  mapping <- ggplot2::aes(x, group = g)
+  expect_identical(fn(d, mapping, 4L, 137L), .fmt_point_sample(d, mapping, 4L, 137L))
+  d$g <- haven::labelled_spss(rep(c(1, 2, 3, NA), 10L), na_values = 3)
+  expect_identical(fn(d, mapping, 4L, 137L), .fmt_point_sample(d, mapping, 4L, 137L))
+})
