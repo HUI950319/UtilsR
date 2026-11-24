@@ -580,7 +580,7 @@ console_width <- function() {
           which(grepl(pattern, values, ignore.case = TRUE))
         } else {
           hit <- grepl(pattern, keys, ignore.case = TRUE)
-          which(hit[match(values, keys)])
+          if (any(hit)) which(hit[match(values, keys)]) else integer()
         }
       }
       if (length(rows)) {

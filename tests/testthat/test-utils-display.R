@@ -1579,3 +1579,18 @@ test_that("explicit table colouring visits only the selected numeric columns", {
   expect_identical(result[["_data"]], expected[["_data"]])
   expect_identical(result[["_styles"]], expected[["_styles"]])
 })
+
+test_that("unmatched repeated table highlights avoid remapping row positions", {
+  fn <- .cat_tb
+  environment(fn) <- list2env(list("match" = function(x, table, ...) {
+    if (identical(substitute(x), quote(values)) && identical(substitute(table), quote(keys)) && isTRUE(getOption("utilsr.test.empty_highlight"))) stop("unexpected match in .cat_tb")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  withr::local_options(utilsr.test.empty_highlight = TRUE)
+  d <- data.frame(a = rep(c("text", "answer", NA), 500L))
+  result <- fn(d, highlight_pattern = "^find$", theme = "none")
+  expect_identical(result[["_styles"]], .cat_tb(d, highlight_pattern = "^find$", theme = "none")[["_styles"]])
+  withr::local_options(utilsr.test.empty_highlight = FALSE)
+  result <- fn(d, highlight_pattern = "^text$", theme = "none")
+  expect_equal(stats::na.omit(result[["_styles"]]$rownum) |> as.integer(), seq.int(1, 1500, by = 3L))
+})

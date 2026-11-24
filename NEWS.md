@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Table highlights skip rebuilding row positions for a repeated text dictionary with no matching key.
+
 * Table colouring reuses the selected column names for both formatting and numeric colour mapping.
 
 * Chord tables use a category's codes directly when the other dimension contains one observed level.
