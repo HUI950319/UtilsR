@@ -1571,3 +1571,16 @@ test_that("valid positive intervals preserve the original invalidity flags", {
   expect_identical(fn(c(2, 4), c(1, 2), c(4, 8), unit, TRUE, c(TRUE, TRUE))$invalid, c(FALSE, FALSE))
   expect_identical(fn(c(2, 4), c(1, 0), c(4, 8), unit, TRUE, c(TRUE, TRUE))$invalid, c(FALSE, TRUE))
 })
+
+test_that("constant parsed precision is shared by repeated formatted keys", {
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list("rep.int" = function(x, times) {
+    if (identical(substitute(x), quote(d[[1L]]))) stop("unexpected rep.int in stat_ci_parse")
+    base::rep.int(x, times)
+  }), parent = environment(fn))
+  candidates <- c("1.20 (0.90, 1.50)", "1.20 [0.90; 1.50]", "2.20 (1.90, 2.50)")
+  x <- rep(candidates, 350L)
+  expect_identical(fn(x, exp = FALSE), rep(stat_ci_parse(candidates, exp = FALSE), 350L))
+  expect_identical(fn(x, exp = FALSE, digits = 7882L),
+    rep(stat_ci_parse(candidates, exp = FALSE, digits = 7882L), 350L))
+})

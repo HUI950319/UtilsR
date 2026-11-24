@@ -351,7 +351,8 @@ stat_ci_parse <- function(x,
     if (any(d > 7881L)) {
       at <- which(is.finite(v) & d > 7881L)
       widths <- nchar(sprintf("%.0f", trunc(v[at])))
-      if (any(widths + 1L + d[at] > 8192L)) {
+      precision <- if (length(d) == 1L) d else d[at]
+      if (any(widths + 1L + precision > 8192L)) {
         cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
       }
     }
@@ -363,7 +364,7 @@ stat_ci_parse <- function(x,
       if (.pal_use_unique(v)) {
         keys <- unique(v)
         if (length(keys) < n / 2) {
-          return(.format_once(keys, rep.int(d[[1L]], length(keys)))[match(v, keys)])
+          return(.format_once(keys, d[[1L]])[match(v, keys)])
         }
       }
     } else if (n > 1024L) {
