@@ -1610,3 +1610,16 @@ test_that("varying parsed precision tracks only observed format groups", {
   x <- rep(keys, 400L)
   expect_identical(fn(x, exp = FALSE), rep(stat_ci_parse(keys, exp = FALSE), 400L))
 })
+
+test_that("interval parsing collects notation positions directly", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list("which" = function(x, ...) {
+    if (identical(substitute(x), quote(grepl("[eE]", s)))) stop("unexpected which in .ci_extract")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  x <- c("12 (10, 14)", "2.5e-3 [1.4e-03; 3.90e-3]", "5e1 (4.e1, 7.3E1)", NA_character_)
+  got <- fn(x)
+  expect_identical(got, .ci_extract(x))
+  expect_equal(got$digits, c(0, 5, 0, 2))
+  expect_equal(got$unit[2L, ], c(1e-4, 1e-4, 1e-5))
+})

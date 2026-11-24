@@ -521,13 +521,13 @@ stat_ci_parse <- function(x,
                 "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
-    scientific <- which(grepl("[eE]", s))
+    scientific <- grep("[eE]", s)
     ex <- numeric(length(s))
     if (length(scientific)) {
       ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
       s[scientific] <- sub("[eE].*$", "", s[scientific])
     }
-    dotted <- which(grepl(".", s, fixed = TRUE))
+    dotted <- grep(".", s, fixed = TRUE)
     if (length(dotted)) {
       ex[dotted] <- ex[dotted] - nchar(sub("^[-+]?\\d*\\.?", "", s[dotted], perl = TRUE))
     }

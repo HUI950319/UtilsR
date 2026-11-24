@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Interval parsing selects decimal points and scientific exponents directly without an intermediate logical row vector.
+
 * Character frequency listings avoid matching rows back to the dictionary when every label appears once.
 
 * Repeated identical p-value strings expand their formatted result without matching the original rows to a single-key dictionary.
