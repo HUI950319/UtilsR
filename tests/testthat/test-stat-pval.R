@@ -1254,3 +1254,20 @@ test_that("one numeric p-value key expands without row remapping", {
     }
   }
 })
+
+test_that("plain decimal formatting skips P-value endpoint diagnostics", {
+  fn <- stat_pval
+  environment(fn) <- list2env(list(which = function(x, ...) {
+    if (identical(substitute(x), quote(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))))
+      stop("audited P-value endpoints in plain mode")
+    base::which(x, ...)
+  }), parent = environment(fn))
+  x <- c(zero = "0", negzero = "-0", one = "1", exponent = "5e-400",
+         beyond = "2", bound = " >1 ", long = paste0("1", strrep("0", 8000L), "e-8000"),
+         absent = NA_character_)
+  expect_identical(fn(x, mode = "plain"),
+                   setNames(c("0.00", "-0.00", "1.00", "0.00", "2.00", ">1",
+                              "1.00", NA_character_), names(x)))
+  expect_error(stat_pval(x["beyond"]), "between 0 and 1")
+  expect_error(stat_pval(">1"), "strict bound")
+})

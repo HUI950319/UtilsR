@@ -274,7 +274,7 @@ stat_pval <- function(x,
     cli::cli_abort("{.arg x} must be numeric or character.")
   }
 
-  if (is.character(x)) {
+  if (is.character(x) && mode != "plain") {
     interior <- length(x_num) && isTRUE(min(x_num) > 0 && max(x_num) < 1)
     edge <- if (!interior) which(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))
     if (length(edge)) {
@@ -291,15 +291,13 @@ stat_pval <- function(x,
       negative <- startsWith(mantissa, "-") & !zero
       above_one <- !zero & (exponent > unit_exponent |
                               (exponent == unit_exponent & !one))
-      if (mode != "plain") {
-        if (any(negative | above_one)) {
-          cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
-        }
-        strict <- if (has_bounds) bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE) else FALSE
-        if (any(strict & ((startsWith(text[edge], "<") & zero) |
-                          (startsWith(text[edge], ">") & one)))) {
-          cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
-        }
+      if (any(negative | above_one)) {
+        cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
+      }
+      strict <- if (has_bounds) bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE) else FALSE
+      if (any(strict & ((startsWith(text[edge], "<") & zero) |
+                        (startsWith(text[edge], ">") & one)))) {
+        cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
       }
       # Long mantissas can parse as NaN even when the decimal value is exactly one.
       x_num[edge[one & !negative]] <- 1
