@@ -1676,3 +1676,20 @@ test_that("one exact interval tuple expands scale diagnostics without an ID vect
   expect_identical(fn(rep(2, n), rep(1.2, n), rep(3.7, n), u, "auto", rep(TRUE, n)),
     .ci_scale(rep(2, n), rep(1.2, n), rep(3.7, n), u, "auto", rep(TRUE, n)))
 })
+
+test_that("complete relevelled ratio intervals restore endpoints without masks", {
+  x <- c(first = "2.00 (1.00, 4.00)", second = "3.00 [1.50; 6.00]")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(ifelse = function(test, yes, no) {
+    if (identical(substitute(test), quote(is_exp)) ||
+        identical(substitute(test), quote(valid))) stop("rebuilt complete ratio bounds")
+    base::ifelse(test, yes, no)
+  }), parent = environment(fn))
+  expect_identical(fn(x, exp = TRUE, level = .90),
+                   stat_ci_parse(x, exp = TRUE, level = .90))
+  expect_equal(fn(x, exp = TRUE, level = .90, output = "p"),
+               stat_ci_parse(x, exp = TRUE, level = .90, output = "p"))
+  with_na <- c(NA_character_, x, "")
+  expect_identical(stat_ci_parse(with_na, exp = TRUE, level = .90),
+                   c(NA_character_, fn(x, exp = TRUE, level = .90), ""))
+})

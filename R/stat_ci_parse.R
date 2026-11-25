@@ -298,9 +298,12 @@ stat_ci_parse <- function(x,
         if (length(rescale)) adjusted <- adjusted_bounds()
         l_s <- adjusted$lower
         h_s <- adjusted$upper
-        if (all_valid && !any(is_exp)) {
+        if (all_valid && !length(exp_rows)) {
           lo <- l_s * work_scale
           hi <- h_s * work_scale
+        } else if (all_valid && length(exp_rows) == length(est)) {
+          lo <- exp(l_s)
+          hi <- exp(h_s)
         } else {
           lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
           hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
