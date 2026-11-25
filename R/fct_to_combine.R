@@ -293,7 +293,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     # Keep value identity separate from potentially rounded display labels.
     values <- vctrs::vec_unique(v)
     # Base ordering interprets integer64 storage as doubles, including NaN.
-    ord <- if (inherits(v, "integer64")) bit64::order.integer64(values) else order(values)
+    ord <- if (inherits(v, "integer64")) bit64::order(values) else order(values)
     if (is.object(values) || is.unsorted(ord)) values <- values[ord]
     list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
