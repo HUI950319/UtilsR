@@ -80,7 +80,7 @@ significant)}. \code{NULL} auto-detects from data.}
 
 \item{ylab}{Y axis label. Default \code{"Treat"}.}
 
-\item{axis_limits}{Numeric vector of length 2 for axis range. Default
+\item{axis_limits}{Two distinct finite values for the scatter axis range. Default
 \code{NULL} (auto: symmetric range from data).}
 
 \item{axis_breaks}{Numeric vector for axis tick positions. Default

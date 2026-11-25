@@ -38,7 +38,7 @@
 #' @param point_stroke Point border width. Default 0.8.
 #' @param xlab X axis label. Default \code{"Control"}.
 #' @param ylab Y axis label. Default \code{"Treat"}.
-#' @param axis_limits Numeric vector of length 2 for axis range. Default
+#' @param axis_limits Two distinct finite values for the scatter axis range. Default
 #'   \code{NULL} (auto: symmetric range from data).
 #' @param axis_breaks Numeric vector for axis tick positions. Default
 #'   \code{NULL} (auto via \code{pretty()}).
@@ -206,6 +206,12 @@ PlotScatter3 <- function(
       length(hist_bins) != 1L || !is.finite(hist_bins) || hist_bins < 1 ||
       hist_bins != trunc(hist_bins) || hist_bins > .Machine$integer.max)
     stop("'hist_bins' must be a single positive integer.", call. = FALSE)
+  if (!is.null(axis_limits) &&
+      (!is.numeric(axis_limits) || is.object(axis_limits) || !is.null(dim(axis_limits)) ||
+       length(axis_limits) != 2L || any(!is.finite(axis_limits)) ||
+       axis_limits[1L] == axis_limits[2L])) {
+    stop("'axis_limits' must contain two distinct finite numbers.", call. = FALSE)
+  }
   if (!is.null(hist_x_limits) &&
       (!is.numeric(hist_x_limits) || is.object(hist_x_limits) || !is.null(dim(hist_x_limits)) ||
        length(hist_x_limits) != 2L || any(!is.finite(hist_x_limits)) ||

@@ -2308,3 +2308,17 @@ test_that("dual scatter legends omit unused entries in reusable named palettes",
   expect_identical(points$colour, unname(colors[d$g]))
   expect_identical(points$shape, unname(shapes[d$h]))
 })
+
+test_that("paired scatter validates its explicit main axis range separately from the inset", {
+  for (bad in list(1, c(NA_real_, 4), c(0, Inf), matrix(c(0, 4)),
+                   c("0", "4"), c(2, 2))) {
+    expect_error(PlotScatter3(stop("data evaluated"), axis_limits = bad),
+                 "axis_limits.*distinct finite")
+  }
+  d <- data.frame(Control = 1:8, Treat = c(1, 2, 4, 6, 3, 1, 7, 9),
+                  group = rep(c("A", "B"), 4L))
+  p <- scatter3_capture_inset(d, axis_limits = c(0, 10),
+    hist_x_limits = c(-5, 4), test_method = "none", cor_method = "none")
+  expect_identical(p$main$scales$get_scales("x")$limits, c(0, 10))
+  expect_identical(p$inset$scales$get_scales("x")$limits, c(-5, 4))
+})
