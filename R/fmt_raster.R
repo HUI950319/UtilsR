@@ -364,16 +364,23 @@ fmt_raster <- function(
       spec <- gtable[[key]]
       convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
       physical <- c("inches", "cm", "mm", "points", "picas", "bigpts", "dida", "cicero", "scaledpts")
-      sizes <- if (length(spec) && inherits(spec, "simpleUnit") && grid::unitType(spec[1L]) %in% physical) {
+      fixed <- grid::unitType(spec) %in% physical
+      sizes <- if (all(fixed)) {
         convert_fn(spec, units, valueOnly = TRUE)
       } else {
-        vapply(seq_along(spec), function(cell) {
+        values <- numeric(length(spec))
+        # Physical cells do not depend on the layout viewport, even when
+        # other cells on the same axis use relative or grob-based units.
+        if (any(fixed)) values[fixed] <- convert_fn(spec[fixed], units, valueOnly = TRUE)
+        cells <- which(!fixed)
+        values[cells] <- vapply(cells, function(cell) {
           vp <- if (dim == "width") grid::viewport(layout.pos.col = cell) else
             grid::viewport(layout.pos.row = cell)
           grid::pushViewport(vp)
           on.exit(grid::popViewport(), add = TRUE)
           convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
         }, numeric(1))
+        values
       }
       cell_sizes[[dim]] <- sizes
       gtable[[key]] <- grid::unit(sizes, units)

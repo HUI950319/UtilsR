@@ -1282,3 +1282,26 @@ test_that("vector-only plots can bypass the optional layer rasterizer", {
   expect_warning(result <- fmt_raster(clipped), "clipping disabled")
   expect_identical(result, clipped)
 })
+
+test_that("mixed raster layouts measure physical cells together", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL, width = 6, height = 5)
+  columns <- grid::unit.c(grid::unit(rep(2, 72L), "points"),
+                         grid::unit(1, "null"), grid::unit(25.4, "mm"))
+  gt <- gtable::gtable(columns, grid::unit(2, "in"))
+  gt <- gtable::gtable_add_grob(gt, grid::rectGrob(), t = 1L, l = 73L,
+                               name = "panel", clip = "on")
+  native <- grid::convertWidth
+  calls <- 0L
+  local_mocked_bindings(convertWidth = function(...) {
+    calls <<- calls + 1L
+    native(...)
+  }, .package = "grid")
+  out <- fmt_raster(gt, method = "ragg", dpi = 20, units = "in")
+  expect_lte(calls, 8L)
+  expect_equal(attr(out, "size"), list(width = 6, height = 2, units = "in"))
+  rasters <- raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob")
+  expect_length(rasters, 1L)
+  expected_width <- as.integer(20 * (6 - 144 / 72.27 - 1))
+  expect_identical(dim(rasters[[1L]]$raster), c(40L, expected_width))
+})
