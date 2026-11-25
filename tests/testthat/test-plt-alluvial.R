@@ -1615,3 +1615,20 @@ test_that("alluvial pair representatives bound duplicate tracking to observed ke
   expect_identical(draw(fn), draw(plt_alluvial))
   expect_equal(sum(draw(fn)$count), nrow(d))
 })
+
+test_that("single-group alluvial totals reuse their stratum tally", {
+  skip_if_not_installed("ggalluvial")
+  fn <- plt_alluvial
+  calls <- 0L
+  environment(fn) <- list2env(list(tabulate = function(bin, ...) {
+    if (identical(substitute(bin), quote(count_id)) || identical(substitute(bin), quote(pair_id)))
+      calls <<- calls + 1L
+    base::tabulate(bin, ...)
+  }), parent = environment(fn))
+  d <- data.frame(a = c("A", "A", "A", "B"), g = "only", f = c("left", "left", "right", "right"))
+  p <- fn(d, "a", "g", facet = "f", y_type = "count", label_args = list(style = "none"))
+  expect_identical(calls, 1L)
+  expect_identical(p$data$count, c(2L, 1L, 1L))
+  expect_identical(p$data$group_total, p$data$count)
+  expect_identical(p$data$percent, rep(1, 3L))
+})

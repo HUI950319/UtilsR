@@ -538,6 +538,11 @@ plt_alluvial <- function(
   }
   count_id <- if (n_groups == 1L) pair_id else
     pair_id + (as.integer(plot_input$.group) - 1L) * as.integer(n_pairs)
+  stratum_counts <- if (unique_pairs && n_groups == 1L) rep.int(1L, n_pairs) else
+    tabulate(count_id, n_pairs * n_groups)
+  pair_totals <- if (n_groups == 1L) stratum_counts else if (unique_pairs) {
+    rep.int(1L, n_strata)
+  } else rep.int(tabulate(pair_id, n_pairs), n_groups)
   stat <- data.frame(
     .facet = structure(rep.int(facet_codes, n_groups),
                        levels = facet_levels, class = "factor"),
@@ -545,8 +550,8 @@ plt_alluvial <- function(
                          levels = cat_levels, class = "factor"),
     .group = structure(rep(seq_len(n_groups), each = n_pairs),
                        levels = group_levels, class = "factor"),
-    count = tabulate(count_id, n_pairs * n_groups),
-    group_total = if (unique_pairs) rep.int(1L, n_strata) else rep.int(tabulate(pair_id, n_pairs), n_groups)
+    count = stratum_counts,
+    group_total = pair_totals
   )
   stat$percent <- stat$count / stat$group_total
   stat$.is_gap <- FALSE
