@@ -399,13 +399,20 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     if (!length(values)) return(rep(FALSE, length(u)))
     hit <- grepl(paste0("(*UCP)", special[[1L]]), values, ignore.case = TRUE, perl = TRUE)
     if (length(special) > 1L) {
-      remaining <- which(!hit)
-      for (p in special[-1L]) {
+      remaining <- if (any(hit)) which(!hit) else seq_along(values)
+      # Reuse the unmatched strings until a pattern actually removes rows.
+      remaining_values <- if (length(remaining) == length(values)) values else values[remaining]
+      n_patterns <- length(special)
+      for (i in seq.int(2L, n_patterns)) {
         if (!length(remaining)) break
-        matched <- grepl(paste0("(*UCP)", p), values[remaining], ignore.case = TRUE, perl = TRUE)
+        matched <- grepl(paste0("(*UCP)", special[[i]]), remaining_values,
+                         ignore.case = TRUE, perl = TRUE)
         if (any(matched)) {
           hit[remaining[matched]] <- TRUE
-          remaining <- remaining[!matched]
+          if (i == n_patterns) break
+          keep <- !matched
+          remaining <- remaining[keep]
+          remaining_values <- remaining_values[keep]
         }
       }
     }

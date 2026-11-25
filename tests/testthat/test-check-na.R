@@ -1061,7 +1061,7 @@ test_that("special patterns without matches retain their remaining row indices",
   fn <- .is_special_value
   environment(fn) <- list2env(list("[" = function(x, i, ...) {
     if (identical(substitute(x), quote(remaining)) && is.logical(i) &&
-        identical(substitute(i), quote(!matched)) && all(i)) stop("unnecessary [ in .is_special_value")
+        length(i) && all(i)) stop("unnecessary [ in .is_special_value")
     base::"["(x, i, ...)
   }), parent = environment(fn))
   expect_identical(fn(c("abc", "def", "ghi", NA), c("abc", "not here", "ghi")), c(TRUE, FALSE, TRUE, FALSE))
@@ -1141,4 +1141,18 @@ test_that("check_na matches data.table column names without evaluating them in t
                      capture_gt_data(check_na(reference, pattern = pattern, show_all = TRUE)))
   }
   expect_identical(d, before)
+})
+
+test_that("reused unmatched values track the correct rows across custom patterns", {
+  x <- c(NA, "Missing", " no\u00a0 answer ", "Unseen", "Missing again",
+         "missing", "A A", " ", NA, "not stated", "different", "OTHER")
+  patterns <- c("^never$", "^missing$", "^no answer$", "^still absent$",
+                "^missing again$", "^(A) \\1$", "^$", "^not stated$",
+                "^other$", "missing", "^unseen$")
+  expect_identical(
+    .is_special_value(x, patterns),
+    c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE)
+  )
+  expect_identical(.is_special_value(c("yes", NA, "YES"), c("^yes$", "^never$")),
+                   c(TRUE, FALSE, TRUE))
 })
