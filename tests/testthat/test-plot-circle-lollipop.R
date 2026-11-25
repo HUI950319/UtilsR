@@ -1826,3 +1826,27 @@ test_that("circular scores require an explicit conversion from time units", {
     expect_error(PlotCircleLollipop(d), "value.*convert time values explicitly")
   }
 })
+
+test_that("circular links read shared row positions without copying feature frames", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("A", "A", "B", "B", "B"),
+                  name = c("x", "y", "x", "y", "x"), value = seq_len(5) / 5)
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env[["["]] <- function(x, ...) {
+    if (identical(substitute(x), quote(common_genes)))
+      stop("copied per-feature frame")
+    base::`[`(x, ...)
+  }
+  environment(fn) <- env
+  links <- list()
+  local_mocked_bindings(circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+    links[[length(links) + 1L]] <<- list(sector.index1, point1, sector.index2, point2)
+    invisible(NULL)
+  }, .package = "circlize")
+  fn(d, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(links, list(list("A", .25, "B", .5 / 3),
+                               list("A", .25, "B", 2.5 / 3),
+                               list("A", .75, "B", .5)))
+})

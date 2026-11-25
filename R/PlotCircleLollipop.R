@@ -485,7 +485,7 @@ PlotCircleLollipop <- function(
       if (is.factor(common_color)) as.character(common_color) else common_color,
       if (is.factor(unique_color)) as.character(unique_color) else unique_color)
   }
-  if (show_links) common_genes <- df[shared, , drop = FALSE]
+  if (show_links) shared_rows <- which(shared)
 
   # ---- Label data for circos.genomicLabels ----
   show_labels <- show_labels && any(!is.na(df$name))
@@ -634,22 +634,22 @@ PlotCircleLollipop <- function(
     }
 
     # ---- Inner arcs for shared features ----
-    if (show_links && nrow(common_genes) > 0) {
-      feature_rows <- split(seq_len(nrow(common_genes)),
-                            match(common_genes$name, unique(common_genes$name)))
+    if (show_links && length(shared_rows)) {
+      shared_names <- df$name[shared_rows]
+      feature_rows <- split(shared_rows, match(shared_names, unique(shared_names)))
+      row_sectors <- sector_keys[as.integer(df$group)]
+      x_pos <- df$x_pos
       for (rows in feature_rows) {
-        gd <- common_genes[rows, , drop = FALSE]
-        if (nrow(gd) > 1L) {
-          sectors <- sector_keys[as.integer(gd$group)]
-          for (i in seq_len(nrow(gd) - 1L)) {
-            later <- seq.int(i + 1L, nrow(gd))
-            for (j in later[sectors[later] != sectors[i]]) {
-              circlize::circos.link(
-                sectors[i], gd$x_pos[i],
-                sectors[j], gd$x_pos[j],
-                col = link_color, lwd = link_lwd, h = link_h
-              )
-            }
+        if (length(rows) < 2L) next
+        sectors <- row_sectors[rows]
+        for (i in seq_len(length(rows) - 1L)) {
+          later <- seq.int(i + 1L, length(rows))
+          for (j in later[sectors[later] != sectors[i]]) {
+            circlize::circos.link(
+              sectors[i], x_pos[rows[i]],
+              sectors[j], x_pos[rows[j]],
+              col = link_color, lwd = link_lwd, h = link_h
+            )
           }
         }
       }
