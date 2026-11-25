@@ -1693,3 +1693,21 @@ test_that("complete relevelled ratio intervals restore endpoints without masks",
   expect_identical(stat_ci_parse(with_na, exp = TRUE, level = .90),
                    c(NA_character_, fn(x, exp = TRUE, level = .90), ""))
 })
+
+test_that("interval-only releveling does not recompute probability widths", {
+  x <- c(a = "0.2 (-1, 1.4)", b = "1.0 (-1.5, 3.5)")
+  fn <- stat_ci_parse
+  width_calls <- 0L
+  environment(fn) <- list2env(list("-" = function(e1, e2) {
+    if (identical(substitute(e1), quote(h)) && identical(substitute(e2), quote(l)))
+      width_calls <<- width_calls + 1L
+    if (missing(e2)) base::`-`(e1) else base::`-`(e1, e2)
+  }), parent = environment(fn))
+  expected <- stat_ci_parse(x, exp = FALSE, level = .90)
+  expect_identical(fn(x, exp = FALSE, level = .90), expected)
+  expect_identical(width_calls, 1L)
+  width_calls <- 0L
+  expect_equal(fn(x, exp = FALSE, level = .90, output = "p"),
+               stat_ci_parse(x, exp = FALSE, level = .90, output = "p"))
+  expect_identical(width_calls, 2L)
+})

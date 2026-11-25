@@ -313,9 +313,10 @@ stat_ci_parse <- function(x,
           up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
           lo[tight] <- est[tight] * exp(-down)
           hi[tight] <- est[tight] * exp(up)
-          tight_se <- tight_se * ratio
+          if (output != "ci") tight_se <- tight_se * ratio
         }
-        se <- se_of(l_s, h_s)
+        # Interval-only output has no probability to recompute from these bounds.
+        if (output != "ci") se <- se_of(l_s, h_s)
       }
     }
     # An estimate on the null has z = 0 even when its null-side half has
