@@ -532,8 +532,10 @@ stat_ci_parse <- function(x,
   hi <- restore(values[[3L]], NA_real_)
   open <- restore(g[[2L]], NA_character_)
   close <- restore(g[[6L]], NA_character_)
+  # A captured separator contains only its token and surrounding whitespace.
+  sep_token <- gsub(paste0(space, "+"), "", g[[4L]], perl = TRUE)
   separators <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
-                "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]
+                  "\u2014" = "\u2014", "-" = "-", "to" = " to ")[sep_token]
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
     scientific <- grep("[eE]", s)

@@ -1711,3 +1711,15 @@ test_that("interval-only releveling does not recompute probability widths", {
                stat_ci_parse(x, exp = FALSE, level = .90, output = "p"))
   expect_identical(width_calls, 2L)
 })
+
+test_that("one-pass separator normalization retains notation and Unicode spacing", {
+  fn <- .ci_extract
+  environment(fn) <- list2env(list(trimws = function(...) {
+    stop("trimmed the captured separators in two passes")
+  }), parent = environment(fn))
+  x <- c("2 (1,\u00a03)", "2 [1 \u2003; 3]", "2 (1\u3000to\u202f3)",
+         "2 (1~3)", "2 (1-3)", "2 (1 \u2013 3)", "2 (1\u2014 3)", "unknown")
+  parsed <- fn(x)
+  expect_identical(parsed$sep, c(", ", "; ", " to ", "~", "-", "\u2013", "\u2014", NA_character_))
+  expect_identical(parsed$valid, c(rep(TRUE, 7L), FALSE))
+})
