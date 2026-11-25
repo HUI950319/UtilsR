@@ -784,3 +784,16 @@ test_that("fully missing columns need only their missing bars", {
   d$z[2L] <- 0
   expect_identical(fn(d, output = "percentage")$data, plt_na(d, output = "percentage")$data)
 })
+
+test_that("single-column missingness matrices retain their compact observation sequence", {
+  f <- .plt_na_plot
+  environment(f) <- list2env(list(rep = function(x, ...) {
+    if (identical(substitute(x), quote(seq_len(n)))) stop("expanded single-column row IDs")
+    base::rep(x, ...)
+  }), parent = environment(f))
+  local_mocked_bindings(.plt_na_plot = f, .package = "UtilsR")
+  d <- data.frame(a = rep(c(NA, 1), 1000L), b = 1)
+  p <- plt_na(d, output = "matrix")
+  expect_identical(p$data$id, seq_len(nrow(d)))
+  expect_identical(p$data$isna, is.na(d$a))
+})
