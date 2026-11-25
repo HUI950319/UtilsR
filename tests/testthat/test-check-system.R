@@ -389,7 +389,7 @@ test_that("Linux free fallback recognizes available and cached memory columns", 
     sprintf("Mem: %.0f %.0f %.0f 0 %.0f %.0f", 8*b, 7*b, b, b, 3*b),
     "-/+ buffers/cache: 0 0")
   for (table in list(modern, legacy)) {
-    query <- .check_system_fixture(legacy = list("free -b" = table,
+    query <- .check_system_fixture(legacy = list("LC_ALL=C free -b" = table,
       "free -b | grep Mem" = table[2L]))
     env <- environment(query)
     file_exists <- env$file.exists
@@ -456,7 +456,7 @@ test_that("Linux memory falls back after unreadable or invalid proc data", {
             "Mem: 8589934592 3221225472 1073741824 0 4294967296 5368709120")
   for (unreadable in c(FALSE, TRUE)) {
     query <- .check_system_fixture(meminfo = c("MemTotal: 0 kB", "MemAvailable: 0 kB"),
-                                  legacy = list("free -b" = free))
+                                  legacy = list("LC_ALL=C free -b" = free))
     if (unreadable) {
       env <- environment(query)
       read <- env$readLines
@@ -552,7 +552,7 @@ test_that("Linux CPU detection extracts only the first nonblank model", {
 
 test_that("Linux memory diagnostics reject incompatible proc memory units", {
   b <- 1024^3
-  legacy <- list("free -b" = c("total used free shared buff/cache available",
+  legacy <- list("LC_ALL=C free -b" = c("total used free shared buff/cache available",
     sprintf("Mem: %.0f %.0f %.0f 0 %.0f %.0f", 4*b, 3*b, b, 0, b)))
   q <- .check_system_fixture(meminfo = c("MemTotal: 8388608 bytes", "MemAvailable: 4194304 kB"),
                              legacy = legacy)
@@ -587,7 +587,7 @@ test_that("macOS metadata fallbacks handle empty and failed command output", {
 
 test_that("failed native commands cannot report plausible diagnostics", {
   linux <- .check_system_fixture(legacy = list(
-    "free -b" = structure(c("total used free shared buff/cache available",
+    "LC_ALL=C free -b" = structure(c("total used free shared buff/cache available",
                             "Mem: 8589934592 4294967296 2147483648 0 2147483648 4294967296"),
                           status = 1L)))
   windows <- .check_system_fixture(os = "Windows", legacy = list(
@@ -649,11 +649,11 @@ test_that("Windows CIM metadata survives unusable memory fields", {
 test_that("Linux memory fallback rejects duplicate heading fields", {
   broken <- c("total total free shared buff/cache available",
     "Mem: 8589934592 4294967296 1073741824 0 2147483648 3221225472")
-  f <- .check_system_fixture(meminfo = character(), legacy = list("free -b" = broken))
+  f <- .check_system_fixture(meminfo = character(), legacy = list("LC_ALL=C free -b" = broken))
   invisible(capture.output(result <- f(return_result = TRUE)))
   expect_true(is.na(result$system_memory$total_gb))
   broken[1L] <- "total used free shared buff/cache available"
-  f <- .check_system_fixture(meminfo = character(), legacy = list("free -b" = broken))
+  f <- .check_system_fixture(meminfo = character(), legacy = list("LC_ALL=C free -b" = broken))
   invisible(capture.output(result <- f(return_result = TRUE)))
   expect_identical(result$system_memory$total_gb, 8)
 })
@@ -670,4 +670,22 @@ test_that("system output and returned metadata share the timestamp", {
   expect_identical(verdict, 1L)
   expect_identical(output$timestamp, when)
   expect_true(any(grepl("2024-09-22 15:20", lines, fixed = TRUE)))
+})
+
+
+test_that("Linux memory fallback forces stable free output on localized systems", {
+  query <- .check_system_fixture()
+  commands <- character()
+  environment(query)$system <- function(command, ...) {
+    commands <<- c(commands, command)
+    if (identical(command, "LC_ALL=C free -b")) {
+      c("total used free shared buff/cache available",
+        "Mem: 8589934592 4294967296 1073741824 0 3221225472 4294967296")
+    } else c("gesamt benutzt frei gemeinsam Puffer/Cache verfügbar",
+             "Speicher: 8589934592 4294967296 1073741824 0 3221225472 4294967296")
+  }
+  invisible(capture.output(result <- query(return_result = TRUE, show_warnings = TRUE)))
+  expect_identical(commands, "LC_ALL=C free -b")
+  expect_equal(result$system_memory$free_gb, 4)
+  expect_equal(result$system_memory$total_gb, 8)
 })

@@ -213,7 +213,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           if (.valid_memory(memory)) return(memory)
         }
 
-        mem_info <- read_command("free -b")
+        # The parser below expects the English header and "Mem:" row label.
+        mem_info <- read_command("LC_ALL=C free -b")
         row <- grep("^\\s*Mem:", mem_info)
         if (length(row) != 1L || row <= 1L) {
           stop("\u65e0\u6cd5\u83b7\u53d6\u5185\u5b58\u4fe1\u606f")
