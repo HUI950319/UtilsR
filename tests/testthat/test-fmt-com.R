@@ -1013,3 +1013,17 @@ test_that("complete paired facet expressions keep their original row vectors", {
   draw <- function(f) ggplot2::ggplot_build(f(p, method.args = list(paired = TRUE)))$data
   expect_identical(draw(fn), draw(fmt_com))
 })
+
+test_that("grouped comparisons distinguish fallback layers that map different groups", {
+  d <- expand.grid(x = c("A", "B"), g1 = c("u", "v"),
+                   g2 = c("high", "low"), replicate = 1:6)
+  d$y <- seq_len(nrow(d))
+  first <- ggplot2::geom_point(data = d, ggplot2::aes(x, y, colour = g1))
+  second <- ggplot2::geom_point(data = d, ggplot2::aes(x, y, colour = g2))
+  p <- ggplot2::ggplot() + first + second
+  expect_error(fmt_com(p, group.by = "x.var"), "Statistical layer sources are ambiguous")
+  expect_error(fmt_com(p, group.by = "legend.var"), "Statistical layer sources are ambiguous")
+  expect_no_error(fmt_com(p))
+  expect_no_error(fmt_com(p, group.by = "x.var", mapping = ggplot2::aes(group = g1)))
+  expect_no_error(fmt_com(ggplot2::ggplot() + first + first, group.by = "x.var"))
+})

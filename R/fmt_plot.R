@@ -4531,6 +4531,10 @@ fmt_com <- function(plot,
     cm
   }
 
+  grouped <- !is.null(dots$group.by) || !is.null(dots$mapping$group)
+  comparison_group <- function(mapping) {
+    dots$mapping$group %||% mapping$group %||% mapping$fill %||% mapping$colour
+  }
   fmt_com_one <- function(p) {
     source_data <- if (is.null(dots$data)) p$data else dots$data
     if (!is.null(dots$data) && !is.data.frame(dots$data))
@@ -4554,20 +4558,18 @@ fmt_com <- function(plot,
       if (!length(candidates))
         cli::cli_abort("Supply a data.frame and resolvable x/y mapping for statistical comparisons.")
       first <- candidates[[1L]]
+      first_group <- if (grouped) comparison_group(first$mapping)
       if (!all(vapply(candidates, function(candidate) {
         identical(candidate$data, first$data) &&
           identical(candidate$mapping$x, first$mapping$x) &&
-          identical(candidate$mapping$y, first$mapping$y)
+          identical(candidate$mapping$y, first$mapping$y) &&
+          (!grouped || identical(comparison_group(candidate$mapping), first_group))
       }, logical(1))))
         cli::cli_abort("Statistical layer sources are ambiguous; supply data and mapping explicitly.")
       source_data <- first$data
       source_mapping <- first$mapping
     }
-    grouped <- !is.null(dots$group.by) || !is.null(dots$mapping$group)
-    group_quo <- dots$mapping$group
-    if (grouped && is.null(group_quo)) group_quo <- source_mapping$group
-    if (grouped && is.null(group_quo)) group_quo <- source_mapping$fill
-    if (grouped && is.null(group_quo)) group_quo <- source_mapping$colour
+    group_quo <- if (grouped) comparison_group(source_mapping)
     if (grouped && is.null(group_quo))
       cli::cli_abort("Grouped comparisons require a group, fill or colour mapping.")
     spss_columns <- vapply(source_data, inherits, logical(1), "haven_labelled_spss")
