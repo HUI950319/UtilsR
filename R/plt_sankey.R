@@ -428,7 +428,12 @@ plt_sankey <- function(data,
   columns <- unname(lapply(data[stages], as.character))
   nodes <- if (length(columns) == 1L) unname(columns[[1L]]) else {
     values <- do.call(rbind, columns)
-    if (is.null(values)) character() else as.vector(values)
+    if (is.null(values)) {
+      character()
+    } else {
+      dim(values) <- NULL
+      values
+    }
   }
   successors <- if (length(stage_ids)) c(stage_ids[-1L], NA_integer_) else integer()
   next_stage <- rep.int(successors, nrow(data))

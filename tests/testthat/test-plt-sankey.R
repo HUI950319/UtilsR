@@ -1209,3 +1209,15 @@ test_that("one-stage Sankey paths require no matrix reshape", {
   expect_identical(fn(d, names(d)), .sankey_path_rows(d, names(d)))
   expect_identical(fn(d, "a")$next_node, rep(NA_character_, nrow(d)))
 })
+
+test_that("Sankey paths remove node dimensions without a vector conversion", {
+  d <- data.frame(a = c("A", NA, "B"), b = c("x", "y", NA), c = c("b", "a", "b"))
+  fn <- .sankey_path_rows
+  environment(fn) <- list2env(list(as.vector = function(x, ...) {
+    if (is.matrix(x)) stop("copied a Sankey node matrix")
+    base::as.vector(x, ...)
+  }), parent = environment(fn))
+  p <- fn(d, names(d))
+  expect_identical(p$node, unname(c(t(d))))
+  expect_identical(p$next_node, c("x", "b", NA, "y", "a", NA, NA, "b", NA))
+})
