@@ -1171,3 +1171,25 @@ test_that("data frame factor relabelling reuses verified column positions", {
   names(d)[1L] <- "value"
   expect_error(fn(d, "value", c("a", "b")), "more than once")
 })
+
+test_that("dense binary factor splits use only two output codes", {
+  x <- structure(c(1L, 2L, 3L, 2L, NA_integer_, 1L),
+    names = letters[1:6], levels = c("a", NA_character_, "unused", "d"),
+    class = c("ordered", "factor"), label = "clinical groups")
+  g <- list(NA_d = c(2L, 4L), Oth = c(1L, 3L))
+  expected <- fct_cat(x, groups = g)
+  fn <- fct_cat
+  environment(fn) <- list2env(list(.do_binary = .do_binary), parent = environment(fn))
+  direct <- environment(fn)$.do_binary
+  environment(direct) <- list2env(list(.recode_factor = function(...) {
+    stop("used the general factor recode for a dense binary split")
+  }), parent = environment(direct))
+  environment(fn)$.do_binary <- direct
+  expect_identical(fn(x, ref_idx = c(2L, 4L)), expected)
+  expect_identical(fn(x, ref_idx = 4L),
+                   fct_cat(x, groups = list(d = 4L, Oth = 1:3)))
+  expect_identical(fn(x, ref_idx = 1:4),
+                   fct_cat(x, groups = list(a_NA_unused_d = 1:4)))
+  expect_identical(fn(x[rep(5L, 4L)], ref_idx = 2L),
+                   fct_cat(x[rep(5L, 4L)], groups = list("NA" = 2L, Oth = c(1L, 3L, 4L))))
+})

@@ -324,6 +324,19 @@ fct_cat <- function(x, ...,
   if (identical(ref_name, "Oth") && length(unique(ref_idx)) < n_lvl) {
     cli::cli_abort("The reference label conflicts with {.val Oth}, the label for other levels.")
   }
+  ordinary <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+  if (ordinary && n_lvl <= length(x) && !anyDuplicated(ref_idx)) {
+    # A binary split needs only a two-code lookup, not a full label recode.
+    level_codes <- rep.int(2L, n_lvl)
+    level_codes[ref_idx] <- 1L
+    out <- level_codes[as.integer(x)]
+    present <- tabulate(out, nbins = 2L) > 0L
+    labels <- c(ref_name, "Oth")
+    if (!present[1L] && present[2L]) out <- out - 1L
+    attributes(out) <- .factor_attributes(x, labels[present],
+      drop_scores = n_lvl > 2L || !identical(labels[level_codes], lvls))
+    return(out)
+  }
   tally <- if (n_lvl > length(x)) .factor_tally(x)
   candidate_codes <- if (is.null(tally)) seq_len(n_lvl) else tally$codes
   other <- setdiff(candidate_codes, ref_idx)
