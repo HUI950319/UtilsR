@@ -2280,3 +2280,15 @@ test_that("single scatter marginals inherit each trained numeric coordinate rang
     expect_equal(build(p$right)$y.range, main$y.range)
   }
 })
+
+test_that("paired scatter does not round nonzero tiny medians to a displayed zero", {
+  for (shift in c(1e-4, -1e-4, 0, 0.239)) {
+    d <- data.frame(Control = rep(0, 6L), Treat = rep(shift, 6L),
+                    group = rep(c("A", "B"), 3L))
+    inset <- scatter3_capture_inset(d, test_method = "none", cor_method = "none")$inset
+    label <- ggplot2::layer_data(inset, 3L)$label
+    reference <- if (abs(shift) >= 0.005) round(shift, 2L) else shift
+    expect_equal(as.numeric(label), reference)
+    expect_equal(ggplot2::layer_data(inset, 2L)$x, shift)
+  }
+})

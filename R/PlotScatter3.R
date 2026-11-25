@@ -15,7 +15,8 @@
 #'
 #' Integer measurements are promoted to double precision before calculating
 #' differences and paired tests. The histogram shows \code{y - x}; its median
-#' uses all non-missing differences. Explicit axis limits trim displayed data
+#' uses all non-missing differences. Nonzero medians that would round to zero
+#' are displayed in scientific notation. Explicit axis limits trim displayed data
 #' without changing the paired test or median. ggplot2 can warn when limits
 #' exclude observations or the median annotation.
 #' Numeric coordinates and statistics are preserved when \code{group} also
@@ -447,7 +448,11 @@ PlotScatter3 <- function(
     }
   }
 
-  df_stats <- data.frame(median_diff = median_diff)
+  median_label <- round(median_diff, 2L)
+  if (is.finite(median_diff) && median_diff != 0 && median_label == 0) {
+    median_label <- format(signif(median_diff, 2L), scientific = TRUE, trim = TRUE)
+  }
+  df_stats <- data.frame(median_diff = median_diff, median_label = median_label)
 
   if (is.null(hist_border)) {
     hist_color_vals <- stats::setNames(c("grey50", highlight_color), group_levels)
@@ -473,7 +478,7 @@ PlotScatter3 <- function(
     ggplot2::geom_text(
       data = df_stats, inherit.aes = FALSE,
       ggplot2::aes(x = median_diff, y = median_line_yend,
-                   label = round(median_diff, 2)),
+                   label = median_label),
       size = median_label_size, vjust = -0.5
     ) +
     ggplot2::scale_x_continuous(

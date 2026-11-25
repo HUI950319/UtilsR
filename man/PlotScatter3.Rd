@@ -165,7 +165,8 @@ For dual-group scatter with marginal boxplots, see
 
 Integer measurements are promoted to double precision before calculating
 differences and paired tests. The histogram shows \code{y - x}; its median
-uses all non-missing differences. Explicit axis limits trim displayed data
+uses all non-missing differences. Nonzero medians that would round to zero
+are displayed in scientific notation. Explicit axis limits trim displayed data
 without changing the paired test or median. ggplot2 can warn when limits
 exclude observations or the median annotation.
 Numeric coordinates and statistics are preserved when \code{group} also
