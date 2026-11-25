@@ -1210,6 +1210,7 @@ test_that("one ordinary ggrastr plot goes directly through the layer adapter", {
   base <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg))
   line <- base + ggplot2::geom_line()
   expect_identical(fn(line, 100, "cairo"), line)
+  skip_if_not_installed("ggrastr")
   point <- base + ggplot2::geom_point()
   expect_identical(ggplot2::ggplot_build(fn(point, 100, "cairo"))$data,
     ggplot2::ggplot_build(point)$data)
@@ -1261,4 +1262,23 @@ test_that("explicit widths for distinct single-cell panels need no conflict loop
   out <- fn(gt, 40, c(.5, .75, 1, 1.25), NULL, "in", "transparent")
   expect_equal(attr(out, "size")$width, 3.5)
   expect_length(raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob"), 4L)
+})
+
+test_that("vector-only plots can bypass the optional layer rasterizer", {
+  f <- .fmt_raster_ggrastr
+  environment(f) <- list2env(list(requireNamespace = function(package, ...) {
+    if (identical(package, "ggrastr")) return(FALSE)
+    base::requireNamespace(package, ...)
+  }), parent = environment(f))
+  local_mocked_bindings(.fmt_raster_ggrastr = f)
+  d <- data.frame(x = 1:2, y = 2:1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  lines <- p + ggplot2::geom_line()
+  points <- p + ggplot2::geom_point()
+  expect_identical(fmt_raster(lines), lines)
+  expect_identical(fmt_raster(list(lines, lines)), list(lines, lines))
+  expect_error(fmt_raster(points), "Package.*ggrastr.*required")
+  clipped <- points + ggplot2::coord_cartesian(clip = "off")
+  expect_warning(result <- fmt_raster(clipped), "clipping disabled")
+  expect_identical(result, clipped)
 })

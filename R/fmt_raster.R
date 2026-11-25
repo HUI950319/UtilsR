@@ -210,10 +210,7 @@ fmt_raster <- function(
 
 #' @noRd
 .fmt_raster_ggrastr <- function(plot, dpi, dev) {
-  if (!requireNamespace("ggrastr", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg ggrastr} is required for {.code method = \"ggrastr\"}.")
-  }
-
+  rasterizer_ready <- FALSE
   raster_one <- function(p) {
     # Points and tiles, as ggrastr's own default: lines, bars and polygons are
     # few objects, and as images they only make a PDF larger.
@@ -227,6 +224,12 @@ fmt_raster <- function(
     }
     if (!is.character(dev) || !is.null(dim(dev)) || length(dev) != 1L || is.na(dev))
       cli::cli_abort("{.arg dev} must be a single graphics device name.")
+    if (!rasterizer_ready) {
+      if (!requireNamespace("ggrastr", quietly = TRUE)) {
+        cli::cli_abort("Package {.pkg ggrastr} is required for {.code method = \"ggrastr\"}.")
+      }
+      rasterizer_ready <<- TRUE
+    }
     p$layers[targets] <- lapply(p$layers[targets], .opaque_raster_layer,
                                 dpi = dpi, dev = dev)
     p
