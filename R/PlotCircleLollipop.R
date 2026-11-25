@@ -212,6 +212,11 @@ PlotCircleLollipop <- function(
 
   # ---- Parse scores before ranking or scaling ----
   parse_scores <- function(values) {
+    time_classes <- c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")
+    if (inherits(values, time_classes)) {
+      stop(sprintf("Column '%s' must contain numeric scores; convert time values explicitly.", value_col),
+           call. = FALSE)
+    }
     if (is.complex(values) || is.list(values) || is.expression(values) ||
         !is.null(dim(values))) {
       stop(sprintf("Column '%s' must contain one-dimensional real numeric scores.", value_col),

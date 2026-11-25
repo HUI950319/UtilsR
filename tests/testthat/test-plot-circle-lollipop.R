@@ -1815,3 +1815,14 @@ test_that("single circular rank group keeps all reference rows for scaling", {
   expect_identical(run(fn), run(PlotCircleLollipop))
   expect_equal(sort(run(fn)), (135:139) / 139)
 })
+
+test_that("circular scores require an explicit conversion from time units", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(group = c("A", "A"), name = c("x", "y"))
+  for (score in list(as.Date("2000-01-01") + 0:1,
+                     as.POSIXct("2000-01-01", tz = "UTC") + 0:1,
+                     as.difftime(c(1, 2), units = "hours"))) {
+    d$value <- score
+    expect_error(PlotCircleLollipop(d), "value.*convert time values explicitly")
+  }
+})
