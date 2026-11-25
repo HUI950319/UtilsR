@@ -341,8 +341,27 @@ stat_ci_parse <- function(x,
   if (is.null(upper_digits) || min(d) < 0 || upper_digits > 8190L) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
-  # Only very high precision can require the formatted-number byte checks below.
-  if (output %in% c("p", "p_star") && upper_digits <= 7881L) {
+  .check_width <- function(v, d, rounded = FALSE) {
+    at <- which(is.finite(v) & d > 7881L)
+    if (!length(at)) return(invisible(NULL))
+    precision <- if (length(d) == 1L) d else d[at]
+    values <- v[at]
+    if (!rounded) {
+      values <- round(values, precision)
+      values[values == 0] <- 0
+    }
+    widths <- nchar(sprintf("%.0f", trunc(values)))
+    if (any(widths + 1L + precision > 8192L)) {
+      cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
+    }
+  }
+  if (output %in% c("p", "p_star")) {
+    if (upper_digits > 7881L) {
+      # Enforce the displayed-number byte contract without building unused labels.
+      .check_width(est, d)
+      .check_width(lo, d)
+      .check_width(hi, d)
+    }
     out <- if (output == "p") pval else stat_pval(pval, map_signif = map_signif)
     names(out) <- names(x)
     return(out)
@@ -353,14 +372,7 @@ stat_ci_parse <- function(x,
       zero <- which(v == 0)
       if (length(zero)) v[zero] <- 0    # -0 would print as "-0.00"
     }
-    if (any(d > 7881L)) {
-      at <- which(is.finite(v) & d > 7881L)
-      widths <- nchar(sprintf("%.0f", trunc(v[at])))
-      precision <- if (length(d) == 1L) d else d[at]
-      if (any(widths + 1L + precision > 8192L)) {
-        cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
-      }
-    }
+    if (any(d > 7881L)) .check_width(v, d, rounded = TRUE)
     sprintf("%.*f", d, v)
   }
   fmt <- function(v, d) {
@@ -400,7 +412,6 @@ stat_ci_parse <- function(x,
   # --- Return based on output ---
   out <- switch(output,
     ci = ci_str,
-    p = pval,
     ci_p = {
       text <- stat_pval(if (all_valid) pval else pval[valid], mode = "pvalue")
       intervals <- if (all_valid) ci_str else ci_str[valid]
@@ -414,10 +425,7 @@ stat_ci_parse <- function(x,
     ci_star = {
       starred <- stat_pval(ci_str, add_star_p = pval, map_signif = map_signif)
       if (all_valid) starred else ifelse(valid, starred, x)
-    },
-    p_star = ifelse(valid,
-      stat_pval(pval, map_signif = map_signif),
-      NA_character_)
+    }
   )
   names(out) <- names(x)
   out

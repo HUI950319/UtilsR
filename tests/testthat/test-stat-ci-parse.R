@@ -1723,3 +1723,19 @@ test_that("one-pass separator normalization retains notation and Unicode spacing
   expect_identical(parsed$sep, c(", ", "; ", " to ", "~", "-", "\u2013", "\u2014", NA_character_))
   expect_identical(parsed$valid, c(rep(TRUE, 7L), FALSE))
 })
+
+test_that("high-precision probability output validates widths without building CI labels", {
+  x <- c(a = "1 (0, 2)", b = NA_character_, c = "3 [2; 4]")
+  fn <- stat_ci_parse
+  environment(fn) <- list2env(list(sprintf = function(fmt, ...) {
+    if (identical(fmt, "%.*f")) stop("rendered an unused high-precision CI label")
+    base::sprintf(fmt, ...)
+  }), parent = environment(fn))
+  for (output in c("p", "p_star")) {
+    expect_identical(fn(x, output = output, digits = 8190L, exp = FALSE),
+                     stat_ci_parse(x, output = output, digits = 2L, exp = FALSE))
+    expect_error(fn("-1 (-2, 0)", output = output, digits = 8190L, exp = FALSE),
+                 "8192-byte")
+  }
+  expect_no_warning(stat_ci_parse("1 (-0.0, 2)", output = "p", digits = 8190L, exp = FALSE))
+})
