@@ -560,13 +560,21 @@ fmt_point <- function(plot,
     })
     if (length(strata) == 1L) {
       groups <- strata[[1L]]
+      ordinary <- identical(class(groups), "factor") ||
+        identical(class(groups), c("ordered", "factor"))
+      if (ordinary && nlevels(groups) >= nrow(data) &&
+          isFALSE(is.unsorted(unclass(groups), strictly = TRUE)) &&
+          !any(vapply(data, is.matrix, logical(1)))) {
+        # There is one observation per group and rows are already in group
+        # order; no sampled indices or singleton split lists are needed.
+        data <- data[seq_len(nrow(data)), , drop = FALSE]
+        rownames(data) <- NULL
+        return(data)
+      }
       if (nlevels(groups) > nrow(data)) {
-        ordinary <- identical(class(groups), "factor") || identical(class(groups), c("ordered", "factor"))
         groups <- if (ordinary) as.integer(groups) else droplevels(groups, exclude = NULL)
       }
-      one_group <- (identical(class(groups), "factor") ||
-        identical(class(groups), c("ordered", "factor"))) &&
-        nlevels(groups) == 1L && !anyNA(unclass(groups))
+      one_group <- ordinary && nlevels(groups) == 1L && !anyNA(unclass(groups))
       rows <- if (one_group) list(seq_len(nrow(data))) else split(seq_len(nrow(data)), groups)
       observed <- lengths(rows) > 0L
       if (!all(observed)) rows <- rows[observed]

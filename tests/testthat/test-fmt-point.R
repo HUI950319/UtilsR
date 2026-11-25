@@ -1448,3 +1448,21 @@ test_that("mixed open point symbols without fill equivalents avoid conversion", 
   expect_equal(ggplot2::layer_data(p, 1L)$shape, d$shape)
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
 })
+
+test_that("ordered singleton sampling strata do not allocate a split of every row", {
+  f <- .fmt_point_sample
+  environment(f) <- list2env(list(split = function(...) {
+    stop("allocated a split for already ordered singleton strata")
+  }), parent = environment(f))
+  id <- factor(paste0("id", 1:120), levels = paste0("id", 1:130))
+  d <- data.frame(x = 1:120, id = id, row.names = paste0("r", 1:120))
+  want <- d
+  rownames(want) <- NULL
+  expect_identical(f(d, ggplot2::aes(group = id), 2L, 130L), want)
+
+  d <- d[120:1, ]
+  out <- .fmt_point_sample(d, ggplot2::aes(group = id), 2L, 130L)
+  expect_identical(out, want)
+  p <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, x, group = id)), sample_n = 2L)
+  expect_identical(ggplot2::layer_data(p, 1L)$x, as.double(want$x))
+})
