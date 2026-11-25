@@ -1423,3 +1423,17 @@ test_that("UpSet resolves data.table binary columns by column name", {
   expect_identical(out$intersect_group, ref$intersect_group)
   expect_identical(d, before)
 })
+
+test_that("UpSet repeats one observed sparse factor membership without row matching", {
+  lev <- c("yes", "no", as.character(1:5000))
+  d <- data.frame(a = factor(rep("yes", 600L), levels = lev),
+                  b = factor(rep("no", 600L), levels = lev))
+  fn <- plt_upset
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && identical(substitute(table), quote(observed)))
+      stop("matched every row to the single observed factor level")
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(as.character(fn(d, names(d), levels = "yes", output = "data")$intersect_group),
+                   rep("a", 600L))
+})

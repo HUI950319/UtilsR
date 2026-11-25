@@ -254,7 +254,9 @@ plt_upset <- function(data,
       codes <- as.integer(values)
       selected <- if (nlevels(values) > length(values)) {
         observed <- unique(codes)
-        (base::levels(values)[observed] %in% query)[match(codes, observed)]
+        members <- base::levels(values)[observed] %in% query
+        if (length(observed) == 1L) rep.int(members, length(codes)) else
+          members[match(codes, observed)]
       } else (base::levels(values) %in% query)[codes]
       if (anyNA(selected)) selected[is.na(selected)] <- NA_character_ %in% query
       return(selected)
