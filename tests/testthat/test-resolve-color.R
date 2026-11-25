@@ -356,3 +356,16 @@ test_that("distribution and alluvial colours match an observed empty category", 
   }
   expect_error(plt_alluvial(d, "x", "g", color = c(A = "blue")), "cover every observed group")
 })
+
+test_that("a successfully parsed colour vector does not allocate validity per colour", {
+  colours <- rep(c("red", "#123456", NA_character_, "transparent"), 1024L)
+  resolver <- .resolve_color
+  environment(resolver) <- list2env(list(rep = function(x, ...) {
+    if (identical(x, TRUE)) stop("allocated a redundant validity vector")
+    base::rep(x, ...)
+  }), parent = environment(resolver))
+  expect_identical(resolver(colours), colours)
+  expect_error(resolver(c("red", "2147483648", "unknown_colour")),
+               "2147483648.*unknown_colour")
+  expect_error(resolver(c("red", "2147483648")), "2147483648")
+})

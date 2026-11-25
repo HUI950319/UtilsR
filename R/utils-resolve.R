@@ -230,7 +230,7 @@
       draw_input
     }
     grDevices::col2rgb(check)
-    rep(TRUE, length(out))
+    TRUE
   }, error = function(e) {
     # Find every bad value only when parsing the whole vector fails.
     candidates <- unique(draw_input)
@@ -255,8 +255,10 @@
     }
     valid[match(draw_input, candidates)]
   })
-  drawable[bad_index] <- FALSE
-  if (!all(drawable)) {
+  if (length(bad_index) || !all(drawable)) {
+    # Expand the successful scalar only if we need a per-index diagnostic.
+    if (isTRUE(drawable)) drawable <- rep.int(TRUE, length(out))
+    drawable[bad_index] <- FALSE
     bad <- unique(out[!drawable])
     browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
     if (using_default || length(out) > 1L || length(bad_index)) {
