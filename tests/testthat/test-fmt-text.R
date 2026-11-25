@@ -340,3 +340,21 @@ test_that("omitted text labels are not recycled across plots", {
                    rep(c("First", "Second"), 6L))
   expect_true(all(vapply(result, function(g) identical(g$theme, p$theme), logical(1L))))
 })
+
+test_that("text formatting reuses matching label layers across successive plots", {
+  calls <- 0L
+  formatter <- fmt_text
+  environment(formatter) <- list2env(list(do.call = function(what, args,
+      quote = FALSE, envir = parent.frame()) {
+    if (identical(what, ggplot2::labs)) calls <<- calls + 1L
+    base::do.call(what, args, quote = quote, envir = envir)
+  }), parent = environment(formatter))
+  p <- ggplot2::ggplot()
+  titles <- c(rep("First", 10L), rep("Second", 10L), rep("", 10L))
+  out <- formatter(rep(list(p), length(titles)), title = titles,
+                  ylab = quote(log(beta)))
+  expect_identical(calls, 3L)
+  expect_identical(lapply(out, function(plot) plot$labels$title),
+                   c(as.list(titles[1:20]), rep(list(NULL),10L)))
+  expect_true(all(vapply(out, function(plot) identical(plot$labels$y, quote(log(beta))), logical(1L))))
+})

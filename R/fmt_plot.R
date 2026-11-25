@@ -3410,6 +3410,7 @@ fmt_text <- function(plot,
   }
 
   # ---- Apply per plot ----
+  last_labels <- last_label_layer <- NULL
   for (i in seq_len(n)) {
     p <- info$plots[[i]]
     labs_i <- list()
@@ -3420,7 +3421,13 @@ fmt_text <- function(plot,
     if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
     # ggplot2 leaves no space only for NULL labels; "" keeps an empty row.
     labs_i[vapply(labs_i, identical, logical(1), "")] <- list(NULL)
-    if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i, quote = TRUE)
+    if (length(labs_i) > 0L) {
+      if (!identical(labs_i, last_labels)) {
+        last_labels <- labs_i
+        last_label_layer <- do.call(ggplot2::labs, labs_i, quote = TRUE)
+      }
+      p <- p + last_label_layer
+    }
     if (!is.null(extra_layer))  p <- p + extra_layer
     if (length(styles))         p <- p + style_theme_for(p)
     legend_i <- legend_vec[[i]]
