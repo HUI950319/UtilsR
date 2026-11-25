@@ -2505,3 +2505,20 @@ test_that("factor set membership with no matching level skips row mapping", {
   expect_identical(fn(x, "red"), .cat_set_members(x, "red"))
   expect_identical(fn(droplevels(x), "nonexistent"), .cat_set_members(droplevels(x), "nonexistent"))
 })
+
+test_that("categorical pair grouping reuses row codes on singleton axes", {
+  original <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.call(substitute(x)) && identical(substitute(x)[[1L]], quote(`+`)))
+      stop("packed codes for a categorical table with one possible row or column")
+    original(x)
+  }, .package = "vctrs")
+  d <- data.frame(a = factor(c("C", "A", "C", NA), levels = c("C", "B", "A")),
+                  g = factor(rep("x", 4L)))
+  out <- .prepare_cat_data(d, "a", "g", "percent")
+  expect_identical(as.character(out$stat_var), c("C", "A"))
+  expect_equal(out$value, c(2/3, 1/3) * 100)
+  transposed <- .prepare_cat_data(d, "g", "a", "count")
+  expect_identical(as.character(transposed$group_var), c("C", "A"))
+  expect_identical(transposed$n, c(2L, 1L))
+})

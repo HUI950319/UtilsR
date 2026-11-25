@@ -910,7 +910,11 @@ plt_cat <- function(data,
       group_code <- group_code[keep]
     }
     slots <- prod(as.double(dimensions))
-    ids <- if (slots <= .Machine$integer.max) {
+    ids <- if (dimensions[2L] == 1L) {
+      vctrs::vec_group_id(stat_code)
+    } else if (dimensions[1L] == 1L) {
+      vctrs::vec_group_id(group_code)
+    } else if (slots <= .Machine$integer.max) {
       vctrs::vec_group_id(stat_code + (group_code - 1L) * dimensions[1L])
     } else if (slots <= 2^53) {
       vctrs::vec_group_id(stat_code + (group_code - 1) * dimensions[1L])
