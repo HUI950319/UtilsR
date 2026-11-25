@@ -47,11 +47,11 @@
 #'   \code{"none"}. Default \code{"wilcox"}.
 #' @param p_digits Number of digits for p-value. Default 2.
 #' @param p_size Text size for p-value label. Default 4.
-#' @param p_x,p_y Coordinates for p-value label. Default \code{NULL} (auto).
+#' @param p_x,p_y Single finite coordinates for p-value label. Default \code{NULL} (auto).
 #' @param cor_method Correlation method: \code{"pearson"}, \code{"spearman"}, or
 #'   \code{"none"}. Default \code{"pearson"}.
 #' @param cor_size Text size for correlation label. Default 4.
-#' @param cor_x,cor_y Coordinates for correlation label. Default \code{NULL}
+#' @param cor_x,cor_y Single finite coordinates for correlation label. Default \code{NULL}
 #'   (auto).
 #' @param hist_bins Number of equally spaced histogram bins across
 #'   \code{hist_x_limits}. Default 30.
@@ -175,6 +175,14 @@ PlotScatter3 <- function(
     stop("'cor_method' must be a single correlation method or 'none'.", call. = FALSE)
   if (cor_method != "none")
     cor_method <- match.arg(cor_method, c("pearson", "kendall", "spearman"))
+  for (arg in c(if (test_method != "none") c("p_x", "p_y"),
+                if (cor_method != "none") c("cor_x", "cor_y"))) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.numeric(value) || is.object(value) ||
+        !is.null(dim(value)) || length(value) != 1L || !is.finite(value))) {
+      stop("'", arg, "' must be a single finite number or NULL.", call. = FALSE)
+    }
+  }
   for (arg in c("x", "y", "group")) {
     value <- get(arg)
     if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||

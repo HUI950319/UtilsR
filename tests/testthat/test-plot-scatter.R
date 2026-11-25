@@ -2247,3 +2247,17 @@ test_that("paired scatter rejects invalid histogram ranges before calculating bi
   )$inset
   expect_identical(panel$scales$get_scales("x")$limits, limits)
 })
+
+test_that("paired scatter uses only one finite coordinate per annotation axis", {
+  for (arg in c("p_x", "p_y", "cor_x", "cor_y")) {
+    for (bad in list(c(1, 2), matrix(1), NaN, Inf, "2", numeric())) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call(PlotScatter3, args), paste0(arg, ".*single finite"))
+    }
+  }
+  d <- scatter3_integer_pairs()
+  expect_s3_class(PlotScatter3(d, test_method = "none", cor_method = "none",
+    p_x = stop("unused"), p_y = stop("unused"),
+    cor_x = stop("unused"), cor_y = stop("unused")), "patchwork")
+})

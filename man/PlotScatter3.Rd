@@ -96,14 +96,14 @@ Default \code{TRUE}.}
 
 \item{p_size}{Text size for p-value label. Default 4.}
 
-\item{p_x, p_y}{Coordinates for p-value label. Default \code{NULL} (auto).}
+\item{p_x, p_y}{Single finite coordinates for p-value label. Default \code{NULL} (auto).}
 
 \item{cor_method}{Correlation method: \code{"pearson"}, \code{"spearman"}, or
 \code{"none"}. Default \code{"pearson"}.}
 
 \item{cor_size}{Text size for correlation label. Default 4.}
 
-\item{cor_x, cor_y}{Coordinates for correlation label. Default \code{NULL}
+\item{cor_x, cor_y}{Single finite coordinates for correlation label. Default \code{NULL}
 (auto).}
 
 \item{hist_bins}{Number of equally spaced histogram bins across
