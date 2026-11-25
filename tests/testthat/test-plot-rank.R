@@ -1104,3 +1104,15 @@ test_that("rank facet labels reuse data when all rows are highlighted", {
   d$IsTop[c(5L, 10L)] <- FALSE
   expect_identical(run(fn, d)$layers[[2L]]$data$Label, d$Label[d$IsTop])
 })
+
+test_that("large capped constant rankings keep ties in input order without sorting", {
+  x <- setNames(rep(1, 30000L), rev(sprintf("gene%05d", seq_len(30000L))))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  for (name in c("order", "sort")) env[[name]] <- function(...)
+    stop("reordered tied scores")
+  environment(fn) <- env
+  out <- fn(x, max_show = 20, clean_names = FALSE, return_type = "data")
+  expect_identical(out$Label, names(x)[seq_len(20L)])
+  expect_identical(unname(out$Score), rep(1, 20L))
+})

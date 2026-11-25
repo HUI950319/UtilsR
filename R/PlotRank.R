@@ -241,6 +241,10 @@ PlotRank <- function(
     }
     shown <- if (n == 1L && !is.object(scores)) {
       scores[which.max(scores)]
+    } else if (!is.object(scores) && n < length(scores) && length(scores) >= 8192L &&
+               scores[1L] == scores[length(scores)] && !is.unsorted(scores)) {
+      # All scores tie, so their leading input positions are already ranked.
+      scores[seq_len(n)]
     } else if (!is.object(scores) && !is.unsorted(scores, strictly = TRUE)) {
       scores[seq.int(length(scores), length.out = n, by = -1L)]
     } else if (!is.null(candidates)) {
