@@ -478,3 +478,21 @@ test_that("formatted interval signs check only possible negative zeros", {
   expect_identical(got, stat_ci(values, rep(0.125, 5L), digits = 2L))
   expect_identical(got[c(1L, 3L)], rep("0.00(0.12)", 2L))
 })
+
+test_that("display-only interval formatting skips scale-inference units", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$.ci_extract <- function(x, need_unit = TRUE) {
+    out <- .ci_extract(x, need_unit = need_unit)
+    expect_null(out$unit)
+    out
+  }
+  environment(fn) <- env
+  x <- c(short = "0.20 (0.05, 0.35)", scientific = "1e-3 [0e-3; 2e-3]",
+         absent = NA_character_, blank = "")
+  for (value in list(x, rep(x, 375L), rep(x[1L], 1500L), rep(NA_character_, 1500L))) {
+    expect_identical(fn(value, bracket = "[", sep = " to "),
+                     stat_ci(value, bracket = "[", sep = " to "))
+    expect_equal(dim(.ci_extract(value)$unit), c(length(value), 3L))
+  }
+})

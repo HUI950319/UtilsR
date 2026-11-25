@@ -429,7 +429,7 @@ stat_ci_parse <- function(x,
   sum(bad) + sum(grepl("[^\\h\\v]", text[!bad], perl = TRUE))
 }
 
-.ci_extract <- function(x) {
+.ci_extract <- function(x, need_unit = TRUE) {
   bad <- !validEnc(x) | Encoding(x) == "bytes"
   if (any(bad)) x[bad] <- NA_character_
   n <- length(x)
@@ -437,9 +437,10 @@ stat_ci_parse <- function(x,
       length(unique(x[seq.int(1L, n, length.out = 1024L)])) < 512L) {
     keys <- unique(x)
     if (length(keys) < n / 2) {
-      parsed <- .ci_extract(keys)
+      parsed <- .ci_extract(keys, need_unit = need_unit)
       if (length(keys) == 1L) {
         return(lapply(parsed, function(value) {
+          if (is.null(value)) return(NULL)
           if (!is.matrix(value)) return(rep.int(value, n))
           expanded <- rep(value, each = n)
           dim(expanded) <- c(n, ncol(value))
@@ -448,6 +449,7 @@ stat_ci_parse <- function(x,
       }
       index <- match(x, keys)
       return(lapply(parsed, function(value) {
+        if (is.null(value)) return(NULL)
         if (is.matrix(value)) value[index, , drop = FALSE] else value[index]
       }))
     }
@@ -483,7 +485,7 @@ stat_ci_parse <- function(x,
     text <- rep.int(NA_character_, n)
     return(list(estimate = empty, lower = empty, upper = empty, digits = rep.int(2L, n),
       open = text, sep = text, close = text, valid = logical(n),
-      unit = matrix(NA_real_, n, 3L), trailing = logical(n)))
+      unit = if (need_unit) matrix(NA_real_, n, 3L), trailing = logical(n)))
   }
   starts <- attr(matched, "capture.start")
   lengths <- attr(matched, "capture.length")
@@ -543,11 +545,14 @@ stat_ci_parse <- function(x,
     -ex + 0
   })
   d <- restore(pmax(dec[[1L]], dec[[2L]], dec[[3L]], 0L), 2L)
-  units <- 10^-do.call(cbind, dec)
-  unit <- if (complete) units else {
-    full <- matrix(NA_real_, n, 3L)
-    full[hit, ] <- units
-    full
+  # Display-only callers use the printed precision but never infer a scale.
+  unit <- if (need_unit) {
+    units <- 10^-do.call(cbind, dec)
+    if (complete) units else {
+      full <- matrix(NA_real_, n, 3L)
+      full[hit, ] <- units
+      full
+    }
   }
 
   trailing <- restore(has_trailing, FALSE)

@@ -159,7 +159,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
   # --- Character input: reformat CI strings ---
   if (is.character(x)) {
     if (!length(x)) return(stats::setNames(character(), input_names))
-    parsed <- .ci_extract(x)
+    parsed <- .ci_extract(x, need_unit = FALSE)
     est <- parsed$estimate
     lo  <- parsed$lower
     hi  <- parsed$upper
