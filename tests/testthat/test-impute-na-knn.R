@@ -1145,3 +1145,26 @@ test_that("KNN result checks reuse ordinary factor codes for complete targets", 
   d <- data.frame(g = factor(c("a", "a", NA, "b", "b")), x = c(1, 1, 1, 8, 8))
   expect_identical(fn(d, k = 1L, verbose = FALSE)$g, factor(c("a", "a", "a", "b", "b")))
 })
+
+
+test_that("classed data.table columns are inspected without treating column flags as rows", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(id = 1:4,
+                              date = as.Date("2026-01-01") + c(0, 1, 2, 3))
+  data.table::setkeyv(d, "id")
+  before <- data.table::copy(d)
+  expect_identical(impute_na_knn(d, verbose = FALSE), before)
+  expect_identical(d, before)
+})
+
+test_that("KNN retains classed donor values from an incomplete data.table", {
+  skip_if_not_installed("data.table")
+  skip_if_not_installed("VIM")
+  d <- data.table::data.table(id = c(0, 1, 10, 20),
+                              date = as.Date("2026-01-01") + c(0, NA, 10, 20))
+  before <- data.table::copy(d)
+  result <- impute_na_knn(d, k = 1L, verbose = FALSE)
+  expect_identical(result, impute_na_knn(as.data.frame(d), k = 1L, verbose = FALSE))
+  expect_identical(result$date[2], d$date[1])
+  expect_identical(d, before)
+})

@@ -99,7 +99,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     cli::cli_abort("Columns must be one-dimensional atomic vectors; unsupported columns: {.val {names(data_for_impute)[!supported]}}.")
   }
   classed <- vapply(data_for_impute, is.object, logical(1))
-  classed_data <- if (any(classed)) data_for_impute[classed]
+  classed_data <- if (any(classed)) {
+    # Single-index data.table subsetting selects rows, not columns.
+    if (input_is_data_table) as.list(data_for_impute)[classed] else data_for_impute[classed]
+  }
   has_class <- function(what) {
     result <- classed
     if (length(classed_data)) result[classed] <- vapply(classed_data, inherits, logical(1), what = what)
