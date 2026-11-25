@@ -2,6 +2,306 @@
 
 ## UtilsR 0.6.23
 
+- Continuous mean and standard deviation summaries use a zero spread for
+  complete finite ordinary constant samples.
+
+- Categorical set membership skips row mapping when none of its factor
+  labels are selected.
+
+- Categorical count tables decide integer row names with scalar extrema
+  when the theoretical factor grid exceeds the integer range.
+
+- Categorical and continuous backgrounds reuse a single complete factor
+  value across all observed group positions.
+
+- Special-value normalization collects whitespace positions without a
+  full logical vector.
+
+- Categorical UpSet inputs with more than 31 sets allocate duplicate
+  tracking for the observed membership groups.
+
+- Packed categorical UpSet grouping gets representative codes from the
+  existing row IDs without rehashing membership codes.
+
+- Continuous mean and standard deviation summaries check ordinary
+  extreme samples through their extrema.
+
+- Single-feature continuous plots avoid rowwise finiteness flags for
+  fully finite ordinary outcomes.
+
+- Confidence interval scaling repeats the result of a shared tuple
+  without copying the full row IDs.
+
+- Parsing repeated identical intervals expands vector and matrix fields
+  directly from one parsed row.
+
+- Paired comparison data reuses unclassed facet vectors that already
+  have one entry per observation.
+
+- Background panel geometry reuses its native order for distinct scales
+  and repeats one geometry for a shared scale.
+
+- Background stripe drawing keeps complete trained category labels
+  without filtering every scale entry.
+
+- Parsed intervals avoid calculating replacement bounds at 95 percent
+  confidence while keeping P-value and formatting behavior.
+
+- The Sankey path helper constructs one-stage nodes and missing
+  successors without binding matrices.
+
+- Console tables avoid scanning values for rounding-to-zero candidates
+  when the whole finite column is beyond that threshold.
+
+- Table highlighting avoids remapping factor rows when no observed level
+  matches the pattern.
+
+- Special-value counting uses the existing full tally when every
+  observed factor label is a special marker.
+
+- Sparse factor tallies avoid grouping rows when observed codes are
+  already distinct and increasing.
+
+- Factor relabelling retains the validated source column index instead
+  of searching names again.
+
+- Combining a single sparse factor reuses its sole output code when no
+  observations are missing.
+
+- Combining ordinary factor inputs skips reducing rowwise missing masks
+  when no input has missing values.
+
+- Factor combinations use the observed character key count when
+  selecting representative labels.
+
+- Palette alpha formatting retains vector color encoding and replicates
+  the result directly for one repeated input color.
+
+- Long repeated numeric p values expand their sole formatted result
+  without building a matching vector.
+
+- Stat interval formatting finds negative-zero candidates without
+  building a logical vector across formatted rows.
+
+- Interval standard errors avoid building an exception-position vector
+  when all computed widths are finite.
+
+- Interval parsing selects decimal points and scientific exponents
+  directly without an intermediate logical row vector.
+
+- Character frequency listings avoid matching rows back to the
+  dictionary when every label appears once.
+
+- Repeated identical p-value strings expand their formatted result
+  without matching the original rows to a single-key dictionary.
+
+- Discrete palette level discovery uses already distinct sorted ordinary
+  numeric categories directly.
+
+- Console sparklines use zero standard deviation directly for constant
+  complete ordinary columns with at least two observations.
+
+- Console p-value formatting gets bound and exponent positions directly
+  from the validated input.
+
+- Console cells preserve complete text without a rowwise missing check
+  when no entry is a numeric p value.
+
+- Console p-value cells bypass significance comparisons when every
+  ordinary numeric value meets the existing nonsignificant cutoff.
+
+- Inspection disambiguation finds representative numeric and complex
+  values with duplicate tracking bounded by the observed keys.
+
+- Missingness plots use the observed counts directly when every selected
+  column is fully missing.
+
+- Butterfly time categories return their original values directly when
+  only one exact timestamp is present.
+
+- Two-wing plots use the first factor code to order a complete two-level
+  group without hashing all rows.
+
+- KNN checks remaining missing targets with the shared missing-value
+  counter, including ordinary factors.
+
+- KNN means skip NA removal for complete ordinary donors and retain the
+  existing missing and extreme-value behavior.
+
+- Faceted alluvial grouping sizes duplicate tracking to the number of
+  observed facet and category pairs.
+
+- Point sampling reuses row positions for distinct sorted numeric strata
+  while retaining existing ordering for all other values.
+
+- Point sampling skips missing-value masks for complete non-SPSS
+  labelled numeric strata.
+
+- Point shape conversion maps long uniform numeric vectors once while
+  preserving unmapped and missing values.
+
+- Point sampling reads literal facet columns in ordinary data frames
+  without evaluating a data mask.
+
+- Point sampling stops walking nested mapping arguments after locating a
+  calculated aesthetic.
+
+- Point sampling recognizes external full-row vectors read by simple
+  get0 lookups before building a layer.
+
+- Legend mapping resolution keeps mappings directly when a stat provides
+  no calculated defaults.
+
+- Legend mapping discovery stops traversing an expression after finding
+  a calculated aesthetic.
+
+- Inset insertion only collects matching layout positions when an inset
+  name already exists.
+
+- Explicit raster dimensions are assigned together when each panel
+  covers its own layout cell.
+
+- Panel rasterization collects matching gtable indices directly and
+  continues excluding blank panels.
+
+- Layer rasterization reuses the shared leaf walker for patchworks and
+  retains container metadata.
+
+- Circular lollipop scaling skips splitting original row positions for a
+  single complete group.
+
+- Circular lollipop score scaling avoids constructing missing masks for
+  complete integer64 groups.
+
+- Factor tallies return one count per level directly when codes cover
+  the dictionary in order.
+
+- Distinct sorted ordinary numeric categories reuse their row positions
+  as factor codes.
+
+- Distribution plots size duplicate tracking for time labels from the
+  observed exact timestamps.
+
+- Rank facets reuse their full data for labels if every shown row is
+  highlighted.
+
+- Single-group rank outputs construct the group factor from its constant
+  code without matching rows.
+
+- UpSet counts observed nonzero combinations with bounded bins when
+  membership rows outnumber code slots.
+
+- UpSet reuses strictly ordered numeric member IDs when flattening
+  disjoint sets.
+
+- Sparse Jaccard intersections size duplicate tracking from the observed
+  pairs and select the first key directly for one pair.
+
+- Jaccard feature grouping bypasses deduplication for strictly
+  increasing ordinary numeric features.
+
+- In-panel tags with get or get0 facets expand across the trained layout
+  without introducing new facet values.
+
+- Dumbbell charts check integer delta representability with scalar
+  extrema, preserving missing and wider differences.
+
+- Continuous limit calculations avoid copying complete ordinary outcomes
+  before quantile selection.
+
+- Repeated interval values with varying precision pick first group
+  occurrences using bounded duplicate tracking.
+
+- Axis backgrounds retrieve distinct trained x and y scales by layout
+  index, including shared facet scales.
+
+- Tied decimal p values parse exponent suffixes only for scientific
+  notation while retaining exact threshold decisions.
+
+- Quantile-based factor bins reuse strictly increasing boundaries and
+  continue to collapse ties.
+
+- Equal-width factor bins skip duplicate tracking for strictly
+  increasing boundaries and still detect precision collisions.
+
+- Scatter histogram breaks bypass deduplication when all numeric
+  boundaries are distinct and ordered.
+
+- Scatter comparison medians skip NA removal for complete differences
+  while preserving summaries for incomplete samples.
+
+- Continuous comparison caches bound duplicate tracking by the number of
+  sample references.
+
+- Repeated compound time values size the representative row search by
+  the number of observed tuples.
+
+- Plot leaf collection uses the same leaf traversal without comparing or
+  restoring untouched patchwork children.
+
+- Rank correlation pivots size duplicate tracking from the observed
+  group count.
+
+- Paired continuous t test adapters promote ordinary integer samples
+  when a pairwise difference can exceed the integer range.
+
+- Repeated parsed interval and precision pairs size duplicate tracking
+  to the observed format keys.
+
+- Confidence interval scale diagnostics take first occurrences from a
+  duplicate table sized to the observed keys.
+
+- Repeated interval formatting passes uniform precision as a scalar and
+  retains per-number byte checks.
+
+- Continuous comparison labels return the existing NS. value immediately
+  for ordinary unnamed numeric cutoffs.
+
+- P-value formatting reuses bound presence detected during validation
+  instead of rescanning input rows.
+
+- Paired comparison ID generation avoids existing bindings in facet
+  environments, including inherited lookup names.
+
+- Facet column discovery recognizes literal get0 lookups when paired
+  comparisons choose a private ID column.
+
+- Continuous Welch comparisons retry a nonfinite degrees-of-freedom
+  calculation at a common scale.
+
+- Table highlights skip rebuilding row positions for a repeated text
+  dictionary with no matching key.
+
+- Table colouring reuses the selected column names for both formatting
+  and numeric colour mapping.
+
+- Chord tables use a category’s codes directly when the other dimension
+  contains one observed level.
+
+- Categorical axes fill one repeated observed factor code directly
+  instead of matching every row.
+
+- Named butterfly palettes skip a second category search when all labels
+  have colours.
+
+- Butterfly gradients reuse numeric bounds without a row-length finite
+  flag for ordinary scores.
+
+- Numeric butterfly category labels skip hashing strictly increasing
+  ordinary numeric vectors.
+
+- Factor grouping avoids an unnamed-position mask when every group has a
+  valid supplied name.
+
+- Short confidence interval and mean/SD formatting avoids collecting
+  positions for duplicate grouping.
+
+- Interval formatting checks the expensive byte-width guard using the
+  validated maximum precision.
+
+- Confidence interval formatting takes the first representative directly
+  when every input tuple is identical.
+
 - Axis tiles share the baseline field names across all edited plot
   leaves.
 
