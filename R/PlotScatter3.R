@@ -57,7 +57,8 @@
 #'   \code{hist_x_limits}. Default 30.
 #' @param hist_x_limits Histogram X axis range. Default \code{NULL} uses a
 #'   symmetric range based on finite paired differences, expanded by 20\%.
-#'   All-zero differences receive a non-zero range. Explicit limits are retained.
+#'   All-zero differences receive a non-zero range. Explicit limits must
+#'   be two finite, strictly increasing values.
 #' @param hist_x_breaks Histogram X axis ticks. Default \code{NULL} (auto).
 #' @param hist_border Histogram bar border colour. Default \code{NULL} (auto).
 #' @param median_label_size Text size for median label. Default 5.
@@ -196,6 +197,13 @@ PlotScatter3 <- function(
       length(hist_bins) != 1L || !is.finite(hist_bins) || hist_bins < 1 ||
       hist_bins != trunc(hist_bins) || hist_bins > .Machine$integer.max)
     stop("'hist_bins' must be a single positive integer.", call. = FALSE)
+  if (!is.null(hist_x_limits) &&
+      (!is.numeric(hist_x_limits) || is.object(hist_x_limits) || !is.null(dim(hist_x_limits)) ||
+       length(hist_x_limits) != 2L || any(!is.finite(hist_x_limits)) ||
+       hist_x_limits[1L] >= hist_x_limits[2L])) {
+    stop("'hist_x_limits' must contain two finite, strictly increasing numbers.",
+         call. = FALSE)
+  }
   data <- as.data.frame(data)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
@@ -413,7 +421,7 @@ PlotScatter3 <- function(
     hist_x_breaks <- unique(pretty(hist_x_limits / hist_scale, n = 4) * hist_scale)
     hist_x_breaks <- hist_x_breaks[hist_x_breaks != 0]
   }
-  hist_bin_breaks <- seq(min(hist_x_limits) / hist_scale, max(hist_x_limits) / hist_scale,
+  hist_bin_breaks <- seq(hist_x_limits[1L] / hist_scale, hist_x_limits[2L] / hist_scale,
                          length.out = hist_bins + 1) * hist_scale
   if (is.unsorted(hist_bin_breaks, strictly = TRUE)) hist_bin_breaks <- unique(hist_bin_breaks)
 

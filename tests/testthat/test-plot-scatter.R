@@ -2231,3 +2231,19 @@ test_that("strictly ordered scatter histogram breaks need no duplicate hash", {
   ref <- run(PlotScatter3)
   expect_equal(ggplot2::ggplot_build(got[[2L]])$data, ggplot2::ggplot_build(ref[[2L]])$data)
 })
+
+test_that("paired scatter rejects invalid histogram ranges before calculating bins", {
+  for (bad in list(c(0, 0), c(2, -2), c(0, NA_real_), c(-Inf, 3),
+                   1, matrix(c(-1, 1)), c("0", "1"))) {
+    expect_error(PlotScatter3(stop("data evaluated"), hist_x_limits = bad),
+                 "hist_x_limits.*strictly increasing")
+  }
+  d <- scatter3_integer_pairs()
+  lower <- min(as.double(d$Treat) - as.double(d$Control))
+  upper <- max(as.double(d$Treat) - as.double(d$Control))
+  limits <- c(lower - 1, upper + 3)
+  panel <- scatter3_capture_inset(
+    d, test_method = "none", cor_method = "none", hist_x_limits = limits
+  )$inset
+  expect_identical(panel$scales$get_scales("x")$limits, limits)
+})
