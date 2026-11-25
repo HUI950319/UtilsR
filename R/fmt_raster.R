@@ -573,9 +573,15 @@ fmt_raster <- function(
     # Each cell was measured in the parent layout, including aspect constraints.
     from <- layout[[if (dim == "width") "l" else "t"]][panel_index]
     to <- layout[[if (dim == "width") "r" else "b"]][panel_index]
-    sizes <- cell_sizes[from]
-    spanning <- which(from != to)
-    if (length(spanning)) {
+    uniform <- n >= 8L && isTRUE(from[1L] != to[1L]) &&
+      isTRUE(min(from) == max(from) && min(to) == max(to))
+    if (uniform) {
+      sizes <- rep.int(sum(cell_sizes[from[1L]:to[1L]]), n)
+    } else {
+      sizes <- cell_sizes[from]
+      spanning <- which(from != to)
+    }
+    if (!uniform && length(spanning)) {
       span_ids <- if (length(spanning) >= 8L) {
         vctrs::vec_group_id(vctrs::new_data_frame(list(from = from[spanning], to = to[spanning])))
       }

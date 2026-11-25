@@ -1305,3 +1305,21 @@ test_that("mixed raster layouts measure physical cells together", {
   expected_width <- as.integer(20 * (6 - 144 / 72.27 - 1))
   expect_identical(dim(rasters[[1L]]$raster), c(40L, expected_width))
 })
+
+test_that("fully shared raster spans resolve without constructing group IDs", {
+  gt <- list(layout = data.frame(l = rep(2L, 100L), r = rep(4L, 100L),
+                                 t = rep(1L, 100L), b = rep(2L, 100L)))
+  original <- vctrs::vec_group_id
+  calls <- 0L
+  local_mocked_bindings(vec_group_id = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "vctrs")
+  cells <- c(1, 2, 4, 8)
+  expect_identical(.resolve_panel_size(gt, 1:100, "width", NULL, "in", cells), rep(14, 100L))
+  expect_identical(.resolve_panel_size(gt, 1:100, "height", NULL, "in", cells), rep(3, 100L))
+  expect_identical(calls, 0L)
+  gt$layout$r[100L] <- 3L
+  expect_identical(.resolve_panel_size(gt, 1:100, "width", NULL, "in", cells), c(rep(14, 99L), 6))
+  expect_identical(calls, 1L)
+})
