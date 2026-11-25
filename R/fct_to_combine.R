@@ -146,11 +146,13 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
        is.na(var_name) || !nzchar(var_name))) {
     cli::cli_abort("{.arg var_name} must be NULL or a single non-missing, non-empty string.")
   }
-  miss <- setdiff(vars, names(x))
-  if (length(miss) > 0L) {
+  frame_names <- names(x)
+  positions <- match(vars, frame_names)
+  if (anyNA(positions)) {
+    miss <- vars[is.na(positions)]
     cli::cli_abort("Column{?s} {.val {miss}} not found in the data frame.")
   }
-  if (anyDuplicated(names(x)[names(x) %in% vars])) {
+  if (anyDuplicated(frame_names) && anyDuplicated(frame_names[frame_names %in% vars])) {
     cli::cli_abort("Selected column names must be unique in the data frame.")
   }
   new_var <- if (!is.null(var_name)) var_name else paste(vars, collapse = "_")
@@ -158,7 +160,7 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
     cli::cli_abort("Output column name {.val {new_var}} is ambiguous in the data frame.")
   }
   combined <- do.call(fct_to_combine.default,
-                      c(lapply(vars, function(nm) x[[nm]]), list(sep = sep)))
+                      c(lapply(positions, function(j) x[[j]]), list(sep = sep)))
   if (identical(x[[new_var]], combined)) return(x)
   if (inherits(x, "data.table")) {
     if (!requireNamespace("data.table", quietly = TRUE)) {

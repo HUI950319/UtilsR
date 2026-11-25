@@ -808,3 +808,17 @@ test_that("one observed sparse factor uses its only output code", {
   x[1L] <- NA
   expect_identical(fn(x), fct_to_combine(x))
 })
+
+test_that("wide combinations resolve source positions once and keep requested order", {
+  columns <- as.list(rep(list(c("b", "a", "b")), 1000L))
+  names(columns) <- paste0("field", seq_along(columns))
+  columns[[8L]] <- factor(c("first", "second", "second"), levels = c("second", "first"))
+  d <- as.data.frame(columns)
+  names(d)[500:501] <- "unselected"
+  vars <- c("field1000", "field8", "field1")
+  result <- fct_to_combine(d, vars, var_name = "result")
+  expect_identical(result$result, fct_to_combine(d[[1000L]], d[[8L]], d[[1L]]))
+  expect_identical(names(d)[500:501], rep("unselected", 2L))
+  names(d)[501L] <- "field8"
+  expect_error(fct_to_combine(d, vars), "Selected column names must be unique")
+})
