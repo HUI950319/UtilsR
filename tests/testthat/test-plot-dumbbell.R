@@ -1208,3 +1208,13 @@ test_that("wide integer endpoints use scalar checks for representable deltas", {
   d$y[1L] <- -1900000000L
   expect_equal(delta(fn, d), c(-3900000000, -1, NA_real_))
 })
+
+test_that("dumbbell guides reach the observed endpoint of incomplete pairs", {
+  d <- data.frame(start = c(1, NA, 4, NA), end = c(3, 2, NA, NA),
+                  category = letters[1:4])
+  p <- suppressWarnings(dumbbell_plot(d, sort_by = "none", dot_guide = TRUE,
+                                     show_delta = TRUE))
+  guides <- ggplot2::layer_data(p, 1L)
+  expect_identical(as.numeric(guides$xend), c(3, 2, 4, NA_real_))
+  expect_identical(p$data$.delta, c(2, NA_real_, NA_real_, NA_real_))
+})

@@ -383,7 +383,8 @@ PlotDumbbell <- function(
     p <- p +
       ggplot2::geom_segment(
         ggplot2::aes(
-          x = !!x_min, xend = .dumbbell_endpoint_max(.data[[x_col]], .data[[xend_col]]),
+          x = !!x_min,
+          xend = .dumbbell_endpoint_max(.data[[x_col]], .data[[xend_col]], na.rm = TRUE),
           y = .data[[y_col]], yend = .data[[y_col]]
         ),
         color = dot_guide_color, linewidth = dot_guide_size,
@@ -579,10 +580,10 @@ PlotDumbbell <- function(
   )
 }
 
-.dumbbell_endpoint_max <- function(x, y) {
+.dumbbell_endpoint_max <- function(x, y, na.rm = FALSE) {
   if (inherits(x, "haven_labelled")) x <- vctrs::vec_data(x)
   if (inherits(y, "haven_labelled")) y <- vctrs::vec_data(y)
-  pmax(x, y)
+  pmax(x, y, na.rm = na.rm)
 }
 
 .mean_plot_values <- function(value, na.rm = TRUE) {
