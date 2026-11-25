@@ -118,7 +118,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       cli::cli_abort(c("{.arg pattern} must be a valid regular expression.",
                        "x" = "{conditionMessage(matched)}"))
     }
-    data <- data[, matched, drop = FALSE]
+    # Use positional column selection for data.table, without evaluating j in the data.
+    data <- if (inherits(data, "data.table")) {
+      data[, which(matched), with = FALSE, drop = FALSE]
+    } else {
+      data[, matched, drop = FALSE]
+    }
   } else if (...length() > 0L) {
     data <- dplyr::select(dplyr::ungroup(data), ...)
   }

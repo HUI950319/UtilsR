@@ -1128,3 +1128,17 @@ test_that("special marker normalization selects whitespace positions directly", 
   expect_identical(fn(x), .is_special_value(x))
   expect_identical(fn(x, c("^Unknown$", "a[.]b")), .is_special_value(x, c("^Unknown$", "a[.]b")))
 })
+
+
+test_that("check_na matches data.table column names without evaluating them in the data", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(matched = 1:3, stage = c("I", NA, "Unknown"),
+                              status = c("Alive", "Missing", "Alive"))
+  before <- data.table::copy(d)
+  reference <- as.data.frame(d)
+  for (pattern in c("^stage$", "^sta", "^absent$", "")) {
+    expect_identical(capture_gt_data(check_na(d, pattern = pattern, show_all = TRUE)),
+                     capture_gt_data(check_na(reference, pattern = pattern, show_all = TRUE)))
+  }
+  expect_identical(d, before)
+})
