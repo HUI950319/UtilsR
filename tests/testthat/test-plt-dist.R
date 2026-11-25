@@ -1198,3 +1198,15 @@ test_that("time label formatting bounds first rows by observed time keys", {
   d$x <- rep(instants[1L], nrow(d))
   expect_identical(run(fn, d), run(plt_dist, d))
 })
+
+test_that("distribution denominators do not hash a constant explicit facet column", {
+  d <- transform(dist_label_data(), panel = factor("only"))
+  f <- vctrs::vec_group_id
+  local_mocked_bindings(vec_group_id = function(x) {
+    if (is.data.frame(x) && identical(names(x), c("x", "panel"))) stop("hashed a constant facet key")
+    f(x)
+  }, .package = "vctrs")
+  draw <- function(facet) dist_test_plot(d, c("x", "group"), type = "bar", facet = facet)
+  expect_identical(draw("panel")$data$prop, draw(NULL)$data$prop)
+  expect_identical(as.character(draw("panel")$data$panel), rep("only", 4L))
+})
