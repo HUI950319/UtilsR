@@ -252,6 +252,15 @@ fct_cat <- function(x, ...,
   lvls <- levels(x)
   if (checked_indices) {
     pos <- unlist(newlevels, use.names = FALSE)
+  } else if (all(vapply(newlevels, function(i) is.character(i) && !is.object(i), logical(1L)))) {
+    # Match all character labels at once rather than hashing the same
+    # factor level dictionary separately for every recode group.
+    selected <- unlist(newlevels, use.names = FALSE)
+    pos <- match(selected, lvls)
+    if (anyNA(pos)) {
+      bad <- unique(selected[is.na(pos)])
+      cli::cli_abort("Level{?s} not found: {.val {bad}}.")
+    }
   } else {
     positions <- lapply(newlevels, function(i) {
       if (is.numeric(i) || is.complex(i)) {

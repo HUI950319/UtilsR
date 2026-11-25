@@ -1193,3 +1193,21 @@ test_that("dense binary factor splits use only two output codes", {
   expect_identical(fn(x[rep(5L, 4L)], ref_idx = 2L),
                    fct_cat(x[rep(5L, 4L)], groups = list("NA" = 2L, Oth = c(1L, 3L, 4L))))
 })
+
+test_that("character recode groups share one lookup against a wide set of levels", {
+  x <- factor(c(letters, rev(letters)))
+  groups <- setNames(as.list(letters[1:12]), LETTERS[1:12])
+  expected <- fct_cat(x, groups = setNames(as.list(1:12), names(groups)))
+  fn <- .recode_factor
+  lookups <- 0L
+  environment(fn) <- list2env(list(match = function(x, table, ...) {
+    if (identical(table, levels(expected)) || identical(table, letters)) {
+      if (identical(table, letters)) lookups <<- lookups + 1L
+    }
+    base::match(x, table, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x, groups), expected)
+  expect_identical(lookups, 1L)
+  expect_error(fn(x, list(first = "missing", second = "other")), "not found")
+  expect_error(fn(x, list(first = "a", second = "a")), "non-unique")
+})
