@@ -369,3 +369,23 @@ test_that("a successfully parsed colour vector does not allocate validity per co
                "2147483648.*unknown_colour")
   expect_error(resolver(c("red", "2147483648")), "2147483648")
 })
+
+test_that("repeated colour strings share their numeric classification and parse keys", {
+  colours <- rep(c("red", "#ABCDEF", "transparent", NA_character_), 1500L)
+  resolver <- .resolve_color
+  observed <- integer()
+  environment(resolver) <- list2env(list(grepl = function(pattern, x, ...) {
+    if (identical(pattern, "^[0-9]")) observed <<- c(observed, length(x))
+    base::grepl(pattern, x, ...)
+  }), parent = environment(resolver))
+  expect_identical(resolver(colours), colours)
+  expect_identical(observed, 4L)
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  mixed <- replace(colours, seq.int(1L, length(colours), by = 4L), "2")
+  expect_identical(resolver(mixed),
+    replace(colours, seq.int(1L, length(colours), by = 4L), "#123456FF"))
+  mixed[1:2] <- c("not_a_colour", "2147483648")
+  expect_error(resolver(mixed), "not_a_colour.*2147483648")
+})

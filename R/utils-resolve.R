@@ -198,7 +198,15 @@
   out <- as.character(palette)
   numeric_input <- is.numeric(palette)
   draw_input <- if (numeric_input) unname(palette) else out
-  numeric_colour <- if (numeric_input) !is.na(palette) | is.nan(palette) else grepl("^[0-9]", out)
+  draw_keys <- if (length(draw_input) > 1024L && .pal_use_unique(draw_input)) unique(draw_input)
+  numeric_colour <- if (numeric_input) {
+    !is.na(palette) | is.nan(palette)
+  } else if (is.null(draw_keys)) {
+    grepl("^[0-9]", out)
+  } else {
+    key_numeric <- grepl("^[0-9]", draw_keys)
+    if (any(key_numeric)) key_numeric[match(out, draw_keys)] else FALSE
+  }
   bad_index <- integer()
   if (any(numeric_colour)) {
     positions <- which(numeric_colour)
@@ -222,13 +230,10 @@
     bad_index <- positions[!safe]
     # Keep bad tokens for diagnostics, but never pass them to the native cast.
     if (length(bad_index)) draw_input[bad_index] <- NA
+    if (!is.null(draw_keys) && (!numeric_input || length(bad_index))) draw_keys <- unique(draw_input)
   }
   drawable <- tryCatch({
-    check <- if (length(draw_input) > 1024L && .pal_use_unique(draw_input)) {
-      unique(draw_input)
-    } else {
-      draw_input
-    }
+    check <- if (is.null(draw_keys)) draw_input else draw_keys
     grDevices::col2rgb(check)
     TRUE
   }, error = function(e) {
