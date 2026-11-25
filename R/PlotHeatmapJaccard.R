@@ -427,6 +427,9 @@ PlotHeatmapJaccard <- function(
         length(value) != 1L || !is.finite(value))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
+  if (is.factor(low_color)) low_color <- as.character(low_color)
+  if (is.factor(high_color)) high_color <- as.character(high_color)
+  if (show_strip && is.factor(strip_colors)) strip_colors <- as.character(strip_colors)
   for (arg in c("low_color", "high_color", if (show_strip && !is.null(strip_colors)) "strip_colors")) {
     value <- get(arg)
     if (!is.atomic(value) || !is.null(dim(value)) || !length(value) ||
@@ -436,9 +439,6 @@ PlotHeatmapJaccard <- function(
       stop("'", arg, "' must contain valid R colours.", call. = FALSE)
     })
   }
-
-  if (is.factor(low_color)) low_color <- as.character(low_color)
-  if (is.factor(high_color)) high_color <- as.character(high_color)
 
   # ---- 4. Prepare long data.frame ----
   values <- as.vector(jmat)

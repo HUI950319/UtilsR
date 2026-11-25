@@ -1269,3 +1269,17 @@ test_that("a complete single-group Jaccard matrix does not build a feature set",
   d[["gene"]] <- NA_integer_
   expect_identical(fn(d, return_type = "data"), expected * 0)
 })
+
+test_that("Jaccard colours use factor labels and reject malformed labels before plotting", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
+  p <- PlotHeatmapJaccard(d, low_color = factor("white"),
+                        high_color = factor("red"), show_strip = TRUE,
+                        strip_colors = factor(c("tomato", "navy")))
+  built <- ggplot2::ggplot_build(p)
+  expect_identical(built$data[[3L]]$fill, c("tomato", "navy"))
+  for (arg in c("low_color", "high_color", "strip_colors")) {
+    args <- list(data = d, show_strip = TRUE)
+    args[[arg]] <- factor("invalid-colour-name")
+    expect_error(do.call(PlotHeatmapJaccard, args), arg)
+  }
+})
