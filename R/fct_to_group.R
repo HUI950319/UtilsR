@@ -72,8 +72,13 @@ fct_to_group <- function(x, g_lis,
 
   # Auto-name unnamed elements; user names take precedence
   if (length(unnamed)) {
-    cur_names[unnamed] <- vapply(g_lis[unnamed], function(idx)
-      paste0(name_prefix, paste(idx, collapse = name_sep)), character(1L))
+    selected <- g_lis[unnamed]
+    if (all(lengths(selected) == 1L)) {
+      cur_names[unnamed] <- paste0(name_prefix, unlist(selected, use.names = FALSE))
+    } else {
+      cur_names[unnamed] <- vapply(selected, function(idx)
+        paste0(name_prefix, paste(idx, collapse = name_sep)), character(1L))
+    }
   }
   names(g_lis) <- cur_names
 
