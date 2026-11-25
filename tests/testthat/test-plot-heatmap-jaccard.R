@@ -1254,3 +1254,18 @@ test_that("one sparse Jaccard pair uses its first overlap key", {
   moved <- fn(rbind(a, b, rest), return_type = "data")
   expect_equal(moved["c", c("a", "b")], c(a = .01, b = .01))
 })
+
+test_that("a complete single-group Jaccard matrix does not build a feature set", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (is.numeric(x) && length(x) > 1L) stop("constructed unnecessary feature set")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  d <- data.frame(cell_type = rep("A", 50000L), gene = rep(1:5000, 10L))
+  expected <- matrix(1, 1, 1, dimnames = list("A", "A"))
+  expect_identical(fn(d, return_type = "data"), expected)
+  d[["cell_type"]] <- factor(d[["cell_type"]])
+  expect_identical(fn(d[0, ], return_type = "data"), expected * 0)
+  d[["gene"]] <- NA_integer_
+  expect_identical(fn(d, return_type = "data"), expected * 0)
+})

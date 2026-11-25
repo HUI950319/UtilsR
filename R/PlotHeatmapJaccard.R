@@ -173,6 +173,13 @@ PlotHeatmapJaccard <- function(
     FALSE
   }
   complete <- complete_values(group_values) && complete_values(data[[name_col]])
+  if (return_type == "data" && is.null(filename) && n_ct == 1L &&
+      is.null(group_levels) && complete &&
+      (!is.factor(group_values) || !anyNA(levels(group_values)))) {
+    # The diagonal only needs to know whether the group has any features.
+    return(matrix(as.double(nrow(data) > 0L), 1L, 1L,
+                  dimnames = list(ct_labels, ct_labels)))
+  }
   non_missing <- if (complete) TRUE else !is.na(group_values) & !is.na(data[[name_col]])
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)
