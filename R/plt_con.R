@@ -1335,7 +1335,7 @@ plt_con <- function(data,
   )
 }
 
-.con_mean_sd <- function(x, mult = 1) {
+.con_mean_sd <- function(x, mult = 1, bounds_only = FALSE) {
   if (is.object(x) || anyNA(x)) x <- x[!is.na(x)]
   centre <- mean(x)
   n <- length(x)
@@ -1353,7 +1353,10 @@ plt_con <- function(data,
       if (scale > 0) spread <- stats::sd(shifted / scale) * scale
     }
   }
-  data.frame(y = centre, ymin = centre - mult * spread, ymax = centre + mult * spread)
+  ymin <- centre - mult * spread
+  ymax <- centre + mult * spread
+  if (bounds_only) return(c(ymin, ymax))
+  data.frame(y = centre, ymin = ymin, ymax = ymax)
 }
 
 .con_bar_range <- function(values, groups) {
@@ -1374,10 +1377,8 @@ plt_con <- function(data,
   } else {
     split(values, match(groups, unique(groups)))
   }
-  intervals <- unlist(lapply(partitions, function(v) {
-    interval <- .con_mean_sd(v)
-    c(interval$ymin, interval$ymax)
-  }), use.names = FALSE)
+  intervals <- vapply(partitions, .con_mean_sd, numeric(2), bounds_only = TRUE,
+                      USE.NAMES = FALSE)
   observed_range <- if (!is.object(values)) suppressWarnings(.con_finite_bounds(values)) else values
   range(c(0, observed_range, intervals), finite = TRUE)
 }

@@ -2966,3 +2966,14 @@ test_that("ordinary constant bar samples reuse their zero spread", {
   expect_equal(fn(c(1, 3, 5)), data.frame(y = 3, ymin = 1, ymax = 5))
   expect_identical(fn(3)$ymax, NaN)
 })
+
+test_that("continuous bar ranges avoid constructing a frame per interval", {
+  fn <- .con_mean_sd
+  environment(fn) <- list2env(list(data.frame = function(...) stop("constructed an interval frame")),
+                              parent = environment(fn))
+  local_mocked_bindings(.con_mean_sd = fn, .package = "UtilsR")
+  x <- c(1, 3, 7, 7, 12)
+  g <- factor(c("a", "a", "b", "b", "c"), levels = c("b", "a", "c", "unused"))
+  expect_equal(.con_bar_range(x, g), c(0, 12))
+  expect_equal(.con_bar_range(c(-9, 3), factor(rep("a", 2))), c(-3 - sqrt(72), 3 + (sqrt(72) - 6)))
+})
