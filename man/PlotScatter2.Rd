@@ -129,7 +129,7 @@ Named \code{colors}, \code{shapes}, and \code{fill_colors_shape} vectors
 must cover every observed, non-missing level of their grouping variable.
 Unnamed vectors are matched in order of first appearance in \code{data}
 and must supply at least one value per observed level. Extra entries are
-accepted.
+accepted but omitted from the plot and legends.
 
 Numeric axis values are preserved when a grouping column is also used
 on an axis.

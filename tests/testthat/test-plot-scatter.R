@@ -2292,3 +2292,19 @@ test_that("paired scatter does not round nonzero tiny medians to a displayed zer
     expect_equal(ggplot2::layer_data(inset, 2L)$x, shift)
   }
 })
+
+test_that("dual scatter legends omit unused entries in reusable named palettes", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("b", "a"), 3L),
+                  h = rep(c("Team1", "Team2"), each = 3L))
+  colors <- c(a = "red", b = "blue", color_extra = "green")
+  shapes <- c(Team1 = 16, Team2 = 17, shape_extra = 18)
+  fills <- c(Team1 = "gold", Team2 = "grey", fill_extra = "black")
+  p <- PlotScatter2(d, "x", "y", "g", group2 = "h", colors = colors,
+                    shapes = shapes, fill_colors_shape = fills)
+  labels <- scatter_grob_labels(ggplot2::ggplotGrob(p[[6L]]))
+  expect_true(all(c("a", "b", "Team1", "Team2") %in% labels))
+  expect_false(any(grepl("_extra", labels, fixed = TRUE)))
+  points <- ggplot2::layer_data(p[[1L]], 1L)
+  expect_identical(points$colour, unname(colors[d$g]))
+  expect_identical(points$shape, unname(shapes[d$h]))
+})

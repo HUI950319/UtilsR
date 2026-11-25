@@ -21,7 +21,7 @@
 #' must cover every observed, non-missing level of their grouping variable.
 #' Unnamed vectors are matched in order of first appearance in \code{data}
 #' and must supply at least one value per observed level. Extra entries are
-#' accepted.
+#' accepted but omitted from the plot and legends.
 #'
 #' Numeric axis values are preserved when a grouping column is also used
 #' on an axis.
@@ -259,12 +259,13 @@ PlotScatter2 <- function(
       return(stats::setNames(values[seq_along(lvls)], lvls))
     }
     if (identical(names(values), lvls)) return(values)
-    missing_lvls <- setdiff(lvls, names(values))
-    if (length(missing_lvls)) {
+    index <- match(lvls, names(values))
+    if (anyNA(index)) {
       stop(sprintf("'%s' is missing mappings for: %s.",
-                   arg, paste(missing_lvls, collapse = ", ")), call. = FALSE)
+                   arg, paste(lvls[is.na(index)], collapse = ", ")), call. = FALSE)
     }
-    values
+    # Keep unused entries out of the legend's synthetic training data.
+    values[index]
   }
 
   color_lvls <- levels(df[[group]])
