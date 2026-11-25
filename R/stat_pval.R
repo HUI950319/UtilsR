@@ -243,16 +243,17 @@ stat_pval <- function(x,
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
     present <- if (anyNA(text)) which(!is.na(text))
     observed <- if (is.null(present)) text else text[present]
-    bound_rows <- grepl("^[<>\u2264\u2265]", observed)
+    bound_rows <- grep("^[<>\u2264\u2265]", observed)
     exact <- observed
     valid_bounds <- TRUE
-    has_bounds <- any(bound_rows)
+    has_bounds <- length(bound_rows) > 0L
     if (has_bounds) {
       bounded <- rep(FALSE, length(x))
-      at <- if (is.null(present)) which(bound_rows) else present[bound_rows]
-      bounded[at] <- grepl(paste0("^", prefix, number, "$"), observed[bound_rows], perl = TRUE)
-      valid_bounds <- all(bounded[at])
-      exact <- observed[!bound_rows]
+      at <- if (is.null(present)) bound_rows else present[bound_rows]
+      valid_bounds <- all(grepl(paste0("^", prefix, number, "$"),
+                                observed[bound_rows], perl = TRUE))
+      bounded[at] <- TRUE
+      exact <- observed[-bound_rows]
     }
     if (!valid_bounds ||
         !all(grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),

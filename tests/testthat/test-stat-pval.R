@@ -1271,3 +1271,18 @@ test_that("plain decimal formatting skips P-value endpoint diagnostics", {
   expect_error(stat_pval(x["beyond"]), "between 0 and 1")
   expect_error(stat_pval(">1"), "strict bound")
 })
+
+test_that("bound detection collects indices without a full logical mask", {
+  x <- c(missing = NA_character_, left = " \u2264 0.05", exact = ".01",
+         another = NA_character_, right = " >=1 ", tiny = "0.0002")
+  fn <- stat_pval
+  environment(fn) <- list2env(list(grepl = function(pattern, x, ...) {
+    if (identical(pattern, "^[<>\u2264\u2265]")) stop("reserved a full bound mask")
+    base::grepl(pattern, x, ...)
+  }), parent = environment(fn))
+  expect_identical(fn(x), stat_pval(x))
+  expect_identical(fn(x[c(1L, 3L, 4L, 6L)]), stat_pval(x[c(1L, 3L, 4L, 6L)]))
+  expect_identical(fn(x[-c(1L, 4L)]), stat_pval(x[-c(1L, 4L)]))
+  expect_identical(fn(x[c(2L, 5L)]), stat_pval(x[c(2L, 5L)]))
+  expect_error(fn(c(x, "<words")), "numeric strings or numeric bounds")
+})
