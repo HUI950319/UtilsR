@@ -433,7 +433,7 @@ stat_ci_parse <- function(x,
   sum(bad) + sum(grepl("[^\\h\\v]", text[!bad], perl = TRUE))
 }
 
-.ci_extract <- function(x, need_unit = TRUE) {
+.ci_extract <- function(x, need_unit = TRUE, need_style = TRUE) {
   bad <- !validEnc(x) | Encoding(x) == "bytes"
   if (any(bad)) x[bad] <- NA_character_
   n <- length(x)
@@ -441,7 +441,7 @@ stat_ci_parse <- function(x,
       length(unique(x[seq.int(1L, n, length.out = 1024L)])) < 512L) {
     keys <- unique(x)
     if (length(keys) < n / 2) {
-      parsed <- .ci_extract(keys, need_unit = need_unit)
+      parsed <- .ci_extract(keys, need_unit = need_unit, need_style = need_style)
       if (length(keys) == 1L) {
         return(lapply(parsed, function(value) {
           if (is.null(value)) return(NULL)
@@ -486,7 +486,7 @@ stat_ci_parse <- function(x,
   hit <- which(matched > 0L)
   if (!length(hit)) {
     empty <- rep.int(NA_real_, n)
-    text <- rep.int(NA_character_, n)
+    text <- if (need_style) rep.int(NA_character_, n)
     return(list(estimate = empty, lower = empty, upper = empty, digits = rep.int(2L, n),
       open = text, sep = text, close = text, valid = logical(n),
       unit = if (need_unit) matrix(NA_real_, n, 3L), trailing = logical(n)))
@@ -495,6 +495,7 @@ stat_ci_parse <- function(x,
   lengths <- attr(matched, "capture.length")
   text <- if (length(hit) == n) xs else xs[hit]
   g <- lapply(seq_len(6L), function(k) {
+    if (k == 4L && !need_style) return(NULL)
     first <- starts[hit, k]
     substring(text, first, first + lengths[hit, k] - 1L)
   })
@@ -530,12 +531,16 @@ stat_ci_parse <- function(x,
   est <- restore(values[[1L]], NA_real_)
   lo <- restore(values[[2L]], NA_real_)
   hi <- restore(values[[3L]], NA_real_)
-  open <- restore(g[[2L]], NA_character_)
-  close <- restore(g[[6L]], NA_character_)
-  # A captured separator contains only its token and surrounding whitespace.
-  sep_token <- gsub(paste0(space, "+"), "", g[[4L]], perl = TRUE)
-  separators <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
-                  "\u2014" = "\u2014", "-" = "-", "to" = " to ")[sep_token]
+  open <- separator <- close <- NULL
+  if (need_style) {
+    open <- restore(g[[2L]], NA_character_)
+    close <- restore(g[[6L]], NA_character_)
+    # A captured separator contains only its token and surrounding whitespace.
+    sep_token <- gsub(paste0(space, "+"), "", g[[4L]], perl = TRUE)
+    separators <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
+                    "\u2014" = "\u2014", "-" = "-", "to" = " to ")[sep_token]
+    separator <- restore(separators, NA_character_)
+  }
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
     scientific <- grep("[eE]", s)
@@ -562,8 +567,13 @@ stat_ci_parse <- function(x,
   }
 
   trailing <- restore(has_trailing, FALSE)
+  valid <- if (need_style) !is.na(open) else {
+    mask <- rep.int(complete, n)
+    if (!complete) mask[hit] <- TRUE
+    mask
+  }
   list(estimate = est, lower = lo, upper = hi, digits = d,
-       open = open, sep = restore(separators, NA_character_), close = close, valid = !is.na(open),
+       open = open, sep = separator, close = close, valid = valid,
        unit = unit, trailing = trailing)
 }
 

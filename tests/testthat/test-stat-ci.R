@@ -482,8 +482,8 @@ test_that("formatted interval signs check only possible negative zeros", {
 test_that("display-only interval formatting skips scale-inference units", {
   fn <- stat_ci
   env <- new.env(parent = environment(fn))
-  env$.ci_extract <- function(x, need_unit = TRUE) {
-    out <- .ci_extract(x, need_unit = need_unit)
+  env$.ci_extract <- function(x, ...) {
+    out <- .ci_extract(x, ...)
     expect_null(out$unit)
     out
   }
@@ -495,4 +495,24 @@ test_that("display-only interval formatting skips scale-inference units", {
                      stat_ci(value, bracket = "[", sep = " to "))
     expect_equal(dim(.ci_extract(value)$unit), c(length(value), 3L))
   }
+})
+
+test_that("canonical CI formatting never extracts the original separator style", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$.ci_extract <- function(x, ...) {
+    out <- .ci_extract(x, ...)
+    expect_null(out$sep)
+    expect_null(out$open)
+    expect_null(out$close)
+    out
+  }
+  environment(fn) <- env
+  x <- c(first = "2.0 [1; 3]", other = "3.0 (2\u00a0to 4)", blank = NA_character_)
+  for (value in list(x, rep(x, 500L), rep(x[[1L]], 1500L), rep("", 1500L))) {
+    expect_identical(fn(value, bracket = "(", sep = ", "),
+                     stat_ci(value, bracket = "(", sep = ", "))
+  }
+  expect_warning(out <- fn(c(x, "2.0 [1; 3)")), "1 element")
+  expect_identical(out[[4L]], "2.0 [1; 3)")
 })
