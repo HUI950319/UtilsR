@@ -1621,3 +1621,20 @@ test_that("rank correlations bound duplicate tracking by observed pivot keys", {
   expect_identical(run(fn, d)$data, run(PlotRankCor, d)$data)
   expect_identical(run(fn, d)$data, run(PlotRankCor, rank_cor_data())$data)
 })
+
+test_that("rank correlation maps singleton, paired and larger aesthetic groups correctly", {
+  d <- data.frame(item = c("c", "a", "b", "b", "c", "c"),
+                  method = c("M1", "M1", "M2", "M1", "M2", "M1"),
+                  score = seq_len(6L), aesthetic = c(2, 5, NA, 7, 5, 11))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$vapply <- function(X, ...) {
+    if (identical(substitute(X), quote(small_groups))) stop("iterated over small groups")
+    base::vapply(X, ...)
+  }
+  environment(fn) <- env
+  invisible(capture.output(p <- fn(d, stat.by = "item", method.by = "method",
+    value.by = "score", size_by = "aesthetic", show.label = FALSE)))
+  expect_identical(as.character(p$data$item), c("a", "b", "c"))
+  expect_identical(p$data$aesthetic, c(5, 7, 6))
+})

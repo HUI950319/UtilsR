@@ -348,8 +348,11 @@ PlotRankCor <- function(
     group_sizes <- lengths(agg_groups$loc)
     small <- group_sizes <= 2L
     small_groups <- agg_groups$loc[small]
-    first <- vapply(small_groups, "[[", integer(1), 1L)
-    last <- vapply(small_groups, function(rows) rows[length(rows)], integer(1))
+    small_sizes <- group_sizes[small]
+    small_rows <- unlist(small_groups, use.names = FALSE)
+    ends <- cumsum(as.double(small_sizes))
+    first <- small_rows[ends - small_sizes + 1]
+    last <- small_rows[ends]
     agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]
