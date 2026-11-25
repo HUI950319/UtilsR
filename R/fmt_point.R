@@ -626,9 +626,17 @@ fmt_point <- function(plot,
   if (numeric_shape && length(x)) {
     smallest <- min(Inf, x, na.rm = TRUE)
     if (smallest > 20L) return(x)
-    if (length(x) > 32L && !anyNA(x) && max(x) == smallest) {
-      mapped <- unname(dict[as.character(smallest)])
-      return(if (is.na(mapped)) x else rep.int(mapped, length(x)))
+    if (length(x) > 32L) {
+      largest <- if ((smallest >= 3 && smallest < 5) ||
+                     (smallest >= 7 && smallest < 15)) max(x, na.rm = TRUE)
+      # These intervals contain no fillable conversions (including when
+      # mixed open symbols or missing shapes make the values non-uniform).
+      if (!is.null(largest) && ((smallest < 5 && largest < 5) ||
+                                (smallest >= 7 && largest < 15))) return(x)
+      if (!anyNA(x) && (largest %||% max(x)) == smallest) {
+        mapped <- unname(dict[as.character(smallest)])
+        return(if (is.na(mapped)) x else rep.int(mapped, length(x)))
+      }
     }
   }
   index <- if (numeric_shape) match(x, as.integer(names(dict))) else as.character(x)

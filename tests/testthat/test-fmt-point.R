@@ -1432,3 +1432,19 @@ test_that("distinct sorted point strata reuse row codes", {
   d$group[4L] <- NA_real_
   expect_identical(fn(d, mapping, 2L, 95L), .fmt_point_sample(d, mapping, 2L, 95L))
 })
+
+test_that("mixed open point symbols without fill equivalents avoid conversion", {
+  fn <- .shape_convert
+  environment(fn) <- list2env(list(match = function(...) {
+    stop("looked up shapes in an interval without convertible codes")
+  }), parent = environment(fn))
+  for (codes in list(c(3L, 4L, NA_integer_), c(7, 8, 10, 14, NA_real_))) {
+    x <- setNames(rep(codes, 32L), seq_len(length(codes) * 32L))
+    expect_identical(fn(x), x)
+  }
+  d <- data.frame(x = 1:120, y = sin(1:120), shape = rep(c(3L, 4L), 60L))
+  p <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, y, shape = I(shape))),
+                 white_border = TRUE)
+  expect_equal(ggplot2::layer_data(p, 1L)$shape, d$shape)
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+})
