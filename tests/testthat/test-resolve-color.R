@@ -389,3 +389,22 @@ test_that("repeated colour strings share their numeric classification and parse 
   mixed[1:2] <- c("not_a_colour", "2147483648")
   expect_error(resolver(mixed), "not_a_colour.*2147483648")
 })
+
+test_that("repeated numeric colour indices are converted to RGBA once per entry", {
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  col2rgb <- grDevices::col2rgb
+  rgba_lengths <- integer()
+  local_mocked_bindings(col2rgb = function(col, alpha = FALSE, ...) {
+    if (alpha) rgba_lengths <<- c(rgba_lengths, length(col))
+    col2rgb(col, alpha = alpha, ...)
+  }, .package = "grDevices")
+  numeric <- rep(c(1, 2, 2.8, NA_real_), 1500L)
+  character <- rep(c("1", "2", "#AABBCC", NA_character_), 1500L)
+  expect_identical(.resolve_color(numeric),
+                   rep(c("#000000FF", "#123456FF", "#123456FF", NA_character_), 1500L))
+  expect_identical(.resolve_color(character),
+                   rep(c("#000000FF", "#123456FF", "#AABBCC", NA_character_), 1500L))
+  expect_identical(rgba_lengths, c(3L, 2L))
+})

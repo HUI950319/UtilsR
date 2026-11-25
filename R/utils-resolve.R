@@ -281,9 +281,12 @@
     ), call = rlang::caller_env())
   }
   if (any(numeric_colour)) {
-    rgba <- grDevices::col2rgb(draw_input[numeric_colour], alpha = TRUE)
-    out[numeric_colour] <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ],
-                                        rgba[4L, ], maxColorValue = 255)
+    indices <- draw_input[numeric_colour]
+    entries <- if (length(indices) > 1024L && .pal_use_unique(indices)) unique(indices)
+    rgba <- grDevices::col2rgb(entries %||% indices, alpha = TRUE)
+    fixed <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ],
+                           rgba[4L, ], maxColorValue = 255)
+    out[numeric_colour] <- if (is.null(entries)) fixed else fixed[match(indices, entries)]
   }
   sized(out)
 }
