@@ -1406,3 +1406,20 @@ test_that("large UpSet membership codes count combinations with bounded bins", {
   expect_s3_class(fn(frame, vars = names(frame), levels = TRUE, output = "upset"), "ggplot")
   expect_identical(captured, 3L)
 })
+
+test_that("UpSet resolves data.table binary columns by column name", {
+  skip_if_not_installed("data.table")
+  d <- data.table::data.table(a = c("yes", NA, "no"), b = c(NA, "no", "yes"), vars = 1L)
+  before <- data.table::copy(d)
+  input <- as.data.frame(d)
+  ref <- plt_upset(input, vars = c("b", "a"), levels = c("yes", NA), output = "data")
+  fn <- plt_upset
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (inherits(x, "data.table") && identical(substitute(i), quote(vars)))
+      stop("looked up data.table columns with a row subset")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  out <- fn(d, vars = c("b", "a"), levels = c("yes", NA), output = "data")
+  expect_identical(out$intersect_group, ref$intersect_group)
+  expect_identical(d, before)
+})

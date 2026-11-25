@@ -370,7 +370,9 @@ plt_upset <- function(data,
     if (length(missing_vars) > 0) {
       cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
     }
-    selected <- data[vars]
+    selected <- if (inherits(data, "data.table")) {
+      stats::setNames(lapply(vars, function(v) data[[v]]), vars)
+    } else data[vars]
     supported <- vapply(selected, function(x) {
       is.null(dim(x)) && (!is.list(x) || inherits(x, "POSIXlt")) && !is.expression(x)
     }, logical(1))
@@ -394,8 +396,7 @@ plt_upset <- function(data,
     time_classes <- c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")
     time_classes <- time_classes[vapply(time_classes, function(cls) inherits(value_levels, cls),
                                        logical(1))]
-    set_list <- lapply(stats::setNames(vars, vars), function(v) {
-      values <- data[[v]]
+    set_list <- lapply(selected, function(values) {
       if (!length(value_levels)) {
         return(if (missing_levels) which(is.na(values)) else integer())
       }
