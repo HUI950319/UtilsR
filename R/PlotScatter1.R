@@ -394,6 +394,18 @@ PlotScatter1 <- function(
       ggplot2::coord_cartesian(xlim = xlim, ylim = ylim, expand = FALSE)
   }
 
+  # Use the trained scatter range for ordinary numeric marginal axes. In
+  # particular, violin density tails and single-axis zoom must not stretch
+  # the marginal independently. Reuse the build when constructing the grob.
+  main_built <- ggplot2::ggplot_build(p_main)
+  main_panel <- main_built$layout$panel_params[[1L]]
+  same_axis <- function(value, range) {
+    !is.object(value) && is.numeric(value) &&
+      length(range) == 2L && all(is.finite(range))
+  }
+  shared_x <- same_axis(df[[x]], main_panel$x.range)
+  shared_y <- same_axis(df[[y]], main_panel$y.range)
+
   # ---- Top marginal (x variable by group, coord_flip) ----------------------
   # After coord_flip: horizontal = X variable (hidden, shown on p_main bottom)
   #                   vertical   = group names (kept on left)
@@ -406,7 +418,9 @@ PlotScatter1 <- function(
   # expand = FALSE when xlim is provided so the range matches p_main exactly.
   p_top <- p_top +
     ggplot2::scale_fill_manual(values = colors) +
-    (if (!is.null(xlim))
+    (if (shared_x)
+       ggplot2::coord_flip(ylim = main_panel$x.range, expand = is.null(xlim))
+     else if (!is.null(xlim))
        ggplot2::coord_flip(ylim = xlim, expand = FALSE)
      else
        ggplot2::coord_flip()) +
@@ -424,6 +438,8 @@ PlotScatter1 <- function(
       plot.margin  = ggplot2::margin(0, 0, 0, 0)
     )
 
+  if (shared_x) p_top <- p_top + ggplot2::scale_y_continuous(expand = c(0, 0))
+
   # ---- Right marginal (y variable by group) --------------------------------
   # Y scale values are on p_main left; only group names remain at bottom.
   p_right <- ggplot2::ggplot(
@@ -435,7 +451,9 @@ PlotScatter1 <- function(
   # expand = FALSE when ylim is provided so the range matches p_main exactly.
   p_right <- p_right +
     ggplot2::scale_fill_manual(values = colors) +
-    (if (!is.null(ylim))
+    (if (shared_y)
+       ggplot2::coord_cartesian(ylim = main_panel$y.range, expand = is.null(ylim))
+     else if (!is.null(ylim))
        ggplot2::coord_cartesian(ylim = ylim, expand = FALSE)
      else
        ggplot2::coord_cartesian()) +
@@ -454,6 +472,8 @@ PlotScatter1 <- function(
       axis.ticks.x = ggplot2::element_line(colour = "black"),
       plot.margin  = ggplot2::margin(0, 0, 0, 0)
     )
+
+  if (shared_y) p_right <- p_right + ggplot2::scale_y_continuous(expand = c(0, 0))
 
   # ---- Top-right annotation panel ------------------------------------------
   p_annot <- ggplot2::ggplot() + ggplot2::theme_void() +
@@ -482,7 +502,7 @@ PlotScatter1 <- function(
   # --- 1. Convert ggplot objects to gtable grobs ---
   g_top   <- ggplot2::ggplotGrob(p_top)
   g_annot <- ggplot2::ggplotGrob(p_annot)
-  g_main  <- ggplot2::ggplotGrob(p_main)
+  g_main  <- ggplot2::ggplot_gtable(main_built)
   g_right <- ggplot2::ggplotGrob(p_right)
 
   # --- 2. Locate the panel cell (same row/col index for all ggplot2 grobs) ---

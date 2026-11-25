@@ -507,16 +507,22 @@ test_that("PlotScatter3 preserves a .data axis that is also its grouping column"
 
 scatter1_capture_panels <- function(...) {
   panels <- list()
+  main <- NULL
   ggplot_grob <- ggplot2::ggplotGrob
+  ggplot_build <- ggplot2::ggplot_build
   plot <- testthat::with_mocked_bindings(
     PlotScatter1(...),
+    ggplot_build = function(plot, ...) {
+      if (is.null(main)) main <<- plot
+      ggplot_build(plot, ...)
+    },
     ggplotGrob = function(x, ...) {
       panels[[length(panels) + 1L]] <<- x
       ggplot_grob(x, ...)
     }, .package = "ggplot2"
   )
-  names(panels) <- c("top", "annotation", "main", "right")
-  list(plot = plot, panels = panels)
+  names(panels) <- c("top", "annotation", "right")
+  list(plot = plot, panels = c(panels[1:2], list(main = main), panels[3L]))
 }
 
 test_that("custom scatter annotations skip unused correlation tests", {
@@ -2260,4 +2266,17 @@ test_that("paired scatter uses only one finite coordinate per annotation axis", 
   expect_s3_class(PlotScatter3(d, test_method = "none", cor_method = "none",
     p_x = stop("unused"), p_y = stop("unused"),
     cor_x = stop("unused"), cor_y = stop("unused")), "patchwork")
+})
+
+test_that("single scatter marginals inherit each trained numeric coordinate range", {
+  d <- data.frame(x = 1:6, y = 1:6, g = rep(c("A", "B"), 3L))
+  build <- function(plot) ggplot2::ggplot_build(plot)$layout$panel_params[[1L]]
+  for (limits in list(list(), list(xlim = c(0, 4)), list(ylim = c(0, 4)))) {
+    p <- do.call(scatter1_capture_panels,
+      c(list(d, "x", "y", "g", marginal_type = "violin", box_jitter = FALSE,
+             show_ellipse = FALSE), limits))$panels
+    main <- build(p$main)
+    expect_equal(build(p$top)$x.range, main$x.range)
+    expect_equal(build(p$right)$y.range, main$y.range)
+  }
 })
