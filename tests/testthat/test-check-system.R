@@ -689,3 +689,17 @@ test_that("Linux memory fallback forces stable free output on localized systems"
   expect_equal(result$system_memory$free_gb, 4)
   expect_equal(result$system_memory$total_gb, 8)
 })
+
+
+test_that("an optional Linux CPU probe does not leak a command warning", {
+  skip_if_not_installed("ps")
+  testthat::local_mocked_bindings(ps_cpu_count = function(logical) {
+    if (!logical) warning("lscpu unavailable")
+    NA_integer_
+  }, .package = "ps")
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"
+  ), use_ps = TRUE)
+  expect_no_warning(invisible(capture.output(result <- query(return_result = TRUE))))
+  expect_identical(result$cpu$physical_cores, NA_integer_)
+})

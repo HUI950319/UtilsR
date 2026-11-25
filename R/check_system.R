@@ -257,7 +257,9 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   cores_physical <- if (.Platform[["OS.type"]] != "windows" &&
                          host[["sysname"]] == "Linux") {
     if (requireNamespace("ps", quietly = TRUE)) {
-      tryCatch(ps::ps_cpu_count(logical = FALSE), error = function(e) NA_integer_)
+      # Optional CPU probes may emit command warnings when lscpu is unavailable.
+      suppressWarnings(tryCatch(ps::ps_cpu_count(logical = FALSE),
+                               error = function(e) NA_integer_))
     } else NA_integer_
   } else parallel::detectCores(logical = FALSE)
 
