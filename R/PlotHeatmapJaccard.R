@@ -291,7 +291,7 @@ PlotHeatmapJaccard <- function(
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
                  dimnames = list(ct_labels, ct_labels))
   occupied <- which(set_sizes > 0L)
-  jmat[cbind(occupied, occupied)] <- 1
+  jmat[occupied + (occupied - 1) * n_ct] <- 1
   first_at <- NULL
   sparse_pairs <- length(occupied) > 16L && !typed_features && is.atomic(feature_values)
   if (sparse_pairs) {
@@ -337,7 +337,8 @@ PlotHeatmapJaccard <- function(
       i <- (pairs - 1) %% n_ct + 1
       j <- (pairs - 1) %/% n_ct + 1
       values <- counts / (set_sizes[i] + set_sizes[j] - counts)
-      jmat[cbind(i, j)] <- jmat[cbind(j, i)] <- values
+      jmat[pairs] <- values
+      jmat[j + (i - 1) * n_ct] <- values
     }
     if (sparse_pairs) occupied <- integer()
   }

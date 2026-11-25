@@ -1283,3 +1283,14 @@ test_that("Jaccard colours use factor labels and reject malformed labels before 
     expect_error(do.call(PlotHeatmapJaccard, args), arg)
   }
 })
+
+test_that("sparse similarities fill symmetric cells without coordinate matrices", {
+  d <- data.frame(cell_type = c(paste0("g", seq_len(30L)), "g1", "g9", "g27"),
+                  gene = c(seq_len(30L), 31L, 31L, 31L))
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(cbind = function(...) stop("built coordinate matrix")),
+                             parent = environment(fn))
+  expect_identical(fn(d, return_type = "data"), expected)
+  expect_identical(unname(expected["g9", "g27"]), 1 / 3)
+})
