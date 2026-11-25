@@ -822,3 +822,17 @@ test_that("wide combinations resolve source positions once and keep requested or
   names(d)[501L] <- "field8"
   expect_error(fct_to_combine(d, vars), "Selected column names must be unique")
 })
+
+test_that("two logical factors use a compact ordered lookup with missing rows", {
+  a <- setNames(c(TRUE, TRUE, FALSE, NA, FALSE, TRUE), letters[1:6])
+  b <- c(FALSE, TRUE, TRUE, TRUE, NA, FALSE)
+  ref <- fct_to_combine(factor(a), factor(b), sep = "/")
+  local_mocked_bindings(vec_group_id = function(...) {
+    stop("hashed two plain logical columns")
+  }, .package = "vctrs")
+  expect_identical(fct_to_combine(a, b, sep = "/"), ref)
+  expect_identical(levels(ref), c("FALSE/TRUE", "TRUE/FALSE", "TRUE/TRUE"))
+  expect_identical(which(is.na(ref)), c(4L, 5L))
+  expect_identical(fct_to_combine(logical(), logical()), factor(character()))
+  expect_identical(levels(fct_to_combine(c(NA, NA), c(TRUE, FALSE))), character())
+})

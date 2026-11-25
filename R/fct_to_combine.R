@@ -225,6 +225,14 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   n <- lens[[1L]]
+  if (length(args) == 2L && all(vapply(args, function(x) is.logical(x) && !is.object(x), logical(1L)))) {
+    # A pair of flags has at most four ordered tuples; use a tiny lookup
+    # instead of hashing all its rows. Missing components stay missing.
+    packed <- 2L * args[[1L]] + args[[2L]] + 1L
+    present <- tabulate(packed, nbins = 4L) > 0L
+    labels <- paste(rep(c(FALSE, TRUE), each = 2L), c(FALSE, TRUE), sep = sep)
+    return(structure(cumsum(present)[packed], levels = labels[present], class = "factor"))
+  }
   if (length(args) == 1L) {
     x <- args[[1L]]
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
