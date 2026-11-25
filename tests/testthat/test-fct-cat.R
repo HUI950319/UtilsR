@@ -1211,3 +1211,16 @@ test_that("character recode groups share one lookup against a wide set of levels
   expect_error(fn(x, list(first = "missing", second = "other")), "not found")
   expect_error(fn(x, list(first = "a", second = "a")), "non-unique")
 })
+
+test_that("sorted distinct character inputs already define their factor dictionary", {
+  x <- sort(c("z", "e", "\u00e9", "A", "a", "b", "B", "Z"))
+  names(x) <- letters[seq_along(x)]
+  fn <- .as_factor
+  environment(fn) <- list2env(list(factor = function(...) {
+    stop("recomputed the dictionary for an already ordered unique input")
+  }), parent = environment(fn))
+  expect_identical(fn(x), factor(x))
+  for (other in list(c("b", "a"), c("x", "x"), c("a", NA_character_))) {
+    expect_identical(fct_cat(other), factor(other))
+  }
+})

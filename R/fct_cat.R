@@ -414,6 +414,11 @@ fct_cat <- function(x, ...,
     return(structure(codes, names = names(x), levels = c("FALSE", "TRUE")[c(has_false, has_true)],
                      class = "factor"))
   }
+  if (is.character(x) && !is.object(x) && is.null(dim(x)) &&
+      isFALSE(is.unsorted(x, strictly = TRUE))) {
+    return(structure(seq_along(x), names = names(x), levels = as.character(x),
+                     class = "factor"))
+  }
   if (!is.object(x) && is.null(dim(x)) && (is.double(x) || is.integer(x))) {
     if (isFALSE(is.unsorted(x, strictly = TRUE))) {
       distinct <- x
