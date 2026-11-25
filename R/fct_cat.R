@@ -233,14 +233,17 @@ fct_cat <- function(x, ...,
       if (anyDuplicated(indices)) cli::cli_abort("Reorder levels must not be duplicated.")
       remaining <- rep.int(TRUE, length(cur))
       remaining[indices] <- FALSE
-      return(.relevel_factor(x, cur[c(indices, which(remaining))]))
+      permutation <- c(indices, which(remaining))
+      return(.relevel_factor(x, cur[permutation], permutation))
     }
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
     }
     remaining <- rep.int(TRUE, length(cur))
     remaining[indices] <- FALSE
-    return(.relevel_factor(x, c(new_order, unname(cur[remaining]))))
+    other <- if (length(cur) <= length(x)) which(remaining) else remaining
+    permutation <- if (is.integer(other)) c(indices, other)
+    return(.relevel_factor(x, c(new_order, unname(cur[other])), permutation))
   }
 }
 
@@ -358,17 +361,22 @@ fct_cat <- function(x, ...,
 
 
 # ---- Shared helpers ----
-.relevel_factor <- function(x, new_levels) {
+.relevel_factor <- function(x, new_levels, permutation = NULL) {
   old_levels <- levels(x)
   if (identical(old_levels, new_levels)) return(x)
-  if (length(old_levels) > length(x) &&
-      (identical(class(x), "factor") || identical(class(x), c("ordered", "factor")))) {
+  ordinary <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+  if (length(old_levels) > length(x) && ordinary) {
     tally <- .factor_tally(x)
     observed <- tally$codes
     positions <- match(old_levels[observed], new_levels)
     out <- if (length(observed) == 1L && tally$counts[[1L]] == length(x)) {
       rep.int(positions, length(x))
     } else positions[match(tally$row_codes, observed)]
+  } else if (!is.null(permutation) && ordinary && !anyDuplicated(old_levels)) {
+    # Reuse the known level positions rather than matching the string dictionary.
+    positions <- integer(length(permutation))
+    positions[permutation] <- seq_along(permutation)
+    out <- positions[x]
   } else {
     out <- match(old_levels, new_levels)[x]
   }

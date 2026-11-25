@@ -1224,3 +1224,18 @@ test_that("sorted distinct character inputs already define their factor dictiona
     expect_identical(fct_cat(other), factor(other))
   }
 })
+
+test_that("explicit level order can reuse its integer permutation on dense factors", {
+  x <- structure(rep(c(1L, 2L, 3L, 4L, NA_integer_), 2L),
+    names = letters[1:10], levels = c("a", "b", NA_character_, "d"),
+    class = c("ordered", "factor"), label = "staging")
+  expected <- .relevel_factor(x, c("d", NA_character_, "a", "b"))
+  original <- .relevel_factor
+  scope <- list2env(list(match = function(...) {
+    stop("rehashed factor labels with an explicit permutation")
+  }), parent = environment(original))
+  environment(original) <- scope
+  expect_identical(original(x, levels(expected), c(4L, 3L, 1L, 2L)), expected)
+  expect_identical(fct_cat(x, c(4L, 3L)), expected)
+  expect_identical(fct_cat(x, c("d", NA_character_)), expected)
+})
