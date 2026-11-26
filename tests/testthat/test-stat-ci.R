@@ -516,3 +516,18 @@ test_that("canonical CI formatting never extracts the original separator style",
   expect_warning(out <- fn(c(x, "2.0 [1; 3)")), "1 element")
   expect_identical(out[[4L]], "2.0 [1; 3)")
 })
+
+test_that("explicit CI display precision skips counting printed decimals", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$.ci_extract <- function(x, ...) {
+    got <- .ci_extract(x, ...)
+    expect_null(got$digits)
+    expect_null(got$unit)
+    got
+  }
+  environment(fn) <- env
+  x <- rep(c("1.2e-2 (1.1e-2, 1.5e-2)", "4.000 [3.50, 4.50]", NA_character_), 400L)
+  expect_identical(fn(x, digits = 3L), rep(c("0.012 (0.011\u20130.015)",
+    "4.000 (3.500\u20134.500)", NA_character_), 400L))
+})

@@ -442,7 +442,7 @@ stat_ci_parse <- function(x,
   sum(bad) + sum(grepl("[^\\h\\v]", text[!bad], perl = TRUE))
 }
 
-.ci_extract <- function(x, need_unit = TRUE, need_style = TRUE) {
+.ci_extract <- function(x, need_unit = TRUE, need_style = TRUE, need_digits = TRUE) {
   bad <- !validEnc(x) | Encoding(x) == "bytes"
   if (any(bad)) x[bad] <- NA_character_
   n <- length(x)
@@ -450,7 +450,8 @@ stat_ci_parse <- function(x,
       length(unique(x[seq.int(1L, n, length.out = 1024L)])) < 512L) {
     keys <- unique(x)
     if (length(keys) < n / 2) {
-      parsed <- .ci_extract(keys, need_unit = need_unit, need_style = need_style)
+      parsed <- .ci_extract(keys, need_unit = need_unit, need_style = need_style,
+                            need_digits = need_digits)
       if (length(keys) == 1L) {
         return(lapply(parsed, function(value) {
           if (is.null(value)) return(NULL)
@@ -496,7 +497,8 @@ stat_ci_parse <- function(x,
   if (!length(hit)) {
     empty <- rep.int(NA_real_, n)
     text <- if (need_style) rep.int(NA_character_, n)
-    return(list(estimate = empty, lower = empty, upper = empty, digits = rep.int(2L, n),
+    d <- if (need_digits) rep.int(2L, n)
+    return(list(estimate = empty, lower = empty, upper = empty, digits = d,
       open = text, sep = text, close = text, valid = logical(n),
       unit = if (need_unit) matrix(NA_real_, n, 3L), trailing = logical(n)))
   }
@@ -551,20 +553,22 @@ stat_ci_parse <- function(x,
     separator <- restore(separators, NA_character_)
   }
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
-  dec <- lapply(g[c(1, 3, 5)], function(s) {
-    scientific <- grep("[eE]", s)
-    ex <- numeric(length(s))
-    if (length(scientific)) {
-      ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
-      s[scientific] <- sub("[eE].*$", "", s[scientific])
-    }
-    dotted <- grep(".", s, fixed = TRUE)
-    if (length(dotted)) {
-      ex[dotted] <- ex[dotted] - nchar(sub("^[-+]?\\d*\\.?", "", s[dotted], perl = TRUE))
-    }
-    -ex + 0
-  })
-  d <- restore(pmax(dec[[1L]], dec[[2L]], dec[[3L]], 0L), 2L)
+  dec <- if (need_unit || need_digits) {
+    lapply(g[c(1, 3, 5)], function(s) {
+      scientific <- grep("[eE]", s)
+      ex <- numeric(length(s))
+      if (length(scientific)) {
+        ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
+        s[scientific] <- sub("[eE].*$", "", s[scientific])
+      }
+      dotted <- grep(".", s, fixed = TRUE)
+      if (length(dotted)) {
+        ex[dotted] <- ex[dotted] - nchar(sub("^[-+]?\\d*\\.?", "", s[dotted], perl = TRUE))
+      }
+      -ex + 0
+    })
+  }
+  d <- if (need_digits) restore(pmax(dec[[1L]], dec[[2L]], dec[[3L]], 0L), 2L)
   # Display-only callers use the printed precision but never infer a scale.
   unit <- if (need_unit) {
     units <- 10^-do.call(cbind, dec)
