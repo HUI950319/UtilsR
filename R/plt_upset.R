@@ -612,11 +612,16 @@ plt_upset <- function(data,
     n <- max(last)
   }
   bits <- bitwShiftL(1L, seq_along(sets) - 1L)
-  full <- vapply(sets, function(rows) length(rows) == n && identical(rows, seq_len(n)),
-                 logical(1))
+  sizes <- lengths(sets)
+  full <- logical(length(sets))
+  candidates <- which(sizes == n)
+  if (length(candidates)) {
+    all_rows <- seq_len(n)
+    full[candidates] <- vapply(sets[candidates], identical, logical(1), y = all_rows)
+  }
   full_code <- sum(bits[full])
   codes <- rep.int(full_code, n)
-  partial <- which(!full & lengths(sets) > 0L)
+  partial <- which(!full & sizes > 0L)
   if (length(partial)) {
     first <- partial[[1L]]
     codes[sets[[first]]] <- full_code + bits[[first]]
