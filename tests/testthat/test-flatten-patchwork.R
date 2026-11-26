@@ -501,3 +501,19 @@ test_that("flattened layout indices validate from extrema", {
   expect_error(f(plots, select_inds = c(1L, -2L)), "without mixing")
   expect_error(f(plots, select_inds = 4L), "within the plot range")
 })
+
+test_that("flat named plots keep their design cells without rebuilding the list", {
+  a <- ggplot2::ggplot() + ggplot2::labs(title = "First")
+  z <- ggplot2::ggplot() + ggplot2::labs(title = "Last")
+  flatten <- fmt_flatten
+  environment(flatten) <- list2env(list(unlist = function(x, recursive = TRUE, ...) {
+    if (!recursive && length(x) == 2L &&
+        identical(x[[1L]], list(C = z)) && identical(x[[2L]], list(A = a)))
+      stop("reconstructed each member of a flat named list")
+    base::unlist(x, recursive = recursive, ...)
+  }), parent = environment(flatten))
+  result <- flatten(list(C = z, A = a), design = "ABC")
+  expect_identical(result[[1L]]$labels$title, "First")
+  expect_s3_class(result[[2L]], "spacer")
+  expect_identical(result[[3L]]$labels$title, "Last")
+})

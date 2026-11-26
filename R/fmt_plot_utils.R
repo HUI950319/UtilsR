@@ -508,7 +508,8 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     }
     if (!is.null(dim(plot_obj))) cli::cli_abort("Plot lists must be one-dimensional.", call = error_call)
     nested <- function(x) is.list(x) && !is.object(x)
-    if (is.null(names(plot_obj)) && !any(vapply(plot_obj, nested, logical(1)))) return(plot_obj)
+    # A flat list already carries the cell names needed by character designs.
+    if (!any(vapply(plot_obj, nested, logical(1)))) return(plot_obj)
     unlist(lapply(seq_along(plot_obj), function(i) {
       children <- flatten_lists(plot_obj[[i]])
       if (length(children) == 1L && is.null(names(children)) &&
