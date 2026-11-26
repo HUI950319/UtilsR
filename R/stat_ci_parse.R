@@ -152,7 +152,8 @@ stat_ci_parse <- function(x,
   }
 
   # --- Parse CI strings ---
-  parsed <- .ci_extract(x)
+  probability_only <- output %in% c("p", "p_star")
+  parsed <- .ci_extract(x, need_style = !probability_only)
   est <- parsed$estimate
   lo  <- parsed$lower
   hi  <- parsed$upper
@@ -355,7 +356,7 @@ stat_ci_parse <- function(x,
       cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
     }
   }
-  if (output %in% c("p", "p_star")) {
+  if (probability_only) {
     if (upper_digits > 7881L) {
       # Enforce the displayed-number byte contract without building unused labels.
       .check_width(est, d)

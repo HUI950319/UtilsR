@@ -1739,3 +1739,21 @@ test_that("high-precision probability output validates widths without building C
   }
   expect_no_warning(stat_ci_parse("1 (-0.0, 2)", output = "p", digits = 8190L, exp = FALSE))
 })
+
+test_that("probability-only intervals do not extract display styles", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  seen <- logical()
+  env$.ci_extract <- function(x, need_style = TRUE, ...) {
+    seen <<- c(seen, need_style)
+    got <- .ci_extract(x, need_style = need_style, ...)
+    if (!need_style) expect_null(got$sep)
+    got
+  }
+  environment(fn) <- env
+  x <- c(a = "0.5 [0, 1]", b = NA, c = "4 (2 to 6)")
+  expect_identical(fn(x, "p", exp = FALSE), stat_ci_parse(x, "p", exp = FALSE))
+  expect_identical(fn(x, "p_star", exp = FALSE), stat_ci_parse(x, "p_star", exp = FALSE))
+  expect_identical(fn(x, "ci", exp = FALSE), c(a = "0.5 [0.0, 1.0]", b = NA, c = "4 (2 to 6)"))
+  expect_identical(seen, c(FALSE, FALSE, TRUE))
+})
