@@ -56,11 +56,11 @@ colour grouping palette and are not duplicated.}
 (up to 12 groups); supply a complete mapping above this limit.}
 
 \item{shapes}{Shape vector for \code{group2} levels. NULL = auto
-(up to 6 groups). Above 6 groups, supply both \code{shapes} and
+(up to 6 groups). Above 6 groups, supply \code{shapes} and, for a separate shape marginal,
 \code{fill_colors_shape} mappings.}
 
 \item{fill_colors_shape}{Fill colours for \code{group2} in marginal boxplots.
-NULL = auto (up to 6 groups).}
+NULL = auto (up to 6 groups); ignored when the grouping columns coincide.}
 
 \item{point_size}{Point size. Default 2.}
 

@@ -51,10 +51,10 @@
 #' @param colors Colour vector for \code{group} levels. NULL = auto palette
 #'   (up to 12 groups); supply a complete mapping above this limit.
 #' @param shapes Shape vector for \code{group2} levels. NULL = auto
-#'   (up to 6 groups). Above 6 groups, supply both \code{shapes} and
+#'   (up to 6 groups). Above 6 groups, supply \code{shapes} and, for a separate shape marginal,
 #'   \code{fill_colors_shape} mappings.
 #' @param fill_colors_shape Fill colours for \code{group2} in marginal boxplots.
-#'   NULL = auto (up to 6 groups).
+#'   NULL = auto (up to 6 groups); ignored when the grouping columns coincide.
 #' @param point_size Point size. Default 2.
 #' @param point_alpha Point transparency. Default 0.8.
 #' @param show_ellipse Whether to draw ellipses based on \code{group},
@@ -284,12 +284,14 @@ PlotScatter2 <- function(
   }
   colors <- match_mapping(colors, color_lvls, "colors")
 
+  separate_shape_margin <- !is.null(group2) && group2 != group
   if (!is.null(group2)) {
     shape_lvls <- levels(df[[group2]])
     n_shape <- length(shape_lvls)
-    if (n_shape > 6L && (is.null(shapes) || is.null(fill_colors_shape))) {
+    needs_fill <- separate_shape_margin && is.null(fill_colors_shape)
+    if (n_shape > 6L && (is.null(shapes) || needs_fill)) {
       needed <- c(if (is.null(shapes)) "shapes",
-                  if (is.null(fill_colors_shape)) "fill_colors_shape")
+                  if (needs_fill) "fill_colors_shape")
       stop(sprintf("More than 6 shape groups require explicit %s mappings.",
                    paste(needed, collapse = " and ")), call. = FALSE)
     }
@@ -297,19 +299,21 @@ PlotScatter2 <- function(
       shapes <- stats::setNames(c(16, 17, 15, 18, 8, 7)[seq_len(n_shape)],
                                  shape_lvls)
     }
-    if (is.null(fill_colors_shape)) {
+    if (needs_fill) {
       shape_pal <- c("#FFA500", "#4682B4", "#2CA02C", "#D62728",
                      "#9467BD", "#8C564B")
       fill_colors_shape <- stats::setNames(shape_pal[seq_len(n_shape)], shape_lvls)
     }
     shapes <- match_mapping(shapes, shape_lvls, "shapes")
-    fill_colors_shape <- match_mapping(fill_colors_shape, shape_lvls,
-                                       "fill_colors_shape")
+    if (separate_shape_margin) {
+      fill_colors_shape <- match_mapping(fill_colors_shape, shape_lvls,
+                                         "fill_colors_shape")
+    }
   }
 
   # ---- Collect margin variables (for marginal boxplots) ----
   margin_vars <- list(list(col = group, fill = colors, label = group_label))
-  if (!is.null(group2) && group2 != group) {
+  if (separate_shape_margin) {
     margin_vars[[2L]] <- list(col = group2, fill = fill_colors_shape, label = group2_label)
   }
 

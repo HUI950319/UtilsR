@@ -2368,3 +2368,14 @@ test_that("paired scatter tests and medians use finite paired differences", {
   expect_identical(ggplot2::layer_data(plot$main, 2L)$label,
                    paste0("p = ", format.pval(p, digits = 2L)))
 })
+
+test_that("reused marginal grouping does not force an unused shape fill mapping", {
+  d <- data.frame(x = 1:14, y = 14:1, g = rep(LETTERS[1:7], 2L),
+                  h = rep(letters[1:7], 2L))
+  shapes <- stats::setNames(15:21, LETTERS[1:7])
+  p <- PlotScatter2(d, "x", "y", "g", group2 = "g", shapes = shapes,
+                    fill_colors_shape = stop("unused palette"))
+  expect_identical(ggplot2::layer_data(p[[1L]], 1L)$shape, unname(shapes[d$g]))
+  expect_error(PlotScatter2(d, "x", "y", "g", group2 = "h", shapes = unname(shapes)),
+               "fill_colors_shape")
+})
