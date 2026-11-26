@@ -155,7 +155,7 @@
                    call = caller)
   }
   sized <- function(x) {
-    if (is.null(n)) return(x)
+    if (is.null(n) || length(x) == n) return(x)
     if (length(x) > 1L && length(x) < n) {
       cli::cli_warn(c(
         "{length(x)} colours for {n} groups, so colours repeat.",
