@@ -2522,3 +2522,17 @@ test_that("categorical pair grouping reuses row codes on singleton axes", {
   expect_identical(as.character(transposed$group_var), c("C", "A"))
   expect_identical(transposed$n, c(2L, 1L))
 })
+
+test_that("plain character category levels preserve encounter order without recoercion", {
+  d <- data.frame(x = c("z", NA, "", "a", "a"), g = c("first", "first", "first", "last", "last"))
+  fn <- plt_cat
+  environment(fn) <- list2env(list(as.character = function(x, ...) {
+    if (identical(substitute(x), quote(x)) && is.character(x) && length(x) == 5L)
+      stop("reconverted a plain character group column")
+    base::as.character(x, ...)
+  }), parent = environment(fn))
+  out <- suppressMessages(fn(d, "x", "g", NA_stat = TRUE, force = TRUE))
+  expected <- suppressMessages(plt_cat(d, "x", "g", NA_stat = TRUE, force = TRUE))
+  expect_identical(out$data, expected$data)
+  expect_identical(levels(out$data$stat_var)[1:3], c("z", "", "a"))
+})

@@ -501,6 +501,11 @@ plt_cat <- function(data,
         if (track_identity) numeric_labels[[col]] <- list(values = distinct, labels = labels)
         next
       }
+      if (is.character(x) && !is.object(x)) {
+        x <- unname(x)
+        data[[col]] <- factor(x, levels = unique(x))
+        next
+      }
       missing <- is.na(x)
       values <- as.character(x)
       time_key <- .cat_time_key(x)
