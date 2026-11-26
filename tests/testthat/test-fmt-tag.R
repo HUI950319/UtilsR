@@ -616,3 +616,12 @@ test_that("in-panel tags keep dynamic facet inputs outside the annotation layer"
   expect_identical(result$layout$layout, expected)
   expect_equal(result$data[[2L]]$label, rep("Tag", nrow(expected)))
 })
+
+test_that("automatic tags carry across every alphabet boundary", {
+  expect_identical(.fmt_tag_labels(0L), character())
+  expect_identical(.fmt_tag_labels(26L), LETTERS)
+  tags <- .fmt_tag_labels(18279L)
+  expect_identical(tags[c(26L, 27L, 52L, 53L, 702L, 703L, 18278L, 18279L)],
+                   c("Z", "AA", "AZ", "BA", "ZZ", "AAA", "ZZZ", "AAAA"))
+  expect_identical(anyDuplicated(tags), 0L)
+})

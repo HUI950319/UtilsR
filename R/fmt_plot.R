@@ -581,17 +581,7 @@ fmt_tag <- function(plot,
     cli::cli_warn("Existing patchwork tag levels are preserved; automatic labels may overlap the new fmt_tag() labels.")
   }
 
-  if (is.null(labels)) {
-    labels <- vapply(seq_len(n), function(i) {
-      label <- ""
-      while (i > 0L) {
-        i <- i - 1L
-        label <- paste0(LETTERS[i %% 26L + 1L], label)
-        i <- i %/% 26L
-      }
-      label
-    }, character(1))
-  }
+  if (is.null(labels)) labels <- .fmt_tag_labels(n)
   if (!is.character(labels) || !is.null(dim(labels)) || length(labels) == 0L ||
       anyNA(labels) || any(!nzchar(trimws(labels)))) {
     cli::cli_abort("{.arg labels} must be a non-empty character vector without missing or blank labels.")
@@ -752,6 +742,23 @@ fmt_tag <- function(plot,
     plots[[i]]
   })
   .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+}
+
+# Bijective base-26 labels, extended a digit at a time across longer labels.
+.fmt_tag_labels <- function(n) {
+  if (n <= 26L) return(LETTERS[seq_len(n)])
+  digits <- seq_len(n) - 1L
+  labels <- LETTERS[digits %% 26L + 1L]
+  index <- seq.int(27L, n)
+  digits <- digits[index] %/% 26L - 1L
+  repeat {
+    labels[index] <- paste0(LETTERS[digits %% 26L + 1L], labels[index])
+    longer <- which(digits >= 26L)
+    if (!length(longer)) break
+    index <- index[longer]
+    digits <- digits[longer] %/% 26L - 1L
+  }
+  labels
 }
 
 # The boxed in-panel label of fmt_tag(). It is built here rather than in
