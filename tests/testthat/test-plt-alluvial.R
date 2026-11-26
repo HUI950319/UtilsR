@@ -1632,3 +1632,16 @@ test_that("single-group alluvial totals reuse their stratum tally", {
   expect_identical(p$data$group_total, p$data$count)
   expect_identical(p$data$percent, rep(1, 3L))
 })
+
+test_that("a single observed facet uses one count gap height", {
+  d <- data.frame(x = c("A", "A", "A", "B"), g = c("u", "v", "v", "u"),
+                  f = factor("one", levels = c("unused", "one")))
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(tapply = function(...) {
+    stop("grouped gap heights despite a single observed facet")
+  }), parent = environment(fn))
+  out <- suppressMessages(fn(d, "x", "g", facet = "f", y_type = "count",
+                             stratum_args = list(gap = .1)))$data
+  expect_equal(out$.y[out$.is_gap], c(.3, .3))
+  expect_identical(levels(out$.facet), "one")
+})

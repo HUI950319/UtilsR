@@ -608,7 +608,7 @@ plt_alluvial <- function(
     observed <- stat[seq_len(n_pairs), c(".facet", ".cat_var", "group_total"), drop = FALSE]
     gap_height <- stratum_args$gap
     if (y_type == "count") {
-      if (facet_used) {
+      if (multiple_facets) {
         max_total <- tapply(observed$group_total, observed$.facet, max)
         gap_height <- gap_height * unname(max_total[as.integer(observed$.facet)])
       } else {
