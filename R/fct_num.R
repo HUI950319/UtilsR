@@ -112,8 +112,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg x} with a time-span class is not supported. Choose a time unit and convert to numeric values first.")
   }
   plain_x <- !is.object(x)
-  has_na <- if (plain_x) anyNA(x) else TRUE
-  if ((has_na || length(x) == 0L) && all(is.na(x))) {
+  observed_endpoint <- plain_x && length(x) > 0L &&
+    (!is.na(x[[1L]]) || !is.na(x[[length(x)]]))
+  if (!observed_endpoint && all(is.na(x))) {
     cli::cli_abort("{.arg x} is all NA.")
   }
 
@@ -183,6 +184,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg nbins} must be a single finite integer >= 2 and < {(.Machine$integer.max)}.")
   }
   nbins <- as.integer(nbins)
+  has_na <- !plain_x || anyNA(x)
   plain_range <- NULL
   integer_quantiles <- plain_x && is.integer(x) && type == "quantile"
   if (integer_quantiles) {

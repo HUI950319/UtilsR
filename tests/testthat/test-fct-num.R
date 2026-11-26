@@ -62,6 +62,26 @@ test_that("numeric binning retains right-closed boundaries and missing values", 
                           levels = c("<45", "45-54", ">=55")))
 })
 
+test_that("fixed cuts with an observed endpoint skip whole-input missing checks", {
+  x <- c(-Inf, rep(c(NA_real_, 0, NaN, 2), length.out = 998L), Inf)
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  reject_full_scan <- function(check) {
+    force(check)
+    function(values) {
+      if (length(values) == length(x)) stop("scanned all observations for missing values")
+      check(values)
+    }
+  }
+  env$anyNA <- reject_full_scan(base::anyNA)
+  env$is.na <- reject_full_scan(base::is.na)
+  environment(fn) <- env
+
+  for (values in list(x, replace(x, 1L, NA_real_), replace(x, length(x), NaN))) {
+    expect_identical(fn(values, breaks = 0), fct_num(values, breaks = 0))
+  }
+})
+
 test_that("fixed cut points must be finite distinct numeric values", {
   for (breaks in list(numeric(), NA_real_, c(NA_real_, 5), NaN, Inf, -Inf,
                      c(5, Inf), c(5, 5), c("2", "10"), TRUE, list(5),
