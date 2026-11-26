@@ -408,3 +408,17 @@ test_that("repeated numeric colour indices are converted to RGBA once per entry"
                    rep(c("#000000FF", "#123456FF", "#AABBCC", NA_character_), 1500L))
   expect_identical(rgba_lengths, c(3L, 2L))
 })
+
+test_that("known literal colour vectors do not need the palette catalogue", {
+  resolve <- .resolve_color
+  environment(resolve) <- list2env(list(getExportedValue = function(ns, name) {
+    if (identical(name, "palette_list")) stop("loaded the palette catalogue")
+    base::getExportedValue(ns, name)
+  }), parent = environment(resolve))
+  expect_identical(resolve(c("red", "#112233")), c("red", "#112233"))
+  expect_identical(resolve(default = "red", n = 2L), c("red", "red"))
+  rgba <- grDevices::col2rgb(2, alpha = TRUE)
+  expect_identical(resolve(2), grDevices::rgb(rgba[1L], rgba[2L], rgba[3L], rgba[4L],
+                                            maxColorValue = 255))
+  expect_error(resolve("lancet"), "loaded the palette catalogue")
+})

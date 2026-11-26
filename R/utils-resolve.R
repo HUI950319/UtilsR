@@ -188,8 +188,10 @@
 
   # Single string: a registered palette name wins, anything else is a literal
   # colour, repeated as given.
-  pl_names <- names(getExportedValue("UtilsR", "palette_list"))
-  if (!using_default && length(palette) == 1L && is.character(palette) && palette %in% pl_names) {
+  pl_names <- if (!using_default && length(palette) == 1L && is.character(palette)) {
+    names(getExportedValue("UtilsR", "palette_list"))
+  }
+  if (!is.null(pl_names) && palette %in% pl_names) {
     return(as.character(pal_get(palette, n = n)))
   }
 
