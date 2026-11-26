@@ -364,8 +364,12 @@ fmt_raster <- function(
       spec <- gtable[[key]]
       convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
       physical <- c("inches", "cm", "mm", "points", "picas", "bigpts", "dida", "cicero", "scaledpts")
-      fixed <- grid::unitType(spec) %in% physical
-      sizes <- if (all(fixed)) {
+      stored_units <- grid::unitType(spec)
+      fixed <- stored_units %in% physical
+      target_unit <- if (units == "in") "inches" else units
+      sizes <- if (inherits(spec, "simpleUnit") && all(stored_units == target_unit)) {
+        as.numeric(spec)
+      } else if (all(fixed)) {
         convert_fn(spec, units, valueOnly = TRUE)
       } else {
         values <- numeric(length(spec))
