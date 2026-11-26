@@ -31,7 +31,7 @@
 #' @param show_regression Whether to show a regression line. Default FALSE.
 #' @param reg_method Regression method: "lm" or "loess". Default "lm".
 #' @param show_cor Whether to display correlation coefficient. Default FALSE.
-#' @param cor_method Correlation method: "pearson", "spearman", or "kendall". Default "pearson".
+#' @param cor_method Correlation of finite pairs: "pearson", "spearman", or "kendall". Default "pearson".
 #' @param annot_text Custom annotation text (e.g. PERMANOVA result). NULL = none.
 #' @param annot_size Annotation text size. Default 4.
 #' @param xlim Custom X axis limits, e.g. \code{c(0, 1)}. NULL = auto (with
@@ -707,6 +707,29 @@ PlotScatter1 <- function(
   if (!is.null(complete) && n_complete < length(complete)) {
     x <- x[complete]
     y <- y[complete]
+  }
+  # Paired ranks must not treat an infinite, non-measurement coordinate as
+  # the largest/smallest observed value. Avoid row-sized masks when all
+  # coordinates are finite.
+  has_infinite <- function(value) {
+    is.double(value) && length(value) &&
+      (is.infinite(min(value)) || is.infinite(max(value)))
+  }
+  infinite_x <- has_infinite(x)
+  infinite_y <- has_infinite(y)
+  if (infinite_x || infinite_y) {
+    finite <- if (infinite_x && infinite_y) {
+      !is.infinite(x) & !is.infinite(y)
+    } else if (infinite_x) {
+      !is.infinite(x)
+    } else {
+      !is.infinite(y)
+    }
+    if (sum(finite) < if (pearson) 3L else 2L) {
+      return(list(estimate = NA_real_, p.value = NA_real_))
+    }
+    x <- x[finite]
+    y <- y[finite]
   }
   if (pearson) {
     normalize <- function(value) {

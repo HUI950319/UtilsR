@@ -2337,3 +2337,19 @@ test_that("coincident scatter group roles keep the colour marginal palette", {
   }
   expect_identical(ggplot2::layer_data(p[[1L]], 1L)$shape, unname(shapes[d$g]))
 })
+
+test_that("scatter correlations omit nonfinite pairs before estimating correlations", {
+  d <- data.frame(x = c(1, 4, 2, 6, Inf, 7, NA), y = c(2, 1, 3, 5, -1, -Inf, 0),
+                  g = rep(c("a", "b"), length.out = 7))
+  for (method in c("pearson", "spearman", "kendall")) {
+    expected <- stats::cor.test(d$x[1:4], d$y[1:4], method = method)
+    result <- .scatter_cor_test(d$x, d$y, method)
+    expect_equal(result$estimate, expected$estimate)
+    expect_equal(result$p.value, expected$p.value)
+    plot <- scatter3_capture_inset(d, "x", "y", "g", show_refline = FALSE,
+      test_method = "none", cor_method = method)
+    label <- ggplot2::layer_data(plot$main, 2L)$label
+    expect_match(label, paste0(" = ", round(expected$estimate, 3), ","), fixed = TRUE)
+  }
+  expect_true(is.na(.scatter_cor_test(c(1, 2, Inf), c(1, 2, 3), "pearson")$estimate))
+})
