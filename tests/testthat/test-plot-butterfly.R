@@ -1588,3 +1588,21 @@ test_that("one distinct native time label needs no representative match", {
   distinct <- as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York")
   expect_identical(fn(rep(distinct, 80L)), .butterfly_category_labels(rep(distinct, 80L)))
 })
+
+test_that("butterfly2 wide delegates pad only to the longest shared category", {
+  left <- data.frame(category = c("A", "A", "B", rep("left-only", 50L)),
+                     wing = "left", score = seq_len(53L))
+  right <- data.frame(category = c("A", "B", "B", "B", rep("right-only", 20L)),
+                      wing = "right", score = seq_len(24L))
+  captured <- list()
+  original <- PlotButterfly
+  wrapper <- function(type, data.left, data.right, ...) {
+    captured <<- list(left = data.left, right = data.right)
+    original(type = type, data.left = data.left, data.right = data.right, ...)
+  }
+  testthat::local_mocked_bindings(PlotButterfly = wrapper, .package = "UtilsR")
+  PlotButterfly2(rbind(left, right), stat.by = "category", value.by = "score",
+                 group.by = "wing", type = "box")
+  expect_identical(captured$left, data.frame(A = c(1L, 2L), B = c(3L, NA_integer_)))
+  expect_identical(captured$right, data.frame(A = c(1L, NA_integer_, NA_integer_), B = 2:4))
+})
