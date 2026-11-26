@@ -304,9 +304,13 @@ fct_cat <- function(x, ...,
   }
   target <- lvls
   target[pos] <- mapped
-  seen <- rep(FALSE, length(lvls))
-  seen[pos] <- TRUE
-  new_levels <- unique(c(mapped, unname(lvls[!seen])))
+  new_levels <- if (length(pos) == length(lvls)) {
+    unique(mapped)
+  } else {
+    seen <- rep(FALSE, length(lvls))
+    seen[pos] <- TRUE
+    unique(c(mapped, unname(lvls[!seen])))
+  }
   target_id <- match(target, new_levels)
   observed <- .factor_tally(x)$codes
   if (length(observed) != length(lvls)) {
