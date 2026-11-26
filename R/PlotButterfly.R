@@ -302,9 +302,11 @@ PlotButterfly <- function(
 
     # Min-max scaling per group.by x fill.by
     if (isTRUE(minmax)) {
-      rows <- split(seq_len(nrow(data)),
-        interaction(as.integer(as.factor(data[[group.by]])),
-                    as.integer(as.factor(data[[fill.by]])), drop = TRUE))
+      group_factor <- as.factor(data[[group.by]])
+      strata <- if (identical(group.by, fill.by)) group_factor else
+        interaction(as.integer(group_factor),
+                    as.integer(as.factor(data[[fill.by]])), drop = TRUE)
+      rows <- split(seq_len(nrow(data)), strata, drop = TRUE)
       scores <- data[[value.by]]
       scaled <- lapply(rows, function(index) {
         values <- scores[index]
