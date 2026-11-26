@@ -502,3 +502,12 @@ test_that("strictly increasing quantile boundaries skip duplicate hashing", {
   expect_warning(out <- fn(rep(1:2, each = 5L), nbins = 6L), "Ties in quantiles")
   expect_length(out, 10L)
 })
+
+test_that("a single unbounded split preserves base-cut endpoint behavior", {
+  x <- setNames(c(-Inf, -2, 0, 1, 1 + .Machine$double.eps, Inf, NA, NaN),
+                letters[1:8])
+  for (labels in list(c("low", "high"), c("same", "same"), c(NA, "kept"))) {
+    expect_identical(fct_num(x, breaks = 1, labels = labels),
+                     cut(x, c(-Inf, 1, Inf), labels = labels, include.lowest = TRUE))
+  }
+})
