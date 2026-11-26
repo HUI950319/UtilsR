@@ -382,7 +382,11 @@ PlotHeatmapJaccard <- function(
       gj <- top_sets[[j]]
       n_intersect <- if (identical(gi, gj)) {
         if (typed_features) vctrs::vec_size(gi) else length(gi)
-      } else if (typed_features) sum(vctrs::vec_in(gi, gj)) else sum(gi %in% gj)
+      } else if (typed_features) {
+        sum(vctrs::vec_in(gi, gj))
+      } else if (length(gj) == 1L) {
+        as.integer(gj %in% gi)
+      } else sum(gi %in% gj)
       n_union <- set_sizes[i] + set_sizes[j] - n_intersect
       jmat[i, j] <- if (n_union > 0) n_intersect / n_union else 0
       jmat[j, i] <- jmat[i, j]
