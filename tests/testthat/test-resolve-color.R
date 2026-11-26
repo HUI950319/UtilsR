@@ -422,3 +422,16 @@ test_that("known literal colour vectors do not need the palette catalogue", {
                                             maxColorValue = 255))
   expect_error(resolve("lancet"), "loaded the palette catalogue")
 })
+
+test_that("malformed encoded colours receive the usual argument diagnostic", {
+  for (encoding in c("UTF-8", "bytes")) {
+    colour <- rawToChar(as.raw(255L))
+    Encoding(colour) <- encoding
+    expect_warning(expect_error(.resolve_color(colour), "neither a registered palette nor a valid colour"), NA)
+    expect_warning(expect_error(.resolve_color(c("red", colour)), "Not a valid colour in.*palette"), NA)
+    expect_warning(expect_error(.resolve_color(NULL, default = colour), "Not a valid colour in.*default"), NA)
+  }
+  colour <- rawToChar(as.raw(c(49L, 255L)))
+  Encoding(colour) <- "UTF-8"
+  expect_warning(expect_error(.resolve_color(colour), "numeric colour index"), NA)
+})

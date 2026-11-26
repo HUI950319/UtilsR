@@ -204,26 +204,32 @@
   numeric_colour <- if (numeric_input) {
     !is.na(palette) | is.nan(palette)
   } else if (is.null(draw_keys)) {
-    grepl("^[0-9]", out)
+    grepl("^[0-9]", out, useBytes = TRUE)
   } else {
-    key_numeric <- grepl("^[0-9]", draw_keys)
+    key_numeric <- grepl("^[0-9]", draw_keys, useBytes = TRUE)
     if (any(key_numeric)) key_numeric[match(out, draw_keys)] else FALSE
   }
   bad_index <- integer()
   if (any(numeric_colour)) {
     positions <- which(numeric_colour)
     index <- if (numeric_input) draw_input[numeric_colour] else {
-      suppressWarnings(as.numeric(out[numeric_colour]))
+      tokens <- out[numeric_colour]
+      decimal <- "[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?"
+      hex <- "0[xX](?:[0-9a-fA-F]+(?:\\.[0-9a-fA-F]*)?|\\.[0-9a-fA-F]+)(?:[pP][+-]?[0-9]+)?"
+      parseable <- tokens != "0" &
+        grepl(paste0("^(?:", decimal, "|", hex, ")\\z"), tokens, perl = TRUE, useBytes = TRUE)
+      if (all(parseable)) {
+        suppressWarnings(as.numeric(tokens))
+      } else {
+        parsed <- rep.int(NA_real_, length(tokens))
+        parsed[parseable] <- suppressWarnings(as.numeric(tokens[parseable]))
+        parsed
+      }
     }
     safe <- is.finite(index) & index >= 0 & trunc(index) <= .Machine$integer.max
     if (numeric_input) {
       safe <- safe & index > 0
     } else {
-      tokens <- out[numeric_colour]
-      decimal <- "[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?"
-      hex <- "0[xX](?:[0-9a-fA-F]+(?:\\.[0-9a-fA-F]*)?|\\.[0-9a-fA-F]+)(?:[pP][+-]?[0-9]+)?"
-      safe <- safe & tokens != "0" &
-        grepl(paste0("^(?:", decimal, "|", hex, ")\\z"), tokens, perl = TRUE)
       # Pass the checked integer to the colour parser. Its C strtod can
       # round the original token differently, including across INT_MAX.
       indices <- as.integer(index[safe])
@@ -267,6 +273,8 @@
     if (isTRUE(drawable)) drawable <- rep.int(TRUE, length(out))
     drawable[bad_index] <- FALSE
     bad <- unique(out[!drawable])
+    malformed <- !validEnc(bad) | Encoding(bad) == "bytes"
+    if (any(malformed)) bad[malformed] <- encodeString(bad[malformed])
     browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
     if (using_default || length(out) > 1L || length(bad_index)) {
       cli::cli_abort(c("Not a valid colour in {.arg {color_arg}}: {.val {bad}}.",
@@ -274,8 +282,10 @@
                        "*" = browse),
                      call = rlang::caller_env())
     }
-    distance <- utils::adist(out, pl_names, ignore.case = TRUE)[1L, ]
-    near <- pl_names[order(distance)][seq_len(min(3L, sum(distance <= 2L)))]
+    near <- if (!any(malformed)) {
+      distance <- utils::adist(out, pl_names, ignore.case = TRUE)[1L, ]
+      pl_names[order(distance)][seq_len(min(3L, sum(distance <= 2L)))]
+    }
     cli::cli_abort(c(
       "{.val {bad}} is neither a registered palette nor a valid colour.",
       "i" = if (length(near) > 0L) "Did you mean {.val {near}}?",
