@@ -557,6 +557,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         cli::cli_abort("Palette {.val {label}} contains invalid colour{?s}: {.val {bad}}.")
       }
     }
+    if (is.numeric(x) && all(lengths(palette) == 1L)) {
+      mapping <- .pal_constant_positions(x)
+      return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
+    }
     if (!is.object(x) && is.numeric(x)) {
       if (.pal_use_unique(x)) {
         unique_x <- unique(x)
@@ -666,6 +670,16 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   values
 }
 
+# Flat colour ramps need only the finite positions, not the numeric range.
+.pal_constant_positions <- function(x) {
+  values <- .pal_numeric_values(x)
+  n <- length(values)
+  complete <- n && is.finite(min(values)) && is.finite(max(values))
+  placed <- if (!complete) is.finite(values)
+  at <- if (complete || any(placed)) 0 else numeric()
+  list(n = n, placed = placed, at = at, index = NULL)
+}
+
 # Prepare the finite positions and optional lookup once for every palette.
 #' @keywords internal
 #' @noRd
@@ -736,12 +750,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                        discrete_levels = NULL) {
   if (!is.null(x) && is.numeric(x)) {
     if (length(cols) == 1L) {
-      values <- .pal_numeric_values(x)
-      n <- length(values)
-      complete <- n && is.finite(min(values)) && is.finite(max(values))
-      placed <- if (!complete) is.finite(values)
-      at <- if (complete || any(placed)) 0 else numeric()
-      return(.pal_apply_positions(cols, list(n = n, placed = placed, at = at, index = NULL), alpha))
+      return(.pal_apply_positions(cols, .pal_constant_positions(x), alpha))
     }
     return(.pal_apply_positions(cols, .pal_numeric_positions(x, reverse), alpha))
   }

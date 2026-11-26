@@ -3623,3 +3623,18 @@ test_that("uniform palette alpha restores colors without a lookup vector", {
   cols[1L] <- "#119955"
   expect_identical(fn(cols, x = x, alpha = .42), .pal_apply(cols, x = x, alpha = .42))
 })
+
+test_that("multiple constant palettes share only the numeric finite mask", {
+  resolve <- pal_get
+  environment(resolve) <- list2env(list(".pal_numeric_positions" = function(...) {
+    stop("normalized the numerical range for flat colours")
+  }), parent = environment(resolve))
+  colors <- list(red = "red", green = "#00800088", missing = "transparent")
+  for (values in list(c(seq_len(3000), Inf, NA_real_, -Inf, NaN),
+                      rep(c(Inf, NA, -7, 11), 1024), numeric(), c(Inf, NA))) {
+    for (opacity in c(.6, 1)) {
+      expected <- lapply(colors, pal_get, x = values, alpha = opacity, reverse = TRUE)
+      expect_identical(resolve(colors, x = values, alpha = opacity, reverse = TRUE), expected)
+    }
+  }
+})
