@@ -69,15 +69,18 @@ fct_to_group <- function(x, g_lis,
   }
   x <- .as_factor(x)
   plain_singleton <- function(idx) is.integer(idx) && length(idx) == 1L && is.null(attributes(idx))
+  singleton_indices <- NULL
   if (length(g_lis) >= 1024L && all(vapply(g_lis, plain_singleton, logical(1L)))) {
     # Integer scalars need no per-group coercion. Check their bounds together.
-    .check_integer_index(unlist(g_lis, use.names = FALSE), "g_lis", nlevels(x))
+    singleton_indices <- .check_integer_index(unlist(g_lis, use.names = FALSE), "g_lis", nlevels(x))
   } else {
     g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
   }
 
   # Auto-name unnamed elements; user names take precedence
-  if (length(unnamed)) {
+  if (length(unnamed) && !is.null(singleton_indices)) {
+    cur_names[unnamed] <- paste0(name_prefix, singleton_indices[unnamed])
+  } else if (length(unnamed)) {
     selected <- g_lis[unnamed]
     if (all(lengths(selected) == 1L)) {
       cur_names[unnamed] <- paste0(name_prefix, unlist(selected, use.names = FALSE))
