@@ -100,7 +100,12 @@ stat_ci <- function(x, y = NULL, z = NULL,
     inputs <- list(...)
     incomplete <- vapply(inputs, function(x) is.object(x) || anyNA(x), logical(1))
     if (!any(incomplete)) return(TRUE)
-    !Reduce(`|`, lapply(inputs[incomplete], is.na))
+    incomplete_inputs <- inputs[incomplete]
+    missing <- is.na(incomplete_inputs[[1L]])
+    for (i in seq_along(incomplete_inputs)[-1L]) {
+      missing <- missing | is.na(incomplete_inputs[[i]])
+    }
+    !missing
   }
   .drop_signed_zero <- function(text) {
     pattern <- "-0(?=(?:\\.0+)?(?:[^0-9.]|$))"
