@@ -858,3 +858,24 @@ test_that("single-level combinations do not retally their existing codes", {
   expect_identical(fct_to_combine(actual), factor(c("NA", NA, "NA")))
   expect_identical(fct_to_combine(actual[c(2L, 2L)]), factor(c(NA_character_, NA_character_)))
 })
+
+test_that("combination missing masks accumulate across all selected columns", {
+  a <- c(1, 2, NA, 1, 2)
+  b <- c(NA, "yes", "no", "no", "no")
+  z <- factor(c("x", "x", "x", NA, "y"))
+  result <- fct_to_combine(a, b, z, sep = "/")
+  expect_identical(as.character(result), c(NA, "2/yes/x", NA, NA, "2/no/y"))
+  expect_identical(levels(result), c("2/no/y", "2/yes/x"))
+})
+
+test_that("fully excluded plain rows skip further missing-value masks", {
+  a <- c(1L, NA_integer_, 1L, NA_integer_)
+  b <- c(NA_integer_, 2L, NA_integer_, 2L)
+  extra <- c(8L, NA_integer_, 9L, NA_integer_)
+  f <- fct_to_combine.default
+  environment(f) <- list2env(list(is.na = function(x) {
+    if (identical(x, extra)) stop("rebuilt a missing mask after excluding all rows")
+    base::is.na(x)
+  }), parent = environment(f))
+  expect_identical(f(a, b, extra), factor(rep(NA_character_, 4L)))
+})

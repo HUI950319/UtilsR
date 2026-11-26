@@ -264,9 +264,20 @@ fct_to_combine.default <- function(..., sep = " & ") {
   early_filter <- all(vapply(args, function(x) {
     !is.object(x) || identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
   }, logical(1L)))
+  missing_union <- function(columns, stop_when_complete = FALSE) {
+    if (!length(columns)) return(NULL)
+    combined <- is.na(columns[[1L]])
+    if (length(columns) > 1L) {
+      for (j in seq.int(2L, length(columns))) {
+        if (stop_when_complete && all(combined)) break
+        combined <- combined | is.na(columns[[j]])
+      }
+    }
+    combined
+  }
   missing_rows <- if (early_filter) {
     incomplete <- vapply(args, anyNA, logical(1L))
-    if (any(incomplete)) Reduce(`|`, lapply(args[incomplete], is.na))
+    if (any(incomplete)) missing_union(args[incomplete], stop_when_complete = TRUE)
   }
   if (length(missing_rows) && all(missing_rows)) {
     return(structure(rep.int(NA_integer_, n), levels = character(), class = "factor"))
@@ -317,7 +328,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
   if (!early_filter) {
     inputs <- unname(lapply(args, encode_input))
     incomplete <- vapply(args, function(x) is.object(x) || anyNA(x), logical(1L))
-    missing_rows <- Reduce(`|`, lapply(args[incomplete], is.na))
+    missing_rows <- missing_union(args[incomplete])
   }
 
   complete_rows <- NULL
