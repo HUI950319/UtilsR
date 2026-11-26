@@ -468,6 +468,10 @@ fct_cat <- function(x, ...,
 }
 
 .check_integer_index <- function(x, arg_name, n_levels) {
+  if (is.integer(x) && !is.object(x) && is.null(attributes(x)) && length(x) == 1L &&
+      isTRUE(x >= 1L && x <= n_levels)) {
+    return(x)
+  }
   .register_integer64(x)
   if (!is.numeric(x) || is.complex(x) || !is.null(dim(x)) || anyNA(x) ||
       ((!is.integer(x) || is.object(x)) &&

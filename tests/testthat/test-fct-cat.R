@@ -1248,3 +1248,15 @@ test_that("compact integer factor values use exact codes and omit empty bins", {
   expect_identical(fct_cat(rep(c(-2147483647L, 2147483647L), 700L)),
                    factor(rep(c(-2147483647L, 2147483647L), 700L)))
 })
+
+test_that("validated scalar integer indices avoid the vector extrema path", {
+  fn <- .check_integer_index
+  environment(fn) <- list2env(list(min = function(...) stop("computed unneeded lower bound"),
+                                  max = function(...) stop("computed unneeded upper bound")),
+                             parent = environment(fn))
+  expect_identical(fn(4L, "ref_idx", 5L), 4L)
+  expect_identical(fn(.Machine$integer.max, "ref_idx", .Machine$integer.max),
+                   .Machine$integer.max)
+  expect_error(fn(NA_integer_, "ref_idx", 5L), "finite integer")
+  expect_error(.check_integer_index(c(index = 6L), "ref_idx", 5L), "between")
+})
