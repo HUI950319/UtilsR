@@ -558,19 +558,21 @@ plt_dist <- function(data,
       dplyr::count(dplyr::across(dplyr::all_of(grp_vars)), name = count_name)
     plotdata <- tibble::as_tibble(plotdata)
     x_group <- plotdata[[x_var]]
-    group_id <- if (is.null(facet)) {
-      vctrs::vec_group_id(x_group)
-    } else {
-      facet_group <- plotdata[[facet]]
-      if (is.factor(facet_group) && nlevels(facet_group) == 1L &&
-          !is.na(levels(facet_group)[1L]) && !anyNA(facet_group)) {
-        vctrs::vec_group_id(x_group)
-      } else {
+    facet_group <- if (!is.null(facet)) plotdata[[facet]]
+    single_level <- function(x) {
+      (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) &&
+        nlevels(x) == 1L && !is.na(levels(x)[1L]) && !anyNA(x)
+    }
+    shared_facet <- is.null(facet) || single_level(facet_group)
+    one_total <- shared_facet && single_level(x_group)
+    group_id <- if (!one_total) {
+      if (shared_facet) vctrs::vec_group_id(x_group) else
         vctrs::vec_group_id(plotdata[c(x_var, facet)])
-      }
     }
     counts <- plotdata[[count_name]]
-    plotdata[[prop_name]] <- if (attr(group_id, "n") == length(counts)) {
+    plotdata[[prop_name]] <- if (one_total) {
+      counts / sum(counts)
+    } else if (attr(group_id, "n") == length(counts)) {
       rep.int(1, length(counts))
     } else if (attr(group_id, "n") == 1L) {
       counts / sum(counts)

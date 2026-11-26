@@ -1210,3 +1210,15 @@ test_that("distribution denominators do not hash a constant explicit facet colum
   expect_identical(draw("panel")$data$prop, draw(NULL)$data$prop)
   expect_identical(as.character(draw("panel")$data$panel), rep("only", 4L))
 })
+
+test_that("one-axis stacked bars divide by a single total without grouping rows", {
+  d <- data.frame(x = factor("single"), y = c("b", "a", "a", "a"), facet = factor("one"))
+  fn <- plt_dist
+  environment(fn) <- list2env(list(attr = function(x, which, ...) {
+    if (identical(substitute(x), quote(group_id))) stop("looked up redundant group IDs")
+    base::attr(x, which, ...)
+  }), parent = environment(fn))
+  out <- suppressMessages(fn(d, c("x", "y"), facet = "facet", type = "bar"))
+  expect_equal(out$data$prop, c(.75, .25))
+  expect_identical(out$data$y, factor(c("a", "b")))
+})
