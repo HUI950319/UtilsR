@@ -1638,3 +1638,23 @@ test_that("rank correlation maps singleton, paired and larger aesthetic groups c
   expect_identical(as.character(p$data$item), c("a", "b", "c"))
   expect_identical(p$data$aesthetic, c(5, 7, 6))
 })
+
+test_that("two-observation rank groups avoid per-group rank calls", {
+  d <- expand.grid(item = c("a", "b"), method = c("M1", "M2"),
+                   group = c("directions", "tie", "missing", "infinite"),
+                   stringsAsFactors = FALSE)
+  d$score <- c(1, 2, 2, 1, 4, 4, 3, 5, 1, NA, NA, 2, Inf, -Inf, Inf, Inf)
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(rank = function(x, ...) stop("rank called for a pair")),
+                             parent = environment(fn))
+  invisible(capture.output(p <- fn(d, "item", "score", "group", "method", show.label = FALSE)))
+  expected <- lapply(c("M1", "M2"), function(method) {
+    vapply(seq_len(nrow(p$data)), function(i) {
+      rows <- d[d$group == p$data$group[i] & d$method == method, ]
+      stats <- rank(-rows$score, na.last = "keep", ties.method = "average")
+      unname(stats[match(p$data$item[i], rows$item)])
+    }, numeric(1))
+  })
+  expect_equal(p$data$M1, expected[[1L]])
+  expect_equal(p$data$M2, expected[[2L]])
+})

@@ -323,12 +323,26 @@ PlotRankCor <- function(
     ranks <- rep(NA_real_, nrow(data))
     scores <- data[[value.by]]
     if (!is.object(scores)) {
-      single <- lengths(rank_rows) == 1L
+      rank_sizes <- lengths(rank_rows)
+      single <- rank_sizes == 1L
       if (any(single)) {
         rows <- unlist(rank_rows[single], use.names = FALSE)
         ranks[rows] <- ifelse(is.na(scores[rows]), NA_real_, 1)
-        rank_rows <- rank_rows[!single]
       }
+      pairs <- rank_sizes == 2L
+      if (any(pairs)) {
+        rows <- matrix(unlist(rank_rows[pairs], use.names = FALSE), nrow = 2L)
+        a <- scores[rows[1L, ]]
+        b <- scores[rows[2L, ]]
+        rank_pair <- function(x, y) {
+          out <- 1 + 0.5 * (x == y) + (x < y)
+          out[is.na(y) & !is.na(x)] <- 1
+          out
+        }
+        ranks[rows[1L, ]] <- rank_pair(a, b)
+        ranks[rows[2L, ]] <- rank_pair(b, a)
+      }
+      rank_rows <- rank_rows[rank_sizes > 2L]
     }
     for (idx in rank_rows) {
       ranks[idx] <- rank(-scores[idx], ties.method = "average", na.last = "keep")
