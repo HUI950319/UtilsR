@@ -200,7 +200,9 @@
   out <- as.character(palette)
   numeric_input <- is.numeric(palette)
   draw_input <- if (numeric_input) unname(palette) else out
-  draw_keys <- if (length(draw_input) > 1024L && .pal_use_unique(draw_input)) unique(draw_input)
+  draw_keys <- if (!numeric_input && length(draw_input) > 1024L && .pal_use_unique(draw_input)) {
+    unique(draw_input)
+  }
   numeric_colour <- if (numeric_input) {
     !is.na(palette) | is.nan(palette)
   } else if (is.null(draw_keys)) {
@@ -238,9 +240,9 @@
     bad_index <- positions[!safe]
     # Keep bad tokens for diagnostics, but never pass them to the native cast.
     if (length(bad_index)) draw_input[bad_index] <- NA
-    if (!is.null(draw_keys) && (!numeric_input || length(bad_index))) draw_keys <- unique(draw_input)
+    if (!is.null(draw_keys)) draw_keys <- unique(draw_input)
   }
-  drawable <- tryCatch({
+  drawable <- if (numeric_input) TRUE else tryCatch({
     check <- if (is.null(draw_keys)) draw_input else draw_keys
     grDevices::col2rgb(check)
     TRUE
