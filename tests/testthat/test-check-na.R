@@ -1170,3 +1170,16 @@ test_that("factor subclass missing values do not also count as special", {
   expect_identical(seen$special_combined, "1 (20.0%)")
   expect_identical(.count_special_values(x, special = "^Blank$"), 0)
 })
+
+test_that("character subclass missingness is resolved before deduplication", {
+  rlang::local_bindings(is.na.coded_missing_chr = function(x) {
+    values <- unclass(x)
+    is.na(values) | values == "Blank"
+  }, .env = globalenv())
+  x <- structure(c("Blank", "Unknown", "Blank", "known", NA_character_),
+    class = "coded_missing_chr")
+  seen <- capture_gt_data(check_na(data.frame(x = x), show_all = TRUE))[[1L]]
+  expect_identical(seen$missing_combined, "3 (60.0%)")
+  expect_identical(seen$special_combined, "1 (20.0%)")
+  expect_identical(.count_special_values(x, distinct = unique(x)), 1)
+})

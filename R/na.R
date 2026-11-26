@@ -322,9 +322,16 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     if (length(tally$codes) != length(u)) u <- u[tally$codes]
     n <- tally$counts
   } else {
+    # unique() may discard a character subclass before its is.na() is called.
+    if (is.object(x)) {
+      missing <- is.na(x)
+      if (any(missing)) {
+        x <- x[!missing]
+        distinct <- NULL
+      }
+    }
     u <- distinct %||% unique(x)
     hit <- .is_special_value(u, special)
-    if (is.object(u)) hit[is.na(u)] <- FALSE
     if (!any(hit)) return(0)
     markers <- u[hit]
     if (length(markers) == length(u)) return(length(x) + 0)
