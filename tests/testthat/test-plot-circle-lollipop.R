@@ -1850,3 +1850,14 @@ test_that("circular links read shared row positions without copying feature fram
                                list("A", .25, "B", 2.5 / 3),
                                list("A", .75, "B", .5)))
 })
+
+test_that("circle rejects matrix-valued group, feature and color fields", {
+  d <- data.frame(group = c("A", "B"), name = c("a", "b"), value = c(0.2, 0.7),
+                  paint = c("red", "blue"))
+  for (col in c("group", "name", "paint")) {
+    invalid <- d
+    invalid[[col]] <- I(cbind(d[[col]], d[[col]]))
+    expect_error(PlotCircleLollipop(invalid, color_col = "paint"),
+                 paste0("Column '", col, "' must contain one-dimensional values."), fixed = TRUE)
+  }
+})

@@ -204,10 +204,18 @@ PlotCircleLollipop <- function(
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
-  for (col in c(group_col, name_col, value_col)) {
+  required_cols <- unique(c(group_col, name_col, value_col))
+  for (col in required_cols) {
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
-    .register_integer64(data[[col]])
+  }
+  for (col in unique(c(required_cols, intersect(color_col, names(data))))) {
+    value <- data[[col]]
+    if (!is.null(dim(value))) {
+      message <- if (col == value_col) "one-dimensional real numeric scores" else "one-dimensional values"
+      stop(sprintf("Column '%s' must contain %s.", col, message), call. = FALSE)
+    }
+    .register_integer64(value)
   }
 
   # ---- Parse scores before ranking or scaling ----
