@@ -368,7 +368,12 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     names(result) <- names(data_for_impute)
     if (!all_observed) {
       expanded <- data_for_impute
-      for (var_name in names(result)) expanded[[var_name]][observed_rows] <- result[[var_name]]
+      for (j in seq_along(result)) {
+        column <- expanded[[j]]
+        if (!is.object(column) && identical(result[[j]], backend_data[[j]])) next
+        column[observed_rows] <- result[[j]]
+        expanded[[j]] <- column
+      }
       result <- expanded
     }
   }
