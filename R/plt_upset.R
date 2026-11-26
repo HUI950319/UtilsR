@@ -588,6 +588,8 @@ plt_upset <- function(data,
 
 .upset_observed_intersections <- function(sets) {
   sizes <- lengths(sets)
+  nonempty <- sum(sizes > 0L)
+  if (nonempty <= 1L) return(nonempty)
   last <- vapply(sets, function(rows) if (length(rows)) rows[[length(rows)]] else 0L, integer(1))
   # UpSet needs only observed, nonempty patterns. Compact very sparse row
   # addresses before assigning codes, rather than allocating up to max(last).
