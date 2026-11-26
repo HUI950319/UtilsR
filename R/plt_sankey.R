@@ -279,6 +279,7 @@ plt_sankey <- function(data,
   observed_levels <- integer(length(vars))
   total <- nrow(data)
   label_style <- if (show_text == "none") "all" else show_text
+  offset <- 0L
   for (i in seq_along(vars)) {
     value <- data[[vars[i]]]
     tally <- .factor_tally(value)
@@ -324,18 +325,16 @@ plt_sankey <- function(data,
     } else {
       node_codes <- match(codes, observed)
     }
-    data[[label_vars[i]]] <- node_levels[node_codes]
+    data[[label_vars[i]]] <- if (offset) node_codes + offset else node_codes
+    offset <- offset + length(node_levels)
   }
   node_counts <- lengths(node_labels)
   node_labels <- unlist(node_labels)
   node_pct <- unlist(node_pct)
 
-  # Reshape plain keys, then restore their order in the shared node column.
-  all_levels <- names(node_labels)
-  plot_data <- .sankey_path_rows(data, label_vars)
-
-  # Set node factor levels
-  plot_data$node <- factor(plot_data$node, levels = all_levels)
+  # Reshape globally indexed node codes directly into the shared factor.
+  all_levels <- names(node_labels) %||% character()
+  plot_data <- .sankey_path_rows(data, label_vars, node_levels = all_levels)
   caption_codes <- as.integer(plot_data$node)
   if (!anyNA(node_labels) && !anyDuplicated(node_labels)) {
     captions <- unname(node_labels)
@@ -421,11 +420,13 @@ plt_sankey <- function(data,
               filename = "Figure X. Sankey diagram.pdf")
 }
 
-.sankey_path_rows <- function(data, stages) {
+.sankey_path_rows <- function(data, stages, node_levels = NULL) {
   stage_ids <- seq_along(stages)
   stage <- rep.int(stage_ids, nrow(data))
   stage_levels <- if (nrow(data)) stages else character()
-  columns <- unname(lapply(data[stages], as.character))
+  indexed <- !is.null(node_levels)
+  missing_node <- if (indexed) NA_integer_ else NA_character_
+  columns <- unname(if (indexed) data[stages] else lapply(data[stages], as.character))
   nodes <- if (length(columns) == 1L) unname(columns[[1L]]) else {
     values <- do.call(rbind, columns)
     if (is.null(values)) {
@@ -437,11 +438,15 @@ plt_sankey <- function(data,
   }
   successors <- if (length(stage_ids)) c(stage_ids[-1L], NA_integer_) else integer()
   next_stage <- rep.int(successors, nrow(data))
-  next_node <- if (length(columns) == 1L) rep.int(NA_character_, nrow(data)) else if (length(columns)) {
-    next_nodes <- do.call(rbind, c(columns[-1L], list(rep.int(NA_character_, nrow(data)))))
+  next_node <- if (length(columns) == 1L) rep.int(missing_node, nrow(data)) else if (length(columns)) {
+    next_nodes <- do.call(rbind, c(columns[-1L], list(rep.int(missing_node, nrow(data)))))
     dim(next_nodes) <- NULL
     next_nodes
   } else character()
+  if (indexed) {
+    nodes <- structure(nodes, levels = node_levels, class = "factor")
+    next_node <- node_levels[next_node]
+  }
   tibble::tibble(
     x = structure(stage, levels = stage_levels, class = "factor"), node = nodes,
     next_x = structure(next_stage, levels = stage_levels, class = "factor"),

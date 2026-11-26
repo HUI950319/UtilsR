@@ -1221,3 +1221,21 @@ test_that("Sankey paths remove node dimensions without a vector conversion", {
   expect_identical(p$node, unname(c(t(d))))
   expect_identical(p$next_node, c("x", "b", NA, "y", "a", NA, NA, "b", NA))
 })
+
+test_that("Sankey plot paths use shared integer node codes before drawing", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(A = c("x", "x", "y", NA), B = c("x", "z", "x", "z"))
+  expected <- suppressMessages(plt_sankey(d, c("A", "B"), reverse_levels = TRUE))
+  fn <- plt_sankey
+  baseline <- .sankey_path_rows
+  environment(fn) <- list2env(list(.sankey_path_rows = function(data, stages, node_levels = NULL) {
+    expect_true(all(vapply(data[stages], is.integer, logical(1))))
+    expect_type(node_levels, "character")
+    baseline(data, stages, node_levels)
+  }), parent = environment(fn))
+  result <- suppressMessages(fn(d, c("A", "B"), reverse_levels = TRUE))
+  expect_identical(result$data$node, expected$data$node)
+  expect_identical(result$data$next_node, c(".sankey_2_2", NA, ".sankey_2_1", NA,
+                                          ".sankey_2_2", NA, ".sankey_2_1", NA))
+})
