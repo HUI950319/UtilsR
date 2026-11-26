@@ -358,8 +358,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
       packed <- codes[[1L]] - 1L
       for (j in seq.int(2L, length(codes))) packed <- packed * sizes[j] + (codes[[j]] - 1L)
       packed <- packed + 1L
-      present <- tabulate(packed, nbins = space) > 0L
-      key <- which(present) - 1L
+      counts <- tabulate(packed, nbins = space)
+      key <- which(counts > 0L) - 1L
+      constant <- length(key) == 1L && counts[[key + 1L]] == group_n
       fields <- vector("list", length(codes))
       for (j in rev(seq_along(codes))) {
         fields[[j]] <- inputs[[j]]$labels[(key %% sizes[j]) + 1L]
@@ -372,7 +373,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
           "i" = "Choose a different {.arg sep} or relabel the inputs."
         ))
       }
-      result <- cumsum(present)[packed]
+      result <- if (constant) rep.int(1L, group_n) else cumsum(counts > 0L)[packed]
       if (!is.null(complete_rows)) {
         full <- rep.int(NA_integer_, n)
         full[complete_rows] <- result
