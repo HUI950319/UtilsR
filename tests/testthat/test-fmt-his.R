@@ -1035,3 +1035,28 @@ test_that("finite overlay panels skip complete input flags", {
   expect_warning(actual <- ggplot2::ggplot_build(p)$data, NA)
   expect_identical(actual, expected)
 })
+
+test_that("single-panel distributions rescale the entire bin vector directly", {
+  d <- data.frame(x = rep(1:80, each = 3L), y = 1:240)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  fn <- fmt_his
+  env <- list2env(list(seq_len = function(length.out) {
+    if (identical(substitute(length.out), quote(nrow(data))) &&
+        inherits(sys.frame(sys.parent())$layer, "LayerHis") && length.out > 1L)
+      stop("built a row selection for the entire overlay")
+    base::seq_len(length.out)
+  }), parent = environment(fn))
+  environment(fn) <- env
+  env$fmt_his <- fn
+  draw <- function(f, type, range = NULL) {
+    ggplot2::layer_data(f(p, type = type, binwidth = 1, y_rescale = range), 2L)
+  }
+  for (type in c("histogram", "density")) {
+    expect_identical(draw(fn, type), draw(fmt_his, type))
+    expect_identical(draw(fn, type, c(2L, 7L)), draw(fmt_his, type, c(2L, 7L)))
+    layer <- draw(fn, type, c(2L, 7L))
+    expect_gte(min(layer$y), 2)
+    expect_equal(max(layer$y), 7)
+    expect_identical(layer$y, layer$ymax)
+  }
+})

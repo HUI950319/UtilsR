@@ -5566,16 +5566,16 @@ fmt_his <- function(plot,
             spec <- self$his_specs[[layer$his_id]]
             panel <- as.integer(data$PANEL)
             panels <- unique(panel)
-            panel_rows <- if (length(panels) == 1L) {
-              list(seq_len(nrow(data)))
-            } else {
+            single_panel <- length(panels) == 1L
+            panel_rows <- if (!single_panel) {
               codes <- if (identical(panels, seq_along(panels))) panel else match(panel, panels)
               panel_codes <- structure(codes, levels = as.character(panels), class = "factor")
               split(seq_len(nrow(data)), panel_codes)
             }
             indices <- match(panels, as.integer(layout$PANEL))
+            bins <- data[[if (spec$type == "histogram") "count" else "density"]]
             for (i in seq_along(indices)) {
-              rows <- panel_rows[[i]]
+              rows <- if (!single_panel) panel_rows[[i]]
               index <- indices[i]
               range <- self$his_y_ranges[[index]]
               if (is.null(range)) {
@@ -5591,7 +5591,7 @@ fmt_his <- function(plot,
                 c(range[[1L]], interpolate(range, spec$height_ratio))
               } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
               if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")
-              values <- data[[if (spec$type == "histogram") "count" else "density"]][rows]
+              values <- if (single_panel) bins else bins[rows]
               peak <- max(values)
               if (!is.finite(peak) || !is.finite(min(values))) {
                 finite <- is.finite(values)
@@ -5599,9 +5599,16 @@ fmt_his <- function(plot,
                 peak <- max(values[finite])
               }
               height <- if (peak > 0) values / peak else numeric(length(values))
-              data$y[rows] <- interpolate(bounds, height)
-              data$ymin[rows] <- bounds[[1L]]
-              data$ymax[rows] <- data$y[rows]
+              plotted_y <- interpolate(bounds, height)
+              if (single_panel) {
+                data$y <- plotted_y
+                data$ymin[] <- bounds[[1L]]
+                data$ymax <- plotted_y
+              } else {
+                data$y[rows] <- plotted_y
+                data$ymin[rows] <- bounds[[1L]]
+                data$ymax[rows] <- plotted_y
+              }
             }
           }
           data
