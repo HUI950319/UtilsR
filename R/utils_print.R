@@ -1462,11 +1462,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       }
       whole <- is.integer(v) && !is.object(v)
       counts <- if (complete) bin(shape, bounds, whole) else bin(shape, whole = whole)
-      spread <- if (complete && length(shape) > 1L && bounds[1L] == bounds[2L]) 0 else stats::sd(shape)
-      if (length(shape) > 1L && (!is.finite(spread) ||
+      constant <- complete && bounds[1L] == bounds[2L]
+      spread <- if (constant && length(shape) > 1L) 0 else stats::sd(shape)
+      if (length(shape) > 1L && !constant && (!is.finite(spread) ||
           (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||
-          (spread == 0 && min(shape) != max(shape)))) {
-        center <- min(shape) / 2 + max(shape) / 2
+          (spread == 0 && (complete || min(shape) != max(shape))))) {
+        shape_bounds <- if (complete) bounds else range(shape)
+        center <- shape_bounds[1L] / 2 + shape_bounds[2L] / 2
         shifted <- shape - center
         scale <- max(abs(shifted))
         if (scale > 0) spread <- stats::sd(shifted / scale) * scale
