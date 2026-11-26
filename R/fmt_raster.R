@@ -421,8 +421,19 @@ fmt_raster <- function(
           }
           if (!anyDuplicated(from)) {
             gtable[[key]][from] <- grid::unit(values, units)
-            next
+          } else {
+            # Compare successive requests in each cell's original order.
+            by_cell <- order(from, method = "radix")
+            cells <- from[by_cell]
+            cell_values <- values[by_cell]
+            shared <- cells[-1L] == cells[-length(cells)]
+            if (any(abs(diff(cell_values)[shared]) > 1e-8)) {
+              cli::cli_abort("{.arg {dim}} values for panels sharing layout cells must agree.")
+            }
+            last <- !duplicated(cells, fromLast = TRUE)
+            gtable[[key]][cells[last]] <- grid::unit(cell_values[last], units)
           }
+          next
         }
         assigned <- rep(NA_real_, length(gtable[[key]]))
         for (i in seq_along(indices)) {

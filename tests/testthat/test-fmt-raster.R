@@ -1345,3 +1345,15 @@ test_that("scalar raster dimensions batch assignment to shared panel cells", {
   expect_error(.fmt_raster_ragg(gt, 40, c(1, 1, 2, 1), .5, "in", "transparent"),
                "sharing layout cells must agree")
 })
+
+test_that("shared single-cell raster sizes compare successive panel requests", {
+  skip_if_not_installed("ragg")
+  gt <- gtable::gtable(grid::unit(1, "in"), grid::unit(rep(0.5, 3L), "in"))
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 3L),
+    t = 1:3, l = 1L, clip = "on", name = paste0("panel-", 1:3))
+  requested <- 1 + c(0, 8e-9, 16e-9)
+  out <- .fmt_raster_ragg(gt, 40, requested, 0.5, "in", "transparent")
+  expect_equal(attr(out, "size")$width, requested[3L], tolerance = 1e-12)
+  expect_error(.fmt_raster_ragg(gt, 40, 1 + c(0, 2e-8, 0), 0.5, "in", "transparent"),
+               "sharing layout cells must agree")
+})
