@@ -1239,3 +1239,21 @@ test_that("Sankey plot paths use shared integer node codes before drawing", {
   expect_identical(result$data$next_node, c(".sankey_2_2", NA, ".sankey_2_1", NA,
                                           ".sankey_2_2", NA, ".sankey_2_1", NA))
 })
+
+test_that("an all-missing Sankey stage reuses its single node code", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(a = rep(c("x", "y"), 20L),
+                  b = factor(rep(NA_character_, 40L), levels = "unused"))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (identical(substitute(x), quote(codes)) && length(x) == nrow(d) && all(is.na(x)))
+      stop("looked up the known all-missing node code")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  p <- suppressMessages(fn(d, names(d), show_text = "name", theme_use = ggplot2::theme_void()))
+  rows <- p$data[p$data$x == "b_label", ]
+  expect_identical(as.integer(rows$node), rep.int(3L, nrow(d)))
+  expect_true(all(as.character(rows$label) == "NA"))
+})
