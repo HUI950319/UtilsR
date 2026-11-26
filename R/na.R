@@ -355,6 +355,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 .factor_tally <- function(x) {
   k <- nlevels(x)
   row_codes <- as.integer(x)
+  if (!k) return(list(codes = integer(), counts = integer(), row_codes = row_codes))
   if (k > length(x)) {
     if (isFALSE(is.unsorted(row_codes, strictly = TRUE))) {
       return(list(codes = row_codes, counts = rep.int(1L, length(row_codes)), row_codes = row_codes))
@@ -385,7 +386,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     return(list(codes = row_codes, counts = rep.int(1L, k), row_codes = row_codes))
   }
   counts <- tabulate(row_codes, nbins = k)
-  if (!k || min(counts) > 0L) {
+  if (min(counts) > 0L) {
     return(list(codes = seq_len(k), counts = counts, row_codes = row_codes))
   }
   observed <- which(counts > 0L)
