@@ -2353,3 +2353,18 @@ test_that("scatter correlations omit nonfinite pairs before estimating correlati
   }
   expect_true(is.na(.scatter_cor_test(c(1, 2, Inf), c(1, 2, 3), "pearson")$estimate))
 })
+
+test_that("paired scatter tests and medians use finite paired differences", {
+  d <- data.frame(Control = c(1, 2, 3, Inf, Inf, 1),
+                  Treat = c(2, 4, 9, Inf, 4, Inf),
+                  group = rep(c("A", "B"), 3))
+  # Only differences 1, 2 and 6 are eligible for the inset median and test.
+  plot <- scatter3_capture_inset(d, test_method = "t.test", cor_method = "none",
+                               show_refline = FALSE)
+  inset <- suppressWarnings(ggplot2::ggplot_build(plot$inset))
+  expect_equal(inset$data[[2L]]$x, 2)
+  expect_equal(inset$data[[3L]]$label, 2)
+  p <- stats::t.test(c(1, 2, 6))$p.value
+  expect_identical(ggplot2::layer_data(plot$main, 2L)$label,
+                   paste0("p = ", format.pval(p, digits = 2L)))
+})

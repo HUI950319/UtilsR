@@ -45,7 +45,7 @@
 #' @param show_refline Whether to show reference lines (x=0, y=0, y=x).
 #'   Default \code{TRUE}.
 #' @param test_method Paired test method: \code{"wilcox"}, \code{"t.test"}, or
-#'   \code{"none"}. Default \code{"wilcox"}.
+#'   \code{"none"}. Uses finite within-pair differences. Default \code{"wilcox"}.
 #' @param p_digits Number of digits for p-value. Default 2.
 #' @param p_size Text size for p-value label. Default 4.
 #' @param p_x,p_y Single finite coordinates for p-value label. Default \code{NULL} (auto).
@@ -329,7 +329,19 @@ PlotScatter3 <- function(
   } else {
     y_values - x_values
   }
-  median_diff <- stats::median(diff_values, na.rm = anyNA(diff_values))
+  # A paired statistic uses the same finite differences as the inset bins.
+  incomplete_diffs <- anyNA(diff_values)
+  diff_bounds <- if (length(diff_values)) suppressWarnings(c(
+    min(diff_values, na.rm = incomplete_diffs), max(diff_values, na.rm = incomplete_diffs)
+  ))
+  finite_bounds <- length(diff_bounds) && all(is.finite(diff_bounds))
+  if (!finite_bounds) {
+    diff_values[is.infinite(diff_values)] <- NA_real_
+    diff_bounds <- suppressWarnings(range(diff_values, finite = TRUE))
+    finite_bounds <- all(is.finite(diff_bounds))
+    incomplete_diffs <- anyNA(diff_values)
+  }
+  median_diff <- stats::median(diff_values, na.rm = incomplete_diffs)
 
   # ---- Paired test ----
   p_label <- NULL
@@ -340,8 +352,11 @@ PlotScatter3 <- function(
       "wilcox" = stats::wilcox.test,
       "t.test" = .con_pairwise_test("t.test")
     )
-    p_value <- if (encoded_pairs) {
-      .paired_plot_p_value(test_fn, numeric(length(diff_values)), diff_values, test_method)
+    p_value <- if (!finite_bounds) {
+      NA_real_
+    } else if (encoded_pairs || incomplete_diffs) {
+      complete_diffs <- if (incomplete_diffs) diff_values[!is.na(diff_values)] else diff_values
+      .paired_plot_p_value(test_fn, numeric(length(complete_diffs)), complete_diffs, test_method)
     } else {
       .paired_plot_p_value(test_fn, x_values, y_values, test_method)
     }
@@ -418,14 +433,9 @@ PlotScatter3 <- function(
     ggplot2::coord_cartesian(clip = "off")
 
   # ---- Histogram ----
-  diff_bounds <- if (length(diff_values) && (is.null(hist_x_limits) || is.null(median_line_yend))) {
-    c(min(diff_values), max(diff_values))
-  }
-  finite_bounds <- length(diff_bounds) && all(is.finite(diff_bounds))
   if (is.null(hist_x_limits)) {
-    bounds <- if (finite_bounds) diff_bounds else suppressWarnings(range(diff_values, finite = TRUE))
-    if (!all(is.finite(bounds))) stop("No finite paired differences to plot.", call. = FALSE)
-    hist_extent <- max(abs(bounds))
+    if (!finite_bounds) stop("No finite paired differences to plot.", call. = FALSE)
+    hist_extent <- max(abs(diff_bounds))
     if (hist_extent == 0) hist_extent <- 1
     hist_extent <- min(hist_extent, .Machine$double.xmax / 1.2)
     hist_x_limits <- c(-hist_extent, hist_extent) * 1.2
@@ -443,7 +453,8 @@ PlotScatter3 <- function(
   if (is.null(median_line_yend)) {
     lower <- hist_bin_breaks[1L]
     upper <- utils::tail(hist_bin_breaks, 1L)
-    complete <- finite_bounds && diff_bounds[1L] >= lower && diff_bounds[2L] <= upper
+    complete <- !incomplete_diffs && finite_bounds &&
+      diff_bounds[1L] >= lower && diff_bounds[2L] <= upper
     visible <- if (complete) diff_values else
       diff_values[is.finite(diff_values) & diff_values >= lower & diff_values <= upper]
     median_line_yend <- 1

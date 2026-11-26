@@ -90,7 +90,7 @@ significant)}. \code{NULL} auto-detects from data.}
 Default \code{TRUE}.}
 
 \item{test_method}{Paired test method: \code{"wilcox"}, \code{"t.test"}, or
-\code{"none"}. Default \code{"wilcox"}.}
+\code{"none"}. Uses finite within-pair differences. Default \code{"wilcox"}.}
 
 \item{p_digits}{Number of digits for p-value. Default 2.}
 
