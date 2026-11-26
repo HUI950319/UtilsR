@@ -299,6 +299,12 @@ PlotHeatmapJaccard <- function(
   sparse_pairs <- length(occupied) > 16L && !typed_features && is.atomic(feature_values)
   if (sparse_pairs) {
     membership <- unlist(top_sets, use.names = FALSE)
+    if (!anyDuplicated(membership)) {
+      occupied <- integer()
+      sparse_pairs <- FALSE
+    }
+  }
+  if (sparse_pairs) {
     first_at <- match(membership, membership)
     repeated <- which(first_at != seq_along(membership))
     first <- first_at[repeated]
