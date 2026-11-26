@@ -1229,3 +1229,15 @@ test_that("dumbbells reject endpoint quantities with incomparable units", {
                  "Both dumbbell endpoints must use comparable units", fixed = TRUE)
   }
 })
+
+test_that("dumbbell inset brackets use only finite endpoint coordinates", {
+  build <- function(d) .build_dumbbell_inset(d, "start", "end", "Start", "End",
+    "blue", "red", "boxplot", "t.test", FALSE, FALSE, ggplot2::theme_classic())
+  empty <- data.frame(start = rep(NA_real_, 3L), end = rep(NA_real_, 3L))
+  expect_no_warning(p <- build(empty))
+  expect_length(p$layers, 1L)
+  d <- data.frame(start = c(1, 3, 4, Inf), end = c(2, 3, 7, -Inf))
+  p <- build(d)
+  expect_length(p$layers, 3L)
+  expect_equal(p$layers[[2L]]$data$y, 7 + (7 - 1) * 0.05)
+})

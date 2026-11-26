@@ -760,7 +760,12 @@ PlotDumbbell <- function(
   }
 
   # Significance bracket
+  inset_values <- df_long$.value
   if (inset_test != "none") {
+    finite <- is.finite(inset_values)
+    if (!all(finite)) inset_values <- inset_values[finite]
+  }
+  if (inset_test != "none" && length(inset_values)) {
     test_fn <- switch(inset_test,
       "t.test" = .con_pairwise_test("t.test"),
       "wilcox" = stats::wilcox.test
@@ -785,6 +790,11 @@ PlotDumbbell <- function(
                (is.integer(test_xend) && !is.object(test_xend))) {
       test_xend <- as.double(test_xend)
     }
+    test_pairs <- is.finite(test_x) & is.finite(test_xend)
+    if (!all(test_pairs)) {
+      test_x <- test_x[test_pairs]
+      test_xend <- test_xend[test_pairs]
+    }
     p_val <- .paired_plot_p_value(test_fn, test_x, test_xend, inset_test)
     p_fmt <- if (!is.na(p_val) && p_val < 0.001) {
       sprintf("p = %.1e", p_val)
@@ -792,8 +802,8 @@ PlotDumbbell <- function(
       sprintf("p = %.3f", p_val)
     }
 
-    y_range <- range(df_long$.value, na.rm = TRUE)
-    y_max <- if (is.object(df_long$.value)) max(df_long$.value, na.rm = TRUE) else y_range[2L]
+    y_range <- range(inset_values)
+    y_max <- if (is.object(inset_values)) max(inset_values) else y_range[2L]
     if (is.integer(y_range) && !is.object(y_range)) y_range <- as.double(y_range)
     y_span <- diff(y_range)
     bracket_offset <- y_span * 0.05
