@@ -511,3 +511,14 @@ test_that("a single unbounded split preserves base-cut endpoint behavior", {
                      cut(x, c(-Inf, 1, Inf), labels = labels, include.lowest = TRUE))
   }
 })
+
+test_that("ordered observations keep the type-seven quantile interpolation", {
+  x <- sort(c(seq(-5, 5, length.out = 1501L), rep(1, 30L)))
+  cases <- list(x, as.integer(x * 100), c(-Inf, x, Inf))
+  expected <- lapply(cases, function(v) {
+    cuts <- stats::quantile(v, probs = seq(0, 1, length.out = 7L), names = FALSE)
+    cut(v, cuts, labels = paste0("g", 1:6), include.lowest = TRUE)
+  })
+  testthat::local_mocked_bindings(quantile = function(...) stop("sorted again"), .package = "stats")
+  expect_identical(lapply(cases, fct_num, nbins = 6L), expected)
+})

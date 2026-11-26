@@ -217,7 +217,18 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 
   if (type == "quantile") {
     probs <- seq(0, 1, length.out = nbins + 1L)
-    bin_breaks <- if (plain_x) {
+    bin_breaks <- if (plain_x && !has_na && length(x) >= 1024L && !is.unsorted(x)) {
+      # The input already provides the order statistics for type-7 quantiles.
+      index <- 1 + (length(x) - 1) * probs
+      lower <- floor(index)
+      upper <- ceiling(index)
+      values <- x[lower]
+      next_values <- x[upper]
+      interpolate <- which(index > lower & next_values != values)
+      h <- (index - lower)[interpolate]
+      values[interpolate] <- (1 - h) * values[interpolate] + h * next_values[interpolate]
+      unname(values)
+    } else if (plain_x) {
       stats::quantile(x, probs = probs, na.rm = has_na, names = FALSE)
     } else {
       stats::quantile(x, probs = probs, na.rm = TRUE)
