@@ -60,7 +60,7 @@
 #' @param show_ellipse Whether to draw ellipses based on \code{group},
 #'   independently of \code{group2}. Default FALSE.
 #' @param show_cor Whether to auto-compute and display correlation. Default FALSE.
-#' @param cor_method Correlation method: "pearson" or "spearman". Default "pearson".
+#' @param cor_method Correlation method: "pearson", "spearman", or "kendall". Default "pearson".
 #' @param show_regression Whether to show a regression line. Default FALSE.
 #' @param reg_method Regression method: "lm" or "loess". Default "lm".
 #' @param annot_text Annotation text in main plot (e.g. PERMANOVA). NULL = none.

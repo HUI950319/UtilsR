@@ -71,7 +71,7 @@ independently of \code{group2}. Default FALSE.}
 
 \item{show_cor}{Whether to auto-compute and display correlation. Default FALSE.}
 
-\item{cor_method}{Correlation method: "pearson" or "spearman". Default "pearson".}
+\item{cor_method}{Correlation method: "pearson", "spearman", or "kendall". Default "pearson".}
 
 \item{show_regression}{Whether to show a regression line. Default FALSE.}
 

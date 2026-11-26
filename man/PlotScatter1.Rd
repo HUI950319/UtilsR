@@ -78,7 +78,7 @@ Above 12 groups, supply both \code{colors} and \code{shapes}.}
 
 \item{show_cor}{Whether to display correlation coefficient. Default FALSE.}
 
-\item{cor_method}{Correlation method: "pearson" or "spearman". Default "pearson".}
+\item{cor_method}{Correlation method: "pearson", "spearman", or "kendall". Default "pearson".}
 
 \item{annot_text}{Custom annotation text (e.g. PERMANOVA result). NULL = none.}
 

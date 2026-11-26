@@ -98,7 +98,7 @@ Default \code{TRUE}.}
 
 \item{p_x, p_y}{Single finite coordinates for p-value label. Default \code{NULL} (auto).}
 
-\item{cor_method}{Correlation method: \code{"pearson"}, \code{"spearman"}, or
+\item{cor_method}{Correlation method: \code{"pearson"}, \code{"spearman"}, \code{"kendall"}, or
 \code{"none"}. Default \code{"pearson"}.}
 
 \item{cor_size}{Text size for correlation label. Default 4.}

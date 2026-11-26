@@ -31,7 +31,7 @@
 #' @param show_regression Whether to show a regression line. Default FALSE.
 #' @param reg_method Regression method: "lm" or "loess". Default "lm".
 #' @param show_cor Whether to display correlation coefficient. Default FALSE.
-#' @param cor_method Correlation method: "pearson" or "spearman". Default "pearson".
+#' @param cor_method Correlation method: "pearson", "spearman", or "kendall". Default "pearson".
 #' @param annot_text Custom annotation text (e.g. PERMANOVA result). NULL = none.
 #' @param annot_size Annotation text size. Default 4.
 #' @param xlim Custom X axis limits, e.g. \code{c(0, 1)}. NULL = auto (with
@@ -735,6 +735,7 @@ PlotScatter1 <- function(
     stop("'cor_method' must be a single correlation method name.", call. = FALSE)
   method <- match.arg(method, c("pearson", "kendall", "spearman"))
   result <- .scatter_cor_test(x, y, method = method)
-  sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(method), result$estimate,
+  coefficient <- switch(method, spearman = "rho", kendall = "tau", "r")
+  sprintf("%s:\n%s = %.3f\np = %s", tools::toTitleCase(method), coefficient, result$estimate,
           format(result$p.value, digits = 3, scientific = TRUE))
 }

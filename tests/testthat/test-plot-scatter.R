@@ -14,8 +14,9 @@ test_that("marginal scatter annotations expand native correlation method names",
   for (fun in list(PlotScatter1, PlotScatter2)) for (method in c("pearson", "spea", "kendall")) {
     canonical <- if (method == "spea") "spearman" else method
     ref <- stats::cor.test(d$x, d$y, method = canonical)
-    expected <- sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(canonical),
-      ref$estimate, format(ref$p.value, digits = 3, scientific = TRUE))
+    coefficient <- unname(c(pearson = "r", spearman = "rho", kendall = "tau")[canonical])
+    expected <- sprintf("%s:\n%s = %.3f\np = %s", tools::toTitleCase(canonical),
+      coefficient, ref$estimate, format(ref$p.value, digits = 3, scientific = TRUE))
     p <- fun(d, "x", "y", "g", show_ellipse = FALSE, show_cor = TRUE, cor_method = method)
     grob <- if (inherits(p, "wrapped_patch")) attr(p, "grobs")$full else patchwork::patchworkGrob(p)
     labels <- text_labels(grob)
@@ -676,8 +677,9 @@ test_that("PlotScatter1 uses original shared axis values for regression and corr
     )$data[[1]]
     expect_equal(main$data[[2]][c("x", "y")], reference[c("x", "y")])
     correlation <- stats::cor.test(data$x, data[[case$y]], method = case$method)
-    expected <- sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(case$method),
-      correlation$estimate, format(correlation$p.value, digits = 3, scientific = TRUE))
+    coefficient <- if (case$method == "spearman") "rho" else "r"
+    expected <- sprintf("%s:\n%s = %.3f\np = %s", tools::toTitleCase(case$method),
+      coefficient, correlation$estimate, format(correlation$p.value, digits = 3, scientific = TRUE))
     annotation <- ggplot2::ggplot_build(p$panels$annotation)$data[[1]]$label
     expect_equal(annotation, expected)
     expect_identical(serialize(data, NULL), before)

@@ -49,7 +49,7 @@
 #' @param p_digits Number of digits for p-value. Default 2.
 #' @param p_size Text size for p-value label. Default 4.
 #' @param p_x,p_y Single finite coordinates for p-value label. Default \code{NULL} (auto).
-#' @param cor_method Correlation method: \code{"pearson"}, \code{"spearman"}, or
+#' @param cor_method Correlation method: \code{"pearson"}, \code{"spearman"}, \code{"kendall"}, or
 #'   \code{"none"}. Default \code{"pearson"}.
 #' @param cor_size Text size for correlation label. Default 4.
 #' @param cor_x,cor_y Single finite coordinates for correlation label. Default \code{NULL}
