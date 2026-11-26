@@ -695,7 +695,8 @@ stat_ci_parse <- function(x,
                 asymmetric = ok & a_log - r_log > 0.2))
   }
 
-  excess <- ifelse(is_exp, a_log - r_log, a_lin - r_lin)
+  excess <- if (isTRUE(all(is_exp))) a_log - r_log else if (isFALSE(any(is_exp))) a_lin - r_lin else
+    ifelse(is_exp, a_log - r_log, a_lin - r_lin)
   list(is_exp = is_exp, invalid = invalid, ambiguous = ambiguous,
        asymmetric = ok & excess > 0.2)
 }

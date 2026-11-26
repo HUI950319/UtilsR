@@ -1781,3 +1781,17 @@ test_that("fixed CI precision remains scalar even on large mixed batches", {
     output = "p", exp = FALSE, digits = 8190L),
     c(stat_ci_parse("1 (0, 2)", output = "p", exp = FALSE), NA_real_)))
 })
+
+test_that("homogeneous inferred CI scales avoid elementwise excess selection", {
+  fn <- .ci_scale
+  env <- new.env(parent = environment(fn))
+  env$ifelse <- function(test, yes, no) stop("selected asymmetry excess row by row")
+  environment(fn) <- env
+  unit <- matrix(1e-5, 3L, 3L)
+  ratio <- c(2, 4, 8)
+  difference <- c(0.5, 0.8, 1.3)
+  expect_identical(fn(ratio, ratio / 2, ratio * 2, unit, "auto", rep(TRUE, 3L)),
+                   .ci_scale(ratio, ratio / 2, ratio * 2, unit, TRUE, rep(TRUE, 3L)))
+  expect_identical(fn(difference, difference - 1 / 3, difference + 1 / 3, unit, "auto", rep(TRUE, 3L)),
+                   .ci_scale(difference, difference - 1 / 3, difference + 1 / 3, unit, FALSE, rep(TRUE, 3L)))
+})
