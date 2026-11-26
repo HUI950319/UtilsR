@@ -431,6 +431,15 @@ fct_cat <- function(x, ...,
     if (isFALSE(is.unsorted(x, strictly = TRUE))) {
       distinct <- x
       codes <- seq_along(x)
+    } else if (is.integer(x) && length(x) >= 1024L &&
+               (lower <- min(.Machine$integer.max, x, na.rm = TRUE)) <=
+               (upper <- max(-.Machine$integer.max, x, na.rm = TRUE)) &&
+               (span <- as.double(upper) - lower) >= 0 && span < 2048L) {
+      # Compact survey/clinical codes can use bounded integer bins directly.
+      bins <- x - lower + 1L
+      used <- tabulate(bins, nbins = span + 1L) > 0L
+      distinct <- seq.int(lower, upper)[used]
+      codes <- cumsum(used)[bins]
     } else if (.pal_use_unique(x)) {
       ids <- vctrs::vec_group_id(x)
       n_keys <- attr(ids, "n")

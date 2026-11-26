@@ -1239,3 +1239,12 @@ test_that("explicit level order can reuse its integer permutation on dense facto
   expect_identical(fct_cat(x, c(4L, 3L)), expected)
   expect_identical(fct_cat(x, c("d", NA_character_)), expected)
 })
+
+test_that("compact integer factor values use exact codes and omit empty bins", {
+  x <- setNames(rep(c(-2147483647L, NA_integer_, -2147483646L, -2147483640L), 300L),
+                rep(letters[1:4], 300L))
+  expect_identical(fct_cat(x), factor(x))
+  expect_identical(fct_cat(rep(NA_integer_, 1024L)), factor(rep(NA_integer_, 1024L)))
+  expect_identical(fct_cat(rep(c(-2147483647L, 2147483647L), 700L)),
+                   factor(rep(c(-2147483647L, 2147483647L), 700L)))
+})
