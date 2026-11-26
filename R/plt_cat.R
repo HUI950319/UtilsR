@@ -957,7 +957,9 @@ plt_cat <- function(data,
           df$n / sum(df$n) * 100
         } else {
           totals <- rowsum(as.double(df$n), j, reorder = FALSE)
-          total <- unname(totals[match(j, as.integer(rownames(totals))), 1L])
+          positions <- if (nrow(totals) == j[length(j)]) j else
+            match(j, as.integer(rownames(totals)))
+          total <- unname(totals[positions, 1L])
           df$n / total * 100
         }
         df$label_text <- sprintf("%.1f%%", df$value)
