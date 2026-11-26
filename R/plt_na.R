@@ -125,6 +125,7 @@ plt_na <- function(
     }
     ordinary_factor <- identical(class(x), "factor") ||
       identical(class(x), c("ordered", "factor"))
+    if (ordinary_factor && !keep_masks && nlevels(x) == 0L) return(length(x))
     known_missing <- if (ordinary_factor) {
       anyNA(unclass(x))
     } else if (!is.object(x) && is.atomic(x) && !is.expression(x)) anyNA(x)
