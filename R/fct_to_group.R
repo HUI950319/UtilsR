@@ -68,7 +68,13 @@ fct_to_group <- function(x, g_lis,
     }
   }
   x <- .as_factor(x)
-  g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
+  plain_singleton <- function(idx) is.integer(idx) && length(idx) == 1L && is.null(attributes(idx))
+  if (length(g_lis) >= 1024L && all(vapply(g_lis, plain_singleton, logical(1L)))) {
+    # Integer scalars need no per-group coercion. Check their bounds together.
+    .check_integer_index(unlist(g_lis, use.names = FALSE), "g_lis", nlevels(x))
+  } else {
+    g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
+  }
 
   # Auto-name unnamed elements; user names take precedence
   if (length(unnamed)) {
