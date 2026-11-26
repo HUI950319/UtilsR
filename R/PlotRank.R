@@ -303,12 +303,13 @@ PlotRank <- function(
       plot_df$Score <- as.double(unlist(values, use.names = FALSE))
     }
   } else if (value_scale == "top_n" && !is.object(plot_df$Score)) {
-    values <- lapply(all_df, function(part) {
+    scale_top <- function(part) {
       scores <- part$Score
       bounds <- c(scores[length(scores)], scores[1L])
       scale_scores(scores, bounds)
-    })
-    plot_df$Score <- unlist(values, use.names = FALSE)
+    }
+    plot_df$Score <- if (length(all_df) == 1L) unname(scale_top(all_df[[1L]])) else
+      unlist(lapply(all_df, scale_top), use.names = FALSE)
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
     indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
