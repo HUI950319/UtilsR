@@ -1301,3 +1301,24 @@ test_that("sparse p-value bounds are tracked by position without a second row ma
     NA, "\u2264 1", "0.200"), names(x)))
   expect_error(fn(c(NA_character_, " > 1 ", "<= 0")), "strict bound")
 })
+
+test_that("stat_pval does not allocate a vector of empty significance labels", {
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$paste0 <- function(...) {
+    args <- list(...)
+    if (length(args) != 2L || !identical(args[[2L]], ""))
+      stop("pasted a vector of empty significance labels")
+    base::paste0(...)
+  }
+  environment(fn) <- env
+  x <- c(a = "ER", b = NA_character_, c = "PR")
+  expect_identical(fn(x, add_star_p = c(.2, NA, .5)), x)
+  expect_identical(fn(c(a = .2, b = NA, c = .5)), c(a = "0.200", b = NA, c = "0.500"))
+  expect_identical(fn(x, add_star_p = c(.001, .001, .01), map_signif = numeric()), x)
+  latin1 <- iconv("caf\u00e9", to = "latin1")
+  Encoding(latin1) <- "latin1"
+  expect_identical(Encoding(fn(latin1, add_star_p = .2)), Encoding(paste0(latin1, "")))
+  expect_identical(fn(c(a = .001, b = .02), map_signif = numeric()), c(a = "0.001", b = "0.020"))
+  expect_error(fn(.2, map_signif = c(star = Inf)), "map_signif")
+})

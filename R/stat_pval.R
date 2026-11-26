@@ -125,10 +125,10 @@ stat_pval <- function(x,
   # --- Stars helper (shared) ---
   .add_stars <- function(pvals, map, endpoints = NULL) {
     .validate_signif_map(map)
-    if (!length(map)) return(rep.int("", length(pvals)))
+    if (!length(map)) return(NULL)
     if (is.unsorted(map)) map <- sort(map)
     if (!is.object(pvals) && min(Inf, pvals, na.rm = TRUE) > map[[length(map)]])
-      return(rep.int("", length(pvals)))
+      return(NULL)
     if (is.null(endpoints) && (!is.object(pvals) || identical(class(pvals), "AsIs"))) {
       index <- findInterval(pvals, map, left.open = TRUE) + 1L
       stars <- c(names(map), "")[index]
@@ -207,7 +207,10 @@ stat_pval <- function(x,
     if (length(add_star_p) != length(x)) {
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
-    out <- paste0(x, .add_stars(add_star_p, map_signif))
+    stars <- .add_stars(add_star_p, map_signif)
+    # Keep paste0()'s encoding and coercion behavior for arbitrary labels.
+    out <- if (is.null(stars) && !length(x)) character() else
+      paste0(x, if (is.null(stars)) "" else stars)
     if (length(missing_x)) out[missing_x] <- NA_character_
     names(out) <- input_names
     return(out)
@@ -353,7 +356,8 @@ stat_pval <- function(x,
     endpoints <- if (is.character(x)) {
       if (selective) values[format_at] else values
     } else NULL
-    out <- paste0(out, .add_stars(format_x, map_signif, endpoints))
+    stars <- .add_stars(format_x, map_signif, endpoints)
+    if (!is.null(stars)) out <- paste0(out, stars)
   }
   if (selective) {
     formatted <- rep(NA_character_, length(x_num))
