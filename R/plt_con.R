@@ -1820,10 +1820,12 @@ plt_con <- function(data,
       )
   } else if (type == "dot") {
     bins <- numeric(nrow(dat_long))
-    feature_rows <- split(seq_along(bins), dat_long[["feature"]], drop = TRUE)
-    for (feature in names(feature_rows)) {
-      at <- feature_rows[[feature]]
-      bins[at] <- .con_dot_bins(dat_long[["value"]][at], dot_breaks[[feature]])
+    # Reshaping preserves contiguous feature blocks, including empty blocks.
+    end <- cumsum(as.double(selected))
+    values <- dat_long[["value"]]
+    for (i in which(selected > 0L)) {
+      at <- seq.int(end[i] - selected[i] + 1, end[i])
+      bins[at] <- .con_dot_bins(values[at], dot_breaks[[stat.by[i]]])
     }
     dat_long[["bins"]] <- bins
     dot_df <- .con_dot_counts(dat_long, c("group.by", "fill.by", "feature", "bins"))

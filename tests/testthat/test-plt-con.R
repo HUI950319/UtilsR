@@ -2987,3 +2987,19 @@ test_that("singleton continuous bar strata do not split values for empty SD inte
   expect_identical(fn(c(-4, 2, NA, 9, Inf), groups), c(-4, 9))
   expect_identical(fn(c(NA_real_, Inf), factor(c("a", "b"))), c(0, 0))
 })
+
+test_that("continuous dot bins use contiguous nonempty feature blocks", {
+  d <- data.frame(a = c(NA, 1, 1, 3, 4), b = c(Inf, 10, 20, 20, NA),
+                  group = factor(c("g", "h", "h", "g", "g")))
+  fn <- .plt_con_stacked
+  environment(fn) <- list2env(list(split = function(x, f, ...) {
+    if (identical(substitute(x), quote(seq_along(bins)))) stop("split dot row addresses")
+    base::split(x, f, ...)
+  }), parent = environment(fn))
+  plt <- plt_con
+  environment(plt) <- list2env(list(.plt_con_stacked = fn), parent = environment(plt))
+  ref <- suppressMessages(plt_con(d, c("a", "b"), "group", type = "dot", stack = TRUE))
+  out <- suppressMessages(plt(d, c("a", "b"), "group", type = "dot", stack = TRUE))
+  expect_identical(out$data, ref$data)
+  expect_identical(out$layers[[1L]]$data, ref$layers[[1L]]$data)
+})
