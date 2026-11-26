@@ -1488,8 +1488,11 @@ plt_con <- function(data,
   if (type == "violin") {
     # Density needs two observations; other layers keep every finite row.
     violin_data <- dat
-    grp_counts <- table(dat[["group.by"]], useNA = "ifany")
-    small_groups <- names(grp_counts[grp_counts > 0 & grp_counts < 2])
+    groups <- dat[["group.by"]]
+    small_groups <- if (nrow(dat) < 2L || nlevels(groups) != 1L || anyNA(groups)) {
+      grp_counts <- table(groups, useNA = "ifany")
+      names(grp_counts[grp_counts > 0 & grp_counts < 2])
+    }
     if (length(small_groups) > 0) {
       cli::cli_warn(
         "Omitted violin density for {length(small_groups)} group{?s} with < 2 obs: {.val {small_groups}}"
