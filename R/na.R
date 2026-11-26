@@ -333,6 +333,11 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   }
   hit <- .is_special_value(u, special)
   if (!any(hit)) return(0)
+  # Factor subclasses can declare missingness beyond absent integer codes.
+  if (!identical(class(x), "factor") && !identical(class(x), c("ordered", "factor"))) {
+    missing <- is.na(x)
+    if (any(missing)) return(sum(tally$row_codes[!missing] %in% tally$codes[hit]) + 0)
+  }
   sum(if (all(hit)) n else n[hit]) + 0
 }
 

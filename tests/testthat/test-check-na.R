@@ -1156,3 +1156,17 @@ test_that("reused unmatched values track the correct rows across custom patterns
   expect_identical(.is_special_value(c("yes", NA, "YES"), c("^yes$", "^never$")),
                    c(TRUE, FALSE, TRUE))
 })
+
+test_that("factor subclass missing values do not also count as special", {
+  rlang::local_bindings(is.na.missing_marker_factor = function(x) {
+    codes <- as.integer(x)
+    is.na(codes) | codes == 2L
+  }, .env = globalenv())
+  x <- structure(c(1L, 2L, 2L, 3L, NA_integer_),
+    levels = c("Unknown", "Blank", "known"),
+    class = c("missing_marker_factor", "factor"))
+  seen <- capture_gt_data(check_na(data.frame(x = x), show_all = TRUE))[[1L]]
+  expect_identical(seen$missing_combined, "3 (60.0%)")
+  expect_identical(seen$special_combined, "1 (20.0%)")
+  expect_identical(.count_special_values(x, special = "^Blank$"), 0)
+})
