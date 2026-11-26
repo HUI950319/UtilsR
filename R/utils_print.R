@@ -492,7 +492,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (numeric_input) {
     num <- v
     txt <- stat_pval(v, mode = "pvalue")
-    smallest <- if (!is.object(v) && length(v)) min(v)
+    smallest <- if (!is.object(v) && length(v)) min(Inf, v, na.rm = TRUE)
     tiny <- if (is.null(smallest) || !isTRUE(smallest >= 0.001)) which(v < 0.001)
     if (length(tiny)) txt[tiny] <- "<0.001"
     # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
@@ -508,6 +508,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       txt[candidates] <- formatC(v[candidates], format = "f", digits = d)
     }
     if (isTRUE(smallest >= 0.05)) {
+      if (anyNA(txt)) txt[is.na(txt)] <- "NA"
       txt <- as.character(._pr_escape(txt))
       return(if (._pr_colour()) as.character(cli::col_grey(txt)) else txt)
     }
