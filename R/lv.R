@@ -539,7 +539,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     } else if (!is.object(x) && is.null(dim(x)) &&
                typeof(x) %in% c("character", "integer", "double") &&
                !isTRUE(getOption("dplyr.legacy_locale"))) {
-      if (is.numeric(x)) {
+      if (is.numeric(x) && isFALSE(is.unsorted(x, strictly = TRUE))) {
+        valid <- x
+        n <- rep.int(1L, length(x))
+      } else if (is.numeric(x)) {
         ids <- vctrs::vec_group_id(x)
         distinct <- attr(ids, "n")
         unique_rows <- distinct == length(x)
