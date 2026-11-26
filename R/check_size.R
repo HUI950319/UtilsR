@@ -237,12 +237,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     template <- c("%.0f B", "%.2f KB", "%.2f MB", "%.2f GB")[unit]
     sprintf(template, size_mb * multiplier)
   }
-  object_info <- object_info %>%
-    dplyr::mutate(
-      Size_fmt = format_size(Size),
-      Size_bar = Size,
-      .after = Size
-    )
+  object_info$Size_fmt <- format_size(object_info$Size)
+  object_info$Size_bar <- object_info$Size
 
   # Total size string
   total_str <- if (object_count) object_info$Size_fmt[[1L]] else format_size(total_mb)
