@@ -221,12 +221,15 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       # The input already provides the order statistics for type-7 quantiles.
       index <- 1 + (length(x) - 1) * probs
       lower <- floor(index)
-      upper <- ceiling(index)
       values <- x[lower]
-      next_values <- x[upper]
-      interpolate <- which(index > lower & next_values != values)
-      h <- (index - lower)[interpolate]
-      values[interpolate] <- (1 - h) * values[interpolate] + h * next_values[interpolate]
+      fractional <- which(index > lower)
+      if (length(fractional)) {
+        next_values <- x[lower[fractional] + 1]
+        different <- which(next_values != values[fractional])
+        interpolate <- fractional[different]
+        h <- index[interpolate] - lower[interpolate]
+        values[interpolate] <- (1 - h) * values[interpolate] + h * next_values[different]
+      }
       unname(values)
     } else if (plain_x) {
       stats::quantile(x, probs = probs, na.rm = has_na, names = FALSE)
