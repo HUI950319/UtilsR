@@ -448,6 +448,9 @@ plt_alluvial <- function(
     if (identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))) {
       codes <- as.integer(value)
       value_levels <- levels(value)
+      if (length(value_levels) == 1L) {
+        return(structure(codes, levels = value_levels, class = class(value)))
+      }
       if (length(value_levels) > length(codes)) {
         observed <- sort(unique(codes))
         mapped <- if (length(observed) == 1L) rep.int(1L, length(codes)) else match(codes, observed)
