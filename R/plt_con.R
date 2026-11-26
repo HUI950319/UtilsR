@@ -1362,6 +1362,11 @@ plt_con <- function(data,
 .con_bar_range <- function(values, groups) {
   ordinary_factor <- identical(class(groups), "factor") ||
     identical(class(groups), c("ordered", "factor"))
+  # A one-observation group has no SD interval; the observed values suffice.
+  if (!is.object(values) && ordinary_factor && nlevels(groups) >= length(groups) &&
+      !anyNA(levels(groups)) && !anyDuplicated(groups)) {
+    return(range(c(0, suppressWarnings(.con_finite_bounds(values))), finite = TRUE))
+  }
   partitions <- if (ordinary_factor && !anyNA(levels(groups))) {
     missing <- anyNA(groups)
     if (!missing && nlevels(groups) == 1L) {

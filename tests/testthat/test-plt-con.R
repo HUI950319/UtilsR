@@ -2977,3 +2977,13 @@ test_that("continuous bar ranges avoid constructing a frame per interval", {
   expect_equal(.con_bar_range(x, g), c(0, 12))
   expect_equal(.con_bar_range(c(-9, 3), factor(rep("a", 2))), c(-3 - sqrt(72), 3 + (sqrt(72) - 6)))
 })
+
+test_that("singleton continuous bar strata do not split values for empty SD intervals", {
+  fn <- .con_bar_range
+  environment(fn) <- list2env(list(split = function(...) {
+    stop("split values into singleton bar intervals")
+  }), parent = environment(fn))
+  groups <- factor(c("a", NA, "c", "d", "e"), levels = c(letters[1:6], "unused"))
+  expect_identical(fn(c(-4, 2, NA, 9, Inf), groups), c(-4, 9))
+  expect_identical(fn(c(NA_real_, Inf), factor(c("a", "b"))), c(0, 0))
+})
