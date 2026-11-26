@@ -1323,3 +1323,25 @@ test_that("fully shared raster spans resolve without constructing group IDs", {
   expect_identical(.resolve_panel_size(gt, 1:100, "width", NULL, "in", cells), c(rep(14, 99L), 6))
   expect_identical(calls, 1L)
 })
+
+test_that("scalar raster dimensions batch assignment to shared panel cells", {
+  skip_if_not_installed("ragg")
+  fn <- .fmt_raster_ragg
+  environment(fn) <- list2env(list("[" = function(x, i, ...) {
+    if (identical(substitute(x), quote(assigned)) && identical(substitute(i), quote(cells)))
+      stop("checked a conflict for the same scalar in single-cell panels")
+    if (missing(i)) base::"["(x, , ...) else base::"["(x, i, ...)
+  }), parent = environment(fn))
+  u <- grid::unit(c(1, 1), "in")
+  gt <- gtable::gtable(u, u)
+  gt <- gtable::gtable_add_grob(gt, rep(list(grid::rectGrob()), 4L),
+    t = c(1L, 1L, 2L, 2L), l = c(1L, 2L, 1L, 2L),
+    clip = "on", name = paste0("panel-", seq_len(4L)))
+  out <- fn(gt, 40, 1.5, .5, "in", "transparent")
+  expect_equal(attr(out, "size"), list(width = 3, height = 1, units = "in"))
+  rasters <- raster_find_grobs(patchwork::patchworkGrob(out), "rastergrob")
+  expect_length(rasters, 4L)
+  expect_true(all(vapply(rasters, function(x) identical(dim(x$raster), c(20L, 60L)), logical(1))))
+  expect_error(.fmt_raster_ragg(gt, 40, c(1, 1, 2, 1), .5, "in", "transparent"),
+               "sharing layout cells must agree")
+})

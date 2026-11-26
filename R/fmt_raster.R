@@ -413,9 +413,16 @@ fmt_raster <- function(
         key <- paste0(dim, "s")
         from <- gtable$layout[[if (dim == "width") "l" else "t"]][indices]
         to <- gtable$layout[[if (dim == "width") "r" else "b"]][indices]
-        if (identical(from, to) && !anyDuplicated(from)) {
-          gtable[[key]][from] <- grid::unit(values, units)
-          next
+        if (identical(from, to)) {
+          if (length(requested) == 1L) {
+            cells <- unique(from)
+            gtable[[key]][cells] <- grid::unit(rep.int(requested, length(cells)), units)
+            next
+          }
+          if (!anyDuplicated(from)) {
+            gtable[[key]][from] <- grid::unit(values, units)
+            next
+          }
         }
         assigned <- rep(NA_real_, length(gtable[[key]]))
         for (i in seq_along(indices)) {
