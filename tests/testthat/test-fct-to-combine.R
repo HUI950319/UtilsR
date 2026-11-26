@@ -848,3 +848,13 @@ test_that("bounded combination dictionaries retain the order of observed tuples"
   second <- rep(factor(c("y z", "z")), 1000L)
   expect_error(fct_to_combine(collision, second, sep = " "), "same label")
 })
+
+test_that("single-level combinations do not retally their existing codes", {
+  actual <- structure(c(1L, NA_integer_, 1L), names = letters[1:3],
+                      levels = NA_character_, class = c("ordered", "factor"))
+  testthat::local_mocked_bindings(.factor_tally = function(...) {
+    stop("unnecessarily tallied one level")
+  }, .package = "UtilsR")
+  expect_identical(fct_to_combine(actual), factor(c("NA", NA, "NA")))
+  expect_identical(fct_to_combine(actual[c(2L, 2L)]), factor(c(NA_character_, NA_character_)))
+})

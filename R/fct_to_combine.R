@@ -237,6 +237,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     x <- args[[1L]]
     if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
       if (!n) return(structure(integer(), levels = character(), class = "factor"))
+      if (nlevels(x) == 1L) {
+        values <- as.integer(x)
+        label <- levels(x)
+        if (is.na(label)) label <- "NA"
+        if (is.na(values[1L]) && min(2L, values, na.rm = TRUE) != 1L) label <- character()
+        return(structure(values, levels = label, class = "factor"))
+      }
       tally <- .factor_tally(x)
       observed <- tally$codes
       all_levels <- levels(x)
