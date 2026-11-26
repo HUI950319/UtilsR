@@ -2322,3 +2322,16 @@ test_that("paired scatter validates its explicit main axis range separately from
   expect_identical(p$main$scales$get_scales("x")$limits, c(0, 10))
   expect_identical(p$inset$scales$get_scales("x")$limits, c(-5, 4))
 })
+
+test_that("coincident scatter group roles keep the colour marginal palette", {
+  d <- data.frame(x = 1:8, y = 9:2, g = rep(c("a", "b"), 4))
+  colors <- c(a = "red", b = "blue")
+  shapes <- c(a = 17L, b = 18L)
+  p <- PlotScatter2(d, "x", "y", "g", group2 = "g", colors = colors,
+                    shapes = shapes, fill_colors_shape = c(a = "orange", b = "green"))
+  for (side in 2:3) {
+    layer <- ggplot2::layer_data(p[[side]], 1L)
+    expect_identical(layer$fill, unname(colors))
+  }
+  expect_identical(ggplot2::layer_data(p[[1L]], 1L)$shape, unname(shapes[d$g]))
+})

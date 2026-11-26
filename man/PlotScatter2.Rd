@@ -48,7 +48,9 @@ PlotScatter2(
 
 \item{group}{Column name for colour grouping (e.g. Study).}
 
-\item{group2}{Column name for shape grouping (e.g. Group). NULL = no shape grouping.}
+\item{group2}{Column name for shape grouping (e.g. Group). NULL = no shape
+grouping. If this is the same as \code{group}, the marginals retain the
+colour grouping palette and are not duplicated.}
 
 \item{colors}{Colour vector for \code{group} levels. NULL = auto palette
 (up to 12 groups); supply a complete mapping above this limit.}

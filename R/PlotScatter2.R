@@ -45,7 +45,9 @@
 #' @param x Column name for the X axis.
 #' @param y Column name for the Y axis.
 #' @param group Column name for colour grouping (e.g. Study).
-#' @param group2 Column name for shape grouping (e.g. Group). NULL = no shape grouping.
+#' @param group2 Column name for shape grouping (e.g. Group). NULL = no shape
+#'   grouping. If this is the same as \code{group}, the marginals retain the
+#'   colour grouping palette and are not duplicated.
 #' @param colors Colour vector for \code{group} levels. NULL = auto palette
 #'   (up to 12 groups); supply a complete mapping above this limit.
 #' @param shapes Shape vector for \code{group2} levels. NULL = auto
@@ -306,14 +308,9 @@ PlotScatter2 <- function(
   }
 
   # ---- Collect margin variables (for marginal boxplots) ----
-  margin_vars <- list()
-  margin_vars[[group]] <- list(
-    col = group, fill = colors, label = group_label
-  )
-  if (!is.null(group2)) {
-    margin_vars[[group2]] <- list(
-      col = group2, fill = fill_colors_shape, label = group2_label
-    )
+  margin_vars <- list(list(col = group, fill = colors, label = group_label))
+  if (!is.null(group2) && group2 != group) {
+    margin_vars[[2L]] <- list(col = group2, fill = fill_colors_shape, label = group2_label)
   }
 
   # ---- Main scatter plot ----
