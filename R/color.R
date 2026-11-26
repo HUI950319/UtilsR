@@ -2011,7 +2011,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   alpha_bytes <- rgba[4L, ]
   translucent <- if (length(alpha_bytes) && min(alpha_bytes) < 255L) alpha_bytes != 255L
   alpha <- if (length(translucent)) alpha_bytes[translucent] / 255
+  linear_bytes <- if (n >= 1024L && !length(translucent)) .pal_linear_channel((0:255) / 255)
   channel <- function(i) {
+    if (!is.null(linear_bytes)) return(linear_bytes[rgba[i, ] + 1L])
     v <- rgba[i, ] / 255
     # Preview tiles are drawn on white; contrast uses the composited colour.
     if (length(alpha)) v[translucent] <- v[translucent] * alpha + 1 - alpha
