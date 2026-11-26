@@ -996,8 +996,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
     for (var in count_vars) {
       value <- count_base[[var]]
-      labels <- .distinct_labels(value)
-      if (!identical(labels, as.character(value))) {
+      original_labels <- as.character(value)
+      labels <- .distinct_labels(value, labels = original_labels)
+      if (!identical(labels, original_labels)) {
         count_base[[var]] <- factor(labels, levels = .distinct_labels(.get_levels(value)))
       }
     }
