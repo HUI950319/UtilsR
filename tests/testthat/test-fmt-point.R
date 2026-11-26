@@ -1494,3 +1494,14 @@ test_that("unordered singleton strata avoid constructing a list of singleton row
                               parent = environment(fn))
   expect_identical(fn(d, mapped, 1L, 42L), expected)
 })
+
+test_that("ambiguous fixed colour aliases are rejected regardless of borders", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y))
+  for (border in c(FALSE, TRUE)) {
+    expect_error(fmt_point(p, color = "red", colour = "blue", white_border = border),
+                 "Supply only one")
+    a <- fmt_point(p, color = "red", white_border = border)
+    b <- fmt_point(p, colour = "red", white_border = border)
+    expect_identical(ggplot2::layer_data(a), ggplot2::layer_data(b))
+  }
+})

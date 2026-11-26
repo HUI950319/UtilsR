@@ -74,6 +74,7 @@
 #'   settings are copied separately for each plot leaf. \code{pch} is an alias
 #'   for \code{shape}; for point/jitter layouts, \code{cex} is an alias for
 #'   \code{size}. Explicit \code{shape} and \code{size} take precedence.
+#'   Supply at most one of \code{color} and \code{colour}.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -213,8 +214,11 @@ fmt_point <- function(plot,
       params["cex"] <- NULL
       size_missing <- FALSE
     }
-    if ("color" %in% names(params) && !"colour" %in% names(params)) {
-      params[["colour"]] <- params[["color"]]
+    if ("color" %in% names(params)) {
+      if ("colour" %in% names(params)) {
+        cli::cli_abort("Supply only one of {.arg color} and {.arg colour}.")
+      }
+      params["colour"] <- params["color"]
       params[["color"]] <- NULL
     }
     layer_mapping <- if (isFALSE(params[["inherit.aes"]])) list() else as.list(p$mapping)
@@ -282,13 +286,6 @@ fmt_point <- function(plot,
 
     # --- White border ---
     if (white_border) {
-      if ("color" %in% names(params)) {
-        if ("colour" %in% names(params)) {
-          cli::cli_abort("Supply only one of {.arg color} and {.arg colour}.")
-        }
-        params[["colour"]] <- params[["color"]]
-        params[["color"]] <- NULL
-      }
       border_mapping <- layer_mapping
       if (is.null(params[["shape"]]) && is.null(border_mapping[["shape"]])) params[["shape"]] <- 19
       if (!is.null(params[["shape"]])) params[["shape"]] <- .shape_convert(params[["shape"]])

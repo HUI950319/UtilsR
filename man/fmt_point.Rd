@@ -86,7 +86,8 @@ via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}
 point/jitter positioning. Supplied position objects and their inherited
 settings are copied separately for each plot leaf. \code{pch} is an alias
 for \code{shape}; for point/jitter layouts, \code{cex} is an alias for
-\code{size}. Explicit \code{shape} and \code{size} take precedence.}
+\code{size}. Explicit \code{shape} and \code{size} take precedence.
+Supply at most one of \code{color} and \code{colour}.}
 }
 \value{
 Same type as input (ggplot, patchwork, or list).
