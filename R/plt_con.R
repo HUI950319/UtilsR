@@ -623,16 +623,21 @@ plt_con <- function(data,
 
   # --- Sort group levels by median -------------------------------------------
   if (!isFALSE(sort) && !dummy_group) {
-    sort_values <- data[[stat.by[1L]]]
-    if (!is.integer(sort_values) || is.object(sort_values) || anyNA(sort_values)) {
-      omit <- !is.finite(sort_values)
-      if (any(omit)) sort_values[omit] <- NA_real_
+    groups <- data[[group.by]]
+    one_group <- identical(class(groups), "factor") && nlevels(groups) == 1L &&
+      all(names(attributes(groups)) %in% c("levels", "class", "names")) && !anyNA(groups)
+    if (!one_group) {
+      sort_values <- data[[stat.by[1L]]]
+      if (!is.integer(sort_values) || is.object(sort_values) || anyNA(sort_values)) {
+        omit <- !is.finite(sort_values)
+        if (any(omit)) sort_values[omit] <- NA_real_
+      }
+      medians <- vapply(split(sort_values, groups, drop = TRUE),
+                        stats::median, numeric(1), na.rm = TRUE)
+      decreasing <- !(is.character(sort) && sort == "increasing")
+      sorted_levels <- names(medians)[order(medians, decreasing = decreasing)]
+      data[[group.by]] <- factor(groups, levels = sorted_levels)
     }
-    medians <- vapply(split(sort_values, data[[group.by]], drop = TRUE),
-                      stats::median, numeric(1), na.rm = TRUE)
-    decreasing <- !(is.character(sort) && sort == "increasing")
-    sorted_levels <- names(medians)[order(medians, decreasing = decreasing)]
-    data[[group.by]] <- factor(data[[group.by]], levels = sorted_levels)
   }
 
   # --- Resolve colours --------------------------------------------------------
