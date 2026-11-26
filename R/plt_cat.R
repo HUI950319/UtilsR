@@ -915,25 +915,32 @@ plt_cat <- function(data,
       group_code <- group_code[keep]
     }
     slots <- prod(as.double(dimensions))
-    ids <- if (dimensions[2L] == 1L) {
-      vctrs::vec_group_id(stat_code)
-    } else if (dimensions[1L] == 1L) {
-      vctrs::vec_group_id(group_code)
-    } else if (slots <= .Machine$integer.max) {
-      vctrs::vec_group_id(stat_code + (group_code - 1L) * dimensions[1L])
-    } else if (slots <= 2^53) {
-      vctrs::vec_group_id(stat_code + (group_code - 1) * dimensions[1L])
+    if (slots == 1 && length(stat_code) && identical(class(data[[stat.by]]), "factor") &&
+        identical(class(data[[group.by]]), "factor")) {
+      counts <- length(stat_code)
+      stat_code <- stat_code[1L]
+      group_code <- group_code[1L]
     } else {
-      vctrs::vec_group_id(data.frame(stat_code, group_code))
-    }
-    distinct <- attr(ids, "n")
-    if (distinct == length(ids)) {
-      counts <- rep.int(1L, distinct)
-    } else {
-      first <- if (distinct == 1L) 1L else !duplicated(ids, nmax = distinct)
-      stat_code <- stat_code[first]
-      group_code <- group_code[first]
-      counts <- tabulate(ids, distinct)
+      ids <- if (dimensions[2L] == 1L) {
+        vctrs::vec_group_id(stat_code)
+      } else if (dimensions[1L] == 1L) {
+        vctrs::vec_group_id(group_code)
+      } else if (slots <= .Machine$integer.max) {
+        vctrs::vec_group_id(stat_code + (group_code - 1L) * dimensions[1L])
+      } else if (slots <= 2^53) {
+        vctrs::vec_group_id(stat_code + (group_code - 1) * dimensions[1L])
+      } else {
+        vctrs::vec_group_id(data.frame(stat_code, group_code))
+      }
+      distinct <- attr(ids, "n")
+      if (distinct == length(ids)) {
+        counts <- rep.int(1L, distinct)
+      } else {
+        first <- if (distinct == 1L) 1L else !duplicated(ids, nmax = distinct)
+        stat_code <- stat_code[first]
+        group_code <- group_code[first]
+        counts <- tabulate(ids, distinct)
+      }
     }
     order_at <- order(group_code, stat_code)
     if (is.unsorted(order_at)) {
