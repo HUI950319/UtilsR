@@ -529,9 +529,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     }
     parsed <- replace(txt, !valid, NA_character_)
     bounded <- grep(paste0("^", bound), parsed, perl = TRUE)
-    op <- rep.int("", length(parsed))
+    op <- ""
     decimal <- parsed
     if (length(bounded)) {
+      op <- rep.int("", length(parsed))
       bound_text <- parsed[bounded]
       op[bounded] <- sub(paste0("(?s)^(", bound, ").*$"), "\\1", bound_text, perl = TRUE)
       decimal[bounded] <- sub(paste0("^", bound, "[\\h\\v]*"), "", bound_text, perl = TRUE)
