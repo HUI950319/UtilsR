@@ -705,18 +705,14 @@ fmt_raster <- function(
   # Capture contiguous geometry runs without moving them across vector text;
   # the background grid and the border stay vector too.
   start <- 1L
-  for (i in seq_along(ordered)) {
-    j <- ordered[i]
-    if (vector_children[i]) {
-      child <- g$children[[j]]
-      if (i > start) {
-        used <- used + 1L
-        output[[used]] <- capture_run(ordered[seq.int(start, i - 1L)])
-      }
+  for (i in which(vector_children)) {
+    if (i > start) {
       used <- used + 1L
-      output[[used]] <- child
-      start <- i + 1L
+      output[[used]] <- capture_run(ordered[seq.int(start, i - 1L)])
     }
+    used <- used + 1L
+    output[[used]] <- g$children[[ordered[i]]]
+    start <- i + 1L
   }
   if (start <= length(ordered)) {
     used <- used + 1L
