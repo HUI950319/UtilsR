@@ -554,9 +554,11 @@ PlotRankCor <- function(
   # ---- Spearman correlation per group ----
   groups <- wide_groups
   cor_method <- if (use_rank) "spearman" else "pearson"
+  x_all <- rank_wide[[method_cols[1L]]]
+  y_all <- rank_wide[[method_cols[2L]]]
   cor_values <- vapply(wide_rows[["loc"]], function(idx) {
-    x <- rank_wide[[method_cols[1]]][idx]
-    y <- rank_wide[[method_cols[2]]][idx]
+    x <- if (length(groups) == 1L) x_all else x_all[idx]
+    y <- if (length(groups) == 1L) y_all else y_all[idx]
     if (length(x) < 3L) return(c(NA_real_, NA_real_))
     x_limits <- c(min(x), max(x))
     y_limits <- c(min(y), max(y))
