@@ -593,11 +593,13 @@ plt_upset <- function(data,
   last <- vapply(sets, function(rows) if (length(rows)) rows[[length(rows)]] else 0L, integer(1))
   # UpSet needs only observed, nonempty patterns. Compact very sparse row
   # addresses before assigning codes, rather than allocating up to max(last).
-  if (max(last) > 8 * sum(sizes)) {
+  n_rows <- max(last)
+  if (n_rows > 8 * sum(sizes)) {
     observed <- sort(unique(unlist(sets, use.names = FALSE)), method = "radix")
     sets <- lapply(sets, match, table = observed)
+    n_rows <- length(observed)
   }
-  codes <- .upset_row_codes(sets)
+  codes <- .upset_row_codes(sets, n = n_rows)
   slots <- max(0L, codes)
   if (slots && length(codes) > slots) {
     sum(tabulate(codes, nbins = slots) > 0L)
