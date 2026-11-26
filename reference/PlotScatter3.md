@@ -124,8 +124,8 @@ PlotScatter3(
 
 - test_method:
 
-  Paired test method: `"wilcox"`, `"t.test"`, or `"none"`. Default
-  `"wilcox"`.
+  Paired test method: `"wilcox"`, `"t.test"`, or `"none"`. Uses finite
+  within-pair differences. Default `"wilcox"`.
 
 - p_digits:
 
@@ -141,8 +141,8 @@ PlotScatter3(
 
 - cor_method:
 
-  Correlation method: `"pearson"`, `"spearman"`, or `"none"`. Default
-  `"pearson"`.
+  Correlation of finite pairs: `"pearson"`, `"spearman"`, `"kendall"`,
+  or `"none"`. Default `"pearson"`.
 
 - cor_size:
 

@@ -140,7 +140,7 @@ arguments in <code>...</code>; use <code>dodge.width</code> to control dodging.<
 
 <dt id="arg-sample-n">sample_n<a class="anchor" aria-label="anchor" href="#arg-sample-n"></a></dt>
 <dd><p>Non-negative integer or <code>NULL</code>. When set, subsample data
-before plotting to reduce overplotting. An explicit <code>group</code> mapping
+before plotting to reduce overplotting. An explicit <code>group</code> mapping or a fixed group
 takes priority; otherwise discrete color/fill mappings form joint strata,
 including expressions. Existing facet variables add separate strata.
 Sampling takes at most <code>sample_n</code> points <strong>per group</strong>; missing
@@ -174,7 +174,8 @@ via <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="extern
 point/jitter positioning. Supplied position objects and their inherited
 settings are copied separately for each plot leaf. <code>pch</code> is an alias
 for <code>shape</code>; for point/jitter layouts, <code>cex</code> is an alias for
-<code>size</code>. Explicit <code>shape</code> and <code>size</code> take precedence.</p></dd>
+<code>size</code>. Explicit <code>shape</code> and <code>size</code> take precedence.
+Supply at most one of <code>color</code> and <code>colour</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

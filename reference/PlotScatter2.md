@@ -66,6 +66,8 @@ PlotScatter2(
 - group2:
 
   Column name for shape grouping (e.g. Group). NULL = no shape grouping.
+  If this is the same as `group`, the marginals retain the colour
+  grouping palette and are not duplicated.
 
 - colors:
 
@@ -75,12 +77,13 @@ PlotScatter2(
 - shapes:
 
   Shape vector for `group2` levels. NULL = auto (up to 6 groups). Above
-  6 groups, supply both `shapes` and `fill_colors_shape` mappings.
+  6 groups, supply `shapes` and, for a separate shape marginal,
+  `fill_colors_shape` mappings.
 
 - fill_colors_shape:
 
   Fill colours for `group2` in marginal boxplots. NULL = auto (up to 6
-  groups).
+  groups); ignored when the grouping columns coincide.
 
 - point_size:
 
@@ -101,7 +104,8 @@ PlotScatter2(
 
 - cor_method:
 
-  Correlation method: "pearson" or "spearman". Default "pearson".
+  Correlation of finite pairs: "pearson", "spearman", or "kendall".
+  Default "pearson".
 
 - show_regression:
 

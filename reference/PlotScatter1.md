@@ -115,7 +115,8 @@ PlotScatter1(
 
 - cor_method:
 
-  Correlation method: "pearson" or "spearman". Default "pearson".
+  Correlation of finite pairs: "pearson", "spearman", or "kendall".
+  Default "pearson".
 
 - annot_text:
 

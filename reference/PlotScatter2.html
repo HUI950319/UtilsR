@@ -124,7 +124,9 @@ two-factor gene correlation plots.</p>
 
 
 <dt id="arg-group-">group2<a class="anchor" aria-label="anchor" href="#arg-group-"></a></dt>
-<dd><p>Column name for shape grouping (e.g. Group). NULL = no shape grouping.</p></dd>
+<dd><p>Column name for shape grouping (e.g. Group). NULL = no shape
+grouping. If this is the same as <code>group</code>, the marginals retain the
+colour grouping palette and are not duplicated.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
@@ -134,13 +136,13 @@ two-factor gene correlation plots.</p>
 
 <dt id="arg-shapes">shapes<a class="anchor" aria-label="anchor" href="#arg-shapes"></a></dt>
 <dd><p>Shape vector for <code>group2</code> levels. NULL = auto
-(up to 6 groups). Above 6 groups, supply both <code>shapes</code> and
+(up to 6 groups). Above 6 groups, supply <code>shapes</code> and, for a separate shape marginal,
 <code>fill_colors_shape</code> mappings.</p></dd>
 
 
 <dt id="arg-fill-colors-shape">fill_colors_shape<a class="anchor" aria-label="anchor" href="#arg-fill-colors-shape"></a></dt>
 <dd><p>Fill colours for <code>group2</code> in marginal boxplots.
-NULL = auto (up to 6 groups).</p></dd>
+NULL = auto (up to 6 groups); ignored when the grouping columns coincide.</p></dd>
 
 
 <dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>
@@ -161,7 +163,7 @@ independently of <code>group2</code>. Default FALSE.</p></dd>
 
 
 <dt id="arg-cor-method">cor_method<a class="anchor" aria-label="anchor" href="#arg-cor-method"></a></dt>
-<dd><p>Correlation method: "pearson" or "spearman". Default "pearson".</p></dd>
+<dd><p>Correlation of finite pairs: "pearson", "spearman", or "kendall". Default "pearson".</p></dd>
 
 
 <dt id="arg-show-regression">show_regression<a class="anchor" aria-label="anchor" href="#arg-show-regression"></a></dt>

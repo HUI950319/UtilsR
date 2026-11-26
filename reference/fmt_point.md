@@ -81,15 +81,15 @@ fmt_point(
 - sample_n:
 
   Non-negative integer or `NULL`. When set, subsample data before
-  plotting to reduce overplotting. An explicit `group` mapping takes
-  priority; otherwise discrete color/fill mappings form joint strata,
-  including expressions. Existing facet variables add separate strata.
-  Sampling takes at most `sample_n` points **per group**; missing group
-  values form a separate group. Continuous color/fill mappings do not
-  define sampling groups. Numeric group and facet values remain distinct
-  even when their printed labels coincide. Sampling requires scalar
-  fixed aesthetics; put external row vectors into `data` and map its
-  columns instead. Configuration vectors in base
+  plotting to reduce overplotting. An explicit `group` mapping or a
+  fixed group takes priority; otherwise discrete color/fill mappings
+  form joint strata, including expressions. Existing facet variables add
+  separate strata. Sampling takes at most `sample_n` points **per
+  group**; missing group values form a separate group. Continuous
+  color/fill mappings do not define sampling groups. Numeric group and
+  facet values remain distinct even when their printed labels coincide.
+  Sampling requires scalar fixed aesthetics; put external row vectors
+  into `data` and map its columns instead. Configuration vectors in base
   [`factor()`](https://rdrr.io/r/base/factor.html),
   [`ordered()`](https://rdrr.io/r/base/factor.html), and
   [`cut()`](https://rdrr.io/r/base/cut.html) calls are allowed. Default
@@ -117,7 +117,8 @@ fmt_point(
   Supplied position objects and their inherited settings are copied
   separately for each plot leaf. `pch` is an alias for `shape`; for
   point/jitter layouts, `cex` is an alias for `size`. Explicit `shape`
-  and `size` take precedence.
+  and `size` take precedence. Supply at most one of `color` and
+  `colour`.
 
 ## Value
 
