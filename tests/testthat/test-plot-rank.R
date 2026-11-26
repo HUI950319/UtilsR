@@ -1117,6 +1117,19 @@ test_that("large capped constant rankings keep ties in input order without sorti
   expect_identical(unname(out$Score), rep(1, 20L))
 })
 
+test_that("a leading tied maximum supplies capped ranks without sorting mixed scores", {
+  scores <- c(rep(10, 20L), rep(c(4, 10, 3, 2), 2500L))
+  x <- setNames(scores, sprintf("gene%05d", seq_along(scores)))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  env$order <- env$sort <- function(...) stop("sorted a known maximum prefix")
+  environment(fn) <- env
+
+  out <- fn(x, max_show = 20L, clean_names = FALSE, return_type = "data")
+  expect_identical(out$Label, names(x)[1:20])
+  expect_identical(unname(out$Score), rep(10, 20L))
+})
+
 test_that("rank parses default datetime and duration groups without scanning rows per group", {
   fn <- .pr_parse
   environment(fn) <- list2env(list(`==` = function(e1, e2) {

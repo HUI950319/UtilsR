@@ -227,8 +227,13 @@ PlotRank <- function(
     grp <- names(score_list)[i]
     scores <- score_list[[i]]
     n <- min(length(scores), max_show)
+    leading_ties <- n > 1L && n < length(scores) && !is.object(scores) &&
+      length(scores) >= 8192L && scores[1L] == scores[n] &&
+      ((scores[1L] == scores[length(scores)] && !is.unsorted(scores)) ||
+       (n <= length(scores) / 64 && all(scores[seq_len(n)] == scores[1L]) &&
+        scores[1L] == max(scores)))
     candidates <- NULL
-    if (n > 1L && !is.object(scores) && is.double(scores) && length(scores) >= 8192L &&
+    if (!leading_ties && n > 1L && !is.object(scores) && is.double(scores) && length(scores) >= 8192L &&
         n <= length(scores) / 64) {
       probe <- scores[seq.int(1L, length(scores), length.out = 1024L)]
       if (is.unsorted(probe) && is.unsorted(rev(probe))) {
@@ -241,9 +246,8 @@ PlotRank <- function(
     }
     shown <- if (n == 1L && !is.object(scores)) {
       scores[which.max(scores)]
-    } else if (!is.object(scores) && n < length(scores) && length(scores) >= 8192L &&
-               scores[1L] == scores[length(scores)] && !is.unsorted(scores)) {
-      # All scores tie, so their leading input positions are already ranked.
+    } else if (leading_ties) {
+      # The first n rows already have the maximum, in stable input order.
       scores[seq_len(n)]
     } else if (!is.object(scores) && !is.unsorted(scores, strictly = TRUE)) {
       scores[seq.int(length(scores), length.out = n, by = -1L)]
