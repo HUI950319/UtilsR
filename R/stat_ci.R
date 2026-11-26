@@ -111,7 +111,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     pattern <- "-0(?=(?:\\.0+)?(?:[^0-9.]|$))"
     hit <- grep("-0", text, fixed = TRUE)
     if (length(hit)) {
-      hit <- hit[grepl(pattern, text[hit], perl = TRUE)]
+      hit <- hit[grep(pattern, text[hit], perl = TRUE)]
       if (length(hit)) text[hit] <- gsub(pattern, "0", text[hit], perl = TRUE)
     }
     text
