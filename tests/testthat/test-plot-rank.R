@@ -1116,3 +1116,21 @@ test_that("large capped constant rankings keep ties in input order without sorti
   expect_identical(out$Label, names(x)[seq_len(20L)])
   expect_identical(unname(out$Score), rep(1, 20L))
 })
+
+test_that("rank parses default datetime and duration groups without scanning rows per group", {
+  fn <- .pr_parse
+  environment(fn) <- list2env(list(`==` = function(e1, e2) {
+    if (identical(substitute(e1), quote(data[[group_col]])) && !is.na(e2)) stop("scanned a time group")
+    base::`==`(e1, e2)
+  }), parent = environment(fn))
+  for (groups in list(as.POSIXct("2026-01-01", tz = "UTC") + c(60, 0, 60, NA, 0),
+                     as.POSIXlt(as.POSIXct("2026-01-01", tz = "UTC") + c(60, 0, 60, NA, 0)),
+                     as.difftime(c(60, 0, 60, NA, 0), units = "mins"))) {
+    d <- data.frame(cell_type = groups, gene = letters[1:5], score = seq_len(5L))
+    parsed <- fn(d, "cell_type", "gene", "score", NULL)
+    expect_identical(names(parsed)[1:2], as.character(groups[c(1L, 2L)]))
+    got <- PlotRank(d, value_col = "score", return_type = "data")
+    expect_identical(levels(got$Group), as.character(groups[c(1L, 2L)]))
+    expect_identical(got$Label, c("c", "a", "e", "b"))
+  }
+})

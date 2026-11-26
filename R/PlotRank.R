@@ -452,8 +452,12 @@ PlotRank <- function(
         stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
       plain_default <- is.null(groups) && !is.object(grouping) &&
         (is.numeric(grouping) || is.character(grouping) || is.logical(grouping))
-      locations <- if (plain_default) vctrs::vec_group_loc(grouping)
-      grps <- if (plain_default) locations$key else if (is.factor(grouping)) levels(grouping)
+      scalar_time <- identical(class(grouping), c("POSIXct", "POSIXt")) ||
+        identical(class(grouping), c("POSIXlt", "POSIXt")) ||
+        identical(class(grouping), "difftime")
+      indexed_default <- plain_default || (is.null(groups) && scalar_time)
+      locations <- if (indexed_default) vctrs::vec_group_loc(grouping)
+      grps <- if (indexed_default) locations$key else if (is.factor(grouping)) levels(grouping)
         else unique(grouping)
       if (anyDuplicated(as.character(grps))) {
         stop("Distinct grouping values have identical character labels. ",
@@ -462,7 +466,7 @@ PlotRank <- function(
       }
       if (!is.null(groups)) grps <- groups
       typed_default <- is.null(groups) && inherits(grouping, c("integer64", "Date"))
-      group_rows <- if (plain_default) locations$loc else if (typed_default || !is.object(grouping) || is.factor(grouping)) {
+      group_rows <- if (indexed_default) locations$loc else if (typed_default || !is.object(grouping) || is.factor(grouping)) {
         locations <- vctrs::vec_group_loc(data[[group_col]])
         keys <- locations[["key"]]
         at <- if (typed_default) vctrs::vec_match(grps, keys) else match(grps, keys)
