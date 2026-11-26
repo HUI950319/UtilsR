@@ -355,11 +355,15 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Per-group x positions (uniform spacing within each sector) ----
-  positions <- numeric(nrow(df))
-  for (rows in sector_rows) {
-    positions[rows] <- (seq_along(rows) - 0.5) / length(rows)
+  if (length(sector_rows) == 1L) {
+    df$x_pos <- (seq_len(nrow(df)) - 0.5) / nrow(df)
+  } else {
+    positions <- numeric(nrow(df))
+    for (rows in sector_rows) {
+      positions[rows] <- (seq_along(rows) - 0.5) / length(rows)
+    }
+    df$x_pos <- positions
   }
-  df$x_pos <- positions
   if (value_scale != "top_n") df <- tibble::as_tibble(df)
 
   # ---- Per-group value scaling (value_scale) ----
