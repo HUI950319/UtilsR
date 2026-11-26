@@ -1294,3 +1294,17 @@ test_that("sparse similarities fill symmetric cells without coordinate matrices"
   expect_identical(fn(d, return_type = "data"), expected)
   expect_identical(unname(expected["g9", "g27"]), 1 / 3)
 })
+
+test_that("singleton Jaccard bypasses feature sets even with missing memberships", {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- list2env(list(split = function(...) stop("allocated feature memberships")),
+                             parent = environment(fn))
+  d <- data.frame(cell_type = c("A", "A", NA), gene = c(NA, "x", "y"))
+  expected <- matrix(1, 1, 1, dimnames = list("A", "A"))
+  expect_identical(fn(d, return_type = "data"), expected)
+  d$gene[2] <- NA_character_
+  expected[1, 1] <- 0
+  expect_identical(fn(d, return_type = "data"), expected)
+  d$cell_type <- factor(d$cell_type)
+  expect_identical(fn(d, return_type = "data"), expected)
+})
