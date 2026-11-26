@@ -1322,3 +1322,22 @@ test_that("stat_pval does not allocate a vector of empty significance labels", {
   expect_identical(fn(c(a = .001, b = .02), map_signif = numeric()), c(a = "0.001", b = "0.020"))
   expect_error(fn(.2, map_signif = c(star = Inf)), "map_signif")
 })
+
+test_that("plain zero-heavy vectors share formatting without losing signed zero", {
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  length_formatted <- NULL
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.2f")) length_formatted <<- length(list(...)[[1L]])
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  for (zero in list(0L, 0, -1 / Inf)) {
+    x <- rep(c(zero, 2L), 700L)
+    expect_identical(fn(x, mode = "plain"), base::sprintf("%.2f", x))
+    expect_identical(length_formatted, 2L)
+  }
+  x <- rep(c(0, -1 / Inf, 2), 500L)
+  expect_identical(fn(x, mode = "plain"), base::sprintf("%.2f", x))
+  expect_identical(length_formatted, length(x))
+})

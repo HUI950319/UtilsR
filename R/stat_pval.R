@@ -313,13 +313,20 @@ stat_pval <- function(x,
   expand <- NULL
   repeat_one <- FALSE
   if (is.numeric(x) && !is.object(x) && length(x_num) > 1024L &&
-      (mode != "plain" || !any(x_num == 0, na.rm = TRUE)) &&
       length(unique(x_num[seq.int(1L, length(x_num), length.out = 1024L)])) < 512L) {
     keys <- unique(x_num)
     if (length(keys) < length(x_num) / 2) {
-      repeat_one <- length(keys) == 1L
-      if (!repeat_one) expand <- match(x_num, keys)
-      x_num <- keys
+      # unique() treats -0 and +0 as equal, but %f preserves the sign.
+      same_zeros <- TRUE
+      if (mode == "plain" && is.double(keys) && any(keys == 0, na.rm = TRUE)) {
+        negative_zero <- 1 / x_num[which(x_num == 0)] < 0
+        same_zeros <- !any(negative_zero) || all(negative_zero)
+      }
+      if (same_zeros) {
+        repeat_one <- length(keys) == 1L
+        if (!repeat_one) expand <- match(x_num, keys)
+        x_num <- keys
+      }
     }
   }
 
