@@ -193,8 +193,8 @@ A patchwork object (combined plot).
 Named `colors`, `shapes`, and `fill_colors_shape` vectors must cover
 every observed, non-missing level of their grouping variable. Unnamed
 vectors are matched in order of first appearance in `data` and must
-supply at least one value per observed level. Extra entries are
-accepted.
+supply at least one value per observed level. Extra entries are accepted
+but omitted from the plot and legends.
 
 Numeric axis values are preserved when a grouping column is also used on
 an axis. A column named `.data` may be used for an axis or grouping

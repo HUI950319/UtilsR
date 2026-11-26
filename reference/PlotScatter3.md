@@ -110,8 +110,8 @@ PlotScatter3(
 
 - axis_limits:
 
-  Numeric vector of length 2 for axis range. Default `NULL` (auto:
-  symmetric range from data).
+  Two distinct finite values for the scatter axis range. Default `NULL`
+  (auto: symmetric range from data).
 
 - axis_breaks:
 
@@ -137,7 +137,7 @@ PlotScatter3(
 
 - p_x, p_y:
 
-  Coordinates for p-value label. Default `NULL` (auto).
+  Single finite coordinates for p-value label. Default `NULL` (auto).
 
 - cor_method:
 
@@ -150,7 +150,8 @@ PlotScatter3(
 
 - cor_x, cor_y:
 
-  Coordinates for correlation label. Default `NULL` (auto).
+  Single finite coordinates for correlation label. Default `NULL`
+  (auto).
 
 - hist_bins:
 
@@ -161,7 +162,8 @@ PlotScatter3(
 
   Histogram X axis range. Default `NULL` uses a symmetric range based on
   finite paired differences, expanded by 20%. All-zero differences
-  receive a non-zero range. Explicit limits are retained.
+  receive a non-zero range. Explicit limits must be two finite, strictly
+  increasing values.
 
 - hist_x_breaks:
 
@@ -237,9 +239,10 @@ For dual-group scatter with marginal boxplots, see
 
 Integer measurements are promoted to double precision before calculating
 differences and paired tests. The histogram shows `y - x`; its median
-uses all non-missing differences. Explicit axis limits trim displayed
-data without changing the paired test or median. ggplot2 can warn when
-limits exclude observations or the median annotation. Numeric
+uses all non-missing differences. Nonzero medians that would round to
+zero are displayed in scientific notation. Explicit axis limits trim
+displayed data without changing the paired test or median. ggplot2 can
+warn when limits exclude observations or the median annotation. Numeric
 coordinates and statistics are preserved when `group` also names an axis
 column. A column named `.data` is supported in any role.
 
