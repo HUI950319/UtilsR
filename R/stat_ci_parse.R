@@ -153,15 +153,13 @@ stat_ci_parse <- function(x,
 
   # --- Parse CI strings ---
   probability_only <- output %in% c("p", "p_star")
-  parsed <- .ci_extract(x, need_style = !probability_only)
+  parsed <- .ci_extract(x, need_style = !probability_only,
+                        need_digits = is.null(digits))
   est <- parsed$estimate
   lo  <- parsed$lower
   hi  <- parsed$upper
-  d   <- parsed$digits
+  d   <- if (is.null(digits)) parsed$digits else as.integer(digits)
   valid <- parsed$valid
-
-  # Override digits
-  if (!is.null(digits)) d[] <- as.integer(digits)
 
   # Warn about unparseable elements (NA and "" pass through silently)
   if (!all(valid)) {
@@ -337,7 +335,7 @@ stat_ci_parse <- function(x,
   }
 
   # --- Rebuild the CI string in its original bracket/separator style ---
-  if (!all_valid) d[!valid] <- 0L
+  if (!all_valid && is.null(digits)) d[!valid] <- 0L
   upper_digits <- if (!anyNA(d)) max(d)
   if (is.null(upper_digits) || min(d) < 0 || upper_digits > 8190L) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
@@ -359,9 +357,15 @@ stat_ci_parse <- function(x,
   if (probability_only) {
     if (upper_digits > 7881L) {
       # Enforce the displayed-number byte contract without building unused labels.
-      .check_width(est, d)
-      .check_width(lo, d)
-      .check_width(hi, d)
+      if (all_valid || length(d) > 1L) {
+        .check_width(est, d)
+        .check_width(lo, d)
+        .check_width(hi, d)
+      } else {
+        .check_width(est[valid], d)
+        .check_width(lo[valid], d)
+        .check_width(hi[valid], d)
+      }
     }
     out <- if (output == "p") pval else stat_pval(pval, map_signif = map_signif)
     names(out) <- names(x)
@@ -378,7 +382,7 @@ stat_ci_parse <- function(x,
   }
   fmt <- function(v, d) {
     n <- length(v)
-    if (n > 1024L && min(d) == max(d)) {
+    if (n > 1024L && (length(d) == 1L || min(d) == max(d))) {
       if (.pal_use_unique(v)) {
         keys <- unique(v)
         if (length(keys) < n / 2) {
@@ -404,7 +408,7 @@ stat_ci_parse <- function(x,
     ci_str <- paste0(fmt(est, d), " ", parsed$open, fmt(lo, d), parsed$sep,
                      fmt(hi, d), parsed$close)
   } else {
-    precision <- d[valid]
+    precision <- if (length(d) == 1L) d else d[valid]
     ci_str[valid] <- paste0(fmt(est[valid], precision), " ", parsed$open[valid],
                            fmt(lo[valid], precision), parsed$sep[valid],
                            fmt(hi[valid], precision), parsed$close[valid])

@@ -1757,3 +1757,27 @@ test_that("probability-only intervals do not extract display styles", {
   expect_identical(fn(x, "ci", exp = FALSE), c(a = "0.5 [0.0, 1.0]", b = NA, c = "4 (2 to 6)"))
   expect_identical(seen, c(FALSE, FALSE, TRUE))
 })
+
+test_that("fixed CI precision remains scalar even on large mixed batches", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$.ci_extract <- function(x, ...) {
+    got <- .ci_extract(x, ...)
+    expect_null(got$digits)
+    expect_true(is.matrix(got$unit))
+    got
+  }
+  env$sprintf <- function(fmt, ...) {
+    args <- list(...)
+    if (identical(fmt, "%.*f")) expect_length(args[[1L]], 1L)
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  x <- c(sprintf("%d (%d, %d)", 1:1500, 0:1499, 2:1501), NA_character_)
+  expected <- c(sprintf("%.1f (%.1f, %.1f)", 1:1500, 0:1499, 2:1501), NA_character_)
+  expect_identical(fn(x, exp = FALSE, digits = 1L), expected)
+  # Invalid estimates are not tested for an unused high-precision label width.
+  suppressWarnings(expect_identical(fn(c("1 (0, 2)", "1.000e300 (9.000e299, 9.500e299)"),
+    output = "p", exp = FALSE, digits = 8190L),
+    c(stat_ci_parse("1 (0, 2)", output = "p", exp = FALSE), NA_real_)))
+})
