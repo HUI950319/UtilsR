@@ -412,10 +412,10 @@ PlotCircleLollipop <- function(
       stats::setNames(list(seq_along(group_ids)), group_labels)
     } else split(seq_along(group_ids), original_group)
   }
+  group_indices <- if (!is.null(original_rows)) match(names(sector_rows), names(original_rows))
   if (integer64_scores && value_scale %in% c("group", "top_n")) {
     scores <- data[[value_col]]
     scaled <- numeric(nrow(df))
-    group_indices <- match(names(sector_rows), names(original_rows))
     for (i in seq_along(sector_rows)) {
       rows <- sector_rows[[i]]
       reference <- if (is.null(original_rows)) scores[rows] else
@@ -427,7 +427,6 @@ PlotCircleLollipop <- function(
   } else if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
     scaled <- numeric(nrow(df))
-    group_indices <- match(names(sector_rows), names(original_rows))
     for (i in seq_along(sector_rows)) {
       rows <- sector_rows[[i]]
       values <- df$value[rows]
