@@ -329,6 +329,9 @@ PlotRank <- function(
   grp_order <- unique(names(score_list))
   plot_df$Group <- if (length(grp_order) == 1L) {
     structure(rep.int(1L, nrow(plot_df)), levels = grp_order, class = "factor")
+  } else if (length(grp_order) == length(all_df) && !anyNA(grp_order)) {
+    sizes <- vapply(all_df, nrow, integer(1))
+    structure(rep.int(seq_along(sizes), sizes), levels = grp_order, class = "factor")
   } else factor(plot_df$Group, levels = grp_order)
   if (return_type == "data" && is.null(filename)) return(plot_df)
 
