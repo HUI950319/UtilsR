@@ -565,13 +565,17 @@ fmt_point <- function(plot,
       ordinary <- identical(class(groups), "factor") ||
         identical(class(groups), c("ordered", "factor"))
       if (ordinary && nlevels(groups) >= nrow(data) &&
-          isFALSE(is.unsorted(unclass(groups), strictly = TRUE)) &&
           !any(vapply(data, is.matrix, logical(1)))) {
-        # There is one observation per group and rows are already in group
-        # order; no sampled indices or singleton split lists are needed.
-        data <- data[seq_len(nrow(data)), , drop = FALSE]
-        rownames(data) <- NULL
-        return(data)
+        codes <- unclass(groups)
+        ordered <- isFALSE(is.unsorted(codes, strictly = TRUE))
+        if (ordered || (!anyNA(codes) && anyDuplicated(codes) == 0L)) {
+          # Singleton strata need no split lists. Retain the split order even
+          # when rows are supplied out of order.
+          indices <- if (ordered) seq_len(nrow(data)) else order(codes, method = "radix")
+          data <- data[indices, , drop = FALSE]
+          rownames(data) <- NULL
+          return(data)
+        }
       }
       if (nlevels(groups) > nrow(data)) {
         groups <- if (ordinary) as.integer(groups) else droplevels(groups, exclude = NULL)

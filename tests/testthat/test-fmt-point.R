@@ -1479,3 +1479,18 @@ test_that("a fixed point group takes precedence over colour but not facets", {
   mapped <- fmt_point(panels, sample_n = 3L)$layers[[1L]]$data
   expect_equal(as.integer(table(mapped$panel)), c(6L, 6L))
 })
+
+test_that("unordered singleton strata avoid constructing a list of singleton rows", {
+  d <- data.frame(x = c(8L, 2L, 6L, 1L, 4L, 7L, 3L, 5L))
+  d$y <- sqrt(d$x)
+  d$g <- factor(d$x, levels = c(4L, 2L, 6L, 8L, 3L, 1L, 7L, 5L, 9L))
+  mapped <- ggplot2::aes(x, y, group = g)
+  p <- ggplot2::ggplot(d, mapped)
+  expected <- d[order(d$g), , drop = FALSE]
+  rownames(expected) <- NULL
+  expect_identical(fmt_point(p, sample_n = 1L)$layers[[1L]]$data, expected)
+  fn <- .fmt_point_sample
+  environment(fn) <- list2env(list(split = function(...) stop("split singleton groups")),
+                              parent = environment(fn))
+  expect_identical(fn(d, mapped, 1L, 42L), expected)
+})
