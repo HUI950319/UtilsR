@@ -1606,3 +1606,16 @@ test_that("butterfly2 wide delegates pad only to the longest shared category", {
   expect_identical(captured$left, data.frame(A = c(1L, 2L), B = c(3L, NA_integer_)))
   expect_identical(captured$right, data.frame(A = c(1L, NA_integer_, NA_integer_), B = 2:4))
 })
+
+test_that("butterfly2 aligns categories when one wing lacks a category", {
+  d <- data.frame(category = rep(c("left-only", "shared", "right-only"), each = 3L),
+                  wing = rep(c("left", "right"), times = c(5L, 4L)),
+                  score = seq_len(9L), subgroup = "one")
+  p <- PlotButterfly2(d, stat.by = "category", value.by = "score", group.by = "wing",
+                     fill.by = "subgroup", type = "box")
+  expected <- c("left-only", "shared", "right-only")
+  for (i in 1:2) {
+    built <- ggplot2::ggplot_build(p[[i]])
+    expect_equal(as.character(built$layout$panel_params[[1L]]$y$get_breaks()), expected)
+  }
+})

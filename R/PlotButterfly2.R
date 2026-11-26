@@ -538,10 +538,11 @@ PlotButterfly2 <- function(
       p <- p +
         ggplot2::scale_x_reverse(
           expand = c(0, 0), position = "top") +
-        ggplot2::scale_y_discrete(position = "right")
+        ggplot2::scale_y_discrete(position = "right", drop = FALSE)
     } else {
       p <- p +
-        ggplot2::scale_x_continuous(expand = c(0, 0), position = "top")
+        ggplot2::scale_x_continuous(expand = c(0, 0), position = "top") +
+        ggplot2::scale_y_discrete(drop = FALSE)
     }
 
     # ---- Colour / fill scales ----
