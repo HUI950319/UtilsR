@@ -51,7 +51,7 @@
 #'   \code{beeswarmArgs} when supported by ggbeeswarm. Values override the same
 #'   arguments in \code{...}; use \code{dodge.width} to control dodging.
 #' @param sample_n Non-negative integer or \code{NULL}. When set, subsample data
-#'   before plotting to reduce overplotting. An explicit \code{group} mapping
+#'   before plotting to reduce overplotting. An explicit \code{group} mapping or a fixed group
 #'   takes priority; otherwise discrete color/fill mappings form joint strata,
 #'   including expressions. Existing facet variables add separate strata.
 #'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
@@ -474,7 +474,9 @@ fmt_point <- function(plot,
          !identical(class(values), c("ordered", "factor")))
     if (recycle) rep_len(values, nrow(data)) else values
   }
-  for (aes_name in c("group", "colour", "fill")) {
+  # A fixed group represents one stratum, independent of mapped colour or fill.
+  grouping <- if (is.null(fixed[["group"]])) c("group", "colour", "fill")
+  for (aes_name in grouping) {
     aesthetic <- mapping[[aes_name]]
     if (is.null(aesthetic)) next
     expr <- rlang::get_expr(aesthetic)

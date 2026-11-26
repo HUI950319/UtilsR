@@ -1466,3 +1466,16 @@ test_that("ordered singleton sampling strata do not allocate a split of every ro
   p <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, x, group = id)), sample_n = 2L)
   expect_identical(ggplot2::layer_data(p, 1L)$x, as.double(want$x))
 })
+
+test_that("a fixed point group takes precedence over colour but not facets", {
+  d <- data.frame(x = 1:20, y = 1:20, colour = rep(c("A", "B"), 10),
+                  panel = rep(c("Left", "Right"), each = 10))
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = colour))
+  one <- fmt_point(base, group = 1L, sample_n = 3L)$layers[[1L]]$data
+  expect_equal(nrow(one), 3L)
+  panels <- base + ggplot2::facet_wrap(~ panel)
+  many <- fmt_point(panels, group = 1L, sample_n = 3L)$layers[[1L]]$data
+  expect_equal(as.integer(table(many$panel)), c(3L, 3L))
+  mapped <- fmt_point(panels, sample_n = 3L)$layers[[1L]]$data
+  expect_equal(as.integer(table(mapped$panel)), c(6L, 6L))
+})
