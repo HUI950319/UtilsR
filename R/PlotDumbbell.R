@@ -255,6 +255,14 @@ PlotDumbbell <- function(
 
   # Match the time scale when one endpoint is a Date and the other an instant.
   endpoint_cols <- c(x_col, xend_col)
+  kind <- vapply(data[endpoint_cols], function(x) {
+    if (inherits(x, "difftime")) "duration" else
+      if (inherits(x, c("Date", "POSIXt"))) "instant" else "numeric"
+  }, character(1L))
+  if (kind[1L] != kind[2L]) {
+    stop("Both dumbbell endpoints must use comparable units: numeric, date/datetime, or duration.",
+         call. = FALSE)
+  }
   dates <- vapply(data[endpoint_cols], inherits, logical(1), "Date")
   instants <- vapply(data[endpoint_cols], inherits, logical(1), "POSIXt")
   if (any(dates) && any(instants)) {

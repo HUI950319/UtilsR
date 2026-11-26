@@ -1218,3 +1218,14 @@ test_that("dumbbell guides reach the observed endpoint of incomplete pairs", {
   expect_identical(as.numeric(guides$xend), c(3, 2, 4, NA_real_))
   expect_identical(p$data$.delta, c(2, NA_real_, NA_real_, NA_real_))
 })
+
+test_that("dumbbells reject endpoint quantities with incomparable units", {
+  d <- data.frame(category = letters[1:3], amount = 1:3,
+                  date = as.Date("2026-01-01") + 1:3,
+                  span = as.difftime(1:3, units = "hours"))
+  for (pair in list(c("amount", "date"), c("date", "amount"), c("amount", "span"),
+                    c("span", "amount"), c("date", "span"), c("span", "date"))) {
+    expect_error(PlotDumbbell(d, x_col = pair[1L], xend_col = pair[2L]),
+                 "Both dumbbell endpoints must use comparable units", fixed = TRUE)
+  }
+})
