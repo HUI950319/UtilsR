@@ -297,23 +297,27 @@ stat_ci_parse <- function(x,
         if (length(rescale)) adjusted <- adjusted_bounds()
         l_s <- adjusted$lower
         h_s <- adjusted$upper
-        if (all_valid && !length(exp_rows)) {
-          lo <- l_s * work_scale
-          hi <- h_s * work_scale
-        } else if (all_valid && length(exp_rows) == length(est)) {
-          lo <- exp(l_s)
-          hi <- exp(h_s)
-        } else {
-          lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
-          hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+        # Relevelled output on the printed scale is needed only for labels or
+        # for validating an unusually wide formatted number.
+        if (!probability_only || any(d > 7881L, na.rm = TRUE)) {
+          if (all_valid && !length(exp_rows)) {
+            lo <- l_s * work_scale
+            hi <- h_s * work_scale
+          } else if (all_valid && length(exp_rows) == length(est)) {
+            lo <- exp(l_s)
+            hi <- exp(h_s)
+          } else {
+            lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
+            hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+          }
+          if (length(tight)) {
+            down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
+            up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
+            lo[tight] <- est[tight] * exp(-down)
+            hi[tight] <- est[tight] * exp(up)
+          }
         }
-        if (length(tight)) {
-          down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
-          up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
-          lo[tight] <- est[tight] * exp(-down)
-          hi[tight] <- est[tight] * exp(up)
-          if (output != "ci") tight_se <- tight_se * ratio
-        }
+        if (length(tight) && output != "ci") tight_se <- tight_se * ratio
         # Interval-only output has no probability to recompute from these bounds.
         if (output != "ci") se <- se_of(l_s, h_s)
       }

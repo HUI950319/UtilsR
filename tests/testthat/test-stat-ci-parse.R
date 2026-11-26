@@ -1795,3 +1795,21 @@ test_that("homogeneous inferred CI scales avoid elementwise excess selection", {
   expect_identical(fn(difference, difference - 1 / 3, difference + 1 / 3, unit, "auto", rep(TRUE, 3L)),
                    .ci_scale(difference, difference - 1 / 3, difference + 1 / 3, unit, FALSE, rep(TRUE, 3L)))
 })
+
+test_that("ordinary relevelled probabilities stay on the working scale", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  transforms <- 0L
+  env$exp <- function(x) {
+    transforms <<- transforms + 1L
+    base::exp(x)
+  }
+  environment(fn) <- env
+  x <- c(a = "4 (2,8)", b = "2 (1,4)")
+  want <- 2 * pnorm(-log(c(4, 2)) / (log(2) * qnorm(.95) / qnorm(.975)^2))
+  expect_equal(fn(x, output = "p", level = .9, exp = TRUE), setNames(want, names(x)))
+  expect_identical(fn(x, output = "p_star", level = .9, exp = TRUE), setNames(stat_pval(want), names(x)))
+  expect_identical(transforms, 0L)
+  expect_equal(fn(x, output = "p", level = .9, exp = TRUE, digits = 8190L), setNames(want, names(x)))
+  expect_identical(transforms, 2L)
+})
