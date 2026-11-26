@@ -78,7 +78,7 @@
   from <- c("\n", "\r", "\t", "\b", "\f", "\v")
   to <- c("\\n", "\\r", "\\t", "\\b", "\\f", "\\v")
   if (is.character(text)) {
-    affected <- which(grepl("[\n\r\t\b\f\v]", text, perl = TRUE, useBytes = TRUE))
+    affected <- grep("[\n\r\t\b\f\v]", text, perl = TRUE, useBytes = TRUE)
     if (!length(affected)) return(text)
     if (is.vector(text)) {
       values <- text[affected]
