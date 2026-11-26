@@ -5544,7 +5544,8 @@ fmt_his <- function(plot,
     facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
         his_parent = parent_facet,
         train_scales = function(self, x_scales, y_scales, layout, data, params) {
-          data <- data[!seq_along(data) %in% self$his_layers]
+          overlay <- self$his_layers
+          if (length(overlay)) data <- data[-overlay]
           ggplot2::ggproto_parent(parent_facet, self)$train_scales(x_scales, y_scales, layout, data, params)
         },
         setup_panel_params = function(self, panel_params, coord) {
