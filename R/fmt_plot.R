@@ -3917,6 +3917,7 @@ fmt_axisTile <- function(plot,
 
   info <- .to_plot_list(plot, recurse = TRUE)
   base_theme <- NULL
+  last_plot_theme <- last_guide_theme <- baseline <- NULL
   baseline_fields <- c("axis.text", "axis.ticks", "axis.text.x", "axis.text.y",
     "axis.ticks.x", "axis.ticks.y", paste0("axis.text.", c("x.top", "x.bottom", "y.left", "y.right")),
     paste0("axis.ticks.", c("x.top", "x.bottom", "y.left", "y.right")))
@@ -3941,7 +3942,14 @@ fmt_axisTile <- function(plot,
       } else return(p)
     }
     if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
-    baseline <- as.list(base_theme + p$theme + original$params$theme)[baseline_fields]
+    plot_theme <- p$theme
+    guide_theme <- original$params$theme
+    if (is.null(baseline) || !identical(plot_theme, last_plot_theme) ||
+        !identical(guide_theme, last_guide_theme)) {
+      baseline <<- as.list(base_theme + plot_theme + guide_theme)[baseline_fields]
+      last_plot_theme <<- plot_theme
+      last_guide_theme <<- guide_theme
+    }
     settings <- list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
       tile_border = tile_border, tile_border_width = tile_border_width,

@@ -760,3 +760,24 @@ test_that("tile axes share baseline theme field names across edited plots", {
   expect_true(all(vapply(result, function(q) inherits(q$guides$guides$x, "AxisTileGuide"), logical(1))))
   expect_identical(calls, 1L)
 })
+
+test_that("axis tile plot batches merge only changed plot and guide themes", {
+  a <- axis_tile_plot()
+  b <- a + ggplot2::theme(axis.text.x = ggplot2::element_text(size = 15))
+  c <- b + ggplot2::guides(x = ggplot2::guide_axis(
+    theme = ggplot2::theme(axis.text.x = ggplot2::element_text(size = 20))))
+  fn <- fmt_axisTile
+  merges <- 0L
+  environment(fn) <- list2env(list(as.list = function(x, ...) {
+    if (inherits(x, "theme")) merges <<- merges + 1L
+    base::as.list(x, ...)
+  }), parent = environment(fn))
+  plots <- list(a, a, b, b, c, c)
+  out <- fn(plots, axis_tile_colors)
+  expect_equal(merges, 3L)
+  axis_theme <- function(p) p$guides$guides$x$params$axis_tile$theme
+  expect_identical(lapply(out, axis_theme),
+    lapply(lapply(plots, fmt_axisTile, colors = axis_tile_colors), axis_theme))
+  expect_equal(axis_theme(out[[3L]])$axis.text.x$size, 15)
+  expect_equal(axis_theme(out[[5L]])$axis.text.x$size, 20)
+})
