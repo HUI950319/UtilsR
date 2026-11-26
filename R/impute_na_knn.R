@@ -300,9 +300,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   backend_names <- paste0(".knn_", seq_along(data_for_impute))
-  complete_columns <- setdiff(names(data_for_impute), vars_with_missing)
-  stable_columns <- names(data_for_impute)[!(labelled_cols | time_cols)]
-  observed_rows <- if (any(complete_columns %in% stable_columns) ||
+  complete_columns <- which(!missing_cols)
+  converted_columns <- labelled_cols | time_cols
+  observed_rows <- if (any(!converted_columns[complete_columns]) ||
                        (length(complete_columns) && !anyNA(data_for_impute[[complete_columns[[1L]]]]))) {
     TRUE
   } else {
@@ -317,7 +317,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   all_observed <- all(observed_rows)
   backend_data <- if (all_observed) data_for_impute else
     data_for_impute[observed_rows, , drop = FALSE]
-  missing_backend <- if (all_observed && !any(labelled_cols | time_cols)) {
+  missing_backend <- if (all_observed && !any(converted_columns)) {
     which(missing_cols)
   } else which(vapply(backend_data, anyNA, logical(1)))
   backend_variables <- backend_names[missing_backend]
