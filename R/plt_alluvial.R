@@ -553,7 +553,7 @@ plt_alluvial <- function(
     count = stratum_counts,
     group_total = pair_totals
   )
-  stat$percent <- stat$count / stat$group_total
+  stat$percent <- if (n_groups == 1L) rep.int(1, n_pairs) else stat$count / stat$group_total
   stat$.is_gap <- FALSE
 
   stat$.y <- if (y_type == "percent") {

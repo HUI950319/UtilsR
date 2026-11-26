@@ -1645,3 +1645,15 @@ test_that("a single observed facet uses one count gap height", {
   expect_equal(out$.y[out$.is_gap], c(.3, .3))
   expect_identical(levels(out$.facet), "one")
 })
+
+test_that("single-group alluvial composition does not divide stratum totals", {
+  d <- data.frame(x = c("a", "a", "b", "b", "b"), g = "only")
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(`/` = function(a, b) {
+    if (identical(a, b)) stop("divided identical stratum counts")
+    base::`/`(a, b)
+  }), parent = environment(fn))
+  out <- suppressMessages(fn(d, "x", "g", stratum_args = list(gap = 0)))$data
+  expect_identical(out$count, c(2L, 3L))
+  expect_identical(out$percent, c(1, 1))
+})
