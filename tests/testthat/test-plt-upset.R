@@ -1437,3 +1437,15 @@ test_that("UpSet repeats one observed sparse factor membership without row match
   expect_identical(as.character(fn(d, names(d), levels = "yes", output = "data")$intersect_group),
                    rep("a", 600L))
 })
+
+test_that("UpSet counts sparse observed intersections without allocating unused rows", {
+  fn <- .upset_observed_intersections
+  baseline <- .upset_row_codes
+  environment(fn) <- list2env(list(.upset_row_codes = function(sets) {
+    expect_lt(max(unlist(sets)), 10L)
+    baseline(sets)
+  }), parent = environment(fn))
+  sets <- list(A = c(1L, 800000L), B = c(4L, 800000L, 950000L), C = integer())
+  expect_identical(fn(sets), 3L)
+  expect_identical(.upset_observed_intersections(list(A = 1:3, B = 1:3)), 1L)
+})

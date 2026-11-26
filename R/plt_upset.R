@@ -547,11 +547,7 @@ plt_upset <- function(data,
   p_upset <- NULL
   if (output %in% c("upset", "both", "all")) {
     if (is.null(row_codes)) {
-      codes <- .upset_row_codes(set_list)
-      slots <- max(0L, codes)
-      nintersects <- if (slots && length(codes) > slots) {
-        sum(tabulate(codes, nbins = slots) > 0L)
-      } else sum(unique(codes) != 0L)
+      nintersects <- .upset_observed_intersections(set_list)
     }
     p_upset <- .safe_upset(set_list, nintersects, upset_colors)
   }
@@ -588,6 +584,22 @@ plt_upset <- function(data,
     all = list(venn = p_venn, upset = p_upset,
                combined = finish(p_combined), data = grp_data)
   )
+}
+
+.upset_observed_intersections <- function(sets) {
+  sizes <- lengths(sets)
+  last <- vapply(sets, function(rows) if (length(rows)) rows[[length(rows)]] else 0L, integer(1))
+  # UpSet needs only observed, nonempty patterns. Compact very sparse row
+  # addresses before assigning codes, rather than allocating up to max(last).
+  if (max(last) > 8 * sum(sizes)) {
+    observed <- sort(unique(unlist(sets, use.names = FALSE)), method = "radix")
+    sets <- lapply(sets, match, table = observed)
+  }
+  codes <- .upset_row_codes(sets)
+  slots <- max(0L, codes)
+  if (slots && length(codes) > slots) {
+    sum(tabulate(codes, nbins = slots) > 0L)
+  } else sum(unique(codes) != 0L)
 }
 
 .upset_row_codes <- function(sets, n = NULL) {
