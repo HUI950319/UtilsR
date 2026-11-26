@@ -569,8 +569,20 @@ fmt_point <- function(plot,
         if (ordered || (!anyNA(codes) && anyDuplicated(codes) == 0L)) {
           # Singleton strata need no split lists. Retain the split order even
           # when rows are supplied out of order.
-          indices <- if (ordered) seq_len(nrow(data)) else order(codes, method = "radix")
-          data <- data[indices, , drop = FALSE]
+          plain_column <- function(x) {
+            fields <- names(attributes(x))
+            if (!is.object(x)) return(all(fields %in% "names"))
+            ordinary_factor <- identical(class(x), "factor") ||
+              identical(class(x), c("ordered", "factor"))
+            ordinary_factor && all(fields %in% c("names", "levels", "class"))
+          }
+          plain_frame <- ordered && identical(class(data), "data.frame") &&
+            all(names(attributes(data)) %in% c("names", "row.names", "class")) &&
+            !anyDuplicated(names(data)) && all(vapply(data, plain_column, logical(1)))
+          if (!plain_frame) {
+            indices <- if (ordered) seq_len(nrow(data)) else order(codes, method = "radix")
+            data <- data[indices, , drop = FALSE]
+          }
           rownames(data) <- NULL
           return(data)
         }
