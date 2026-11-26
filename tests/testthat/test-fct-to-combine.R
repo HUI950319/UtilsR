@@ -836,3 +836,15 @@ test_that("two logical factors use a compact ordered lookup with missing rows", 
   expect_identical(fct_to_combine(logical(), logical()), factor(character()))
   expect_identical(levels(fct_to_combine(c(NA, NA), c(TRUE, FALSE))), character())
 })
+
+test_that("bounded combination dictionaries retain the order of observed tuples", {
+  a <- factor(c("z", "x", "z", NA, "y", "z"), levels = c("z", "x", "y", "unused"))
+  b <- c(1L, -3L, 1L, 9L, 1L, -3L)
+  z <- c(TRUE, FALSE, NA, TRUE, FALSE, TRUE)
+  one <- fct_to_combine(a, b, z, sep = "_")
+  many <- fct_to_combine(rep(a, 1000L), rep(b, 1000L), rep(z, 1000L), sep = "_")
+  expect_identical(many, rep(one, 1000L))
+  collision <- rep(factor(c("x", "x y")), 1000L)
+  second <- rep(factor(c("y z", "z")), 1000L)
+  expect_error(fct_to_combine(collision, second, sep = " "), "same label")
+})

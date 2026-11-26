@@ -330,8 +330,40 @@ fct_to_combine.default <- function(..., sep = " & ") {
   if (!early_filter && !is.null(complete_rows)) {
     codes <- lapply(codes, function(v) v[complete_rows])
   }
-  names(codes) <- paste0("v", seq_along(codes))
   group_n <- if (is.null(complete_rows)) n else length(complete_rows)
+  if (early_filter && length(codes) >= 2L && length(codes) <= 4L && group_n >= 1024L) {
+    sizes <- lengths(lapply(inputs, `[[`, "labels"))
+    space <- prod(sizes)
+    if (space > 0 && space <= 4096L) {
+      # Lexicographic tuple codes keep small dictionaries bounded, instead
+      # of hashing each row as a data frame.
+      packed <- codes[[1L]] - 1L
+      for (j in seq.int(2L, length(codes))) packed <- packed * sizes[j] + (codes[[j]] - 1L)
+      packed <- packed + 1L
+      present <- tabulate(packed, nbins = space) > 0L
+      key <- which(present) - 1L
+      fields <- vector("list", length(codes))
+      for (j in rev(seq_along(codes))) {
+        fields[[j]] <- inputs[[j]]$labels[(key %% sizes[j]) + 1L]
+        key <- key %/% sizes[j]
+      }
+      lvls <- do.call(paste, c(fields, list(sep = sep)))
+      if (anyDuplicated(lvls)) {
+        cli::cli_abort(c(
+          "Distinct combinations produce the same label.",
+          "i" = "Choose a different {.arg sep} or relabel the inputs."
+        ))
+      }
+      result <- cumsum(present)[packed]
+      if (!is.null(complete_rows)) {
+        full <- rep.int(NA_integer_, n)
+        full[complete_rows] <- result
+        result <- full
+      }
+      return(structure(result, levels = lvls, class = "factor"))
+    }
+  }
+  names(codes) <- paste0("v", seq_along(codes))
   ids <- if (length(codes) == 1L) {
     vctrs::vec_group_id(codes[[1L]])
   } else {
