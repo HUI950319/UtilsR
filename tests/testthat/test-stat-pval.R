@@ -1286,3 +1286,18 @@ test_that("bound detection collects indices without a full logical mask", {
   expect_identical(fn(x[c(2L, 5L)]), stat_pval(x[c(2L, 5L)]))
   expect_error(fn(c(x, "<words")), "numeric strings or numeric bounds")
 })
+
+test_that("sparse p-value bounds are tracked by position without a second row mask", {
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$rep <- function(x, ...) {
+    if (identical(x, FALSE)) stop("allocated a separate full-length bounds mask")
+    base::rep(x, ...)
+  }
+  environment(fn) <- env
+  x <- c(exact = "0.05", missing = NA_character_, bound = " > 0.10 ", zero = "0",
+         token = "NaN", bound2 = "\u2264 1", plain = "0.20")
+  expect_identical(fn(x), stats::setNames(c("0.050*", NA, "> 0.10", "<0.001***",
+    NA, "\u2264 1", "0.200"), names(x)))
+  expect_error(fn(c(NA_character_, " > 1 ", "<= 0")), "strict bound")
+})
