@@ -557,12 +557,13 @@ fmt_point <- function(plot,
           !anyNA(unclass(x))) return(x)
       addNA(as.factor(x), ifany = TRUE)
     })
+    has_matrix <- any(vapply(data, is.matrix, logical(1)))
     if (length(strata) == 1L) {
       groups <- strata[[1L]]
       ordinary <- identical(class(groups), "factor") ||
         identical(class(groups), c("ordered", "factor"))
       if (ordinary && nlevels(groups) >= nrow(data) &&
-          !any(vapply(data, is.matrix, logical(1)))) {
+          !has_matrix) {
         codes <- unclass(groups)
         ordered <- isFALSE(is.unsorted(codes, strictly = TRUE))
         if (ordered || (!anyNA(codes) && anyDuplicated(codes) == 0L)) {
@@ -596,7 +597,7 @@ fmt_point <- function(plot,
         indices[sample.int(length(indices), sample_n)]
       })
     }
-    if (any(vapply(data, is.matrix, logical(1)))) {
+    if (has_matrix) {
       # Bind only sampled rows, retaining native matrix class/dimname semantics.
       data <- do.call(rbind, lapply(rows, function(indices) data[indices, , drop = FALSE]))
     } else {
