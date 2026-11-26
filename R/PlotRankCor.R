@@ -367,11 +367,19 @@ PlotRankCor <- function(
     ends <- cumsum(as.double(small_sizes))
     first <- small_rows[ends - small_sizes + 1]
     last <- small_rows[ends]
+    singletons <- all(group_sizes == 1L)
     agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]
       if (!is.numeric(values) || is.object(values) || !any(small)) {
         agg_values[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+        next
+      }
+      if (singletons) {
+        means <- as.double(values[first])
+        if (anyNA(means)) means[is.na(means)] <- NaN
+        means[which(means == 0)] <- 0
+        agg_values[[ec]] <- means
         next
       }
       a <- as.double(values[first])
