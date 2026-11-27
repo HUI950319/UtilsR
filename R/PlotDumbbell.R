@@ -662,10 +662,12 @@ PlotDumbbell <- function(
       step64 <- bit64::as.integer64(step)
       difference <- suppressWarnings(as.double(x)) - y
       finite <- which(!is.na(x) & is.finite(y))
-      whole <- trunc(y[finite] / step)
-      fraction <- y[finite] - whole * step
-      high <- as.double(x[finite] %/% step64) - whole
-      low <- as.double(x[finite] %% step64) - fraction
+      finite_x <- x[finite]
+      finite_y <- y[finite]
+      whole <- trunc(finite_y / step)
+      fraction <- finite_y - whole * step
+      high <- as.double(finite_x %/% step64) - whole
+      low <- as.double(finite_x %% step64) - fraction
       difference[finite] <- high * step + low
       return(difference)
     }
