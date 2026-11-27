@@ -390,7 +390,8 @@ stat_ci_parse <- function(x,
       if (.pal_use_unique(v)) {
         keys <- unique(v)
         if (length(keys) < n / 2) {
-          return(.format_once(keys, d[[1L]])[match(v, keys)])
+          rendered <- .format_once(keys, d[[1L]])
+          return(if (length(keys) == 1L) rep.int(rendered, n) else rendered[match(v, keys)])
         }
       }
     } else if (n > 1024L) {
@@ -401,7 +402,8 @@ stat_ci_parse <- function(x,
         count <- attr(ids, "n")
         if (count < n / 2) {
           first <- if (count == 1L) 1L else which(!duplicated(ids, nmax = count))
-          return(.format_once(v[first], d[first])[ids])
+          rendered <- .format_once(v[first], d[first])
+          return(if (count == 1L) rep.int(rendered, n) else rendered[ids])
         }
       }
     }
