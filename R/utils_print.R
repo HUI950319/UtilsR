@@ -766,7 +766,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       # Sign-bit differences at zero can affect fixed-point output.
       distinct <- if (.pal_use_unique(v) && !any(fin == 0)) unique(v) else v
       txt <- if (length(distinct) < length(v) / 2) {
-        formatC(distinct, format = "f", digits = d)[match(v, distinct)]
+        formatted <- formatC(distinct, format = "f", digits = d)
+        if (length(distinct) == 1L) rep.int(formatted, length(v)) else formatted[match(v, distinct)]
       } else {
         formatC(v, format = "f", digits = d)
       }
