@@ -357,7 +357,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # doubles, so histogram bins and SD retain values beyond double precision.
   .spread_values <- function(x, values = suppressWarnings(as.numeric(x))) {
     if (inherits(x, "integer64")) {
-      observed <- x[!is.na(x)]
+      observed <- if (anyNA(x)) x[!is.na(x)] else x
       if (length(observed) && diff(range(values, na.rm = TRUE)) <= 2^53) {
         values <- suppressWarnings(as.numeric(x - min(observed)))
       }
