@@ -520,9 +520,6 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     }), recursive = FALSE)
   }
   flatten_recursive <- function(plot_obj) {
-    if (is_inset(plot_obj)) {
-      cli::cli_abort("An inset must follow its main plot.", call = error_call)
-    }
     if (is_free(plot_obj)) {
       return(list(list(plot = plot_obj, insets = list())))
     }
@@ -544,13 +541,13 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       }
     }
     n <- length(children)
+    if (n && is_inset(children[[1L]])) {
+      cli::cli_abort("An inset must follow its main plot.", call = error_call)
+    }
     cells <- vector("list", n)
     i <- 1L
     while (i <= n) {
       child <- children[[i]]
-      if (is_inset(child)) {
-        cli::cli_abort("An inset must follow its main plot.", call = error_call)
-      }
       next_i <- i + 1L
       while (next_i <= n && is_inset(children[[next_i]])) {
         next_i <- next_i + 1L
@@ -573,6 +570,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     unlist(cells, recursive = FALSE)
   }
 
+  if (is_inset(plots)) cli::cli_abort("An inset must follow its main plot.", call = error_call)
   all_subplots <- flatten_recursive(plots)
 
   if (!is.null(select_inds)) {
