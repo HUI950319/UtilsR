@@ -231,6 +231,7 @@ fct_cat <- function(x, ...,
                         arg_name = "reorder index", n_levels = length(cur))
       indices <- unlist(indices, use.names = FALSE)
       if (anyDuplicated(indices)) cli::cli_abort("Reorder levels must not be duplicated.")
+      if (length(indices) == length(cur)) return(.relevel_factor(x, cur[indices], indices))
       remaining <- rep.int(TRUE, length(cur))
       remaining[indices] <- FALSE
       permutation <- c(indices, which(remaining))
@@ -239,6 +240,7 @@ fct_cat <- function(x, ...,
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
     }
+    if (length(indices) == length(cur)) return(.relevel_factor(x, new_order, indices))
     remaining <- rep.int(TRUE, length(cur))
     remaining[indices] <- FALSE
     other <- if (length(cur) <= length(x)) which(remaining) else remaining
