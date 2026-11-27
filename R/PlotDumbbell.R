@@ -790,9 +790,16 @@ PlotDumbbell <- function(
 
   # Significance bracket
   inset_values <- df_long$.value
+  inset_bounds <- NULL
   if (inset_test != "none") {
-    finite <- is.finite(inset_values)
-    if (!all(finite)) inset_values <- inset_values[finite]
+    if (length(inset_values) && !is.object(inset_values) && is.numeric(inset_values)) {
+      bounds <- range(inset_values)
+      if (all(is.finite(bounds))) inset_bounds <- bounds
+    }
+    if (is.null(inset_bounds)) {
+      finite <- is.finite(inset_values)
+      if (!all(finite)) inset_values <- inset_values[finite]
+    }
   }
   if (inset_test != "none" && length(inset_values)) {
     test_fn <- switch(inset_test,
@@ -831,7 +838,7 @@ PlotDumbbell <- function(
       sprintf("p = %.3f", p_val)
     }
 
-    y_range <- range(inset_values)
+    y_range <- inset_bounds %||% range(inset_values)
     y_max <- if (is.object(inset_values)) max(inset_values) else y_range[2L]
     if (is.integer(y_range) && !is.object(y_range)) y_range <- as.double(y_range)
     y_span <- diff(y_range)
