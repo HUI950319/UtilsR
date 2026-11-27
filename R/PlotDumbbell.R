@@ -368,12 +368,21 @@ PlotDumbbell <- function(
   }
   if (identical(class(categories), "factor") || identical(class(categories), c("ordered", "factor"))) {
     codes <- as.integer(categories)
-    observed <- unique(codes)
-    if (anyNA(observed)) observed <- observed[!is.na(observed)]
-    complete_order <- length(observed) == nlevels(categories) && !is.unsorted(observed)
-    updated <- if (complete_order) codes else match(codes, observed)
+    display_levels <- levels(categories)
+    sequential <- length(codes) == length(display_levels) && length(codes) > 0L &&
+      isTRUE(codes[1L] == 1L && codes[length(codes)] == length(display_levels)) &&
+      isFALSE(is.unsorted(codes, strictly = TRUE))
+    updated <- codes
+    if (!sequential) {
+      observed <- unique(codes)
+      if (anyNA(observed)) observed <- observed[!is.na(observed)]
+      complete_order <- length(observed) == length(display_levels) && !is.unsorted(observed)
+      if (!complete_order) {
+        updated <- match(codes, observed)
+        display_levels <- display_levels[observed]
+      }
+    }
     names(updated) <- names(categories)
-    display_levels <- if (complete_order) levels(categories) else levels(categories)[observed]
     data[[y_col]] <- structure(updated, levels = display_levels, class = class(categories))
   } else {
     data[[y_col]] <- factor(categories, levels = unique(categories))
