@@ -574,9 +574,20 @@ PlotScatter1 <- function(
   }
   if (is.factor(value)) {
     current_levels <- base::levels(value)
+    ordinary <- identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))
+    if (missing(levels) && ordinary && length(current_levels) > length(value)) {
+      raw_codes <- as.integer(value)
+      observed <- unique(raw_codes)
+      if (anyNA(observed)) observed <- observed[!is.na(observed)]
+      observed_labels <- current_levels[observed]
+      if (!anyNA(observed_labels) && !anyDuplicated(observed_labels)) {
+        codes <- match(raw_codes, observed)
+        names(codes) <- names(value)
+        return(structure(codes, levels = observed_labels, class = class(value)))
+      }
+    }
     labels <- as.character(levels)
     if (anyNA(labels)) labels <- labels[!is.na(labels)]
-    ordinary <- identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))
     if (ordinary && !anyNA(current_levels) &&
         !anyDuplicated(labels)) {
       codes <- if (identical(current_levels, labels)) as.integer(value) else
