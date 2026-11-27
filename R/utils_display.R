@@ -212,7 +212,10 @@ console_width <- function() {
   lines <- as.character(message)
   lines[is.na(lines)] <- "NA"
   if (any(grepl("\n", lines, fixed = TRUE))) {
-    lines <- gsub("\r\n", "\n", lines, fixed = TRUE)
+    windows_lines <- grep("\r\n", lines, fixed = TRUE)
+    if (length(windows_lines)) {
+      lines[windows_lines] <- gsub("\r\n", "\n", lines[windows_lines], fixed = TRUE)
+    }
     split_lines <- if (any(grepl("\033", lines, fixed = TRUE))) cli::ansi_strsplit else strsplit
     lines <- unlist(split_lines(paste0(lines, "\n"), "\n", fixed = TRUE), use.names = FALSE)
   }
