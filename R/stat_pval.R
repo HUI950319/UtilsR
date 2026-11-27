@@ -129,6 +129,11 @@ stat_pval <- function(x,
     if (is.unsorted(map)) map <- sort(map)
     if (!is.object(pvals) && min(Inf, pvals, na.rm = TRUE) > map[[length(map)]])
       return(NULL)
+    if (is.null(endpoints) && !is.object(pvals) && length(map) == 1L) {
+      stars <- rep.int("", length(pvals))
+      stars[which(pvals <= map[[1L]])] <- names(map)[1L]
+      return(stars)
+    }
     if (is.null(endpoints) && (!is.object(pvals) || identical(class(pvals), "AsIs"))) {
       index <- findInterval(pvals, map, left.open = TRUE) + 1L
       stars <- c(names(map), "")[index]
