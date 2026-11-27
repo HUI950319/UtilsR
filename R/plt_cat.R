@@ -693,8 +693,15 @@ plt_cat <- function(data,
     ordinary_factor <- identical(class(panels), "factor") ||
       identical(class(panels), c("ordered", "factor"))
     if (ordinary_factor && !anyNA(levels(panels))) {
-      panel_rows <- split(seq_len(nrow(data)), panels, drop = TRUE)
-      split_levels <- names(panel_rows)
+      codes <- as.integer(panels)
+      if (length(codes) && !anyNA(codes) && min(codes) == max(codes)) {
+        # A NULL partition keeps every input row.
+        panel_rows <- list(NULL)
+        split_levels <- levels(panels)[codes[1L]]
+      } else {
+        panel_rows <- split(seq_len(nrow(data)), panels, drop = TRUE)
+        split_levels <- names(panel_rows)
+      }
     } else {
       panels <- factor(panels)
       split_levels <- levels(panels)
@@ -711,7 +718,8 @@ plt_cat <- function(data,
         bg_palette %||% c("grey85", "transparent")), length(bg_levels)), bg_levels)
     }
     plot_list <- lapply(seq_along(panel_rows), function(i) {
-      sub_data <- data[panel_rows[[i]], , drop = FALSE]
+      at <- panel_rows[[i]]
+      sub_data <- if (is.null(at)) data else data[at, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
       cli::cli_fmt(sub <- draw_one(sub_data, split_levels[i]))
       sub
