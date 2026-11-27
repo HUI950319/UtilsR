@@ -1240,14 +1240,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     .tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE]))
   }
   res_count <- if (length(table_vars)) {
+    label_rows <- match(table_vars, result$vars)
     table_data %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
           table_vars, " (",
-          vapply(analysis_data[table_vars], function(x) class(x)[1], character(1)), ", ",
-          # Observed values, as counted by .lv_one().
-          as.integer(result$n_unique[match(table_vars, result$vars)]),
+          result$class[label_rows], ", ",
+          as.integer(result$n_unique[label_rows]),
           ")"
         ),
         table_vars
