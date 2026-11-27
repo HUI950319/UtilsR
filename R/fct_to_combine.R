@@ -319,6 +319,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
       positions[order_at] <- seq_along(order_at)
       return(list(codes = positions[ids], labels = as.character(values[order_at])))
     }
+    if (!is.object(v) && (is.integer(v) || is.double(v)) &&
+        isFALSE(is.unsorted(v, strictly = TRUE))) {
+      return(list(codes = seq_along(v), labels = as.character(v)))
+    }
     # Keep value identity separate from potentially rounded display labels.
     values <- vctrs::vec_unique(v)
     # Base ordering interprets integer64 storage as doubles, including NaN.
