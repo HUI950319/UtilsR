@@ -385,7 +385,20 @@ stat_pval <- function(x,
 
 # Only try the final whitespace run from its first character.
 .trim_pvalue_space <- function(text) {
-  gsub("^[\\h\\v]+|(?<![\\h\\v])[\\h\\v]++\\z", "", text, perl = TRUE)
+  trim <- "^[\\h\\v]+|(?<![\\h\\v])[\\h\\v]++\\z"
+  if (is.character(text) && is.null(attributes(text)) && length(text) > 1024L) {
+    edge <- "^[\\h\\v]|[\\h\\v]\\z"
+    probe <- text[seq.int(1L, length(text), length.out = 128L)]
+    if (!any(grepl(edge, probe, perl = TRUE))) {
+      rows <- grep(edge, text, perl = TRUE)
+      if (!length(rows)) return(text)
+      if (length(rows) < length(text) / 2L) {
+        text[rows] <- gsub(trim, "", text[rows], perl = TRUE)
+        return(text)
+      }
+    }
+  }
+  gsub(trim, "", text, perl = TRUE)
 }
 
 #' @noRd
