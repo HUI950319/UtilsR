@@ -552,8 +552,10 @@ plt_con <- function(data,
       bg_palette <- .resolve_bg_palette(bg_palette, bg_levels)
     }
     split_codes <- as.integer(data[[split.by]])
-    panel_rows <- split(seq_along(split_codes), split_codes, drop = TRUE)
-    split_indices <- as.integer(names(panel_rows))
+    single_panel <- length(split_codes) && !anyNA(split_codes) &&
+      min(split_codes) == max(split_codes)
+    panel_rows <- if (!single_panel) split(seq_along(split_codes), split_codes, drop = TRUE)
+    split_indices <- if (single_panel) split_codes[1L] else as.integer(names(panel_rows))
     split_levels <- levels(data[[split.by]])[split_indices]
     missing_level <- is.na(split_levels)
     if (any(missing_level)) {
@@ -561,7 +563,7 @@ plt_con <- function(data,
     }
     plot_list <- stats::setNames(lapply(seq_along(split_indices), function(i) {
       lv <- split_levels[i]
-      sub_data <- data[panel_rows[[i]], , drop = FALSE]
+      sub_data <- if (single_panel) data else data[panel_rows[[i]], , drop = FALSE]
       if (type == "dot") attr(sub_data, ".con_dot_breaks") <- dot_breaks
       if (!any(vapply(sub_data[stat.by], .con_has_finite, logical(1)))) {
         cli::cli_warn("Split {.val {lv}} has no finite values. Skipping.")
