@@ -339,7 +339,8 @@ stat_pval <- function(x,
     format_x <- x_num
   }
   # A finite double needs at most 310 bytes before the decimal point.
-  if (d > 7881L) {
+  # A validated plain probability needs at most two, including signed zero.
+  if (d > 7881L && (mode == "plain" || is.object(format_x) || d == 8190L)) {
     widths <- nchar(sprintf("%.0f", trunc(format_x[is.finite(format_x)])))
     if (any(widths + 1L + d > 8192L)) {
       cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number in {.arg x}.")
