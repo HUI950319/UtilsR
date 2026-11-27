@@ -621,7 +621,9 @@ console_width <- function() {
       for (col in fmt_cols) {
         v <- df[[col]]
         ordinary <- is.numeric(v) && !is.object(v) && !is.complex(v) && is.null(dim(v))
-        domain <- if (ordinary) suppressWarnings(range(v, finite = TRUE)) else NULL
+        domain <- if (ordinary && length(v)) c(min(v), max(v))
+        complete <- !is.null(domain) && all(is.finite(domain))
+        if (ordinary && !complete) domain <- suppressWarnings(range(v, finite = TRUE))
         finite <- if (ordinary) all(is.finite(domain)) else
           if (is.numeric(v) && is.null(dim(v))) is.finite(v) else FALSE
         if (any(finite)) {
@@ -637,7 +639,7 @@ console_width <- function() {
           colour_fn <- scales::col_numeric(palette = palette, domain = domain / magnitude)
           tb <- gt::data_color(tb,
             columns = col,
-            rows = if (ordinary && is.integer(v)) TRUE else which(!is.infinite(v)),
+            rows = if (complete || (ordinary && is.integer(v))) TRUE else which(!is.infinite(v)),
             fn = function(x) {
               if (encoded) x <- if (is.null(origin)) suppressWarnings(as.numeric(x)) else as.numeric(x - origin)
               colour_fn(x / magnitude)
