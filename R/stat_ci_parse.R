@@ -512,11 +512,13 @@ stat_ci_parse <- function(x,
   }
   starts <- attr(matched, "capture.start")
   lengths <- attr(matched, "capture.length")
-  text <- if (length(hit) == n) xs else xs[hit]
+  complete_hit <- length(hit) == n
+  text <- if (complete_hit) xs else xs[hit]
   g <- lapply(seq_len(6L), function(k) {
     if (k == 4L && !need_style) return(NULL)
-    first <- starts[hit, k]
-    substring(text, first, first + lengths[hit, k] - 1L)
+    first <- if (complete_hit) starts[, k] else starts[hit, k]
+    width <- if (complete_hit) lengths[, k] else lengths[hit, k]
+    substring(text, first, first + width - 1L)
   })
   paired <- (g[[2L]] == "(") == (g[[6L]] == ")")
   if (!all(paired)) {
