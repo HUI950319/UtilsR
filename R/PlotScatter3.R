@@ -321,7 +321,7 @@ PlotScatter3 <- function(
   }
   # ---- Difference statistics ----
   x_values <- as.double(data[[x]])
-  y_values <- as.double(data[[y]])
+  y_values <- if (x == y) x_values else as.double(data[[y]])
   diff_values <- if (encoded_pairs) {
     original_x <- if (inherits(raw_x, "integer64")) raw_x else x_values
     original_y <- if (inherits(raw_y, "integer64")) raw_y else y_values
