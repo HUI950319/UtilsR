@@ -198,8 +198,12 @@ grob_add <- function(
       }
     } else if (is.list(grob)) {
       measure <- if (position %in% c("top", "bottom")) grid::grobHeight else grid::grobWidth
-      sizes <- lapply(grob, measure)
-      space <- if (length(sizes) == 1L) sizes[[1L]] else do.call(grid::unit.pmax, sizes)
+      space <- if (!is.object(grob) && length(grob) == 1L) {
+        measure(grob[[1L]])
+      } else {
+        sizes <- lapply(grob, measure)
+        if (length(sizes) == 1L) sizes[[1L]] else do.call(grid::unit.pmax, sizes)
+      }
     }
   }
 
