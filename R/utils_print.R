@@ -806,7 +806,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   headers[is.na(headers)] <- "<NA>"
   headers <- ._pr_escape(headers)
   cell_w <- vapply(cells, function(column) {
-    max(c(0L, cli::ansi_nchar(column, type = "width")))
+    max(0L, cli::ansi_nchar(column, type = "width"))
   }, numeric(1))
   measured_w <- pmax(cli::ansi_nchar(headers, type = "width"), cell_w)
   col_w <- measured_w
