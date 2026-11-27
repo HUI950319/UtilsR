@@ -152,11 +152,12 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
     miss <- vars[is.na(positions)]
     cli::cli_abort("Column{?s} {.val {miss}} not found in the data frame.")
   }
-  if (anyDuplicated(frame_names) && anyDuplicated(frame_names[frame_names %in% vars])) {
+  duplicate_names <- anyDuplicated(frame_names) > 0L
+  if (duplicate_names && anyDuplicated(frame_names[frame_names %in% vars])) {
     cli::cli_abort("Selected column names must be unique in the data frame.")
   }
   new_var <- if (!is.null(var_name)) var_name else paste(vars, collapse = "_")
-  if (sum(names(x) == new_var, na.rm = TRUE) > 1L) {
+  if (duplicate_names && sum(frame_names == new_var, na.rm = TRUE) > 1L) {
     cli::cli_abort("Output column name {.val {new_var}} is ambiguous in the data frame.")
   }
   combined <- do.call(fct_to_combine.default,
