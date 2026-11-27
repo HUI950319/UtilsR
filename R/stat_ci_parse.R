@@ -534,7 +534,8 @@ stat_ci_parse <- function(x,
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
   finite <- vapply(values, function(v) !length(v) ||
     (is.finite(min(v)) && is.finite(max(v))), logical(1))
-  ok <- if (all(finite)) TRUE else Reduce(`&`, lapply(values, is.finite))
+  ok <- TRUE
+  for (value in values[!finite]) ok <- ok & is.finite(value)
   if (!all(ok)) {
     hit <- hit[ok]
     g <- lapply(g, "[", ok)
