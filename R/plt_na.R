@@ -117,9 +117,11 @@ plt_na <- function(
 
   keep_masks <- output != "percentage"
   column_missing <- function(x) {
-    pkg <- if (inherits(x, "integer64")) "bit64" else
-      if (inherits(x, "haven_labelled")) "haven" else
-        if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+    pkg <- if (is.object(x) || isS4(x)) {
+      if (inherits(x, "integer64")) "bit64" else
+        if (inherits(x, "haven_labelled")) "haven" else
+          if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate"
+    }
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
