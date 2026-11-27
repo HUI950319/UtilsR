@@ -577,7 +577,7 @@ console_width <- function() {
           if (length(distinct) < n / 2L) keys <- distinct
         }
         if (is.null(keys)) {
-          which(grepl(pattern, values, ignore.case = TRUE))
+          grep(pattern, values, ignore.case = TRUE)
         } else {
           hit <- grepl(pattern, keys, ignore.case = TRUE)
           if (any(hit)) which(hit[match(values, keys)]) else integer()
