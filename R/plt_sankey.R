@@ -383,7 +383,8 @@ plt_sankey <- function(data,
     plot <- plot + ggplot2::scale_x_discrete(labels = var_labels)
   }
 
-  if (show_text != "none" && any(node_pct >= label_args$min_pct)) {
+  eligible_labels <- if (show_text != "none") node_pct >= label_args$min_pct
+  if (any(eligible_labels)) {
     # Filter labels only after node positions have been computed from all rows.
     nodes <- plot
     nodes$layers <- plot$layers[2L]
@@ -392,18 +393,20 @@ plt_sankey <- function(data,
     positions <- if (is.factor(node) && identical(levels(node), all_levels)) {
       as.integer(node)
     } else match(as.character(node), all_levels)
-    stage_codes <- rep.int(seq_along(node_counts), node_counts)
-    label_data$x <- structure(stage_codes[positions], levels = levels(plot_data[["x"]]),
-                              class = "factor")
-    label_data$label <- unname(node_labels[positions])
-    label_data$y <- (label_data$ymin + label_data$ymax) / 2
-    keep <- !is.na(label_data$label)
-    if (label_args$min_pct > 0) {
-      proportion <- unname(node_pct[positions])
-      keep <- keep & !is.na(proportion) & proportion >= label_args$min_pct
+    labels <- unname(node_labels[positions])
+    keep <- !is.na(labels)
+    if (label_args$min_pct > 0) keep <- keep & unname(eligible_labels[positions])
+    if (!all(keep)) {
+      label_data <- label_data[keep, , drop = FALSE]
+      positions <- positions[keep]
+      labels <- labels[keep]
     }
-    if (!all(keep)) label_data <- label_data[keep, , drop = FALSE]
     if (nrow(label_data)) {
+      stage_codes <- rep.int(seq_along(node_counts), node_counts)
+      label_data$x <- structure(stage_codes[positions], levels = levels(plot_data[["x"]]),
+                                class = "factor")
+      label_data$label <- labels
+      label_data$y <- (label_data$ymin + label_data$ymax) / 2
       label_geom <- if (label_args$box) ggplot2::geom_label else ggplot2::geom_text
       label_params <- list(
         data = label_data,
