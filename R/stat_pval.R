@@ -252,20 +252,12 @@ stat_pval <- function(x,
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
     present <- if (anyNA(text)) which(!is.na(text))
     observed <- if (is.null(present)) text else text[present]
-    bound_rows <- grep("^[<>\u2264\u2265]", observed)
-    exact <- observed
-    valid_bounds <- TRUE
-    if (length(bound_rows)) {
-      bound_at <- if (is.null(present)) bound_rows else present[bound_rows]
-      valid_bounds <- all(grepl(paste0("^", prefix, number, "$"),
-                                observed[bound_rows], perl = TRUE))
-      exact <- observed[-bound_rows]
-    }
-    if (!valid_bounds ||
-        !all(grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
-                   exact, perl = TRUE))) {
+    accepted <- paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA|", prefix, number, ")$")
+    if (!all(grepl(accepted, observed, perl = TRUE))) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
+    bound_rows <- grep("^[<>\u2264\u2265]", observed)
+    if (length(bound_rows)) bound_at <- if (is.null(present)) bound_rows else present[bound_rows]
     values <- text
     if (length(bound_rows)) {
       values[bound_at] <- sub(paste0("^", prefix), "", text[bound_at], perl = TRUE)
