@@ -716,8 +716,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   colour <- ._pr_colour()
   at <- if (is.logical(highlight)) {
-    rows <- which(highlight)
-    rows[rows <= nrow(data)]
+    if (length(highlight) > nrow(data)) highlight <- highlight[seq_len(nrow(data))]
+    which(highlight)
   } else {
     sort(unique(highlight[highlight >= 1L & highlight <= nrow(data)]))
   }
