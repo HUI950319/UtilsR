@@ -613,16 +613,21 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
   }
   if (is.character(dots$design) && !is.null(names(all_subplots))) {
     area_names <- sort(setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#")))
-    if (all(names(all_subplots) %in% area_names)) {
-      if (anyDuplicated(names(all_subplots))) {
+    area_indices <- match(names(all_subplots), area_names)
+    if (!anyNA(area_indices)) {
+      if (anyDuplicated(area_indices)) {
         cli::cli_abort("Cell names must be unique when matched to a character {.arg design}; use an unnamed list to repeat cells by position.")
       }
-      named_cells <- vector("list", length(area_names))
-      names(named_cells) <- area_names
-      named_cells[names(all_subplots)] <- all_subplots
-      named_cells[vapply(named_cells, is.null, logical(1))] <-
-        list(list(plot = patchwork::plot_spacer(), insets = list()))
-      all_subplots <- named_cells
+      if (length(area_indices) < length(area_names)) {
+        named_cells <- vector("list", length(area_names))
+        names(named_cells) <- area_names
+        named_cells[area_indices] <- all_subplots
+        named_cells[vapply(named_cells, is.null, logical(1))] <-
+          list(list(plot = patchwork::plot_spacer(), insets = list()))
+        all_subplots <- named_cells
+      } else if (is.unsorted(area_indices)) {
+        all_subplots <- all_subplots[order(area_indices)]
+      }
     }
   }
   if (any(vapply(all_subplots, function(cell) length(cell$insets) > 0L, logical(1)))) {
