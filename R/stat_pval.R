@@ -153,7 +153,9 @@ stat_pval <- function(x,
       parts <- .pvalue_decimal_parts(text)
       mantissa <- parts$mantissa
       exponent <- parts$exponent
-      places <- ifelse(grepl(".", mantissa, fixed = TRUE), nchar(sub("^.*[.]", "", mantissa)), 0L)
+      places <- integer(length(mantissa))
+      dotted <- grep(".", mantissa, fixed = TRUE)
+      if (length(dotted)) places[dotted] <- nchar(sub("^.*[.]", "", mantissa[dotted]))
       coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
       list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),
            digits = sub("0+$", "", coefficient))
