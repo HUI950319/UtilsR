@@ -454,23 +454,27 @@ grob_insert <- function(
     layout <- gt$layout
     overlaps <- layout$t <= ref_b & layout$b >= ref_t &
       layout$l <= ref_r & layout$r >= ref_l
-    background <- layout$name %in% "background"
-    foreground_z <- layout$z[overlaps & !background]
+    complete <- isTRUE(all(overlaps))
+    overlapping <- if (!complete) which(overlaps)
+    depth <- if (complete) layout$z else layout$z[overlapping]
+    overlapping_names <- if (complete) layout$name else layout$name[overlapping]
+    background <- overlapping_names %in% "background"
+    foreground_z <- depth[!background]
     lowest <- min(Inf, foreground_z, na.rm = TRUE)
-    backgrounds <- layout$z[overlaps & background & layout$z < lowest]
+    backgrounds <- depth[background & depth < lowest]
     below <- lowest - 1
     if (is.finite(lowest) && below >= lowest) {
       below <- lowest - abs(lowest) * .Machine$double.eps
     }
     z_val <- max(min(0, below), backgrounds, na.rm = TRUE)
     if ((!is.finite(below) || any(background)) && any(!is.na(foreground_z))) {
-      same_order <- which(overlaps & layout$z == lowest)
+      same_order <- which(depth == lowest)
       back <- same_order[background[same_order]]
       front <- same_order[!background[same_order]]
       if (length(front) && (!is.finite(below) ||
           (length(back) && max(back) < front[1L]))) {
         z_val <- lowest
-        before <- front[1L]
+        before <- if (complete) front[1L] else overlapping[front[1L]]
       }
     }
   }
