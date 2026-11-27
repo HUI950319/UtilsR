@@ -297,6 +297,38 @@ test_that("PlotDumbbell keeps the last top_n rows in each sort order", {
   }
 })
 
+test_that("capped numeric sorting retains the last stable ties in both orders", {
+  withr::local_seed(421L)
+  n <- 10000L
+  d <- data.frame(
+    category = sprintf("row-%05d", seq_len(n)),
+    start = sample.int(128L, n, replace = TRUE) / 8,
+    end = sample.int(128L, n, replace = TRUE) / 8
+  )
+  d$start[1:40] <- 20
+  d$end[1:40] <- -1
+  d$start[(n - 39L):n] <- 0
+  d$end[(n - 39L):n] <- 32
+  d$end[c(1L, n)] <- c(-2, 33)
+
+  fn <- PlotDumbbell
+  environment(fn) <- list2env(list(
+    print = function(x, ...) invisible(x),
+    order = function(..., decreasing = FALSE) {
+      if (length(..1) == n) stop("sorted all dumbbell rows for a capped plot")
+      base::order(..., decreasing = decreasing)
+    }
+  ), parent = environment(fn))
+  for (decreasing in c(FALSE, TRUE)) {
+    for (sort_by in c("end", "delta")) {
+      values <- if (sort_by == "end") d$end else d$end - d$start
+      rows <- utils::tail(order(values, decreasing = decreasing), 20L)
+      plot <- fn(d, sort_by = sort_by, sort_descending = decreasing, top_n = 20)
+      expect_identical(as.character(plot$data$category), d$category[rows])
+    }
+  }
+})
+
 test_that("PlotDumbbell isolates generated delta fields from input columns", {
   data <- data.frame(start = c(1, 2, 3), end = c(4, 6, 8), category = letters[1:3])
   reference <- ggplot2::ggplot_build(dumbbell_plot(data, show_delta = TRUE))$data

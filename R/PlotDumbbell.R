@@ -312,6 +312,8 @@ PlotDumbbell <- function(
 
   # ---- Sort ----
   sort_by <- match.arg(sort_by, c("end", "start", "delta", "none"))
+  n <- nrow(data)
+  cap <- if (!is.null(top_n) && top_n > 0 && top_n < n) as.integer(top_n)
   ord <- NULL
   if (sort_by != "none") {
     sort_vals <- switch(sort_by,
@@ -319,12 +321,28 @@ PlotDumbbell <- function(
       "start" = data[[x_col]],
       "delta" = data[[delta_var]]
     )
-    ord <- order(sort_vals, decreasing = sort_descending)
+    if (!is.null(cap) && n >= 8192L && cap <= n / 64 &&
+        is.double(sort_vals) && !is.object(sort_vals)) {
+      # Radix ordering is already fast for ordered or low-cardinality inputs.
+      probe <- sort_vals[seq.int(1L, n, length.out = 512L)]
+      if (!anyNA(probe) && length(unique(probe)) >= 64L &&
+          is.unsorted(probe) && is.unsorted(rev(probe))) {
+        sample_rank <- max(2L, ceiling(4 * length(probe) * cap / n))
+        at <- if (sort_descending) sample_rank else length(probe) - sample_rank + 1L
+        threshold <- sort.int(probe, partial = at)[at]
+        candidates <- which(if (sort_descending) sort_vals <= threshold else sort_vals >= threshold)
+        # Include every row at the threshold so the stable tail keeps the same ties.
+        if (length(candidates) >= cap && length(candidates) <= n / 8 && !anyNA(sort_vals)) {
+          ord <- candidates[order(sort_vals[candidates], decreasing = sort_descending)]
+        }
+      }
+    }
+    if (is.null(ord)) ord <- order(sort_vals, decreasing = sort_descending)
   }
 
   # ---- Top N ----
-  if (!is.null(top_n) && top_n > 0 && top_n < nrow(data)) {
-    ord <- if (is.null(ord)) seq.int(nrow(data) - top_n + 1, nrow(data)) else utils::tail(ord, top_n)
+  if (!is.null(cap)) {
+    ord <- if (is.null(ord)) seq.int(n - cap + 1L, n) else utils::tail(ord, cap)
   }
   if (!is.null(ord) && (length(ord) != nrow(data) ||
       !identical(class(data), "data.frame") || is.unsorted(ord))) {
