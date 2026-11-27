@@ -150,10 +150,9 @@ stat_pval <- function(x,
     index <- findInterval(pvals, map, left.open = TRUE) + 1L
     tied <- which(pvals == unname(map[index]))
     decimal <- function(text) {
-      mantissa <- sub("[eE].*$", "", text)
-      exponent <- numeric(length(text))
-      scientific <- grep("[eE]", text)
-      if (length(scientific)) exponent[scientific] <- as.numeric(sub("^.*[eE]", "", text[scientific]))
+      parts <- .pvalue_decimal_parts(text)
+      mantissa <- parts$mantissa
+      exponent <- parts$exponent
       places <- ifelse(grepl(".", mantissa, fixed = TRUE), nchar(sub("^.*[.]", "", mantissa)), 0L)
       coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
       list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),
@@ -286,9 +285,9 @@ stat_pval <- function(x,
     if (length(edge)) {
       # Inspect decimal text where rounding or parser overflow can hide values.
       endpoint <- values[edge]
-      mantissa <- sub("[eE].*$", "", endpoint)
-      exponent <- as.numeric(ifelse(grepl("[eE]", endpoint),
-                                    sub("^.*[eE]", "", endpoint), "0"))
+      parts <- .pvalue_decimal_parts(endpoint)
+      mantissa <- parts$mantissa
+      exponent <- parts$exponent
       decimals <- nchar(sub("^[^.]*[.]?", "", mantissa))
       coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
       zero <- coefficient == ""
@@ -402,14 +401,28 @@ stat_pval <- function(x,
 }
 
 #' @noRd
+.pvalue_decimal_parts <- function(text) {
+  mantissa <- text
+  exponent <- numeric(length(text))
+  scientific <- grep("[eE]", text)
+  if (length(scientific)) {
+    tokens <- text[scientific]
+    mantissa[scientific] <- sub("[eE].*$", "", tokens)
+    exponent[scientific] <- as.numeric(sub("^.*[eE]", "", tokens))
+  }
+  list(mantissa = mantissa, exponent = exponent)
+}
+
+#' @noRd
 .parse_decimal_tokens <- function(text) {
   value <- as.numeric(text)
   if (!anyNA(value)) return(value)
   at <- which(is.nan(value) & !is.na(text))
   if (!length(at)) return(value)
   endpoint <- text[at]
-  mantissa <- sub("[eE].*$", "", endpoint)
-  exponent <- as.numeric(ifelse(grepl("[eE]", endpoint), sub("^.*[eE]", "", endpoint), "0"))
+  parts <- .pvalue_decimal_parts(endpoint)
+  mantissa <- parts$mantissa
+  exponent <- parts$exponent
   decimals <- nchar(sub("^[^.]*[.]?", "", mantissa))
   coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
   power <- exponent - decimals + nchar(coefficient) - 1L

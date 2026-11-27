@@ -483,6 +483,7 @@ stat_pval_in_fresh_r <- function(args) {
   isolated$.register_integer64 <- get(".register_integer64", envir = environment(stat_pval))
   isolated$.validate_signif_map <- get(".validate_signif_map", envir = environment(stat_pval))
   isolated$.parse_decimal_tokens <- get(".parse_decimal_tokens", envir = environment(stat_pval))
+  isolated$.pvalue_decimal_parts <- get(".pvalue_decimal_parts", envir = environment(stat_pval))
   isolated$.trim_pvalue_space <- get(".trim_pvalue_space", envir = environment(stat_pval))
   isolated$`%||%` <- function(x, y) if (is.null(x)) y else x
   for (name in ls(isolated, all.names = TRUE)) environment(isolated[[name]]) <- isolated
