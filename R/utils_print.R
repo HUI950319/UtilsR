@@ -745,13 +745,18 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       }, character(1)))
     }
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
-      finite <- if (!length(v) || (is.finite(min(v)) && is.finite(max(v)))) TRUE else is.finite(v)
-      fin <- if (all(finite)) v else v[finite]
+      bounds <- if (length(v)) c(min(v), max(v)) else c(Inf, -Inf)
+      finite <- if (all(is.finite(bounds)) || !length(v)) TRUE else is.finite(v)
+      fin <- if (length(finite) == 1L && isTRUE(finite)) v else {
+        observed <- v[finite]
+        bounds <- c(min(Inf, observed), max(-Inf, observed))
+        observed
+      }
       d <- if (digits == 0L || all(fin == round(fin))) 0L else digits
       # 0.0003 would print as 0.00: give the column two significant digits.
       if (d > 0L) {
-        lower <- min(fin)
-        upper <- max(fin)
+        lower <- bounds[1L]
+        upper <- bounds[2L]
         smallest <- if (lower > 0) lower else if (upper < 0) -upper else {
           nonzero <- abs(fin[fin != 0])
           if (length(nonzero)) min(nonzero) else Inf
@@ -768,7 +773,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       wide <- which(finite & nchar(txt) > max(10L, avail))
       candidates <- if (getOption("OutDec") %in% c(".", ",")) {
         cutoff <- 0.5 * 10^-d
-        if (length(fin) && !(min(fin) > cutoff || max(fin) < -cutoff)) {
+        if (length(fin) && !(bounds[1L] > cutoff || bounds[2L] < -cutoff)) {
           which(finite & v != 0 & abs(v) <= cutoff)
         } else integer()
       } else {
