@@ -388,7 +388,7 @@ PlotScatter2 <- function(
         if (length(z)) range(z) else c(0, 1)
       }
       x_rng <- finite_range(df[[x]])
-      y_rng <- finite_range(df[[y]])
+      y_rng <- if (x == y) x_rng else finite_range(df[[y]])
       x_span <- diff(x_rng)
       y_span <- diff(y_rng)
       annot_pos <- c(
