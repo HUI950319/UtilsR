@@ -350,7 +350,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   }
   # "n (share of `of`)", and a plain "0" for none
   .fmt_n_pct <- function(n, of) {
-    ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
+    empty <- n == 0L
+    text <- ifelse(empty, "0", NA_character_)
+    rows <- which(!empty)
+    if (length(rows)) {
+      counts <- n[rows]
+      denominator <- if (length(of) == 1L) of else of[rows]
+      text[rows] <- paste0(.fmt_int(counts), " (", .fmt_pct(counts / denominator * 100), ")")
+    }
+    text
   }
 
   # Center narrow integer64 ranges before converting their differences to
