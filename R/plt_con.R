@@ -527,6 +527,10 @@ plt_con <- function(data,
   if (type == "dot" && is.null(dot_breaks)) {
     dot_breaks <- stats::setNames(lapply(stat.by, function(f) {
       values <- data[[f]]
+      if (!is.object(values) && !is.complex(values)) {
+        bounds <- .con_finite_bounds(values)
+        return(.con_dot_breaks(bounds))
+      }
       .con_dot_breaks(values[is.finite(values)])
     }), stat.by)
   }
