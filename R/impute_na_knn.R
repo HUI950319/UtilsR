@@ -319,7 +319,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     data_for_impute[observed_rows, , drop = FALSE]
   missing_backend <- if (all_observed && !any(converted_columns)) {
     which(missing_cols)
-  } else which(vapply(backend_data, anyNA, logical(1)))
+  } else {
+    candidates <- which(missing_cols | converted_columns | classed)
+    candidates[vapply(backend_data[candidates], anyNA, logical(1))]
+  }
   backend_variables <- backend_names[missing_backend]
   result <- data_for_impute
   if (length(backend_variables)) {
