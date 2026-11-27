@@ -732,12 +732,20 @@ PlotScatter1 <- function(
   # Paired ranks must not treat an infinite, non-measurement coordinate as
   # the largest/smallest observed value. Avoid row-sized masks when all
   # coordinates are finite.
-  has_infinite <- function(value) {
+  plain_bounds <- function(value) {
+    if (length(value) && !is.object(value) && is.numeric(value) && !is.complex(value)) {
+      c(min(value), max(value))
+    }
+  }
+  x_bounds <- if (pearson) plain_bounds(x)
+  y_bounds <- if (pearson) plain_bounds(y)
+  has_infinite <- function(value, bounds) {
+    if (!is.null(bounds)) return(any(is.infinite(bounds)))
     is.double(value) && length(value) &&
       (is.infinite(min(value)) || is.infinite(max(value)))
   }
-  infinite_x <- has_infinite(x)
-  infinite_y <- has_infinite(y)
+  infinite_x <- has_infinite(x, x_bounds)
+  infinite_y <- has_infinite(y, y_bounds)
   if (infinite_x || infinite_y) {
     finite <- if (infinite_x && infinite_y) {
       !is.infinite(x) & !is.infinite(y)
@@ -751,12 +759,13 @@ PlotScatter1 <- function(
     }
     x <- x[finite]
     y <- y[finite]
+    x_bounds <- y_bounds <- NULL
   }
   if (pearson) {
-    normalize <- function(value) {
+    normalize <- function(value, bounds) {
       if (!length(value)) return(value)
       if (!is.object(value)) {
-        bounds <- c(min(value), max(value))
+        if (is.null(bounds)) bounds <- c(min(value), max(value))
         if (!all(is.finite(bounds))) return(value)
       } else {
         if (!all(is.finite(value))) return(value)
@@ -767,8 +776,8 @@ PlotScatter1 <- function(
       if (scale > 0 && (scale < sqrt(.Machine$double.xmin) ||
                         scale > sqrt(.Machine$double.xmax))) (value - center) / scale else value
     }
-    x <- normalize(x)
-    y <- normalize(y)
+    x <- normalize(x, x_bounds)
+    y <- normalize(y, y_bounds)
   }
   stats::cor.test(x, y, method = method)
 }
