@@ -660,14 +660,20 @@ console_width <- function() {
     } else if (inherits(data, "gtsummary")) {
       as.data.frame(data, col_labels = FALSE)
     } else as.data.frame(data)
-    invisible(lapply(df, ._pr_restore))
-    spss <- vapply(df, inherits, logical(1), what = "haven_labelled_spss")
-    df[spss] <- lapply(df[spss], function(x) vctrs::vec_data(haven::zap_missing(x)))
+    classed <- which(vapply(df, function(x) is.object(x) || isS4(x), logical(1)))
+    spss <- integer()
+    if (length(classed)) {
+      encoded <- lapply(df[classed], ._pr_restore)
+      spss <- classed[vapply(encoded, inherits, logical(1), what = "haven_labelled_spss")]
+      if (length(spss)) {
+        df[spss] <- lapply(df[spss], function(x) vctrs::vec_data(haven::zap_missing(x)))
+      }
+    }
     if (inherits(data, "gtsummary")) {
       tb <- gtsummary::as_gt(data)
     } else if (inherits(data, "gt_tbl")) {
       tb <- data
-      if (any(spss)) tb[["_data"]][names(df)[spss]] <- df[spss]
+      if (length(spss)) tb[["_data"]][names(df)[spss]] <- df[spss]
     } else {
       tb <- gt::gt(df)
     }
