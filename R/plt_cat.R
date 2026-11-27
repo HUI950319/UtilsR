@@ -447,6 +447,10 @@ plt_cat <- function(data,
         sum(!is.na(labels)) +
           as.integer(NA_stat && (sum(observed$counts) < length(x) || anyNA(labels)))
       } else {
+        if (!is.object(x) && length(x) > 101L) {
+          prefix <- x[seq_len(101L)]
+          if (!anyNA(prefix) && !anyDuplicated(prefix)) return(101L)
+        }
         distinct <- unique(x)
         missing <- is.na(distinct)
         sum(!missing) + as.integer(NA_stat && any(missing))
