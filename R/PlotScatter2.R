@@ -662,9 +662,13 @@ PlotScatter2 <- function(
       )
 
     g <- ggplot2::ggplotGrob(p_dummy)
-    legend_idx <- which(sapply(g$grobs, function(x) x$name) == "guide-box")
-    if (length(legend_idx) > 0) {
-      legend_grobs[[length(legend_grobs) + 1]] <- g$grobs[[legend_idx[1]]]
+    legend_idx <- match("guide-box-right", g$layout$name)
+    if (is.na(legend_idx)) legend_idx <- match("guide-box", g$layout$name)
+    if (is.na(legend_idx) || !identical(g$grobs[[legend_idx]]$name, "guide-box")) {
+      legend_idx <- which(vapply(g$grobs, function(x) identical(x$name, "guide-box"), logical(1)))
+    }
+    if (length(legend_idx)) {
+      legend_grobs[[length(legend_grobs) + 1L]] <- g$grobs[[legend_idx[1L]]]
     }
   }
 
