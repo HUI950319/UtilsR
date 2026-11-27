@@ -808,11 +808,12 @@ PlotDumbbell <- function(
     )
     test_x <- x_values
     test_xend <- xend_values
-    if (integer64_pair || !is.null(paired_difference)) {
+    difference_test <- integer64_pair || !is.null(paired_difference)
+    if (difference_test) {
       difference <- if (integer64_pair) .dumbbell_integer64_difference(test_x, test_xend) else
         -paired_difference
       test_x <- suppressWarnings(as.double(difference))
-      test_xend <- numeric(length(test_x))
+      test_xend <- NULL
     }
     if (inherits(test_x, "difftime")) {
       test_x <- as.numeric(test_x, units = "secs")
@@ -826,11 +827,13 @@ PlotDumbbell <- function(
                (is.integer(test_xend) && !is.object(test_xend))) {
       test_xend <- as.double(test_xend)
     }
-    test_pairs <- is.finite(test_x) & is.finite(test_xend)
+    test_pairs <- if (difference_test) is.finite(test_x) else
+      is.finite(test_x) & is.finite(test_xend)
     if (!all(test_pairs)) {
       test_x <- test_x[test_pairs]
-      test_xend <- test_xend[test_pairs]
+      if (!difference_test) test_xend <- test_xend[test_pairs]
     }
+    if (difference_test) test_xend <- numeric(length(test_x))
     p_val <- .paired_plot_p_value(test_fn, test_x, test_xend, inset_test)
     p_fmt <- if (!is.na(p_val) && p_val < 0.001) {
       sprintf("p = %.1e", p_val)
