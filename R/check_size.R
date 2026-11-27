@@ -205,9 +205,12 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
             paste0(object_info$Object[failed], " (", reasons, ")", collapse = ", "),
             call. = FALSE)
   }
-  rows <- order(object_info$Size, decreasing = TRUE, na.last = NA, method = "radix")
-  if (length(rows) != nrow(object_info) || is.unsorted(rows)) {
-    object_info <- object_info[rows, , drop = FALSE]
+  sizes <- object_info$Size
+  if (length(failed) || (length(sizes) > 1L && min(sizes) != max(sizes))) {
+    rows <- order(sizes, decreasing = TRUE, na.last = NA, method = "radix")
+    if (length(rows) != nrow(object_info) || is.unsorted(rows)) {
+      object_info <- object_info[rows, , drop = FALSE]
+    }
   }
   object_count <- nrow(object_info)
   total_mb <- sum(object_info$Size)
