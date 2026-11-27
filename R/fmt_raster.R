@@ -351,6 +351,9 @@ fmt_raster <- function(
       return(plot)
     }
   }
+  physical_units <- c("inches", "cm", "mm", "points", "picas", "bigpts", "dida", "cicero", "scaledpts")
+  target_unit <- if (units == "in") "inches" else units
+  full_cell <- grid::unit(1, "npc")
   raster_table <- function(gtable, plan, offset = 0L) {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
       nrow = length(gtable$heights), ncol = length(gtable$widths),
@@ -363,10 +366,8 @@ fmt_raster <- function(
       key <- paste0(dim, "s")
       spec <- gtable[[key]]
       convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
-      physical <- c("inches", "cm", "mm", "points", "picas", "bigpts", "dida", "cicero", "scaledpts")
       stored_units <- grid::unitType(spec)
-      fixed <- stored_units %in% physical
-      target_unit <- if (units == "in") "inches" else units
+      fixed <- stored_units %in% physical_units
       sizes <- if (inherits(spec, "simpleUnit") && all(stored_units == target_unit)) {
         as.numeric(spec)
       } else if (all(fixed)) {
@@ -382,7 +383,7 @@ fmt_raster <- function(
             grid::viewport(layout.pos.row = cell)
           grid::pushViewport(vp)
           on.exit(grid::popViewport(), add = TRUE)
-          convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
+          convert_fn(full_cell, units, valueOnly = TRUE)
         }, numeric(1))
         values
       }
