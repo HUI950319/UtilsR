@@ -307,8 +307,12 @@ stat_ci_parse <- function(x,
             lo <- exp(l_s)
             hi <- exp(h_s)
           } else {
-            lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
-            hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+            linear_rows <- which(valid & !is_exp)
+            scale <- if (length(work_scale) == 1L) work_scale else work_scale[linear_rows]
+            lo[linear_rows] <- l_s[linear_rows] * scale
+            hi[linear_rows] <- h_s[linear_rows] * scale
+            lo[exp_rows] <- exp(l_s[exp_rows])
+            hi[exp_rows] <- exp(h_s[exp_rows])
           }
           if (length(tight)) {
             down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
