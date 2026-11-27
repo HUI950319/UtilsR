@@ -453,10 +453,14 @@ PlotScatter3 <- function(
   if (is.null(median_line_yend)) {
     lower <- hist_bin_breaks[1L]
     upper <- utils::tail(hist_bin_breaks, 1L)
-    complete <- !incomplete_diffs && finite_bounds &&
-      diff_bounds[1L] >= lower && diff_bounds[2L] <= upper
-    visible <- if (complete) diff_values else
-      diff_values[is.finite(diff_values) & diff_values >= lower & diff_values <= upper]
+    inside <- finite_bounds && diff_bounds[1L] >= lower && diff_bounds[2L] <= upper
+    visible <- if (inside && !incomplete_diffs) {
+      diff_values
+    } else if (inside) {
+      diff_values[!is.na(diff_values)]
+    } else {
+      diff_values[which(diff_values >= lower & diff_values <= upper)]
+    }
     median_line_yend <- 1
     if (length(visible) && length(hist_bin_breaks) > 1L) {
       hdata <- if (hist_scale == 1) graphics::hist(visible, breaks = hist_bin_breaks, plot = FALSE) else
