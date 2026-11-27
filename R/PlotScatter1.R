@@ -562,6 +562,16 @@ PlotScatter1 <- function(
 
 # Keep exact typed categories separate from their potentially rounded labels.
 .scatter_group_factor <- function(value, levels = vctrs::vec_unique(value)) {
+  if (missing(levels) && is.logical(value) && !is.object(value) &&
+      is.null(dim(value)) && length(value) >= 1024L && !anyNA(value)) {
+    first <- value[[1L]]
+    mixed <- if (first) !all(value) else any(value)
+    codes <- if (!mixed) rep.int(1L, length(value)) else
+      if (first) 2L - value else 1L + value
+    names(codes) <- names(value)
+    labels <- if (mixed) c(first, !first) else first
+    return(structure(codes, levels = as.character(labels), class = "factor"))
+  }
   if (is.factor(value)) {
     current_levels <- base::levels(value)
     labels <- as.character(levels)
