@@ -1027,7 +1027,8 @@ plt_con <- function(data,
     group_ids <- if (!ordinary_factor) {
       match(groups, used_groups)
     } else if (length(group_levels) <= length(groups)) {
-      match(group_levels, used_groups)[tally$row_codes]
+      if (identical(group_levels, used_groups)) tally$row_codes else
+        match(group_levels, used_groups)[tally$row_codes]
     } else {
       match(available, used_groups)[match(tally$row_codes, tally$codes)]
     }
