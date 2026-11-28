@@ -301,8 +301,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
       return(list(codes = v + 1L, labels = c("FALSE", "TRUE")))
     }
     if (is.integer(v) && !is.object(v) && length(v) > 1024L) {
-      lower <- suppressWarnings(min(v, na.rm = TRUE))
+      lower <- min(Inf, v, na.rm = TRUE)
       if (is.finite(lower)) {
+        lower <- as.integer(lower)
         upper <- max(v, na.rm = TRUE)
         if (as.double(upper) - lower < 4096L) {
           return(list(codes = v - lower + 1L, labels = as.character(seq.int(lower, upper))))
