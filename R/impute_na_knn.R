@@ -337,12 +337,16 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       values <- backend_data[[j]]
       if (!is.numeric(values) || (is.integer(values) && !is.object(values))) next
       bounds <- numeric_bounds[[j]]
-      if (is.null(bounds) || !all(is.finite(bounds))) bounds <- range(values, na.rm = TRUE)
+      finite <- !is.null(bounds) && all(is.finite(bounds))
+      if (!finite) {
+        bounds <- range(values, na.rm = TRUE)
+        finite <- all(is.finite(bounds))
+      }
       span <- diff(as.double(bounds))
-      if (all(is.finite(bounds)) && !is.finite(span)) {
+      if (finite && !is.finite(span)) {
         backend_scales[j] <- max(abs(bounds))
         backend_data[[j]] <- values / backend_scales[j]
-      } else if (is.double(values) && !is.object(values) && all(is.finite(bounds)) &&
+      } else if (is.double(values) && !is.object(values) && finite &&
                  span > 0 && max(abs(bounds)) / span > 1 / sqrt(.Machine$double.eps)) {
         # Center before the backend divides by range and subtracts distances.
         backend_centers[j] <- bounds[1L]
