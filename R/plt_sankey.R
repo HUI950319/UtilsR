@@ -338,11 +338,14 @@ plt_sankey <- function(data,
   all_levels <- names(node_labels) %||% character()
   plot_data <- .sankey_path_rows(data, label_vars, node_levels = all_levels)
   caption_codes <- as.integer(plot_data$node)
-  if (!anyNA(node_labels) && !anyDuplicated(node_labels)) {
+  missing_captions <- anyNA(node_labels)
+  if (!missing_captions && !anyDuplicated(node_labels)) {
     captions <- unname(node_labels)
   } else {
-    captions <- unique(unname(node_labels[!is.na(node_labels)]))
-    caption_codes <- match(node_labels, captions)[caption_codes]
+    captions <- unique(if (missing_captions) unname(node_labels[!is.na(node_labels)]) else unname(node_labels))
+    caption_codes <- if (!missing_captions && length(captions) == 1L && !anyNA(caption_codes)) {
+      rep.int(1L, length(caption_codes))
+    } else match(node_labels, captions)[caption_codes]
   }
   plot_data$label <- structure(caption_codes, levels = captions, class = "factor")
 
