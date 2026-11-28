@@ -329,7 +329,10 @@ PlotButterfly <- function(
         scale <- max(abs(rng))
         (values / scale - rng[1] / scale) / (rng[2] / scale - rng[1] / scale)
       })
-      data <- data[unlist(rows, use.names = FALSE), , drop = FALSE]
+      ord <- unlist(rows, use.names = FALSE)
+      if (length(ord) != nrow(data) || !identical(class(data), "data.frame") || is.unsorted(ord)) {
+        data <- data[ord, , drop = FALSE]
+      }
       data[[value.by]] <- do.call(c, unname(scaled))
       rownames(data) <- NULL
     }
