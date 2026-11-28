@@ -613,7 +613,8 @@ fmt_point <- function(plot,
       # Bind only sampled rows, retaining native matrix class/dimname semantics.
       data <- do.call(rbind, lapply(rows, function(indices) data[indices, , drop = FALSE]))
     } else {
-      data <- data[unlist(rows, use.names = FALSE), , drop = FALSE]
+      selected <- if (length(rows) == 1L) rows[[1L]] else unlist(rows, use.names = FALSE)
+      data <- data[selected, , drop = FALSE]
     }
     rownames(data) <- NULL
     data
