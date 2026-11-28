@@ -114,7 +114,7 @@
   if (!length(over)) return(text)
   working[over] <- cli::ansi_strtrim(working[over], width)
   if (length(working) == length(text)) return(working)
-  text[] <- working[match(text, keys)]
+  text[] <- if (length(working) == 1L) working else working[match(text, keys)]
   text
 }
 
