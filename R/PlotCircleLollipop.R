@@ -470,11 +470,11 @@ PlotCircleLollipop <- function(
     if (length(sector_keys) == 1L) {
       shared <- rep.int(FALSE, nrow(df))
     } else {
-      features <- unique(df$name)
-      feature_ids <- match(df$name, features)
+      ids <- vctrs::vec_group_id(df$name)
+      feature_ids <- as.integer(ids)
       sectors <- as.integer(df$group)
       missing <- is.na(df$name)
-      n_features <- length(features)
+      n_features <- attr(ids, "n")
       if (as.double(n_features) * length(sector_keys) <= 2^53) {
         keys <- feature_ids + (sectors - 1) * n_features
         first <- !duplicated(keys)
