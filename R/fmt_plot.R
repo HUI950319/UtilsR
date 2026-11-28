@@ -4525,18 +4525,24 @@ fmt_com <- function(plot,
     if (!is.factor(axis_data) && !is.character(axis_data) && !is.logical(axis_data))
       cli::cli_abort("The x comparison axis must be categorical; use factor() for numeric categories.")
     y_data <- values$y
-    if (!is.numeric(y_data) || is.complex(y_data) || !any(is.finite(y_data)))
+    if (!is.numeric(y_data) || is.complex(y_data) || !.has_finite_plot_values(y_data))
       cli::cli_abort("The y comparison variable must contain finite numeric observations.")
     if (!length(x_data) %in% c(1L, n) || !length(y_data) %in% c(1L, n))
       cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
     if (length(x_data) != n || !is.null(attributes(x_data))) x_data <- rep(x_data, length.out = n)
     if (length(y_data) != n || !is.null(attributes(y_data))) y_data <- rep(y_data, length.out = n)
-    available <- !is.na(x_data) & is.finite(y_data)
     ordinary_factor <- identical(class(x_data), "factor") ||
       identical(class(x_data), c("ordered", "factor"))
-    observed <- if (ordinary_factor) {
-      levels(x_data)[unique(as.integer(x_data)[available])]
-    } else unique(as.character(x_data[available]))
+    keys <- if (ordinary_factor) as.integer(x_data) else x_data
+    complete_x <- !is.object(keys) && !anyNA(keys)
+    complete_y <- length(y_data) && !is.object(y_data) &&
+      is.finite(min(y_data)) && is.finite(max(y_data))
+    if (!complete_x || !complete_y) {
+      available <- if (complete_x) is.finite(y_data) else if (complete_y) !is.na(x_data) else
+        !is.na(x_data) & is.finite(y_data)
+      keys <- if (ordinary_factor) keys[available] else x_data[available]
+    }
+    observed <- if (ordinary_factor) levels(x_data)[unique(keys)] else unique(as.character(keys))
     if (length(observed) < 2L)
       cli::cli_abort("Comparisons require at least two observed groups with finite outcomes.")
     if (is.character(ref_group) && !ref_all && !ref_group %in% observed)
