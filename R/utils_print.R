@@ -87,7 +87,7 @@
           length(unique(values[seq.int(1L, length(values), length.out = 128L)])) < 64L) {
         keys <- unique(values)
         if (length(keys) < length(values) / 2L) {
-          lookup <- match(values, keys)
+          if (length(keys) > 1L) lookup <- match(values, keys)
           values <- keys
         }
       }
