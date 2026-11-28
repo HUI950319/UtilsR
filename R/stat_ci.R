@@ -149,11 +149,13 @@ stat_ci <- function(x, y = NULL, z = NULL,
       if (!is.null(dim(value))) {
         cli::cli_abort("{.arg {arg}} must be a vector, not a matrix or array.")
       }
-      if (inherits(value, c("integer64", "Date", "POSIXt", "difftime",
-                            "Duration", "Period", "Interval"))) {
-        cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
+      if (is.object(value) || isS4(value)) {
+        if (inherits(value, c("integer64", "Date", "POSIXt", "difftime",
+                              "Duration", "Period", "Interval"))) {
+          cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
+        }
+        if (inherits(value, "haven_labelled")) loadNamespace("labelled")
       }
-      if (inherits(value, "haven_labelled")) loadNamespace("labelled")
       if (is.logical(value) && all(is.na(value))) {
         inputs[[arg]] <- as.double(value)
       }
