@@ -372,6 +372,8 @@ PlotRankCor <- function(
     agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
     group_sizes <- lengths(agg_groups$loc)
     small <- group_sizes <= 2L
+    all_small <- all(small)
+    large_groups <- if (!all_small) agg_groups$loc[!small]
     singletons <- all(group_sizes == 1L)
     if (!singletons) {
       small_groups <- agg_groups$loc[small]
@@ -411,9 +413,13 @@ PlotRankCor <- function(
       }
       if (!is.finite(lower) || !is.finite(upper) || (lower <= 0 && upper >= 0))
         means[which(means == 0)] <- 0
+      if (all_small) {
+        agg_values[[ec]] <- means
+        next
+      }
       result <- numeric(length(group_sizes))
       result[small] <- means
-      result[!small] <- vapply(agg_groups$loc[!small],
+      result[!small] <- vapply(large_groups,
         function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
       agg_values[[ec]] <- result
     }
