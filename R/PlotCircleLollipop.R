@@ -646,8 +646,7 @@ PlotCircleLollipop <- function(
 
     # ---- Inner arcs for shared features ----
     if (show_links && length(shared_rows)) {
-      shared_names <- df$name[shared_rows]
-      feature_rows <- split(shared_rows, match(shared_names, unique(shared_names)))
+      feature_rows <- split(shared_rows, as.integer(feature_ids[shared_rows]))
       row_sectors <- sector_keys[as.integer(df$group)]
       x_pos <- df$x_pos
       for (rows in feature_rows) {
