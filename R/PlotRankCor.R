@@ -335,15 +335,23 @@ PlotRankCor <- function(
       pairs <- rank_sizes == 2L
       if (any(pairs)) {
         rows <- matrix(unlist(rank_rows[pairs], use.names = FALSE), nrow = 2L)
-        a <- scores[rows[1L, ]]
-        b <- scores[rows[2L, ]]
-        rank_pair <- function(x, y) {
-          out <- 1 + 0.5 * (x == y) + (x < y)
-          out[is.na(y) & !is.na(x)] <- 1
-          out
+        left <- rows[1L, ]
+        right <- rows[2L, ]
+        a <- scores[left]
+        b <- scores[right]
+        if (!anyNA(a) && !anyNA(b)) {
+          base_rank <- 1 + 0.5 * (a == b)
+          ranks[left] <- base_rank + (a < b)
+          ranks[right] <- base_rank + (b < a)
+        } else {
+          rank_pair <- function(x, y) {
+            out <- 1 + 0.5 * (x == y) + (x < y)
+            out[is.na(y) & !is.na(x)] <- 1
+            out
+          }
+          ranks[left] <- rank_pair(a, b)
+          ranks[right] <- rank_pair(b, a)
         }
-        ranks[rows[1L, ]] <- rank_pair(a, b)
-        ranks[rows[2L, ]] <- rank_pair(b, a)
       }
       rank_rows <- rank_rows[rank_sizes > 2L]
     }
