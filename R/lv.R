@@ -1016,8 +1016,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # slow (5,000 columns took 18 s), so only the long list is shown.
     two_way <- length(count_vars) == 2
     if (two_way) {
-      n_cat <- vapply(count_vars, function(v) dplyr::n_distinct(count_base[[v]]),
-                      integer(1))
+      n_cat <- vapply(count_vars, function(v) {
+        values <- count_base[[v]]
+        if (!is.object(values) && (is.character(values) || is.integer(values)) &&
+            length(values) > 101L && !anyDuplicated(values[seq_len(101L)])) return(101L)
+        dplyr::n_distinct(values)
+      }, integer(1))
       if (any(n_cat > 100L)) {
         cli::cli_inform(c("i" = paste(
           "{.var {count_vars[n_cat > 100L]}} ha{?s/ve} more than 100",
