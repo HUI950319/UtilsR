@@ -66,11 +66,11 @@ check_packages <- function(refresh = FALSE) {
           bg = if (is.na(total)) "yellow" else "blue",
           fg = if (is.na(total)) "black" else "br_white")
 
-  display <- result[c("Package_Count", "Library_Path")]
-  names(display) <- c("Packages", "Library")
-  display[["Packages"]] <- format(display[["Packages"]], big.mark = ",",
-                                    decimal.mark = ".", scientific = FALSE, trim = TRUE)
-  count_width <- max(nchar(c("Packages", display[["Packages"]]), type = "width"))
+  packages <- format(result[["Package_Count"]], big.mark = ",",
+                     decimal.mark = ".", scientific = FALSE, trim = TRUE)
+  display <- data.frame(Packages = packages, Library = result[["Library_Path"]],
+                        stringsAsFactors = FALSE)
+  count_width <- max(nchar("Packages", type = "width"), nchar(packages, type = "width"))
   display[["Library"]] <- as.character(._pr_trim(
     display[["Library"]], max(8L, console_width() - count_width - 4L)))
   pr_table(display, highlight = nrow(display), n = NULL, align = c("right", "left"))
