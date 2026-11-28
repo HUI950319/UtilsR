@@ -103,7 +103,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
     incomplete_inputs <- inputs[incomplete]
     missing <- is.na(incomplete_inputs[[1L]])
     for (i in seq_along(incomplete_inputs)[-1L]) {
-      missing <- missing | is.na(incomplete_inputs[[i]])
+      values <- incomplete_inputs[[i]]
+      if (!is.object(values) && all(missing)) next
+      missing <- missing | is.na(values)
     }
     !missing
   }
