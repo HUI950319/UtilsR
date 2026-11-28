@@ -246,7 +246,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_abort("Quantile cut points are undefined for {.arg x}; use explicit {.arg breaks} for infinite observations.")
     }
     # Deduplicate (ties in quantiles)
-    if (is.unsorted(bin_breaks, strictly = TRUE) && anyDuplicated(bin_breaks)) bin_breaks <- unique(bin_breaks)
+    if (is.unsorted(bin_breaks, strictly = TRUE)) bin_breaks <- unique(bin_breaks)
     n_groups <- length(bin_breaks) - 1L
     if (n_groups < 1L) {
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
