@@ -720,8 +720,13 @@ PlotScatter1 <- function(
   x <- rank_axis(x)
   y <- rank_axis(y)
   complete <- if (is.object(x) || is.object(y) || !is.null(dim(x)) || !is.null(dim(y)) ||
-                  length(x) != length(y) || anyNA(x) || anyNA(y)) {
+                  length(x) != length(y) || !is.atomic(x) || !is.atomic(y)) {
     stats::complete.cases(x, y)
+  } else {
+    missing_x <- anyNA(x)
+    missing_y <- anyNA(y)
+    if (missing_x && missing_y) stats::complete.cases(x, y) else
+      if (missing_x) !is.na(x) else if (missing_y) !is.na(y)
   }
   n_complete <- if (is.null(complete)) length(x) else sum(complete)
   if (n_complete < if (pearson) 3L else 2L) {
