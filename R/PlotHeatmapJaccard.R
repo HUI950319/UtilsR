@@ -172,8 +172,12 @@ PlotHeatmapJaccard <- function(
     }
     FALSE
   }
-  complete <- complete_values(group_values) && complete_values(data[[name_col]])
-  non_missing <- if (complete) TRUE else !is.na(group_values) & !is.na(data[[name_col]])
+  features <- data[[name_col]]
+  group_complete <- complete_values(group_values)
+  feature_complete <- complete_values(features)
+  complete <- group_complete && feature_complete
+  non_missing <- if (complete) TRUE else if (group_complete) !is.na(features) else
+    if (feature_complete) !is.na(group_values) else !is.na(group_values) & !is.na(features)
   if (return_type == "data" && is.null(filename) && n_ct == 1L &&
       is.null(group_levels) &&
       (complete || (!is.object(group_values) && is.atomic(group_values)) ||
