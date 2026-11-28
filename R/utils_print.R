@@ -1390,6 +1390,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   # equal-width bins, or one per value for few whole numbers
   bin <- function(x, rng = c(min(x), max(x)), whole = FALSE) {
     if (rng[1L] == rng[2L]) return(length(x))
+    if (whole && rng[2L] - rng[1L] < bins) {
+      counts <- tabulate(x - rng[1L] + 1L, nbins = rng[2L] - rng[1L] + 1L)
+      return(counts[counts > 0L])
+    }
     probe <- x[seq_len(min(length(x), bins + 1))]
     if (whole || all(probe == round(probe))) {
       u <- unique(probe)
