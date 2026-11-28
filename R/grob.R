@@ -459,15 +459,16 @@ grob_insert <- function(
     depth <- if (complete) layout$z else layout$z[overlapping]
     overlapping_names <- if (complete) layout$name else layout$name[overlapping]
     background <- overlapping_names %in% "background"
-    foreground_z <- depth[!background]
+    has_background <- any(background)
+    foreground_z <- if (has_background) depth[!background] else depth
     lowest <- min(Inf, foreground_z, na.rm = TRUE)
-    backgrounds <- depth[background & depth < lowest]
+    backgrounds <- if (has_background) depth[background & depth < lowest]
     below <- lowest - 1
     if (is.finite(lowest) && below >= lowest) {
       below <- lowest - abs(lowest) * .Machine$double.eps
     }
     z_val <- max(min(0, below), backgrounds, na.rm = TRUE)
-    if ((!is.finite(below) || any(background)) && any(!is.na(foreground_z))) {
+    if ((!is.finite(below) || has_background) && any(!is.na(foreground_z))) {
       same_order <- which(depth == lowest)
       back <- same_order[background[same_order]]
       front <- same_order[!background[same_order]]
