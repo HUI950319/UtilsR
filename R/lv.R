@@ -592,7 +592,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     labels <- .distinct_labels(valid, labels, unique_values = TRUE)
     if (length(n) > 15L) {
       labels <- c(labels[1:14], sprintf("(%s others)", .fmt_int(length(n) - 14L)))
-      n <- c(n[1:14], sum(n[-(1:14)]))
+      shown <- n[1:14]
+      n <- c(shown, length(x) - missing_n - sum(shown))
     }
     cum <- .fmt_pct(cumsum(n) / length(x) * 100)
     if (missing_n > 0L) {
