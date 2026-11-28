@@ -572,12 +572,9 @@ stat_ci_parse <- function(x,
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- if (need_unit || need_digits) {
     lapply(g[c(1, 3, 5)], function(s) {
-      scientific <- grep("[eE]", s)
-      ex <- numeric(length(s))
-      if (length(scientific)) {
-        ex[scientific] <- as.numeric(sub("^.*[eE]", "", s[scientific]))
-        s[scientific] <- sub("[eE].*$", "", s[scientific])
-      }
+      parts <- .pvalue_decimal_parts(s)
+      s <- parts$mantissa
+      ex <- parts$exponent
       dotted <- grep(".", s, fixed = TRUE)
       if (length(dotted)) {
         ex[dotted] <- ex[dotted] - nchar(sub("^[-+]?\\d*\\.?", "", s[dotted], perl = TRUE))
