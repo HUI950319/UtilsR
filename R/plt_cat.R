@@ -1114,7 +1114,8 @@ plt_cat <- function(data,
     if (length(value) > 1024L && .pal_use_unique(value)) {
       keys <- unique(value)
       if (length(keys) < length(value) / 2) {
-        return(sprintf("%.17g", keys + 0)[match(value, keys)])
+        text <- sprintf("%.17g", keys + 0)
+        return(if (length(keys) == 1L) rep.int(text, length(value)) else text[match(value, keys)])
       }
     }
     return(sprintf("%.17g", value + 0))
