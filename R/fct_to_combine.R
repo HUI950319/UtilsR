@@ -400,8 +400,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
   first <- if (keys != group_n) {
     if (keys == 1L) 1L else which(!duplicated(ids, nmax = keys))
   }
-  ordering_codes <- if (is.null(first)) codes else lapply(codes, function(v) v[first])
-  ord <- do.call(order, unname(ordering_codes))
+  ord <- if (keys < 2L) seq_len(keys) else {
+    ordering_codes <- if (is.null(first)) codes else lapply(codes, function(v) v[first])
+    do.call(order, unname(ordering_codes))
+  }
   first <- if (is.null(first)) ord else first[ord]
   lvls <- do.call(paste, c(lapply(seq_along(inputs), function(i) {
     inputs[[i]]$labels[codes[[i]][first]]
