@@ -587,7 +587,9 @@ plt_alluvial <- function(
       if (length(values) > 1024L && .pal_use_unique(values)) {
         distinct <- unique(values)
         if (length(distinct) < length(values) / 2) {
-          return(formatter(distinct, accuracy = accuracy)[match(values, distinct)])
+          text <- formatter(distinct, accuracy = accuracy)
+          return(if (length(distinct) == 1L) rep.int(text, length(values)) else
+            text[match(values, distinct)])
         }
       }
       formatter(values, accuracy = accuracy)
