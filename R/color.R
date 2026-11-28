@@ -672,7 +672,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
 # Flat colour ramps need only the finite positions, not the numeric range.
 .pal_constant_positions <- function(x) {
-  values <- .pal_numeric_values(x)
+  values <- if (is.integer(x) && !is.object(x)) as.vector(x) else .pal_numeric_values(x)
   n <- length(values)
   complete <- n && is.finite(min(values)) && is.finite(max(values))
   placed <- if (!complete) is.finite(values)
