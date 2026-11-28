@@ -320,7 +320,7 @@ PlotButterfly <- function(
           return(if (complete) rep.int(0, length(values)) else ifelse(is.na(values), NA_real_, 0))
         }
         if (inherits(rng, "integer64")) {
-          shift <- .dumbbell_integer64_difference(values, rep(rng[1L], length(values)))
+          shift <- .dumbbell_integer64_difference(values, rng[1L])
           span <- .dumbbell_integer64_difference(rng[2L], rng[1L])
           return(suppressWarnings(as.double(shift) / as.double(span)))
         }
