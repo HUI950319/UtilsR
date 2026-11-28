@@ -325,7 +325,10 @@ PlotRankCor <- function(
     if (!is.object(scores)) {
       rank_sizes <- lengths(rank_rows)
       single <- rank_sizes == 1L
-      if (any(single)) {
+      if (all(single)) {
+        ranks[] <- 1
+        if (anyNA(scores)) ranks[is.na(scores)] <- NA_real_
+      } else if (any(single)) {
         rows <- unlist(rank_rows[single], use.names = FALSE)
         ranks[rows] <- ifelse(is.na(scores[rows]), NA_real_, 1)
       }
