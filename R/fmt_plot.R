@@ -3426,9 +3426,9 @@ fmt_text <- function(plot,
     if (!is.null(title_vec[[i]]))    labs_i$title    <- title_vec[[i]]
     if (!is.null(subtitle_vec[[i]])) labs_i$subtitle <- subtitle_vec[[i]]
     if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
-    # ggplot2 leaves no space only for NULL labels; "" keeps an empty row.
-    labs_i[vapply(labs_i, identical, logical(1), "")] <- list(NULL)
     if (length(labs_i) > 0L) {
+      # ggplot2 leaves no space only for NULL labels; "" keeps an empty row.
+      labs_i[vapply(labs_i, identical, logical(1), "")] <- list(NULL)
       if (!identical(labs_i, last_labels)) {
         last_labels <- labs_i
         last_label_layer <- do.call(ggplot2::labs, labs_i, quote = TRUE)
