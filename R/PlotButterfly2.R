@@ -283,8 +283,11 @@ PlotButterfly2 <- function(
       codes <- as.integer(category)
     } else {
       category <- as.character(category)
-      categories <- unique(category)
-      codes <- match(category, categories)
+      ids <- vctrs::vec_group_id(category)
+      n_categories <- attr(ids, "n")
+      codes <- as.integer(ids)
+      categories <- if (n_categories == length(category)) category else
+        if (n_categories == 1L) category[1L] else category[!duplicated(codes, nmax = n_categories)]
     }
     common <- intersect(codes[left], codes[right])
     if (!length(common)) cli::cli_abort("No common {.arg stat.by} categories.")
