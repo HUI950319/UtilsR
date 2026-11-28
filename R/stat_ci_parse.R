@@ -161,8 +161,9 @@ stat_ci_parse <- function(x,
   d   <- if (is.null(digits)) parsed$digits else as.integer(digits)
   valid <- parsed$valid
 
+  all_valid <- all(valid)
   # Warn about unparseable elements (NA and "" pass through silently)
-  if (!all(valid)) {
+  if (!all_valid) {
     n_fail <- .ci_unparsed_count(x[!valid])
     if (n_fail > 0L) {
       cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
@@ -180,6 +181,7 @@ stat_ci_parse <- function(x,
     asym <- scale$asymmetric
     n_bad <- sum(scale$invalid)
     if (n_bad > 0L) {
+      all_valid <- FALSE
       valid <- valid & !scale$invalid
       cli::cli_warn("{n_bad} interval{?s} {?is/are} invalid (estimate outside the bounds, zero width, or a bound <= 0 under {.code exp = TRUE}) and {?was/were} returned as-is.")
     }
@@ -200,7 +202,6 @@ stat_ci_parse <- function(x,
     return(out)
   }
 
-  all_valid <- all(valid)
   adjust <- !is.null(level) && level != .95
   if (!is.null(level) && is.null(digits)) d <- pmax(d, 1L)
   if (output != "ci" || adjust) {
