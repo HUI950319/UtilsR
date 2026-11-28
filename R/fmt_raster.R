@@ -596,10 +596,10 @@ fmt_raster <- function(
     # Each cell was measured in the parent layout, including aspect constraints.
     from <- layout[[if (dim == "width") "l" else "t"]][panel_index]
     to <- layout[[if (dim == "width") "r" else "b"]][panel_index]
-    uniform <- n >= 8L && isTRUE(from[1L] != to[1L]) &&
-      isTRUE(min(from) == max(from) && min(to) == max(to))
+    uniform <- n >= 8L && isTRUE(min(from) == max(from) && min(to) == max(to))
     if (uniform) {
-      sizes <- rep.int(sum(cell_sizes[from[1L]:to[1L]]), n)
+      size <- if (from[1L] == to[1L]) cell_sizes[from[1L]] else sum(cell_sizes[from[1L]:to[1L]])
+      sizes <- rep(size, n)
     } else {
       sizes <- cell_sizes[from]
       spanning <- which(from != to)
