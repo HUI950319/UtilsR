@@ -114,7 +114,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   if (.Platform[["OS.type"]] == "windows" && !is.null(native_memory) &&
       !is.null(.check_system_cache[["windows_info"]])) {
     windows_info <- .check_system_cache[["windows_info"]]
-  } else if (.Platform$OS.type == "windows" && nzchar(Sys.which("powershell"))) {
+  } else if (.Platform$OS.type == "windows" && nzchar(powershell <- Sys.which("powershell"))) {
     windows_info <- tryCatch({
       command <- paste(
         "$ErrorActionPreference = 'Stop';",
@@ -127,7 +127,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         "Version=$os.Version; CpuName=$cpu.Name} | ConvertTo-Csv -NoTypeInformation"
       )
       lines <- suppressWarnings(system2(
-        Sys.which("powershell"),
+        powershell,
         c("-NoLogo", "-NoProfile", "-NonInteractive", "-Command", shQuote(command)),
         stdout = TRUE, stderr = TRUE
       ))
