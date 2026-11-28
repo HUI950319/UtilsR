@@ -545,12 +545,15 @@ plt_alluvial <- function(
     facet_codes <- rep.int(1L, n_pairs)
     category_codes <- seq_len(n_pairs)
   }
-  count_id <- if (n_groups == 1L) pair_id else
-    pair_id + (as.integer(plot_input$.group) - 1L) * as.integer(n_pairs)
+  count_id <- if (n_groups == 1L) pair_id else if (n_pairs == 1L) {
+    as.integer(plot_input$.group)
+  } else pair_id + (as.integer(plot_input$.group) - 1L) * as.integer(n_pairs)
   stratum_counts <- if (unique_pairs && n_groups == 1L) rep.int(1L, n_pairs) else
     tabulate(count_id, n_pairs * n_groups)
   pair_totals <- if (n_groups == 1L) stratum_counts else if (unique_pairs) {
     rep.int(1L, n_strata)
+  } else if (n_pairs == 1L) {
+    rep.int(sum(stratum_counts), n_groups)
   } else rep.int(tabulate(pair_id, n_pairs), n_groups)
   stat <- data.frame(
     .facet = structure(rep.int(facet_codes, n_groups),
