@@ -130,8 +130,13 @@ stat_pval <- function(x,
     if (!is.object(pvals) && min(Inf, pvals, na.rm = TRUE) > map[[length(map)]])
       return(NULL)
     if (is.null(endpoints) && !is.object(pvals) && length(map) == 1L) {
+      cutoff <- map[[1L]]
+      marker <- names(map)[[1L]]
+      if (length(pvals) > 1024L && isTRUE(max(pvals) <= cutoff)) {
+        return(rep.int(marker, length(pvals)))
+      }
       stars <- rep.int("", length(pvals))
-      stars[which(pvals <= map[[1L]])] <- names(map)[1L]
+      stars[which(pvals <= cutoff)] <- marker
       return(stars)
     }
     if (is.null(endpoints) && (!is.object(pvals) || identical(class(pvals), "AsIs"))) {
