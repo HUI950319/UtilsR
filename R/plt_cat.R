@@ -954,7 +954,8 @@ plt_cat <- function(data,
         counts <- tabulate(ids, distinct)
       }
     }
-    order_at <- order(group_code, stat_code)
+    order_at <- if (dimensions[1L] == 1L) order(group_code) else
+      if (dimensions[2L] == 1L) order(stat_code) else order(group_code, stat_code)
     if (is.unsorted(order_at)) {
       stat_code <- stat_code[order_at]
       group_code <- group_code[order_at]
