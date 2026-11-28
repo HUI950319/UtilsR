@@ -531,15 +531,16 @@ plt_alluvial <- function(
   if (multiple_facets) {
     pairs <- if (unique_pairs) plot_input[pair_columns] else
       plot_input[!duplicated(pair_id, nmax = n_pairs), pair_columns]
-    pair_order <- order(pairs$.cat_var, pairs$.facet)
+    facet_codes <- as.integer(pairs$.facet)
+    category_codes <- as.integer(pairs$.cat_var)
+    pair_order <- order(category_codes, facet_codes)
     if (is.unsorted(pair_order)) {
-      pairs <- pairs[pair_order, , drop = FALSE]
+      facet_codes <- facet_codes[pair_order]
+      category_codes <- category_codes[pair_order]
       pair_rank <- integer(length(pair_order))
       pair_rank[pair_order] <- seq_along(pair_order)
       pair_id <- pair_rank[pair_id]
     }
-    facet_codes <- as.integer(pairs$.facet)
-    category_codes <- as.integer(pairs$.cat_var)
   } else {
     facet_codes <- rep.int(1L, n_pairs)
     category_codes <- seq_len(n_pairs)
