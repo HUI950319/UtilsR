@@ -656,9 +656,10 @@ fmt_raster <- function(
   visible <- !vapply(children, inherits, logical(1), c("zeroGrob", "null"))
   all_visible <- all(visible)
   if (!all_visible) ordered <- ordered[visible]
-  vector_children <- vapply(ordered, function(i) {
-    name <- child_names[i]
-    grepl("^(grill|panel\\.border)", name) || .is_text_grob(g$children[[i]], name)
+  vector_children <- grepl("^(grill|panel\\.border)", child_names[ordered])
+  other <- which(!vector_children)
+  vector_children[other] <- vapply(ordered[other], function(i) {
+    .is_text_grob(g$children[[i]], child_names[i])
   }, logical(1))
   if (!background && native_order && all_visible && all(vector_children)) return(g)
   # A panel background belongs below every run, including vector text.
