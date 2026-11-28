@@ -565,10 +565,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       if (.pal_use_unique(x)) {
         unique_x <- unique(x)
         if (length(unique_x) < length(x) / 2) {
-          positions <- match(x, unique_x)
+          positions <- if (length(unique_x) > 1L) match(x, unique_x)
           mapping <- .pal_numeric_positions(unique_x, reverse)
           return(lapply(palette, function(cols) {
-            .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
+            colours <- .pal_apply_positions(cols, mapping, alpha, size = length(x))
+            if (is.null(positions)) rep.int(colours, length(x)) else colours[positions]
           }))
         }
       }
