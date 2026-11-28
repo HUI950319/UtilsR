@@ -292,7 +292,9 @@ PlotButterfly2 <- function(
     common <- intersect(codes[left], codes[right])
     if (!length(common)) cli::cli_abort("No common {.arg stat.by} categories.")
     .to_wide <- function(index) {
-      rows <- split(index, codes[index])[as.character(common)]
+      rows <- if (length(common) == 1L && !anyNA(common)) {
+        list(index[which(codes[index] == common)])
+      } else split(index, codes[index])[as.character(common)]
       padding <- seq_len(max(lengths(rows)))
       scores <- data[[value.by]]
       mat <- lapply(rows, function(idx) {
