@@ -598,10 +598,12 @@ fmt_point <- function(plot,
       codes <- lapply(strata, as.integer)
       names(codes) <- paste0("s", seq_along(codes))
       groups <- vctrs::vec_group_loc(vctrs::new_data_frame(codes))
-      # Format only distinct keys, retaining legacy lexical group order.
-      keys <- do.call(paste, c(unname(groups$key), sep = ":"))
-      rows <- stats::setNames(groups$loc, keys)
-      if (is.unsorted(keys)) rows <- rows[order(keys)]
+      rows <- groups$loc
+      if (length(rows) > 1L) {
+        # Format only distinct keys, retaining legacy lexical group order.
+        keys <- do.call(paste, c(unname(groups$key), sep = ":"))
+        if (is.unsorted(keys)) rows <- rows[order(keys)]
+      }
     }
     large <- which(lengths(rows) > sample_n)
     if (length(large)) {
