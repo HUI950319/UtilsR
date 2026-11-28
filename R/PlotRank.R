@@ -467,12 +467,16 @@ PlotRank <- function(
       locations <- if (indexed_default) vctrs::vec_group_loc(grouping)
       grps <- if (indexed_default) locations$key else if (is.factor(grouping)) levels(grouping)
         else unique(grouping)
-      if (anyDuplicated(as.character(grps))) {
+      group_labels <- as.character(grps)
+      if (anyDuplicated(group_labels)) {
         stop("Distinct grouping values have identical character labels. ",
              "Convert the grouping column to unique character labels before plotting.",
              call. = FALSE)
       }
-      if (!is.null(groups)) grps <- groups
+      if (!is.null(groups)) {
+        grps <- groups
+        group_labels <- as.character(groups)
+      }
       typed_default <- is.null(groups) && inherits(grouping, c("integer64", "Date"))
       factor_default <- is.null(groups) && (identical(class(grouping), "factor") ||
         identical(class(grouping), c("ordered", "factor")))
@@ -485,14 +489,15 @@ PlotRank <- function(
         at <- if (typed_default) vctrs::vec_match(grps, keys) else match(grps, keys)
         locations[["loc"]][at]
       }
-      return(lapply(setNames(seq_along(grps), grps), function(i) {
+      feature_names <- data[[name_col]]
+      return(lapply(setNames(seq_along(grps), group_labels), function(i) {
         g <- grps[[i]]
         index <- if (is.null(group_rows) || is.na(g)) {
           !is.na(data[[group_col]]) & data[[group_col]] == g
         } else group_rows[[i]]
         all_rows <- is.integer(index) && length(index) == length(scores)
         v <- if (all_rows) scores else scores[index]
-        names(v) <- if (all_rows) data[[name_col]] else data[[name_col]][index]
+        names(v) <- if (all_rows) feature_names else feature_names[index]
         v
       }))
     }
