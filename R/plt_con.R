@@ -706,7 +706,8 @@ plt_con <- function(data,
         stride <- attr(ids, "n") %||% max(ids)
         shared_groups <- unlist(lapply(seq_along(stat.by), function(i) {
           keep <- finite_rows[[i]]
-          (i - 1L) * stride + if (is.null(keep)) ids else ids[keep]
+          codes <- if (is.null(keep)) as.integer(ids) else ids[keep]
+          if (i == 1L) codes else (i - 1L) * stride + codes
         }), use.names = FALSE)
       }
       shared_range <- .con_shared_range(shared_values, shared_groups, length(comparisons),
