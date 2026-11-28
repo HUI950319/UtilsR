@@ -520,13 +520,15 @@ PlotRankCor <- function(
   }
 
   .scale_vec <- function(x, method) {
-    complete <- length(x) && !is.object(x) && is.finite(min(x)) && is.finite(max(x))
+    bounds <- if (length(x) && !is.object(x)) c(min(x), max(x))
+    complete <- !is.null(bounds) && all(is.finite(bounds))
     if (!complete) {
+      bounds <- NULL
       finite <- is.finite(x)
       complete <- all(finite)
       if (!complete) x[!finite] <- NA_real_
     }
-    if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x, complete)
+    if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x, complete, bounds)
     switch(method,
       "none"   = x,
       "minmax" = {
