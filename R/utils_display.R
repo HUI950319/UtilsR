@@ -614,8 +614,9 @@ console_width <- function() {
     if (is.null(cols)) fmt_cols <- num_cols
     if (length(fmt_cols) > 0L) {
       tb <- gt::fmt_number(tb, columns = fmt_cols, decimals = 2)
-      labelled <- intersect(fmt_cols, num_cols)
-      labelled <- labelled[vapply(df[labelled], inherits, logical(1), what = "haven_labelled")]
+      labelled <- num_cols[vapply(candidates[num_cols], function(x) {
+        (is.object(x) || isS4(x)) && inherits(x, "haven_labelled")
+      }, logical(1))]
       if (length(labelled)) {
         # Keep gt's locale and output-specific formatters while adapting storage.
         formatters <- tail(tb[["_formats"]], 1L)[[1L]][["func"]]
