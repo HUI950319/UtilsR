@@ -273,13 +273,16 @@ fmt_raster <- function(
   plan_panels <- function(gt) {
     indices <- panel_indices(gt)
     nested <- which(vapply(gt$grobs, inherits, logical(1), "gtable"))
-    children <- lapply(gt$grobs[nested], plan_panels)
-    counts <- vapply(children, `[[`, integer(1), "count")
-    keep <- counts > 0L
-    if (!all(keep)) {
-      nested <- nested[keep]
-      children <- children[keep]
-      counts <- counts[keep]
+    children <- list()
+    if (length(nested)) {
+      children <- lapply(gt$grobs[nested], plan_panels)
+      counts <- vapply(children, `[[`, integer(1), "count")
+      keep <- counts > 0L
+      if (!all(keep)) {
+        nested <- nested[keep]
+        children <- children[keep]
+        counts <- counts[keep]
+      }
     }
     if (!length(nested)) {
       return(list(indices = indices, nested = nested, children = children,
