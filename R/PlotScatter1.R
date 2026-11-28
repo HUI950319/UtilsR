@@ -578,10 +578,12 @@ PlotScatter1 <- function(
     if (missing(levels) && ordinary && length(current_levels) > length(value)) {
       raw_codes <- as.integer(value)
       observed <- unique(raw_codes)
-      if (anyNA(observed)) observed <- observed[!is.na(observed)]
+      missing_codes <- anyNA(observed)
+      if (missing_codes) observed <- observed[!is.na(observed)]
       observed_labels <- current_levels[observed]
       if (!anyNA(observed_labels) && !anyDuplicated(observed_labels)) {
-        codes <- match(raw_codes, observed)
+        codes <- if (!missing_codes && length(observed) == 1L) rep.int(1L, length(raw_codes)) else
+          match(raw_codes, observed)
         names(codes) <- names(value)
         return(structure(codes, levels = observed_labels, class = class(value)))
       }
