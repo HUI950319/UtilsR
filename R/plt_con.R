@@ -389,7 +389,7 @@ plt_con <- function(data,
       data[[col]] <- value
     }
   }
-  finite_features <- vapply(data[stat.by], .con_has_finite, logical(1))
+  finite_features <- vapply(data[stat.by], .has_finite_plot_values, logical(1))
   if (!any(finite_features)) cli::cli_abort("No finite values remain in the selected features.")
   if (!all(finite_features)) {
     cli::cli_warn("No finite values for {.val {stat.by[!finite_features]}}. Skipping.")
@@ -565,7 +565,7 @@ plt_con <- function(data,
       lv <- split_levels[i]
       sub_data <- if (single_panel) data else data[panel_rows[[i]], , drop = FALSE]
       if (type == "dot") attr(sub_data, ".con_dot_breaks") <- dot_breaks
-      if (!any(vapply(sub_data[stat.by], .con_has_finite, logical(1)))) {
+      if (!any(vapply(sub_data[stat.by], .has_finite_plot_values, logical(1)))) {
         cli::cli_warn("Split {.val {lv}} has no finite values. Skipping.")
         return(NULL)
       }
@@ -815,7 +815,7 @@ plt_con <- function(data,
   }
 }
 
-.con_has_finite <- function(values) {
+.has_finite_plot_values <- function(values) {
   (!is.object(values) && length(values) && is.finite(values[[1L]])) ||
     any(is.finite(values))
 }

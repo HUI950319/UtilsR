@@ -404,7 +404,7 @@ PlotRankCor <- function(
         function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
       agg_values[[ec]] <- result
     }
-    empty_aesthetics <- extra_cols[vapply(agg_values, function(x) !any(is.finite(x)), logical(1))]
+    empty_aesthetics <- extra_cols[!vapply(agg_values, .has_finite_plot_values, logical(1))]
     if (length(empty_aesthetics))
       cli::cli_warn("Mapped columns {.val {empty_aesthetics}} have no finite category/group means; points may be omitted or invisible.")
   }
