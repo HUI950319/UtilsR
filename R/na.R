@@ -393,6 +393,11 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     }
     unique_rows <- n_observed == length(row_codes)
     observed <- if (unique_rows) row_codes else unique(row_codes, nmax = n_observed)
+    if (isFALSE(is.unsorted(observed))) {
+      counts <- if (unique_rows) rep.int(1L, length(observed)) else
+        tabulate(ids, nbins = length(observed))
+      return(list(codes = observed, counts = counts, row_codes = row_codes))
+    }
     order_at <- order(observed, na.last = NA)
     counts <- if (unique_rows) rep.int(1L, length(order_at)) else
       tabulate(ids, nbins = length(observed))[order_at]
