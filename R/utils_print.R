@@ -517,7 +517,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     txt <- .trim_pvalue_space(as.character(v))
     if (length(txt) > 1024L && anyDuplicated(txt[seq_len(128L)])) {
       keys <- unique(txt)
-      if (length(keys) < length(txt) / 2L) return(._p_cells(keys)[match(txt, keys)])
+      if (length(keys) < length(txt) / 2L) {
+        cells <- ._p_cells(keys)
+        return(if (length(keys) == 1L) rep.int(cells, length(txt)) else cells[match(txt, keys)])
+      }
     }
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
