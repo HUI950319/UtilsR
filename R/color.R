@@ -1318,9 +1318,11 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   pals <- Map(.pal_resize, pals, pmin(n_total, max_colors), n_total)
   if (is.null(n) && !is.null(requested_total)) n_total[] <- requested_total
   n_shown <- lengths(pals)
-  n_label <- ifelse(n_shown < n_total,
-                    sprintf("%d / %d", n_shown, n_total),
-                    as.character(n_total))
+  n_label <- stats::setNames(as.character(n_total), names(n_shown))
+  truncated <- which(n_shown < n_total)
+  if (length(truncated)) {
+    n_label[truncated] <- sprintf("%d / %d", n_shown[truncated], n_total[truncated])
+  }
 
   # --- Console output ---
   if (output == "console") {
