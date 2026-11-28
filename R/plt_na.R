@@ -163,7 +163,9 @@ plt_na <- function(
   }
 
   counts <- missing_counts[if (length(missing_vars) == 1L) missing_vars else sort(missing_vars, method = "radix")]
-  ordering <- if (length(counts) == 1L) 1L else order(counts, decreasing = sort == "desc")
+  count_bounds <- c(min(counts), max(counts))
+  ordering <- if (count_bounds[1L] == count_bounds[2L]) seq_along(counts) else
+    order(counts, decreasing = sort == "desc")
   ordered_names <- names(counts)[ordering]
   display_labels <- map_name(ordered_names)
   variable_levels <- if (anyDuplicated(display_labels)) make.unique(display_labels) else display_labels
@@ -172,13 +174,13 @@ plt_na <- function(
 
   missing_summary <- if (output != "matrix") {
     n_rows <- nrow(df)
-    if (min(counts) == n_rows) {
+    if (count_bounds[1L] == n_rows) {
       numbers <- unname(counts)
       columns <- seq_along(counts)
       isna <- rep.int(TRUE, length(counts))
     } else {
       numbers <- as.vector(rbind(n_rows - counts, counts))
-      if (max(counts) < n_rows) {
+      if (count_bounds[2L] < n_rows) {
         columns <- rep(seq_along(counts), each = 2L)
         isna <- rep.int(c(FALSE, TRUE), length(counts))
       } else {
