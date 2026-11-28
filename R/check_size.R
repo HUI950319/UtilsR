@@ -101,11 +101,10 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
               call. = FALSE)
     }
     all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
-    matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),
+    objects <- tryCatch(suppressWarnings(grep(pattern, all_objects, value = TRUE)),
                         error = function(e) {
                           stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
                         })
-    objects <- all_objects[matched]
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
