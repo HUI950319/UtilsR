@@ -601,20 +601,19 @@ plt_upset <- function(data,
     sets <- lapply(sets, match, table = observed)
     n_rows <- length(observed)
   }
-  codes <- .upset_row_codes(sets, n = n_rows)
+  codes <- .upset_row_codes(sets, n = n_rows, sizes = sizes)
   slots <- max(0L, codes)
   if (slots && length(codes) > slots) {
     sum(tabulate(codes, nbins = slots) > 0L)
   } else sum(unique(codes) != 0L)
 }
 
-.upset_row_codes <- function(sets, n = NULL) {
+.upset_row_codes <- function(sets, n = NULL, sizes = lengths(sets)) {
   if (is.null(n)) {
     last <- vapply(sets, function(rows) if (length(rows)) tail(rows, 1L) else 0L, integer(1L))
     n <- max(last)
   }
   bits <- bitwShiftL(1L, seq_along(sets) - 1L)
-  sizes <- lengths(sets)
   full <- logical(length(sets))
   candidates <- which(sizes == n)
   if (length(candidates)) {
