@@ -86,8 +86,10 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
     }
     if (largest > 7881L) {
+      wide <- if (length(d) > 1L) which(d > 7881L)
       for (values in list(...)) {
-        at <- which(is.finite(values) & d > 7881L)
+        at <- if (is.null(wide)) which(is.finite(values)) else wide[is.finite(values[wide])]
+        if (!length(at)) next
         widths <- nchar(sprintf("%.0f", trunc(values[at])))
         precision <- if (length(d) == 1L) d else d[at]
         if (any(widths + 1L + precision > 8192L)) {
