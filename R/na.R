@@ -184,9 +184,16 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 
   format_pct <- function(x, digits) {
     fmt <- paste0("%.", digits, "f%%")
-    text <- sprintf(fmt, x)
     cutoff <- 10^(-digits)
-    if (length(x) && max(x) > 0 && min(x) < cutoff)
+    upper <- max(x)
+    lower <- min(x)
+    if (length(x) > 1L && upper == lower) {
+      text <- if (upper > 0 && upper < cutoff) paste0("<", sprintf(fmt, cutoff)) else
+        sprintf(fmt, upper)
+      return(rep.int(text, length(x)))
+    }
+    text <- sprintf(fmt, x)
+    if (upper > 0 && lower < cutoff)
       text[x > 0 & x < cutoff] <- paste0("<", sprintf(fmt, cutoff))
     text
   }
