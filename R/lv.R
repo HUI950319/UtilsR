@@ -840,8 +840,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .label_blank <- function(x) {
     if (is.factor(x)) {
       # Reassigning levels would also drop an NA level, so only touch "".
-      blank <- levels(x) %in% ""
-      if (any(blank) && !"(blank)" %in% levels(x)) levels(x)[blank] <- "(blank)"
+      labels <- levels(x)
+      blank <- match("", labels, nomatch = 0L)
+      if (blank && !"(blank)" %in% labels) {
+        ordinary <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+        if (ordinary && is.null(attributes(labels)) && !anyNA(labels) && !anyDuplicated(labels)) {
+          labels[blank] <- "(blank)"
+          attr(x, "levels") <- labels
+        } else {
+          levels(x)[labels %in% ""] <- "(blank)"
+        }
+      }
     } else if (is.character(x)) {
       if ("" %in% x && !"(blank)" %in% x) x[x %in% ""] <- "(blank)"
     }
