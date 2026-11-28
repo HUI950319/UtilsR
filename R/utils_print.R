@@ -540,18 +540,14 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
       op[bounded] <- sub(paste0("(?s)^(", bound, ").*$"), "\\1", bound_text, perl = TRUE)
       decimal[bounded] <- sub(paste0("^", bound, "[\\h\\v]*"), "", bound_text, perl = TRUE)
     }
-    exponent <- numeric(length(decimal))
-    mantissa <- decimal
-    scientific <- grep("[eE]", decimal)
-    if (length(scientific)) {
-      text <- decimal[scientific]
-      exponent[scientific] <- suppressWarnings(as.numeric(sub("^.*[eE]", "", text)))
-      mantissa[scientific] <- sub("[eE].*$", "", text)
-    }
+    parts <- suppressWarnings(.pvalue_decimal_parts(decimal))
+    mantissa <- parts$mantissa
+    exponent <- parts$exponent
     negative <- grepl("^-", mantissa)
     mantissa <- sub("^[+-]", "", mantissa)
-    places <- ifelse(grepl(".", mantissa, fixed = TRUE),
-                     nchar(sub("^.*[.]", "", mantissa)), 0L)
+    places <- integer(length(mantissa))
+    dotted <- grep(".", mantissa, fixed = TRUE)
+    if (length(dotted)) places[dotted] <- nchar(sub("^.*[.]", "", mantissa[dotted]))
     coefficient <- sub("^0+", "", gsub(".", "", mantissa, fixed = TRUE))
     zero <- coefficient == ""
     power <- exponent - places + nchar(coefficient) - 1L
