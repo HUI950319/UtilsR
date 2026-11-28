@@ -185,7 +185,11 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     }
     data_for_impute[[var_name]] <- suppressWarnings(as.double(x))
   }
-  time_cols <- vapply(data_for_impute, inherits, logical(1), what = c("Date", "POSIXt", "difftime", "Duration"))
+  time_cols <- classed
+  if (any(classed)) {
+    time_cols[classed] <- vapply(data_for_impute[classed], inherits, logical(1),
+                                what = c("Date", "POSIXt", "difftime", "Duration"))
+  }
   time_original <- data_for_impute[time_cols]
   for (var_name in names(time_original)) {
     x <- time_original[[var_name]]
