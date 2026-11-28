@@ -425,8 +425,7 @@ fct_cat <- function(x, ...,
   if (is.logical(x) && !is.object(x) && is.null(dim(x))) {
     has_false <- !all(x, na.rm = TRUE)
     has_true <- any(x, na.rm = TRUE)
-    codes <- as.integer(x)
-    if (has_false) codes <- codes + 1L
+    codes <- if (has_false) x + 1L else as.integer(x)
     return(structure(codes, names = names(x), levels = c("FALSE", "TRUE")[c(has_false, has_true)],
                      class = "factor"))
   }
