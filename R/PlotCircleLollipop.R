@@ -406,11 +406,14 @@ PlotCircleLollipop <- function(
     out / (suppressWarnings(as.numeric(hi)) / 2 - suppressWarnings(as.numeric(lo)) / 2)
   }
   original_rows <- if (value_scale == "group" && !is.null(selected)) {
-    original_group <- if (anyNA(group_labels)) group_labels[group_ids] else
-      structure(group_ids, levels = group_labels, class = "factor")
-    if (length(group_labels) == 1L && !anyNA(group_labels) && !anyNA(group_ids)) {
+    missing_labels <- anyNA(group_labels)
+    if (length(group_labels) == 1L && !missing_labels && !anyNA(group_ids)) {
       stats::setNames(list(seq_along(group_ids)), group_labels)
-    } else split(seq_along(group_ids), original_group)
+    } else {
+      original_group <- if (missing_labels) group_labels[group_ids] else
+        structure(group_ids, levels = group_labels, class = "factor")
+      split(seq_along(group_ids), original_group)
+    }
   }
   group_indices <- if (!is.null(original_rows)) match(names(sector_rows), names(original_rows))
   if (integer64_scores && value_scale %in% c("group", "top_n")) {
