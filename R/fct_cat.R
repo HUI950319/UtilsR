@@ -374,7 +374,9 @@ fct_cat <- function(x, ...,
   if (length(old_levels) > length(x) && ordinary) {
     tally <- .factor_tally(x)
     observed <- tally$codes
-    positions <- match(old_levels[observed], new_levels)
+    positions <- if (!is.null(permutation) && !anyDuplicated(old_levels)) {
+      match(observed, permutation)
+    } else match(old_levels[observed], new_levels)
     out <- if (length(observed) == 1L && tally$counts[[1L]] == length(x)) {
       rep.int(positions, length(x))
     } else positions[match(tally$row_codes, observed)]
