@@ -521,8 +521,12 @@ PlotRank <- function(
                        lab_size, pt_size, title,
                        ylab, base_size) {
 
-  label_df <- if (isTRUE(all(df$IsTop))) df else df[df$IsTop, ]
-  point_colors <- ifelse(df$IsTop,
+  top <- df$IsTop
+  all_top <- isTRUE(all(top))
+  label_df <- if (all_top) df else df[top, ]
+  point_colors <- if (all_top && is.character(hi_col) && !is.object(hi_col) && length(hi_col) == 1L) {
+    rep.int(unname(hi_col), length(top))
+  } else ifelse(top,
     if (is.factor(hi_col)) as.character(hi_col) else hi_col,
     if (is.factor(base_col)) as.character(base_col) else base_col)
   # A dormant color promise would retain the caller and its full input.
