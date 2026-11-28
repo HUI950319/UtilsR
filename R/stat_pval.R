@@ -412,8 +412,9 @@ stat_pval <- function(x,
   scientific <- grep("[eE]", text)
   if (length(scientific)) {
     tokens <- text[scientific]
-    mantissa[scientific] <- sub("[eE].*$", "", tokens)
-    exponent[scientific] <- as.numeric(sub("^.*[eE]", "", tokens))
+    at <- regexpr("[eE]", tokens, useBytes = TRUE)
+    mantissa[scientific] <- substring(tokens, 1L, at - 1L)
+    exponent[scientific] <- as.numeric(substring(tokens, at + 1L))
   }
   list(mantissa = mantissa, exponent = exponent)
 }
