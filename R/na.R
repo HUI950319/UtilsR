@@ -302,13 +302,17 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 # Register supported serialized-vector methods before generic NA checks.
 # Shared by check_na() and lv(), including their special-value counts.
 .count_missing_values <- function(x) {
+  if (!is.object(x) && !isS4(x)) {
+    if (is.expression(x)) x <- as.list(x)
+    return(if (anyNA(x)) sum(is.na(x)) else 0L)
+  }
   if (inherits(x, "haven_labelled")) loadNamespace("labelled")
   if (inherits(x, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
     cli::cli_abort("Inspecting integer64 columns requires the {.pkg bit64} package.")
   }
   if (is.expression(x)) x <- as.list(x)
   ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
-  if ((!is.object(x) && !anyNA(x)) || (ordinary_factor && !anyNA(unclass(x)))) return(0L)
+  if (ordinary_factor && !anyNA(unclass(x))) return(0L)
   sum(is.na(x))
 }
 
