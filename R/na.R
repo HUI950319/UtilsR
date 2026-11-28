@@ -379,6 +379,11 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
         tabulate(match(row_codes, observed), nbins = length(observed))
       return(list(codes = observed, counts = counts, row_codes = row_codes))
     }
+    first <- row_codes[[1L]]
+    if (isTRUE(first == row_codes[[length(row_codes)]]) &&
+        isTRUE(min(row_codes) == first && max(row_codes) == first)) {
+      return(list(codes = first, counts = length(row_codes), row_codes = row_codes))
+    }
     ids <- vctrs::vec_group_id(row_codes)
     n_observed <- attr(ids, "n")
     if (n_observed == 1L) {
