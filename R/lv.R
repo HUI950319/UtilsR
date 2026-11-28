@@ -866,9 +866,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       length(unique(x[!is.na(x)])) > 100L
     }, logical(1))
     # POSIXlt is stored as a list but summarized as a date-time.
-    lists <- vapply(selected, function(x) {
-      is.list(x) && !inherits(x, "POSIXlt")
-    }, logical(1))
+    unsupported <- vapply(selected, function(x) {
+      if (is.expression(x)) 2L else if (is.list(x) && !inherits(x, "POSIXlt")) 1L else 0L
+    }, integer(1))
+    lists <- unsupported == 1L
     if (any(many)) {
       cli::cli_inform(c("i" = paste(
         "{.var {vars[many]}} ha{?s/ve} more than 100 categories and",
@@ -881,7 +882,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{?is/are} left out of the summary table."
       )))
     }
-    expressions <- vapply(selected, is.expression, logical(1))
+    expressions <- unsupported == 2L
     if (any(expressions)) {
       cli::cli_inform("Expression columns {.var {vars[expressions]}} are left out of the summary table.")
     }
