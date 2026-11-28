@@ -286,8 +286,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if ((!is.object(x) || identical(class(x), "AsIs")) && !is.complex(x) && !is.object(breaks) &&
       typeof(labels) %in% c("character", "integer", "double") && !is.object(labels) &&
       is.null(dim(labels)) && length(labels) == length(breaks) - 1L &&
-      length(breaks) > 1L && !anyNA(breaks) &&
-      !is.unsorted(breaks, strictly = TRUE)) {
+      length(breaks) > 1L && isFALSE(is.unsorted(breaks, strictly = TRUE))) {
     codes <- if (!is.object(x) && length(breaks) == 3L &&
                  breaks[1L] == -Inf && breaks[3L] == Inf) {
       # A single unbounded split needs only one direct comparison.
