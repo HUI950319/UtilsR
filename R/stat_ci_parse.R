@@ -391,7 +391,7 @@ stat_ci_parse <- function(x,
   }
   fmt <- function(v, d) {
     n <- length(v)
-    if (n > 1024L && (length(d) == 1L || min(d) == max(d))) {
+    if (n > 1024L && length(d) == 1L) {
       if (.pal_use_unique(v)) {
         keys <- unique(v)
         if (length(keys) < n / 2) {
@@ -415,11 +415,12 @@ stat_ci_parse <- function(x,
     .format_once(v, d)
   }
   ci_str <- x
+  precision <- if (length(d) == 1L || all_valid) d else d[valid]
+  if (length(precision) > 1L && min(precision) == max(precision)) precision <- precision[[1L]]
   if (all_valid) {
-    ci_str <- paste0(fmt(est, d), " ", parsed$open, fmt(lo, d), parsed$sep,
-                     fmt(hi, d), parsed$close)
+    ci_str <- paste0(fmt(est, precision), " ", parsed$open, fmt(lo, precision), parsed$sep,
+                     fmt(hi, precision), parsed$close)
   } else {
-    precision <- if (length(d) == 1L) d else d[valid]
     ci_str[valid] <- paste0(fmt(est[valid], precision), " ", parsed$open[valid],
                            fmt(lo[valid], precision), parsed$sep[valid],
                            fmt(hi[valid], precision), parsed$close[valid])
