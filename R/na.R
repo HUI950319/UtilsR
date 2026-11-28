@@ -112,7 +112,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     if (...length() > 0L) {
       cli::cli_warn("{.arg pattern} takes precedence; the selection in {.arg ...} is ignored.")
     }
-    matched <- tryCatch(suppressWarnings(grepl(pattern, names(data))),
+    matched <- tryCatch(suppressWarnings(grep(pattern, names(data))),
                         error = function(e) e)
     if (inherits(matched, "error")) {
       cli::cli_abort(c("{.arg pattern} must be a valid regular expression.",
@@ -120,7 +120,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     }
     # Use positional column selection for data.table, without evaluating j in the data.
     data <- if (inherits(data, "data.table")) {
-      data[, which(matched), with = FALSE, drop = FALSE]
+      data[, matched, with = FALSE, drop = FALSE]
     } else {
       data[, matched, drop = FALSE]
     }
