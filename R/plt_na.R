@@ -190,8 +190,11 @@ plt_na <- function(
         isna <- included %% 2L == 0L
       }
     }
-    codes <- integer(length(ordering))
-    codes[ordering] <- seq_along(ordering)
+    codes <- if (is.unsorted(ordering)) {
+      inverse <- integer(length(ordering))
+      inverse[ordering] <- seq_along(ordering)
+      inverse
+    } else ordering
     tibble::tibble(
       name = names(counts)[columns],
       isna = isna,
