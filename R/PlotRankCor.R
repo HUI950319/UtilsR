@@ -372,13 +372,15 @@ PlotRankCor <- function(
     agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
     group_sizes <- lengths(agg_groups$loc)
     small <- group_sizes <= 2L
-    small_groups <- agg_groups$loc[small]
-    small_sizes <- group_sizes[small]
-    small_rows <- unlist(small_groups, use.names = FALSE)
-    ends <- cumsum(as.double(small_sizes))
-    first <- small_rows[ends - small_sizes + 1]
-    last <- small_rows[ends]
     singletons <- all(group_sizes == 1L)
+    if (!singletons) {
+      small_groups <- agg_groups$loc[small]
+      small_sizes <- group_sizes[small]
+      small_rows <- unlist(small_groups, use.names = FALSE)
+      ends <- cumsum(as.double(small_sizes))
+      first <- small_rows[ends - small_sizes + 1]
+      last <- small_rows[ends]
+    }
     agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]
@@ -387,7 +389,7 @@ PlotRankCor <- function(
         next
       }
       if (singletons) {
-        means <- as.double(values[first])
+        means <- as.double(values)
         if (anyNA(means)) means[is.na(means)] <- NaN
         means[which(means == 0)] <- 0
         agg_values[[ec]] <- means
