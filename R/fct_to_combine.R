@@ -232,6 +232,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     packed <- 2L * args[[1L]] + args[[2L]] + 1L
     present <- tabulate(packed, nbins = 4L) > 0L
     labels <- paste(rep(c(FALSE, TRUE), each = 2L), c(FALSE, TRUE), sep = sep)
+    if (all(present)) return(structure(unname(packed), levels = labels, class = "factor"))
     return(structure(cumsum(present)[packed], levels = labels[present], class = "factor"))
   }
   if (length(args) == 1L) {
