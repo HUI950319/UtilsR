@@ -432,6 +432,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
           u, ignore.case = TRUE, perl = TRUE)
   } else {
     # Keep capture groups, leading directives and comments local to each pattern.
+    if (length(special) == 1L) {
+      return(grepl(paste0("(*UCP)", special[[1L]]), u, ignore.case = TRUE, perl = TRUE))
+    }
     present <- if (anyNA(u)) which(!is.na(u))
     values <- if (is.null(present)) u else u[present]
     if (!length(values)) return(rep(FALSE, length(u)))
