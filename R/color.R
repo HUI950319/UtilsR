@@ -531,6 +531,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     }
     valid <- drawable & !rejected
     if (length(v) == length(input)) return(valid)
+    if (length(valid) == 1L) return(rep.int(valid, length(input)))
     if (all(valid)) return(rep(TRUE, length(input)))
     valid[match(input, v)]
   }
