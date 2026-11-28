@@ -474,7 +474,12 @@ PlotRank <- function(
       }
       if (!is.null(groups)) grps <- groups
       typed_default <- is.null(groups) && inherits(grouping, c("integer64", "Date"))
-      group_rows <- if (indexed_default) locations$loc else if (typed_default || !is.object(grouping) || is.factor(grouping)) {
+      factor_default <- is.null(groups) && (identical(class(grouping), "factor") ||
+        identical(class(grouping), c("ordered", "factor")))
+      group_rows <- if (indexed_default) locations$loc else if (factor_default) {
+        codes <- vctrs::vec_group_loc(as.integer(grouping))
+        codes$loc[match(seq_along(grps), codes$key)]
+      } else if (typed_default || !is.object(grouping) || is.factor(grouping)) {
         locations <- vctrs::vec_group_loc(data[[group_col]])
         keys <- locations[["key"]]
         at <- if (typed_default) vctrs::vec_match(grps, keys) else match(grps, keys)
