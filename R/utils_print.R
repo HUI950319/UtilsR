@@ -838,7 +838,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (col_w[j] < measured_w[j]) text <- ._pr_trim(text, col_w[j])
     cli::ansi_align(text, col_w[j], align[j])
   })
-  aligned_rows <- do.call(paste, c(aligned_cells, sep = strrep(" ", gap)))
+  aligned_rows <- if (length(aligned_cells) == 1L) aligned_cells[[1L]] else
+    do.call(paste, c(aligned_cells, sep = strrep(" ", gap)))
 
   pad    <- strrep(" ", indent)
   header <- paste0(pad, cli::style_bold(aligned_rows[1L]))
