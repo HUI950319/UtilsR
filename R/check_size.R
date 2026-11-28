@@ -182,9 +182,10 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     tryCatch({
       obj <- get(x, envir = envir, inherits = FALSE)
       # lobstr needs the values again for a total that counts shared storage once.
-      list(size = size_bytes(obj) / (1024^2),
-           class = paste(class(obj), collapse = ", "),
-           value = if (method == "lobstr") obj)
+      metrics <- list(size = size_bytes(obj) / (1024^2),
+                      class = paste(class(obj), collapse = ", "))
+      if (method == "lobstr") metrics["value"] <- list(obj)
+      metrics
     }, error = function(e) {
       list(size = NA_real_, class = "Unknown", error = conditionMessage(e))
     })
