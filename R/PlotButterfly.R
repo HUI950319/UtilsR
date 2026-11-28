@@ -661,12 +661,15 @@ PlotButterfly <- function(
       identical(class(value), c("POSIXlt", "POSIXt")) ||
       identical(class(value), "difftime") || class(value)[1L] %in% c("Duration", "Period", "Interval")
     if (ordinary_time && length(distinct) <= 1L) return(value)
-    at <- match(distinct, key)
-    labels <- if (ordinary_time) as.character(value[at]) else as.character(value)[at]
+    unique_rows <- !is.object(key) && is.null(dim(key)) && length(distinct) == length(key)
+    labels <- if (unique_rows) as.character(value) else {
+      at <- match(distinct, key)
+      if (ordinary_time) as.character(value[at]) else as.character(value)[at]
+    }
     if (!anyDuplicated(labels)) return(value)
     collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
     labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
-    return(labels[match(key, distinct)])
+    return(if (unique_rows) labels else labels[match(key, distinct)])
   }
   if (!(is.integer(value) || is.double(value) || is.complex(value)) ||
       (is.object(value) && !identical(class(value), "AsIs") &&
