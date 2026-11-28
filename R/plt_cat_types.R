@@ -38,12 +38,12 @@
       if (all(names(attributes(value)) %in% c("levels", "class", "names"))) return(value)
       codes <- tally$row_codes
     } else {
-      if (length(labels) <= length(value)) {
+      if (length(observed) == 1L && tally$counts[[1L]] == length(value)) {
+        codes <- rep.int(1L, length(value))
+      } else if (length(labels) <= length(value)) {
         positions <- rep.int(NA_integer_, length(labels))
         positions[observed] <- seq_along(observed)
         codes <- positions[tally$row_codes]
-      } else if (length(observed) == 1L && tally$counts[[1L]] == length(value)) {
-        codes <- rep.int(1L, length(value))
       } else {
         codes <- match(tally$row_codes, observed)
       }
