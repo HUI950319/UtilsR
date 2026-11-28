@@ -162,7 +162,8 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     order(missing_count, special_count, decreasing = TRUE)
   } else {
     selected <- which(missing_count + special_count > 0)
-    selected[order(missing_count[selected], special_count[selected], decreasing = TRUE)]
+    if (length(selected) < 2L) selected else
+      selected[order(missing_count[selected], special_count[selected], decreasing = TRUE)]
   }
   if (!length(rows)) {
     pr_head("check_na", "no missing or special values found", bg = "green")
