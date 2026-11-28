@@ -210,14 +210,18 @@
   if (length(x) && (is.null(keys) || anyNA(keys) || !all(nzchar(keys)))) {
     cli::cli_abort("Every element of {.arg {arg}} must be named.")
   }
+  plain_atomic <- is.atomic(x) && !is.object(x)
   x <- if (is.atomic(x) && is.object(x)) {
     lapply(seq_along(x), function(i) x[i])
   } else as.list(x)
-  keep <- !vapply(x, is.null, logical(1))
-  if (!any(keep)) return(character())
-  if (!all(keep)) {
-    keys <- keys[keep]
-    x <- x[keep]
+  if (!length(x)) return(character())
+  if (!plain_atomic) {
+    keep <- !vapply(x, is.null, logical(1))
+    if (!any(keep)) return(character())
+    if (!all(keep)) {
+      keys <- keys[keep]
+      x <- x[keep]
+    }
   }
   keys <- ._pr_escape(keys)
   vals <- vapply(x, function(v) {
