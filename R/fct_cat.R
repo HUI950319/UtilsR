@@ -251,12 +251,13 @@ fct_cat <- function(x, ...,
 
 
 # ---- Internal: recode ----
-.recode_factor <- function(x, newlevels, checked_indices = FALSE, tally = NULL) {
+.recode_factor <- function(x, newlevels, checked_indices = FALSE, tally = NULL,
+                           indices = NULL) {
   if (length(newlevels) == 0) return(x)
 
   lvls <- levels(x)
   if (checked_indices) {
-    pos <- unlist(newlevels, use.names = FALSE)
+    pos <- indices %||% unlist(newlevels, use.names = FALSE)
   } else if (all(vapply(newlevels, function(i) is.character(i) && !is.object(i), logical(1L)))) {
     # Match all character labels at once rather than hashing the same
     # factor level dictionary separately for every recode group.
