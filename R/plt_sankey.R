@@ -286,7 +286,7 @@ plt_sankey <- function(data,
     codes <- tally$row_codes
     observed <- tally$codes
     counts <- tally$counts
-    if (reverse_levels) {
+    if (reverse_levels && length(observed) > 1L) {
       observed <- rev(observed)
       counts <- rev(counts)
     }
