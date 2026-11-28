@@ -677,7 +677,13 @@ plt_cat <- function(data,
 
   draw_one <- function(panel_data, panel_title) {
     if (!is.null(split.by) && !keep_empty && type %in% std_types) {
-      for (col in unique(c(stat.by, group.by))) panel_data[[col]] <- droplevels(panel_data[[col]])
+      for (col in unique(c(stat.by, group.by))) {
+        value <- panel_data[[col]]
+        ordinary <- identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))
+        panel_data[[col]] <- if (ordinary && !anyNA(levels(value))) {
+          .cat_axis_factor(value)
+        } else droplevels(value)
+      }
     }
     .plt_cat_single(panel_data, stat.by, group.by, type, stat, position,
       colors, alpha, label, label.size, label.fg, label.bg, label.bg.r,
