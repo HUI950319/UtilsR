@@ -990,12 +990,12 @@ plt_con <- function(data,
   function(x, y, paired = FALSE, ...) {
     if (isTRUE(paired)) stop("Paired comparisons are not supported by this test.", call. = FALSE)
     if (test == "kruskal.test") return(stats::kruskal.test(list(x, y), ...))
-    dat <- data.frame(value = c(x, y), group = factor(rep(c("x", "y"), c(length(x), length(y)))))
-    values <- dat[["value"]]
+    values <- c(x, y)
     constant <- if (!is.object(values) && is.numeric(values) && length(values) && !anyNA(values)) {
       min(values) == max(values)
     } else length(unique(values)) < 2L
     if (constant) stop("Data are constant.", call. = FALSE)
+    dat <- data.frame(value = values, group = factor(rep(c("x", "y"), c(length(x), length(y)))))
     dat[["value"]] <- .con_anova_values(dat[["value"]])
     fit <- stats::aov(value ~ group, data = dat, ...)
     list(p.value = summary(fit)[[1L]][["Pr(>F)"]][1L])
