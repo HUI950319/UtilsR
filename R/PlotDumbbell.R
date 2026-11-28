@@ -384,6 +384,9 @@ PlotDumbbell <- function(
     }
     names(updated) <- names(categories)
     data[[y_col]] <- structure(updated, levels = display_levels, class = class(categories))
+  } else if (!is.object(categories) &&
+             typeof(categories) %in% c("character", "integer", "logical")) {
+    data[[y_col]] <- .scatter_group_factor(categories)
   } else {
     data[[y_col]] <- factor(categories, levels = unique(categories))
   }
