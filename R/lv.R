@@ -687,18 +687,22 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       col_values <- df_data[[j]]
       if (is.character(col_values) || is.factor(col_values)) {
         col_chr <- as.character(col_values)
-        has_pct <- grepl("%", col_chr, fixed = TRUE)
-        if (any(has_pct, na.rm = TRUE)) {
-          perc_str <- ifelse(
-            grepl("\\([0-9.]+%\\)", col_chr),
-            sub(".*\\(([0-9.]+)%\\).*", "\\1", col_chr),
-            sub(".*?([0-9.]+)%.*", "\\1", col_chr)
-          )
-          perc_num <- suppressWarnings(as.numeric(perc_str))
-          perc_num[!level_rows] <- NA
-          rows_lt1 <- which(!is.na(perc_num) & perc_num < 1)
-          rows_lt5 <- which(!is.na(perc_num) & perc_num >= 1 & perc_num < 5)
-          rows_lt10 <- which(!is.na(perc_num) & perc_num >= 5 & perc_num < 10)
+        percent_rows <- grep("%", col_chr, fixed = TRUE)
+        if (length(percent_rows)) {
+          # Plain numeric cells in a percentage column also receive shading.
+          candidates <- if (isTRUE(level_rows)) seq_along(col_chr) else which(level_rows)
+          text <- col_chr[candidates]
+          at <- if (isTRUE(level_rows)) percent_rows else match(percent_rows, candidates, nomatch = 0L)
+          at <- at[at > 0L]
+          pct <- text[at]
+          parenthesized <- grepl("\\([0-9.]+%\\)", pct)
+          pct[parenthesized] <- sub(".*\\(([0-9.]+)%\\).*", "\\1", pct[parenthesized])
+          pct[!parenthesized] <- sub(".*?([0-9.]+)%.*", "\\1", pct[!parenthesized])
+          text[at] <- pct
+          perc_num <- suppressWarnings(as.numeric(text))
+          rows_lt1 <- candidates[which(perc_num < 1)]
+          rows_lt5 <- candidates[which(perc_num >= 1 & perc_num < 5)]
+          rows_lt10 <- candidates[which(perc_num >= 5 & perc_num < 10)]
 
           if (length(rows_lt1) > 0) {
             gt_tbl <- gt_tbl %>%
