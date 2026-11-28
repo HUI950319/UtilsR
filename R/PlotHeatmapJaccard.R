@@ -514,7 +514,8 @@ PlotHeatmapJaccard <- function(
       if (length(distinct) >= length(values) / 2) distinct <- values
       labels <- sprintf("%.2f", distinct)
       if (anyNA(distinct)) labels[is.na(distinct)] <- ""
-      if (length(distinct) < length(values)) labels[match(values, distinct)] else labels
+      if (length(distinct) == length(values)) return(labels)
+      if (length(distinct) == 1L) rep.int(labels, length(values)) else labels[match(values, distinct)]
     }
     environment(format_scores) <- environment(sys.function())
     p <- p +
