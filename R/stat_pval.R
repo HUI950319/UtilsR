@@ -334,11 +334,16 @@ stat_pval <- function(x,
   }
 
   # Only subset when some values do not need numeric formatting.
-  selective <- anyNA(x_num) || length(bound_at) > 0L
+  missing_num <- anyNA(x_num)
+  selective <- missing_num || length(bound_at) > 0L
   if (selective) {
-    observed_num <- !is.na(x_num)
-    if (length(bound_at)) observed_num[bound_at] <- FALSE
-    format_at <- which(observed_num)
+    if (missing_num) {
+      observed_num <- !is.na(x_num)
+      if (length(bound_at)) observed_num[bound_at] <- FALSE
+      format_at <- which(observed_num)
+    } else {
+      format_at <- seq_along(x_num)[-bound_at]
+    }
     format_x <- x_num[format_at]
   } else {
     format_x <- x_num
