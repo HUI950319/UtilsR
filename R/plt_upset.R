@@ -595,7 +595,9 @@ plt_upset <- function(data,
   # addresses before assigning codes, rather than allocating up to max(last).
   n_rows <- max(last)
   if (n_rows > 8 * sum(sizes)) {
-    observed <- sort(unique(unlist(sets, use.names = FALSE)), method = "radix")
+    members <- unlist(sets, use.names = FALSE)
+    if (!anyDuplicated(members)) return(nonempty)
+    observed <- sort(unique(members), method = "radix")
     sets <- lapply(sets, match, table = observed)
     n_rows <- length(observed)
   }
